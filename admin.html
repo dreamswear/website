@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - DREAMSWEAR MAG</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo"><a href="" style="color: inherit;">DREAMSWEAR</a></div>
+            <h1>Panneau d'Administration</h1>
+            <a href="E:\DREAMWEAR MAG\index.html" class="back-link">Retour au site</a>
+        </div>
+    </header>
+
+    <main class="admin-container">
+        <section class="admin-section">
+            <h2>Demandes en attente</h2>
+            <div id="pending-submissions" class="submission-list">
+                <!-- Pending submissions will be injected here -->
+            </div>
+        </section>
+
+        <section class="admin-section">
+            <h2>Créateurs Approuvés</h2>
+            <div id="approved-creators" class="submission-list approved-list">
+                <!-- Approved creators will be injected here -->
+            </div>
+        </section>
+    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const pendingContainer = document.getElementById('pending-submissions');
+            const approvedContainer = document.getElementById('approved-creators');
+
+            const renderSubmissions = () => {
+                const pendingSubmissions = JSON.parse(localStorage.getItem('pendingSubmissions')) || [];
+                const approvedCreators = JSON.parse(localStorage.getItem('approvedCreators')) || [];
+                
+                pendingContainer.innerHTML = '';
+                approvedContainer.innerHTML = '';
+
+                if (pendingSubmissions.length === 0) {
+                    pendingContainer.innerHTML = '<p>Aucune nouvelle demande.</p>';
+                } else {
+                    pendingSubmissions.forEach(sub => {
+                        const card = document.createElement('div');
+                        card.className = 'submission-card';
+                        card.innerHTML = `
+                            <h4>${sub.marque}</h4>
+                            <p><strong>Contact:</strong> ${sub.prenom} ${sub.nom} (${sub.email})</p>
+                            <p><strong>Domaine:</strong> ${sub.domaine}</p>
+                            <div class="card-actions">
+                                <button class="approve-btn" data-id="${sub.id}">Approuver</button>
+                                <button class="deny-btn" data-id="${sub.id}">Refuser</button>
+                            </div>
+                        `;
+                        pendingContainer.appendChild(card);
+                    });
+                }
+                
+                if (approvedCreators.length === 0) {
+                    approvedContainer.innerHTML = '<p>Aucun créateur approuvé.</p>';
+                } else {
+                    approvedCreators.forEach(creator => {
+                        const card = document.createElement('div');
+                        card.className = 'submission-card';
+                        card.innerHTML = `
+                            <h4>${creator.marque}</h4>
+                            <p><strong>Contact:</strong> ${creator.prenom} ${creator.nom} (${creator.email})</p>
+                            <p><strong>Domaine:</strong> ${creator.domaine}</p>
+                        `;
+                        approvedContainer.appendChild(card);
+                    });
+                }
+            };
+
+            const handleAction = (e) => {
+                if (!e.target.matches('button')) return;
+
+                const id = Number(e.target.dataset.id);
+                let pendingSubmissions = JSON.parse(localStorage.getItem('pendingSubmissions')) || [];
+                let approvedCreators = JSON.parse(localStorage.getItem('approvedCreators')) || [];
+                
+                const submissionIndex = pendingSubmissions.findIndex(sub => sub.id === id);
+                if (submissionIndex === -1) return;
+
+                if (e.target.classList.contains('approve-btn')) {
+                    const [approvedSubmission] = pendingSubmissions.splice(submissionIndex, 1);
+                    approvedSubmission.status = 'approved';
+                    approvedCreators.push(approvedSubmission);
+                } else if (e.target.classList.contains('deny-btn')) {
+                    pendingSubmissions.splice(submissionIndex, 1);
+                }
+                
+                localStorage.setItem('pendingSubmissions', JSON.stringify(pendingSubmissions));
+                localStorage.setItem('approvedCreators', JSON.stringify(approvedCreators));
+                renderSubmissions();
+            };
+
+            pendingContainer.addEventListener('click', handleAction);
+            renderSubmissions();
+        });
+    </script>
+</body>
+</html>
