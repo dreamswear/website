@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Indisponible</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #000000;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Pseudo-élément pour l'image floutée */
+    body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("modal-bg.png"); /* remplace par ton image */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      filter: blur(10px); /* intensité du flou */
+      z-index: -1; /* derrière le contenu */
+    }
+
+    .message {
+      font-size: 1.5em;
+      color: #d1ae56;
+      background-color: rgba(0, 0, 0, 0.6); /* fond noir transparent pour lisibilité */
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 1; /* au-dessus du fond */
+    }
+  </style>
+</head>
+<body>
+   <header class="main-header">
+        <div class="container">
+            <div class="logo">DREAMWEAR</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#">Visages</a></li>
+                    <li><a href="#">Coulisses</a></li>
+                    <li><a href="#">Tendances</a></li>
+                    <li><a href="#">Découvertes</a></li>
+                    <li><a href="#">Culture/Agenda</a></li>
+                    <li><a href="#" id="subscribe-link">S'abonner</a></li>
+                </ul>
+            </nav>
+            <div class="theme-selector">
+                 <button id="theme-select-button" aria-label="Choisir un thème">
+                    <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+                </button>
+                <ul id="theme-options" class="hidden-options">
+                    <li><a href="#" data-theme="night">Sombre</a></li>
+                    <li><a href="#" data-theme="day">Clair</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+  <div class="message">
+    🚫 Indisponible pour le moment,<br>
+    veuillez réessayer une prochaine fois.
+  </div>
+</body>
+</html>
