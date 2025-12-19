@@ -109,7 +109,7 @@
             background: #3a3a3a;
         }
 
-        /* Style pour le bouton créateurs */
+        /* Style pour le bouton espace créateurs */
         .creator-btn {
             background: linear-gradient(135deg, #d4af37, #c19a2d);
             color: #1a1a1a;
@@ -131,15 +131,15 @@
         .creator-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-            background: linear-gradient(135deg, #0b0b0a, #b08924);
+            background: linear-gradient(135deg, #c19a2d, #b08924);
         }
 
         .creator-btn i {
             font-size: 1rem;
         }
 
-        /* Fenêtre flottante pour l'espace créateurs */
-        .creator-modal {
+        /* Fenêtre flottante pour l'authentification */
+        .auth-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -155,13 +155,13 @@
             transition: all 0.3s ease;
         }
 
-        .creator-modal.active {
+        .auth-modal.active {
             opacity: 1;
             visibility: visible;
         }
 
-        .creator-modal-content {
-            background: #c8c3c3;
+        .auth-modal-content {
+            background: #ffffff;
             width: 90%;
             max-width: 450px;
             border-radius: 20px;
@@ -171,22 +171,22 @@
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         }
 
-        [data-theme="night"] .creator-modal-content {
+        [data-theme="night"] .auth-modal-content {
             background: #2a2a2a;
         }
 
-        .creator-modal.active .creator-modal-content {
+        .auth-modal.active .auth-modal-content {
             transform: translateY(0);
         }
 
-        .creator-modal-header {
+        .auth-modal-header {
             background: linear-gradient(135deg, #d4af37, #c19a2d);
             padding: 25px 30px;
             text-align: center;
             position: relative;
         }
 
-        .creator-modal-header h2 {
+        .auth-modal-header h2 {
             color: #1a1a1a;
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
@@ -194,7 +194,7 @@
             font-weight: 700;
         }
 
-        .close-creator-modal {
+        .close-auth-modal {
             position: absolute;
             top: 15px;
             right: 15px;
@@ -212,33 +212,83 @@
             transition: all 0.3s ease;
         }
 
-        .close-creator-modal:hover {
+        .close-auth-modal:hover {
             background: rgba(0, 0, 0, 0.3);
             transform: rotate(90deg);
         }
 
-        .creator-modal-body {
+        .auth-modal-body {
             padding: 30px;
         }
 
-        .creator-modal-body p {
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+        }
+
+        [data-theme="night"] .auth-tabs {
+            border-bottom-color: #444;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        [data-theme="night"] .auth-tab {
+            color: #999;
+        }
+
+        .auth-tab.active {
+            color: #d4af37;
+        }
+
+        .auth-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #d4af37;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form p {
             color: #666;
             font-family: 'Montserrat', sans-serif;
             font-size: 0.95rem;
             line-height: 1.6;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
-        [data-theme="night"] .creator-modal-body p {
+        [data-theme="night"] .auth-form p {
             color: #cccccc;
         }
 
-        .creator-login-form .form-group {
+        .auth-form .form-group {
             margin-bottom: 20px;
         }
 
-        .creator-login-form label {
+        .auth-form label {
             display: block;
             margin-bottom: 8px;
             color: #1a1a1a;
@@ -247,11 +297,11 @@
             font-size: 0.9rem;
         }
 
-        [data-theme="night"] .creator-login-form label {
+        [data-theme="night"] .auth-form label {
             color: #ffffff;
         }
 
-        .creator-login-form input {
+        .auth-form input {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -263,19 +313,19 @@
             transition: all 0.3s ease;
         }
 
-        [data-theme="night"] .creator-login-form input {
+        [data-theme="night"] .auth-form input {
             background: #3a3a3a;
             border-color: #444;
             color: #ffffff;
         }
 
-        .creator-login-form input:focus {
+        .auth-form input:focus {
             outline: none;
             border-color: #d4af37;
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
         }
 
-        .creator-login-error {
+        .auth-error {
             color: #ff6b6b;
             font-family: 'Montserrat', sans-serif;
             font-size: 0.9rem;
@@ -284,7 +334,7 @@
             display: none;
         }
 
-        .creator-login-btn {
+        .auth-btn {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #d4af37, #c19a2d);
@@ -299,7 +349,7 @@
             margin-top: 10px;
         }
 
-        .creator-login-btn:hover {
+        .auth-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
         }
@@ -377,16 +427,16 @@
                 font-size: 0.8rem;
             }
             
-            .creator-modal-content {
+            .auth-modal-content {
                 width: 95%;
                 margin: 20px;
             }
             
-            .creator-modal-header {
+            .auth-modal-header {
                 padding: 20px;
             }
             
-            .creator-modal-body {
+            .auth-modal-body {
                 padding: 20px;
             }
         }
@@ -399,6 +449,15 @@
             .creator-btn,
             .menu-btn {
                 padding: 8px;
+            }
+            
+            .auth-tabs {
+                flex-direction: column;
+            }
+            
+            .auth-tab {
+                text-align: center;
+                padding: 10px;
             }
         }
     </style>
@@ -429,7 +488,7 @@
                         </ul>
                     </div>
                 </div>
-                <button class="creator-btn" id="creator-login-btn">
+                <button class="creator-btn" id="auth-btn">
                     <i class="fas fa-palette"></i>
                     <span>Espace Créateurs</span>
                 </button>
@@ -478,7 +537,7 @@
                         <img src="Elyra-jpg.jpg" alt="Accessoires de luxe">
                         <div class="card-content">
                             <h4>Accessoires</h4>
-                            <h3>Elyra, Trust Your Instincts ! </h3>
+                            <h3>Elyra, Trust Your Instincts</h3>
                             <a href="https://elyraoff.shop/">Lire plus &rarr;</a>
                         </div>
                     </article>
@@ -522,31 +581,61 @@
         </div>
     </footer>
 
-    <!-- Fenêtre flottante pour l'espace créateurs -->
-    <div class="creator-modal" id="creator-modal">
-        <div class="creator-modal-content">
-            <div class="creator-modal-header">
+    <!-- Fenêtre flottante pour l'authentification -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content">
+            <div class="auth-modal-header">
                 <h2>Espace Créateurs</h2>
-                <button class="close-creator-modal" aria-label="Fermer">&times;</button>
+                <button class="close-auth-modal" aria-label="Fermer">&times;</button>
             </div>
-            <div class="creator-modal-body">
-                <p>Accédez à votre espace créateur pour gérer votre contenu et collaborations.</p>
+            <div class="auth-modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-auth-type="admin">Administrateur</button>
+                    <button class="auth-tab" data-auth-type="creator">Créateur</button>
+                </div>
                 
-                <form class="creator-login-form" id="creator-login-form">
+                <!-- Formulaire Administrateur -->
+                <form class="auth-form active" id="admin-form">
+                    <p>Accédez à votre espace d'administration du site.</p>
+                    
+                    <div class="form-group">
+                        <label for="admin-nom">Nom d'administrateur</label>
+                        <input type="text" id="admin-nom" name="nom" required placeholder="Votre nom d'administrateur">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="admin-password">Mot de passe</label>
+                        <input type="password" id="admin-password" name="password" required placeholder="Votre mot de passe administrateur">
+                    </div>
+                    
+                    <div class="auth-error" id="admin-error">
+                        Nom d'administrateur ou mot de passe incorrect
+                    </div>
+                    
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </form>
+                
+                <!-- Formulaire Créateur -->
+                <form class="auth-form" id="creator-form">
+                    <p>Accédez à votre espace créateur.</p>
+                    
                     <div class="form-group">
                         <label for="creator-brand">Nom de la marque</label>
-                        <input type="text" id="creator-brand" name="brand" required autocomplete="organization" placeholder="Ex: Elyra">
+                        <input type="text" id="creator-brand" name="brand" required placeholder="Ex: Elyra">
                     </div>
+                    
                     <div class="form-group">
                         <label for="creator-password">Mot de passe</label>
                         <input type="password" id="creator-password" name="password" required placeholder="Votre mot de passe">
                     </div>
                     
-                    <div class="creator-login-error" id="creator-login-error">
-                        Nom de marque ou mot de passe incorrect
+                    <div class="auth-error" id="creator-error">
+                        Marque ou mot de passe incorrect
                     </div>
                     
-                    <button type="submit" class="creator-login-btn">
+                    <button type="submit" class="auth-btn">
                         <i class="fas fa-sign-in-alt"></i> Se connecter
                     </button>
                 </form>
@@ -563,12 +652,12 @@
                 <h2 id="modal-title">Rejoignez Dreamswear</h2>
                 <div class="modal-tabs">
                     <button class="tab-link active" data-tab="subscriber-form" role="tab" aria-controls="subscriber-form" aria-selected="true">Abonné(e)</button>
-                    <button class="tab-link" data-tab="creator-form" role="tab" aria-controls="creator-form" aria-selected="false">Créateur</button>
+                    <button class="tab-link" data-tab="creator-register-tab" role="tab" aria-controls="creator-register-tab" aria-selected="false">Créateur</button>
                 </div>
 
                 <div id="subscriber-form" class="tab-content active" role="tabpanel">
                     <p>Recevez les dernières tendances et inspirations directement dans votre boîte mail.</p>
-                    <form>
+                    <form id="subscriber-form-element">
                         <div class="form-group">
                             <label for="sub-nom">Nom</label>
                             <input type="text" id="sub-nom" name="nom" required autocomplete="family-name">
@@ -589,9 +678,9 @@
                     </form>
                 </div>
 
-                <div id="creator-form" class="tab-content" role="tabpanel">
+                <div id="creator-register-tab" class="tab-content" role="tabpanel">
                     <p>Mettez en avant votre marque et collaborez avec nous.</p>
-                    <form id="creator-form-element">
+                    <form id="creator-register-form">
                         <div class="form-group">
                             <label for="cre-nom">Nom</label>
                             <input type="text" id="cre-nom" name="nom" required autocomplete="family-name">
@@ -634,6 +723,312 @@
         </div>
     </div>
 
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
     <script src="script.js"></script>
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://neensjugjhkvwcqslicr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Éléments du menu déroulant
+            const menuBtn = document.getElementById('menu-btn');
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            
+            // Éléments de la fenêtre d'authentification
+            const authBtn = document.getElementById('auth-btn');
+            const authModal = document.getElementById('auth-modal');
+            const closeAuthModal = document.querySelector('.close-auth-modal');
+            const authTabs = document.querySelectorAll('.auth-tab');
+            const adminForm = document.getElementById('admin-form');
+            const creatorForm = document.getElementById('creator-form');
+            const adminError = document.getElementById('admin-error');
+            const creatorError = document.getElementById('creator-error');
+            
+            // Éléments du modal d'abonnement
+            const subscribeLink = document.getElementById('subscribe-link');
+            const modal = document.getElementById('subscribe-modal');
+            const closeModal = document.querySelector('.close-modal');
+            const tabLinks = document.querySelectorAll('.tab-link');
+            
+            // Gestion du menu déroulant
+            if (menuBtn && dropdownMenu) {
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        dropdownMenu.classList.remove('active');
+                    }
+                });
+                
+                dropdownMenu.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+
+            // Gestion de la fenêtre d'authentification
+            if (authBtn && authModal) {
+                authBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    authModal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            if (closeAuthModal) {
+                closeAuthModal.addEventListener('click', function() {
+                    authModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                    adminError.style.display = 'none';
+                    creatorError.style.display = 'none';
+                    adminForm.reset();
+                    creatorForm.reset();
+                });
+            }
+
+            authModal.addEventListener('click', function(e) {
+                if (e.target === authModal) {
+                    authModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                    adminError.style.display = 'none';
+                    creatorError.style.display = 'none';
+                    adminForm.reset();
+                    creatorForm.reset();
+                }
+            });
+
+            // Gestion des onglets d'authentification
+            authTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const authType = this.getAttribute('data-auth-type');
+                    
+                    authTabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.auth-form').forEach(form => {
+                        form.classList.remove('active');
+                    });
+                    
+                    if (authType === 'admin') {
+                        adminForm.classList.add('active');
+                    } else {
+                        creatorForm.classList.add('active');
+                    }
+                    
+                    adminError.style.display = 'none';
+                    creatorError.style.display = 'none';
+                });
+            });
+
+            // Gestion de la connexion administrateur
+            if (adminForm) {
+                adminForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const nom = document.getElementById('admin-nom').value.trim();
+                    const password = document.getElementById('admin-password').value;
+                    
+                    try {
+                        // Vérification dans la table administrateurs
+                        const { data, error } = await supabase
+                            .from('administrateurs')
+                            .select('*')
+                            .eq('nom', nom)
+                            .eq('mot_de_passe', password)
+                            .single();
+                        
+                        if (error || !data) {
+                            adminError.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Connexion réussie
+                        sessionStorage.setItem('adminLoggedIn', 'true');
+                        sessionStorage.setItem('adminId', data.id);
+                        sessionStorage.setItem('adminName', data.nom);
+                        
+                        // Redirection vers la page d'administration
+                        window.location.href = 'Actualisation.html';
+                        
+                    } catch (error) {
+                        console.error('Erreur de connexion:', error);
+                        adminError.style.display = 'block';
+                    }
+                });
+            }
+
+            // Gestion de la connexion créateur
+            if (creatorForm) {
+                creatorForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const brand = document.getElementById('creator-brand').value.trim();
+                    const password = document.getElementById('creator-password').value;
+                    
+                    try {
+                        // Vérification dans la table createurs
+                        const { data, error } = await supabase
+                            .from('createurs')
+                            .select('*')
+                            .eq('nom_marque', brand)
+                            .eq('mot_de_passe', password)
+                            .eq('statut', 'actif')
+                            .single();
+                        
+                        if (error || !data) {
+                            creatorError.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Connexion réussie
+                        sessionStorage.setItem('creatorLoggedIn', 'true');
+                        sessionStorage.setItem('creatorId', data.id);
+                        sessionStorage.setItem('creatorBrand', data.nom_marque);
+                        
+                        // Redirection vers le dashboard créateur
+                        window.location.href = 'dashboard.html';
+                        
+                    } catch (error) {
+                        console.error('Erreur de connexion:', error);
+                        creatorError.style.display = 'block';
+                    }
+                });
+            }
+
+            // Gestion de l'inscription abonné
+            const subscriberForm = document.getElementById('subscriber-form-element');
+            if (subscriberForm) {
+                subscriberForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const nom = document.getElementById('sub-nom').value.trim();
+                    const prenom = document.getElementById('sub-prenom').value.trim();
+                    const email = document.getElementById('sub-email').value.trim();
+                    const telephone = document.getElementById('sub-tel').value.trim();
+                    
+                    try {
+                        const { data, error } = await supabase
+                            .from('abonnes')
+                            .insert([
+                                {
+                                    nom: nom,
+                                    prenom: prenom,
+                                    email: email,
+                                    telephone: telephone
+                                }
+                            ]);
+                        
+                        if (error) throw error;
+                        
+                        alert('Inscription réussie ! Vous recevrez nos actualités par email.');
+                        modal.classList.add('hidden-modal');
+                        subscriberForm.reset();
+                        
+                    } catch (error) {
+                        console.error('Erreur d\'inscription:', error);
+                        alert('Une erreur est survenue lors de l\'inscription.');
+                    }
+                });
+            }
+
+            // Gestion de l'inscription créateur
+            const creatorRegisterForm = document.getElementById('creator-register-form');
+            if (creatorRegisterForm) {
+                creatorRegisterForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const nom = document.getElementById('cre-nom').value.trim();
+                    const prenom = document.getElementById('cre-prenom').value.trim();
+                    const password = document.getElementById('cre-password').value;
+                    const email = document.getElementById('cre-email').value.trim();
+                    const telephone = document.getElementById('cre-tel').value.trim();
+                    const marque = document.getElementById('cre-marque').value.trim();
+                    const domaine = document.getElementById('cre-domaine').value;
+                    
+                    try {
+                        const { data, error } = await supabase
+                            .from('createurs')
+                            .insert([
+                                {
+                                    nom: nom,
+                                    prenom: prenom,
+                                    nom_marque: marque,
+                                    domaine: domaine,
+                                    email: email,
+                                    telephone: telephone,
+                                    mot_de_passe: password
+                                }
+                            ]);
+                        
+                        if (error) throw error;
+                        
+                        alert('Inscription réussie ! Votre compte sera activé après validation par notre équipe.');
+                        modal.classList.add('hidden-modal');
+                        creatorRegisterForm.reset();
+                        
+                    } catch (error) {
+                        console.error('Erreur d\'inscription:', error);
+                        alert('Une erreur est survenue lors de l\'inscription.');
+                    }
+                });
+            }
+
+            // Gestion du modal d'abonnement
+            if (subscribeLink) {
+                subscribeLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    modal.classList.remove('hidden-modal');
+                });
+            }
+
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    modal.classList.add('hidden-modal');
+                });
+            }
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.add('hidden-modal');
+                }
+            });
+
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabLinks.forEach(tab => {
+                        tab.classList.remove('active');
+                        tab.setAttribute('aria-selected', 'false');
+                    });
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Fermer la fenêtre d'authentification avec Échap
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && authModal.classList.contains('active')) {
+                    authModal.classList.remove('active');
+                    document.body.style.overflow = '';
+                    adminError.style.display = 'none';
+                    creatorError.style.display = 'none';
+                    adminForm.reset();
+                    creatorForm.reset();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
