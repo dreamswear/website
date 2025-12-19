@@ -1,0 +1,924 @@
+[file name]: Actualisation.html
+[file content begin]
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Admin - DREAMSWEAR MAG</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Variables du thème */
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #f5f5f5;
+            --accent: #d4af37;
+            --text-dark: #1a1a1a;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --border-light: #e0e0e0;
+            --border-dark: #333333;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        /* Styles spécifiques à la page admin */
+        .admin-page {
+            padding: 40px 20px;
+            background: var(--bg-light);
+            min-height: 100vh;
+        }
+
+        .admin-page[data-theme="night"] {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .admin-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .admin-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .admin-header p {
+            font-family: 'Montserrat', sans-serif;
+            color: #666;
+            font-size: 1rem;
+        }
+
+        [data-theme="night"] .admin-header h1 {
+            color: var(--text-light);
+        }
+
+        [data-theme="night"] .admin-header p {
+            color: #aaa;
+        }
+
+        .admin-card {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+        [data-theme="night"] .admin-card {
+            background: #1e1e1e;
+            border-color: var(--border-dark);
+        }
+
+        .admin-card h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        [data-theme="night"] .admin-card h2 {
+            color: var(--text-light);
+        }
+
+        /* Formulaire */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        [data-theme="night"] .form-group label {
+            color: var(--text-light);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        [data-theme="night"] .form-group input,
+        [data-theme="night"] .form-group select,
+        [data-theme="night"] .form-group textarea {
+            background: #2a2a2a;
+            border-color: var(--border-dark);
+            color: var(--text-light);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Upload d'image */
+        .image-upload-wrapper {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background: rgba(245, 245, 245, 0.5);
+        }
+
+        [data-theme="night"] .upload-area {
+            border-color: var(--border-dark);
+            background: rgba(40, 40, 40, 0.5);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        [data-theme="night"] .upload-text {
+            color: #aaa;
+        }
+
+        .upload-text span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        #currentImagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--radius);
+            margin-top: 15px;
+            display: none;
+        }
+
+        #imageFile {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Section anglais */
+        .en-section {
+            background: rgba(245, 245, 245, 0.5);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-top: 30px;
+            border-left: 4px solid var(--accent);
+        }
+
+        [data-theme="night"] .en-section {
+            background: rgba(40, 40, 40, 0.5);
+        }
+
+        .label-en {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .label-en::before {
+            content: "🇬🇧";
+            font-size: 1rem;
+        }
+
+        /* Boutons */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .admin-btn {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #btnSave {
+            background: var(--primary);
+            color: var(--text-light);
+        }
+
+        #btnSave:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        #btnCancel {
+            background: #666;
+            color: var(--text-light);
+            display: none;
+        }
+
+        #btnCancel:hover {
+            background: #888;
+            transform: translateY(-2px);
+        }
+
+        /* Liste des articles */
+        .news-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .news-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        [data-theme="night"] .news-item {
+            background: #1e1e1e;
+            border-color: var(--border-dark);
+        }
+
+        .news-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .news-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex: 1;
+        }
+
+        .news-item img {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .news-info h3 {
+            margin: 0 0 5px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            color: var(--primary);
+        }
+
+        [data-theme="night"] .news-info h3 {
+            color: var(--text-light);
+        }
+
+        .news-meta {
+            font-size: 0.85rem;
+            color: #666;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        [data-theme="night"] .news-meta {
+            color: #aaa;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: var(--text-dark);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .edit-btn {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent);
+        }
+
+        .edit-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 53, 69, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Status message */
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--radius);
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .news-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+            
+            .actions {
+                justify-content: flex-end;
+            }
+            
+            .admin-header h1 {
+                font-size: 2rem;
+            }
+            
+            .admin-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header similaire à index.html -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">DREAMSWEAR ADMIN</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="index.html">Retour au site</a></li>
+                    <li><a href="#" id="subscribe-link">Gérer les abonnés</a></li>
+                </ul>
+            </nav>
+            <div class="theme-selector">
+                <button id="theme-select-button" aria-label="Choisir un thème">
+                    <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+                </button>
+                <ul id="theme-options" class="hidden-options">
+                    <li><a href="#" data-theme="night">Sombre</a></li>
+                    <li><a href="#" data-theme="day">Clair</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-page">
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Administration DREAMSWEAR MAG</h1>
+                <p>Gérez les articles et le contenu du magazine</p>
+            </div>
+
+            <!-- Formulaire de publication -->
+            <div class="admin-card">
+                <h2 id="formTitle">Publier un nouvel article</h2>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Date de publication</label>
+                        <input type="date" id="date">
+                    </div>
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select id="category" required>
+                            <option value="Mode">Mode</option>
+                            <option value="Accessoires">Accessoires</option>
+                            <option value="Beauté">Beauté</option>
+                            <option value="Street Style">Street Style</option>
+                            <option value="Coulisses">Coulisses</option>
+                            <option value="Tendances">Tendances</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Image de couverture</label>
+                    <div class="image-upload-wrapper">
+                        <div class="upload-area" id="uploadArea">
+                            <div id="uploadPlaceholder">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">
+                                    <span>Cliquez ici</span> pour ajouter une image
+                                    <br><small>JPG, PNG, WEBP (Max 2MB)</small>
+                                </div>
+                            </div>
+                            <img id="currentImagePreview" alt="Aperçu">
+                        </div>
+                        <input type="file" id="imageFile" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Contenu français -->
+                <div class="form-group">
+                    <label>Titre (FR) *</label>
+                    <input type="text" id="title_fr" placeholder="Ex: Le minimalisme réinventé">
+                </div>
+
+                <div class="form-group">
+                    <label>Résumé court (FR)</label>
+                    <textarea id="summary_fr" rows="2" placeholder="Une phrase d'accroche..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Contenu de l'article (FR) *</label>
+                    <textarea id="content_fr" rows="6" placeholder="Le contenu complet de votre article..."></textarea>
+                </div>
+
+                <!-- Contenu anglais -->
+                <div class="en-section">
+                    <div class="form-group">
+                        <label class="label-en">Titre (EN)</label>
+                        <input type="text" id="title_en" placeholder="Traduction anglaise optionnelle">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label-en">Résumé court (EN)</label>
+                        <textarea id="summary_en" rows="2" placeholder="Traduction anglaise optionnelle"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label-en">Contenu de l'article (EN)</label>
+                        <textarea id="content_en" rows="6" placeholder="Traduction anglaise optionnelle"></textarea>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button id="btnCancel" class="admin-btn">
+                        <span>Annuler</span>
+                    </button>
+                    <button id="btnSave" class="admin-btn">
+                        <span>🚀 Publier l'article</span>
+                    </button>
+                </div>
+
+                <div id="status"></div>
+            </div>
+
+            <!-- Liste des articles -->
+            <div class="admin-card">
+                <h2>Articles publiés</h2>
+                <div id="newsList" class="news-list-container">
+                    <p style="text-align: center; color: #666;">Chargement des articles...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <h4>DREAMSWEAR MAG ADMIN</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DREAMSWEAR MAG. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://neensjugjhkvwcqslicr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Variables globales
+        let allNewsData = [];
+        let currentEditId = null;
+        let currentEditImageUrl = "";
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser la date à aujourd'hui
+            document.getElementById('date').valueAsDate = new Date();
+            
+            // Charger les articles
+            loadNews();
+            
+            // Appliquer le thème
+            applyTheme();
+            
+            // Initialiser le sélecteur de thème
+            initThemeSelector();
+        });
+
+        // Gestion du thème
+        function applyTheme() {
+            const theme = localStorage.getItem('dreamswear-theme') || 'day';
+            document.body.setAttribute('data-theme', theme);
+            
+            if (theme === 'night') {
+                document.getElementById('theme-button-text').textContent = 'Sombre';
+            } else {
+                document.getElementById('theme-button-text').textContent = 'Clair';
+            }
+        }
+
+        function initThemeSelector() {
+            const themeButton = document.getElementById('theme-select-button');
+            const themeOptions = document.getElementById('theme-options');
+            const themeLinks = themeOptions.querySelectorAll('a');
+
+            themeButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                themeOptions.classList.toggle('hidden-options');
+            });
+
+            themeLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const theme = this.getAttribute('data-theme');
+                    document.body.setAttribute('data-theme', theme);
+                    localStorage.setItem('dreamswear-theme', theme);
+                    
+                    if (theme === 'night') {
+                        document.getElementById('theme-button-text').textContent = 'Sombre';
+                    } else {
+                        document.getElementById('theme-button-text').textContent = 'Clair';
+                    }
+                    
+                    themeOptions.classList.add('hidden-options');
+                });
+            });
+
+            document.addEventListener('click', function() {
+                themeOptions.classList.add('hidden-options');
+            });
+        }
+
+        // Sauvegarder l'article
+        document.getElementById('btnSave').addEventListener('click', async () => {
+            const btn = document.getElementById('btnSave');
+            const status = document.getElementById('status');
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+
+            // Validation
+            const titleFR = document.getElementById('title_fr').value.trim();
+            if (!titleFR) {
+                alert("Le titre en français est obligatoire");
+                document.getElementById('title_fr').focus();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = currentEditId ? "<span>💾 Enregistrement...</span>" : "<span>⏳ Publication...</span>";
+
+            try {
+                let imageUrl = currentEditImageUrl;
+
+                // Image par défaut pour les nouveaux articles
+                if (!currentEditId && !file) {
+                    imageUrl = "https://placehold.co/800x400?text=DREAMSWEAR+MAG";
+                }
+
+                // Upload de nouvelle image
+                if (file) {
+                    const fileExt = file.name.split('.').pop();
+                    const cleanName = Date.now() + Math.random().toString(36).substring(7);
+                    const fileName = `news_${cleanName}.${fileExt}`;
+
+                    const { error: upErr } = await supabaseClient.storage.from('news-images').upload(fileName, file);
+                    if (upErr) throw upErr;
+
+                    const { data: urlData } = supabaseClient.storage.from('news-images').getPublicUrl(fileName);
+                    imageUrl = urlData.publicUrl;
+                }
+
+                // Préparation des données
+                const payload = {
+                    date: document.getElementById('date').value,
+                    image: imageUrl,
+                    title_fr: titleFR,
+                    category_fr: document.getElementById('category').value,
+                    summary_fr: document.getElementById('summary_fr').value.trim(),
+                    content_fr: document.getElementById('content_fr').value.trim(),
+                    title_en: document.getElementById('title_en').value.trim() || titleFR,
+                    summary_en: document.getElementById('summary_en').value.trim() || document.getElementById('summary_fr').value.trim(),
+                    content_en: document.getElementById('content_en').value.trim() || document.getElementById('content_fr').value.trim()
+                };
+
+                let error = null;
+
+                if (currentEditId) {
+                    // Mise à jour
+                    const { error: updateErr } = await supabaseClient
+                        .from('news')
+                        .update(payload)
+                        .eq('id', currentEditId);
+                    error = updateErr;
+                    status.innerText = "✅ Article modifié avec succès !";
+                    status.className = "status-success";
+                } else {
+                    // Insertion
+                    const { error: insertErr } = await supabaseClient
+                        .from('news')
+                        .insert([payload]);
+                    error = insertErr;
+                    status.innerText = "✅ Article publié avec succès !";
+                    status.className = "status-success";
+                }
+
+                if (error) throw error;
+
+                status.style.display = 'block';
+
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 3000);
+
+                resetForm();
+                loadNews();
+
+            } catch (e) {
+                console.error(e);
+                status.innerText = "❌ Erreur: " + e.message;
+                status.className = "status-error";
+                status.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                if (!currentEditId) {
+                    btn.innerHTML = "<span>🚀 Publier l'article</span>";
+                }
+            }
+        });
+
+        // Charger les articles
+        async function loadNews() {
+            const div = document.getElementById('newsList');
+            const { data, error } = await supabaseClient
+                .from('news')
+                .select('*')
+                .order('date', { ascending: false });
+
+            if (error) {
+                div.innerHTML = `<p style="color: #dc3545; text-align: center;">Erreur de chargement: ${error.message}</p>`;
+                return;
+            }
+
+            allNewsData = data || [];
+
+            if (allNewsData.length === 0) {
+                div.innerHTML = `<p style="text-align: center; color: #666;">Aucun article publié.</p>`;
+                return;
+            }
+
+            div.innerHTML = "";
+            allNewsData.forEach(item => {
+                const dateStr = new Date(item.date).toLocaleDateString('fr-FR');
+                div.innerHTML += `
+                    <div class="news-item">
+                        <div class="news-content">
+                            <img src="${item.image}" alt="Couverture" onerror="this.src='https://placehold.co/80?text=IMG'">
+                            <div class="news-info">
+                                <h3>${item.title_fr}</h3>
+                                <div class="news-meta">
+                                    <span>📅 ${dateStr}</span>
+                                    <span class="badge">${item.category_fr}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" onclick="editNews(${item.id})">✏️ Modifier</button>
+                            <button class="action-btn delete-btn" onclick="deleteNews(${item.id})">🗑️ Supprimer</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Éditer un article
+        window.editNews = (id) => {
+            const article = allNewsData.find(n => n.id === id);
+            if (!article) return;
+
+            currentEditId = id;
+            currentEditImageUrl = article.image;
+
+            // UI
+            document.getElementById('formTitle').innerText = "Modifier l'article";
+            document.getElementById('btnSave').innerHTML = "<span>💾 Mettre à jour</span>";
+            document.getElementById('btnSave').style.background = "#f59e0b";
+            document.getElementById('btnCancel').style.display = "flex";
+
+            // Remplir le formulaire
+            document.getElementById('date').value = article.date;
+            document.getElementById('category').value = article.category_fr;
+            document.getElementById('title_fr').value = article.title_fr;
+            document.getElementById('summary_fr').value = article.summary_fr || "";
+            document.getElementById('content_fr').value = article.content_fr;
+            document.getElementById('title_en').value = article.title_en || "";
+            document.getElementById('summary_en').value = article.summary_en || "";
+            document.getElementById('content_en').value = article.content_en || "";
+
+            // Aperçu image
+            const preview = document.getElementById('currentImagePreview');
+            preview.src = article.image;
+            preview.style.display = 'block';
+            document.getElementById('uploadPlaceholder').style.display = 'none';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Réinitialiser le formulaire
+        function resetForm() {
+            currentEditId = null;
+            currentEditImageUrl = "";
+
+            // UI
+            document.getElementById('formTitle').innerText = "Publier un nouvel article";
+            document.getElementById('btnSave').innerHTML = "<span>🚀 Publier l'article</span>";
+            document.getElementById('btnSave').style.background = "";
+            document.getElementById('btnCancel').style.display = "none";
+
+            // Vider les champs
+            document.querySelectorAll('#title_fr, #summary_fr, #content_fr, #title_en, #summary_en, #content_en')
+                .forEach(el => el.value = "");
+            document.getElementById('imageFile').value = "";
+            document.getElementById('date').valueAsDate = new Date();
+            document.getElementById('category').value = "Mode";
+
+            // Image
+            const preview = document.getElementById('currentImagePreview');
+            preview.style.display = 'none';
+            preview.src = "";
+            document.getElementById('uploadPlaceholder').style.display = 'block';
+        }
+
+        // Annuler l'édition
+        document.getElementById('btnCancel').addEventListener('click', resetForm);
+
+        // Supprimer un article
+        window.deleteNews = async (id) => {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cet article définitivement ?")) {
+                const { error } = await supabaseClient
+                    .from('news')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) {
+                    alert("Erreur lors de la suppression: " + error.message);
+                    return;
+                }
+                
+                loadNews();
+                if (currentEditId === id) resetForm();
+            }
+        };
+
+        // Gestion de l'aperçu d'image
+        const imageInput = document.getElementById('imageFile');
+        const preview = document.getElementById('currentImagePreview');
+        const placeholder = document.getElementById('uploadPlaceholder');
+        const uploadArea = document.getElementById('uploadArea');
+
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert("L'image ne doit pas dépasser 2MB");
+                    this.value = "";
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    uploadArea.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Redirection vers l'accueil
+        document.querySelector('a[href="index.html"]').addEventListener('click', function(e) {
+            if (!confirm("Les modifications non sauvegardées seront perdues. Continuer ?")) {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
