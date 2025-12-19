@@ -181,6 +181,19 @@
                 max-width: 250px;
             }
         }
+          /* Ajoutez ceci à la fin de votre balise <style> */
+@media (max-width: 768px) {
+    html, body, .admin-page {
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        height: auto !important;
+        position: relative;
+    }
+    
+    .admin-page {
+        min-height: 100vh;
+        padding-bottom: 50px;
+    }
     </style>
 </head>
 <body class="unavailable-page">
