@@ -3,12 +3,405 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>DREAMSWEAR MAG</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Style pour le bouton menu */
+        .menu-btn {
+            background: transparent;
+            color: #1a1a1a;
+            border: 2px solid #1a1a1a;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        [data-theme="night"] .menu-btn {
+            color: #ffffff;
+            border-color: #ffffff;
+        }
+
+        .menu-btn:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        [data-theme="night"] .menu-btn:hover {
+            background: #ffffff;
+            color: #1a1a1a;
+        }
+
+        .menu-btn i {
+            font-size: 1rem;
+        }
+
+        /* Menu déroulant */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #ffffff;
+            min-width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="night"] .dropdown-menu {
+            background: #2a2a2a;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu ul {
+            list-style: none;
+            padding: 10px 0;
+            margin: 0;
+        }
+
+        .dropdown-menu li {
+            padding: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 12px 20px;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        [data-theme="night"] .dropdown-menu a {
+            color: #ffffff;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f5f5f5;
+            color: #d4af37;
+            padding-left: 25px;
+        }
+
+        [data-theme="night"] .dropdown-menu a:hover {
+            background: #3a3a3a;
+        }
+
+        /* Style pour le bouton créateurs */
+        .creator-btn {
+            background: linear-gradient(135deg, #d4af37, #c19a2d);
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .creator-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            background: linear-gradient(135deg, #0b0b0a, #b08924);
+        }
+
+        .creator-btn i {
+            font-size: 1rem;
+        }
+
+        /* Fenêtre flottante pour l'espace créateurs */
+        .creator-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .creator-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .creator-modal-content {
+            background: #c8c3c3;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 20px;
+            overflow: hidden;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="night"] .creator-modal-content {
+            background: #2a2a2a;
+        }
+
+        .creator-modal.active .creator-modal-content {
+            transform: translateY(0);
+        }
+
+        .creator-modal-header {
+            background: linear-gradient(135deg, #d4af37, #c19a2d);
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .creator-modal-header h2 {
+            color: #1a1a1a;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .close-creator-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            color: #1a1a1a;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-creator-modal:hover {
+            background: rgba(0, 0, 0, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .creator-modal-body {
+            padding: 30px;
+        }
+
+        .creator-modal-body p {
+            color: #666;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        [data-theme="night"] .creator-modal-body p {
+            color: #cccccc;
+        }
+
+        .creator-login-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .creator-login-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        [data-theme="night"] .creator-login-form label {
+            color: #ffffff;
+        }
+
+        .creator-login-form input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            background: #f9f9f9;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="night"] .creator-login-form input {
+            background: #3a3a3a;
+            border-color: #444;
+            color: #ffffff;
+        }
+
+        .creator-login-form input:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .creator-login-error {
+            color: #ff6b6b;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            margin: 10px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .creator-login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #d4af37, #c19a2d);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .creator-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Header right container */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-container {
+            position: relative;
+        }
+
+        /* Style pour le select dans le formulaire créateur */
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            background: #f9f9f9;
+            color: #1a1a1a;
+            transition: all 0.3s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a1a1a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        [data-theme="night"] .form-group select {
+            background: #3a3a3a;
+            border-color: #444;
+            color: #ffffff;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .creator-btn span,
+            .menu-btn span {
+                display: none;
+            }
+            
+            .creator-btn,
+            .menu-btn {
+                padding: 10px;
+                margin-left: 5px;
+            }
+            
+            .creator-btn i,
+            .menu-btn i {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .creator-btn,
+            .menu-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+            
+            .creator-modal-content {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .creator-modal-header {
+                padding: 20px;
+            }
+            
+            .creator-modal-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-right {
+                gap: 5px;
+            }
+            
+            .creator-btn,
+            .menu-btn {
+                padding: 8px;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -17,22 +410,38 @@
             <div class="logo">DREAMSWEAR</div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="indisponible.html">Visages</a></li>
-                    <li><a href="indisponible.html">Coulisses</a></li>
-                    <li><a href="indisponible.html">Tendances</a></li>
-                    <li><a href="indisponible.html">Découvertes</a></li>
-                    <li><a href="indisponible.html">Culture/Agenda</a></li>
                     <li><a href="#" id="subscribe-link">S'abonner</a></li>
                 </ul>
             </nav>
-            <div class="theme-selector">
-                 <button id="theme-select-button" aria-label="Choisir un thème">
-                    <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+            <div class="header-right">
+                <div class="menu-container">
+                    <button class="menu-btn" id="menu-btn">
+                        <i class="fas fa-bars"></i>
+                        <span>Menu</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <ul>
+                            <li><a href="indisponible.html">Visages</a></li>
+                            <li><a href="indisponible.html">Coulisses</a></li>
+                            <li><a href="indisponible.html">Tendances</a></li>
+                            <li><a href="indisponible.html">Découvertes</a></li>
+                            <li><a href="indisponible.html">Culture/Agenda</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="creator-btn" id="creator-login-btn">
+                    <i class="fas fa-palette"></i>
+                    <span>Espace Créateurs</span>
                 </button>
-                <ul id="theme-options" class="hidden-options">
-                    <li><a href="#" data-theme="night">Sombre</a></li>
-                    <li><a href="#" data-theme="day">Clair</a></li>
-                </ul>
+                <div class="theme-selector">
+                     <button id="theme-select-button" aria-label="Choisir un thème">
+                        <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+                    </button>
+                    <ul id="theme-options" class="hidden-options">
+                        <li><a href="#" data-theme="night">Sombre</a></li>
+                        <li><a href="#" data-theme="day">Clair</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </header>
@@ -97,7 +506,7 @@
     <footer class="main-footer">
         <div class="container">
             <div class="footer-content">
-                <h4>DREAMSWEAR MAG</h4>
+                <h4>DREAMWEAR MAG</h4>
                 <p>Le style est une façon de dire qui vous êtes sans parler.</p>
                 <div class="social-links">
                      <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
@@ -113,6 +522,39 @@
         </div>
     </footer>
 
+    <!-- Fenêtre flottante pour l'espace créateurs -->
+    <div class="creator-modal" id="creator-modal">
+        <div class="creator-modal-content">
+            <div class="creator-modal-header">
+                <h2>Espace Créateurs</h2>
+                <button class="close-creator-modal" aria-label="Fermer">&times;</button>
+            </div>
+            <div class="creator-modal-body">
+                <p>Accédez à votre espace créateur pour gérer votre contenu et collaborations.</p>
+                
+                <form class="creator-login-form" id="creator-login-form">
+                    <div class="form-group">
+                        <label for="creator-brand">Nom de la marque</label>
+                        <input type="text" id="creator-brand" name="brand" required autocomplete="organization" placeholder="Ex: Elyra">
+                    </div>
+                    <div class="form-group">
+                        <label for="creator-password">Mot de passe</label>
+                        <input type="password" id="creator-password" name="password" required placeholder="Votre mot de passe">
+                    </div>
+                    
+                    <div class="creator-login-error" id="creator-login-error">
+                        Nom de marque ou mot de passe incorrect
+                    </div>
+                    
+                    <button type="submit" class="creator-login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'abonnement -->
     <div id="subscribe-modal" class="modal-overlay hidden-modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
         <div class="modal-content">
             <button class="close-modal" aria-label="Fermer la fenêtre modale">&times;</button>
@@ -154,9 +596,13 @@
                             <label for="cre-nom">Nom</label>
                             <input type="text" id="cre-nom" name="nom" required autocomplete="family-name">
                         </div>
-                         <div class="form-group">
+                        <div class="form-group">
                             <label for="cre-prenom">Prénom</label>
                             <input type="text" id="cre-prenom" name="prenom" required autocomplete="given-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="cre-password">Mot de passe</label>
+                            <input type="password" id="cre-password" name="password" required placeholder="Créez un mot de passe sécurisé">
                         </div>
                         <div class="form-group">
                             <label for="cre-email">Adresse mail</label>
@@ -172,7 +618,14 @@
                         </div>
                         <div class="form-group">
                             <label for="cre-domaine">Domaine</label>
-                            <input type="text" id="cre-domaine" name="domaine" required>
+                            <select id="cre-domaine" name="domaine" required>
+                                <option value="">Sélectionnez votre domaine</option>
+                                <option value="Styliste haute couture">Styliste haute couture</option>
+                                <option value="Styliste streetwear">Styliste streetwear</option>
+                                <option value="Designer">Designer</option>
+                                <option value="Marque de bijoux">Marque de bijoux</option>
+                                <option value="Artisans du tricot">Artisans du tricot</option>
+                            </select>
                         </div>
                         <button type="submit" class="cta-button">Soumettre</button>
                     </form>
