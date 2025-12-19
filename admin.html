@@ -9,13 +9,125 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles pour les boutons de navigation admin */
+        .admin-nav {
+            display: flex;
+            gap: 15px;
+            margin-left: auto;
+            align-items: center;
+        }
+        
+        .admin-nav-btn {
+            background: linear-gradient(135deg, #d4af37, #c19a2d);
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .admin-nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+            background: linear-gradient(135deg, #0b0b0a, #b08924);
+        }
+        
+        .admin-nav-btn i {
+            font-size: 1rem;
+        }
+        
+        .back-link {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+        }
+        
+        .back-link:hover {
+            background: #eaeaea;
+            transform: translateY(-2px);
+        }
+        
+        .admin-header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .admin-header-content h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-nav {
+                gap: 10px;
+            }
+            
+            .admin-nav-btn span,
+            .back-link span {
+                display: none;
+            }
+            
+            .admin-nav-btn,
+            .back-link {
+                padding: 10px;
+            }
+            
+            .admin-nav-btn i {
+                margin: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .admin-header-content {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .admin-header-content h1 {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="main-header">
         <div class="container">
-            <div class="logo"><a href="" style="color: inherit;">DREAMSWEAR</a></div>
-            <h1>Panneau d'Administration</h1>
-            <a href="E:\DREAMWEAR MAG\index.html" class="back-link">Retour au site</a>
+            <div class="admin-header-content">
+                <div class="logo"><a href="" style="color: inherit;">DREAMSWEAR</a></div>
+                <h1>Panneau d'Administration</h1>
+                <div class="admin-nav">
+                    <a href="Actualisation.html" class="admin-nav-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Actualisation</span>
+                    </a>
+                    <a href="index.html" class="back-link">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Retour au site</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -34,6 +146,7 @@
             </div>
         </section>
     </main>
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const pendingContainer = document.getElementById('pending-submissions');
@@ -47,7 +160,7 @@
                 approvedContainer.innerHTML = '';
 
                 if (pendingSubmissions.length === 0) {
-                    pendingContainer.innerHTML = '<p>Aucune nouvelle demande.</p>';
+                    pendingContainer.innerHTML = '<p class="no-data">Aucune nouvelle demande.</p>';
                 } else {
                     pendingSubmissions.forEach(sub => {
                         const card = document.createElement('div');
@@ -55,10 +168,16 @@
                         card.innerHTML = `
                             <h4>${sub.marque}</h4>
                             <p><strong>Contact:</strong> ${sub.prenom} ${sub.nom} (${sub.email})</p>
+                            <p><strong>Téléphone:</strong> ${sub.telephone || 'Non fourni'}</p>
                             <p><strong>Domaine:</strong> ${sub.domaine}</p>
+                            <p><strong>Date:</strong> ${new Date(sub.submissionDate).toLocaleDateString('fr-FR')}</p>
                             <div class="card-actions">
-                                <button class="approve-btn" data-id="${sub.id}">Approuver</button>
-                                <button class="deny-btn" data-id="${sub.id}">Refuser</button>
+                                <button class="approve-btn" data-id="${sub.id}">
+                                    <i class="fas fa-check"></i> Approuver
+                                </button>
+                                <button class="deny-btn" data-id="${sub.id}">
+                                    <i class="fas fa-times"></i> Refuser
+                                </button>
                             </div>
                         `;
                         pendingContainer.appendChild(card);
@@ -66,7 +185,7 @@
                 }
                 
                 if (approvedCreators.length === 0) {
-                    approvedContainer.innerHTML = '<p>Aucun créateur approuvé.</p>';
+                    approvedContainer.innerHTML = '<p class="no-data">Aucun créateur approuvé.</p>';
                 } else {
                     approvedCreators.forEach(creator => {
                         const card = document.createElement('div');
@@ -74,7 +193,9 @@
                         card.innerHTML = `
                             <h4>${creator.marque}</h4>
                             <p><strong>Contact:</strong> ${creator.prenom} ${creator.nom} (${creator.email})</p>
+                            <p><strong>Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
                             <p><strong>Domaine:</strong> ${creator.domaine}</p>
+                            <p><strong>Approuvé le:</strong> ${new Date(creator.submissionDate).toLocaleDateString('fr-FR')}</p>
                         `;
                         approvedContainer.appendChild(card);
                     });
@@ -94,9 +215,17 @@
                 if (e.target.classList.contains('approve-btn')) {
                     const [approvedSubmission] = pendingSubmissions.splice(submissionIndex, 1);
                     approvedSubmission.status = 'approved';
+                    approvedSubmission.approvalDate = new Date().toISOString();
                     approvedCreators.push(approvedSubmission);
+                    
+                    // Confirmation
+                    alert(`Créateur "${approvedSubmission.marque}" approuvé avec succès !`);
                 } else if (e.target.classList.contains('deny-btn')) {
+                    const deniedSubmission = pendingSubmissions[submissionIndex];
                     pendingSubmissions.splice(submissionIndex, 1);
+                    
+                    // Confirmation
+                    alert(`Demande de "${deniedSubmission.marque}" refusée.`);
                 }
                 
                 localStorage.setItem('pendingSubmissions', JSON.stringify(pendingSubmissions));
@@ -106,6 +235,11 @@
 
             pendingContainer.addEventListener('click', handleAction);
             renderSubmissions();
+            
+            // Ajout d'une confirmation avant de quitter si des modifications non sauvegardées
+            window.addEventListener('beforeunload', (e) => {
+                // Vous pouvez ajouter une logique de vérification ici si nécessaire
+            });
         });
     </script>
 </body>
