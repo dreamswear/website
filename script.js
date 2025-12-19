@@ -137,33 +137,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 4. FORMULAIRE CRÉATEUR (DANS LE MODAL)
+    // 4. FORMULAIRES D'INSCRIPTION (DANS LE MODAL)
     // ============================================
-    const creatorForm = document.getElementById('creator-form-element');
-    if (creatorForm) {
-        creatorForm.addEventListener('submit', (e) => {
+    
+    // Gestion de l'inscription abonné
+    const subscriberForm = document.getElementById('subscriber-form-element');
+    if (subscriberForm) {
+        subscriberForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            alert('Inscription réussie ! Vous recevrez nos actualités par email.');
+            modal.classList.add('hidden-modal');
+            subscriberForm.reset();
+        });
+    }
 
-            const formData = new FormData(creatorForm);
-            const submission = {
-                id: Date.now(), // ID unique simple
-                nom: formData.get('nom'),
-                prenom: formData.get('prenom'),
-                email: formData.get('email'),
-                telephone: formData.get('telephone'),
-                marque: formData.get('marque'),
-                domaine: formData.get('domaine'),
-                status: 'pending',
-                submissionDate: new Date().toISOString()
-            };
-
-            // Obtenir les soumissions existantes ou initialiser un nouveau tableau
-            const pendingSubmissions = JSON.parse(localStorage.getItem('pendingSubmissions')) || [];
-            pendingSubmissions.push(submission);
-            localStorage.setItem('pendingSubmissions', JSON.stringify(pendingSubmissions));
-
-            // Afficher la confirmation
-            creatorForm.innerHTML = `<p>Merci pour votre soumission ! Votre demande est en cours d'examen. Nous vous contacterons bientôt.</p>`;
+    // Gestion de l'inscription créateur
+    const creatorRegisterForm = document.getElementById('creator-register-form');
+    if (creatorRegisterForm) {
+        creatorRegisterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Inscription réussie ! Votre compte sera activé après validation par notre équipe.');
+            modal.classList.add('hidden-modal');
+            creatorRegisterForm.reset();
         });
     }
 
@@ -193,76 +188,101 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 6. FENÊTRE CRÉATEURS (CONNEXION)
+    // 6. FENÊTRE D'AUTHENTIFICATION (ADMIN/CRÉATEURS)
     // ============================================
-    const creatorBtn = document.getElementById('creator-login-btn');
-    const creatorModal = document.getElementById('creator-modal');
-    const closeCreatorModal = creatorModal ? creatorModal.querySelector('.close-creator-modal') : null;
-    const creatorLoginForm = document.getElementById('creator-login-form');
-    const creatorLoginError = document.getElementById('creator-login-error');
+    const authBtn = document.getElementById('auth-btn');
+    const authModal = document.getElementById('auth-modal');
+    const closeAuthModal = authModal ? authModal.querySelector('.close-auth-modal') : null;
+    const authTabs = authModal ? authModal.querySelectorAll('.auth-tab') : [];
+    const adminForm = document.getElementById('admin-form');
+    const creatorForm = document.getElementById('creator-form');
+    const adminError = document.getElementById('admin-error');
+    const creatorError = document.getElementById('creator-error');
 
-    // Liste des marques autorisées
-    const authorizedBrands = {
-        'Elyra': 'elyra2024',
-        'Dreamwear': 'dreamwear2024',
-        'ModeParis': 'paris2024',
-        'StyleLuxe': 'luxe2024'
-    };
-
-    // Ouvrir la fenêtre créateurs
-    if (creatorBtn && creatorModal) {
-        creatorBtn.addEventListener('click', function(e) {
+    // Ouvrir la fenêtre d'authentification
+    if (authBtn && authModal) {
+        authBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            creatorModal.classList.add('active');
+            authModal.classList.add('active');
             document.body.style.overflow = 'hidden';
         });
     }
 
-    // Fermer la fenêtre créateurs
-    if (closeCreatorModal) {
-        closeCreatorModal.addEventListener('click', function() {
-            creatorModal.classList.remove('active');
+    // Fermer la fenêtre d'authentification
+    if (closeAuthModal) {
+        closeAuthModal.addEventListener('click', function() {
+            authModal.classList.remove('active');
             document.body.style.overflow = '';
-            if (creatorLoginError) creatorLoginError.style.display = 'none';
-            if (creatorLoginForm) creatorLoginForm.reset();
+            if (adminError) adminError.style.display = 'none';
+            if (creatorError) creatorError.style.display = 'none';
+            if (adminForm) adminForm.reset();
+            if (creatorForm) creatorForm.reset();
         });
     }
 
     // Fermer en cliquant à l'extérieur
-    if (creatorModal) {
-        creatorModal.addEventListener('click', function(e) {
-            if (e.target === creatorModal) {
-                creatorModal.classList.remove('active');
+    if (authModal) {
+        authModal.addEventListener('click', function(e) {
+            if (e.target === authModal) {
+                authModal.classList.remove('active');
                 document.body.style.overflow = '';
-                if (creatorLoginError) creatorLoginError.style.display = 'none';
-                if (creatorLoginForm) creatorLoginForm.reset();
+                if (adminError) adminError.style.display = 'none';
+                if (creatorError) creatorError.style.display = 'none';
+                if (adminForm) adminForm.reset();
+                if (creatorForm) creatorForm.reset();
             }
         });
     }
 
-    // Gestion de la connexion créateurs
-    if (creatorLoginForm) {
-        creatorLoginForm.addEventListener('submit', function(e) {
+    // Gestion des onglets d'authentification
+    authTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const authType = this.getAttribute('data-auth-type');
+            
+            authTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            if (authType === 'admin') {
+                if (adminForm) adminForm.classList.add('active');
+            } else {
+                if (creatorForm) creatorForm.classList.add('active');
+            }
+            
+            if (adminError) adminError.style.display = 'none';
+            if (creatorError) creatorError.style.display = 'none';
+        });
+    });
+
+    // Gestion de la connexion administrateur
+    if (adminForm) {
+        adminForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nom = document.getElementById('admin-nom').value.trim();
+            const password = document.getElementById('admin-password').value;
+            
+            // Vérification simple (remplacée par Supabase dans l'index.html)
+            if (adminError) {
+                adminError.style.display = 'block';
+            }
+        });
+    }
+
+    // Gestion de la connexion créateur
+    if (creatorForm) {
+        creatorForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const brand = document.getElementById('creator-brand').value.trim();
             const password = document.getElementById('creator-password').value;
             
-            // Vérification simple
-            if (authorizedBrands[brand] && authorizedBrands[brand] === password) {
-                // Connexion réussie
-                if (creatorLoginError) creatorLoginError.style.display = 'none';
-                
-                // Stocker la session
-                sessionStorage.setItem('creatorLoggedIn', 'true');
-                sessionStorage.setItem('creatorBrand', brand);
-                
-                // Redirection vers le dashboard
-                window.location.href = 'dashboard.html';
-            } else {
-                // Échec de connexion
-                if (creatorLoginError) creatorLoginError.style.display = 'block';
-                document.getElementById('creator-password').value = '';
+            // Vérification simple (remplacée par Supabase dans l'index.html)
+            if (creatorError) {
+                creatorError.style.display = 'block';
             }
         });
     }
@@ -271,12 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. GESTION DES ÉVÉNEMENTS CLAVIER
     // ============================================
     document.addEventListener('keydown', function(e) {
-        // Échap pour fermer la fenêtre créateurs
-        if (e.key === 'Escape' && creatorModal && creatorModal.classList.contains('active')) {
-            creatorModal.classList.remove('active');
+        // Échap pour fermer la fenêtre d'authentification
+        if (e.key === 'Escape' && authModal && authModal.classList.contains('active')) {
+            authModal.classList.remove('active');
             document.body.style.overflow = '';
-            if (creatorLoginError) creatorLoginError.style.display = 'none';
-            if (creatorLoginForm) creatorLoginForm.reset();
+            if (adminError) adminError.style.display = 'none';
+            if (creatorError) creatorError.style.display = 'none';
+            if (adminForm) adminForm.reset();
+            if (creatorForm) creatorForm.reset();
         }
         
         // Échap pour fermer le modal d'abonnement
@@ -286,21 +308,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 8. EMPÊCHER LA SOUMISSION PAR DÉFAUT DES FORMULAIRES
+    // 8. EMPÊCHER LA SOUMISSION PAR DÉFAUT DES AUTRES FORMULAIRES
     // ============================================
-    const otherForms = document.querySelectorAll('form:not(#creator-form-element):not(#creator-login-form)');
+    const otherForms = document.querySelectorAll('form:not(#subscriber-form-element):not(#creator-register-form):not(#admin-form):not(#creator-form)');
     otherForms.forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Pour le formulaire d'abonnement dans le modal
-            if (form.closest('.modal-overlay')) {
-                alert('Formulaire soumis avec succès ! (démonstration)');
-                modal.classList.add('hidden-modal');
-            } else {
-                alert('Formulaire soumis avec succès ! (démonstration)');
-            }
-            
+            alert('Formulaire soumis avec succès ! (démonstration)');
             form.reset();
         });
     });
