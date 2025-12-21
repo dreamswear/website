@@ -723,10 +723,10 @@
         </div>
     </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+    //<!script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><!/script>
     <script src="script.js"></script>
     <script>
-        // Configuration Supabase
+        //Configuration Supabase
         const SUPABASE_URL = 'https://neensjugjhkvwcqslicr.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU';
         
@@ -873,7 +873,7 @@
                     try {
                         // Vérification dans la table createurs
                         const { data, error } = await supabase
-                            .from('createurs')
+                            .from('créateurs')
                             .select('*')
                             .eq('nom_marque', brand)
                             .eq('mot_de_passe', password)
@@ -913,7 +913,7 @@
                     
                     try {
                         const { data, error } = await supabase
-                            .from('abonnes')
+                            .from('abonnés')
                             .insert([
                                 {
                                     nom: nom,
@@ -952,7 +952,7 @@
                     
                     try {
                         const { data, error } = await supabase
-                            .from('createurs')
+                            .from('créateurs')
                             .insert([
                                 {
                                     nom: nom,
@@ -967,7 +967,7 @@
                         
                         if (error) throw error;
                         
-                        alert('Inscription réussie ! Votre compte sera activé après validation par notre équipe.');
+                        alert('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
                         modal.classList.add('hidden-modal');
                         creatorRegisterForm.reset();
                         
