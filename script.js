@@ -165,7 +165,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
             try {
                 const { data, error } = await supabase
-                    .from('abonnés')  // Note: 'a' minuscule
+                    .from('Abonnés')  // Note: 'a' minuscule
                     .insert([
                         {
                             nom: nom,
