@@ -825,80 +825,80 @@
                 });
             });
 
-            // Gestion de la connexion administrateur
-          //  if (adminForm) {
-               // adminForm.addEventListener('submit', async function(e) {
-                   // e.preventDefault();
+             Gestion de la connexion administrateur
+            if (adminForm) {
+                adminForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
                     
-                   // const nom = document.getElementById('admin-nom').value.trim();
-                   // const password = document.getElementById('admin-password').value;
+                    const nom = document.getElementById('admin-nom').value.trim();
+                    const password = document.getElementById('admin-password').value;
                     
-                    //try {
-                        // Vérification dans la table administrateurs
-                       // const { data, error } = await supabase
-                           // .from('administrateurs')
-                           // .select('*')
-                          //  .eq('nom', nom)
-                          //  .eq('mot_de_passe', password)
-                        //    .single();
+                    try {
+                         Vérification dans la table administrateurs
+                        const { data, error } = await supabase
+                            .from('administrateurs')
+                            .select('*')
+                            .eq('nom', nom)
+                            .eq('mot_de_passe', password)
+                            .single();
                         
-                      //  if (error || !data) {
-                           // adminError.style.display = 'block';
-                         //   return;
-                       // }
+                        if (error || !data) {
+                            adminError.style.display = 'block';
+                            return;
+                        }
                         
-                        // Connexion réussie
-                       // sessionStorage.setItem('adminLoggedIn', 'true');
-                      //  sessionStorage.setItem('adminId', data.id);
-                       // sessionStorage.setItem('adminName', data.nom);
+                         Connexion réussie
+                        sessionStorage.setItem('adminLoggedIn', 'true');
+                        sessionStorage.setItem('adminId', data.id);
+                        sessionStorage.setItem('adminName', data.nom);
                         
-                        // Redirection vers la page d'administration
-                     //   window.location.href = 'Actualisation.html';
+                         Redirection vers la page d'administration
+                        window.location.href = 'Actualisation.html';
                         
-                   // } catch (error) {
-                 //       console.error('Erreur de connexion:', error);
-               //         adminError.style.display = 'block';
-             //       }
-           //     });
-         //   }
+                    } catch (error) {
+                        console.error('Erreur de connexion:', error);
+                        adminError.style.display = 'block';
+                    }
+                });
+            }
 
-            // Gestion de la connexion créateur
-         //   if (creatorForm) {
-           //     creatorForm.addEventListener('submit', async function(e) {
-             //       e.preventDefault();
+             Gestion de la connexion créateur
+            if (creatorForm) {
+                creatorForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
                     
-               //     const brand = document.getElementById('creator-brand').value.trim();
-                 //   const password = document.getElementById('creator-password').value;
+                    const brand = document.getElementById('creator-brand').value.trim();
+                    const password = document.getElementById('creator-password').value;
                     
-                   // try {
-                        // Vérification dans la table createurs
-                       // const { data, error } = await supabase
-                         //   .from('créateurs')
-                           // .select('*')
-                            //.eq('nom_marque', brand)
-                            //.eq('mot_de_passe', password)
-                           // .eq('statut', 'actif')
-                            //.single();
+                    try {
+                         Vérification dans la table createurs
+                        const { data, error } = await supabase
+                            .from('créateurs')
+                            .select('*')
+                            .eq('nom_marque', brand)
+                            .eq('mot_de_passe', password)
+                            .eq('statut', 'actif')
+                            .single();
                         
-                       // if (error || !data) {
-                         //   creatorError.style.display = 'block';
-                           // return;
-                        //}
+                        if (error || !data) {
+                            creatorError.style.display = 'block';
+                            return;
+                        }
                         
-                        // Connexion réussie
-                        //sessionStorage.setItem('creatorLoggedIn', 'true');
-                        //sessionStorage.setItem('creatorId', data.id);
-                        //sessionStorage.setItem('creatorBrand', data.nom_marque);
+                         Connexion réussie
+                        sessionStorage.setItem('creatorLoggedIn', 'true');
+                        sessionStorage.setItem('creatorId', data.id);
+                        sessionStorage.setItem('creatorBrand', data.nom_marque);
                         
-                        // Redirection vers le dashboard créateur
-                       // window.location.href = 'dashboard.html';
+                         Redirection vers le dashboard créateur
+                        window.location.href = 'dashboard.html';
                         
-                 //   } catch (error) {
-                   //     console.error('Erreur de connexion:', error);
-                     //   creatorError.style.display = 'block';
-                   // }
-               // });
-            /}
+                    } catch (error) {
+                        console.error('Erreur de connexion:', error);
+                        creatorError.style.display = 'block';
+                    }
+                });
+            }
 
             // Gestion de l'inscription abonné
             const subscriberForm = document.getElementById('subscriber-form-element');
