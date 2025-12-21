@@ -839,7 +839,7 @@
                             .from('administrateurs')
                             .select('*')
                             .eq('nom', nom)
-                            .eq('mot_de_passe', mot_de_passe)
+                            .eq('mot_de_passe', password)
                             .single();
                         
                         if (error || !data) {
