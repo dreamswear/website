@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 sessionStorage.setItem('adminEmail', data.email);
                 
                 // Redirection vers la page d'administration
-                window.location.href = 'Actualisation.html';
+                window.location.href = 'admin.html';
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
