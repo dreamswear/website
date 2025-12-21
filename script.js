@@ -1,15 +1,5 @@
-// ============================================
-// CONFIGURATION SUPABASE
-// ============================================
-const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+document.addEventListener('DOMContentLoaded', () => {
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ============================================
-// CODE PRINCIPAL
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
     // ============================================
@@ -153,78 +143,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion de l'inscription abonné
     const subscriberForm = document.getElementById('subscriber-form-element');
     if (subscriberForm) {
-        subscriberForm.addEventListener('submit', async function(e) {
+        subscriberForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            const nom = document.getElementById('sub-nom').value.trim();
-            const prenom = document.getElementById('sub-prenom').value.trim();
-            const email = document.getElementById('sub-email').value.trim();
-            const telephone = document.getElementById('sub-tel').value.trim();
-            
-            try {
-                const { data, error } = await supabase
-                    .from('Abonnés')
-                    .insert([
-                        {
-                            nom: nom,
-                            prenom: prenom,
-                            email: email,
-                            telephone: telephone
-                        }
-                    ]);
-                
-                if (error) throw error;
-                
-                alert('Inscription réussie ! Vous recevrez nos actualités par email.');
-                modal.classList.add('hidden-modal');
-                subscriberForm.reset();
-                
-            } catch (error) {
-                console.error('Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
-            }
+            alert('Inscription réussie ! Vous recevrez nos actualités par email.');
+            modal.classList.add('hidden-modal');
+            subscriberForm.reset();
         });
     }
 
     // Gestion de l'inscription créateur
     const creatorRegisterForm = document.getElementById('creator-register-form');
     if (creatorRegisterForm) {
-        creatorRegisterForm.addEventListener('submit', async function(e) {
+        creatorRegisterForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            const nom = document.getElementById('cre-nom').value.trim();
-            const prenom = document.getElementById('cre-prenom').value.trim();
-            const password = document.getElementById('cre-password').value;
-            const email = document.getElementById('cre-email').value.trim();
-            const telephone = document.getElementById('cre-tel').value.trim();
-            const marque = document.getElementById('cre-marque').value.trim();
-            const domaine = document.getElementById('cre-domaine').value;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .insert([
-                        {
-                            nom: nom,
-                            prenom: prenom,
-                            nom_marque: marque,
-                            domaine: domaine,
-                            email: email,
-                            telephone: telephone,
-                            mot_de_passe: password
-                        }
-                    ]);
-                
-                if (error) throw error;
-                
-                alert('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
-                modal.classList.add('hidden-modal');
-                creatorRegisterForm.reset();
-                
-            } catch (error) {
-                console.error('Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
-            }
+            alert('Inscription réussie ! Votre compte sera activé après validation par notre équipe.');
+            modal.classList.add('hidden-modal');
+            creatorRegisterForm.reset();
         });
     }
 
@@ -323,132 +257,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ============================================
-    // 7. CONNEXION ADMINISTRATEUR (AMÉLIORÉE)
-    // ============================================
+    // Gestion de la connexion administrateur
     if (adminForm) {
-        adminForm.addEventListener('submit', async function(e) {
+        adminForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const nom = document.getElementById('admin-nom').value.trim();
             const password = document.getElementById('admin-password').value;
             
-            console.log('🔐 Tentative connexion admin:', nom);
-            
-            try {
-                // Vérification dans la table administrateurs
-                const { data, error } = await supabase
-                    .from('administrateurs')
-                    .select('*')
-                    .eq('nom', nom)
-                    .eq('mot_de_passe', password)
-                    .single();
-                
-                console.log('📊 Résultat:', { data: !!data, error: error?.message });
-                
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error.message);
-                    if (adminError) {
-                        adminError.textContent = 'Erreur technique: ' + error.message;
-                        adminError.style.display = 'block';
-                    }
-                    return;
-                }
-                
-                if (!data) {
-                    console.log('⚠️ Aucun admin trouvé');
-                    if (adminError) {
-                        adminError.textContent = 'Nom d\'administrateur ou mot de passe incorrect';
-                        adminError.style.display = 'block';
-                    }
-                    return;
-                }
-                
-                console.log('✅ Connexion réussie! Admin:', data);
-                
-                // Connexion réussie
-                sessionStorage.setItem('adminLoggedIn', 'true');
-                sessionStorage.setItem('adminId', data.id);
-                sessionStorage.setItem('adminName', data.nom);
-                sessionStorage.setItem('adminEmail', data.email);
-                
-                // Redirection vers la page d'administration
-                window.location.href = 'admin.html';
-                
-            } catch (error) {
-                console.error('💥 Erreur de connexion:', error);
-                if (adminError) {
-                    adminError.textContent = 'Une erreur est survenue lors de la connexion';
-                    adminError.style.display = 'block';
-                }
+            // Vérification simple (remplacée par Supabase dans l'index.html)
+            if (adminError) {
+                adminError.style.display = 'block';
             }
         });
     }
 
-    // ============================================
-    // 8. CONNEXION CRÉATEUR (AMÉLIORÉE)
-    // ============================================
+    // Gestion de la connexion créateur
     if (creatorForm) {
-        creatorForm.addEventListener('submit', async function(e) {
+        creatorForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const brand = document.getElementById('creator-brand').value.trim();
             const password = document.getElementById('creator-password').value;
             
-            console.log('🎨 Tentative connexion créateur:', brand);
-            
-            try {
-                // Vérification dans la table créateurs
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('nom_marque', brand)
-                    .eq('mot_de_passe', password)
-                    .eq('statut', 'actif')
-                    .single();
-                
-                console.log('📊 Résultat:', { data: !!data, error: error?.message });
-                
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error.message);
-                    if (creatorError) {
-                        creatorError.textContent = 'Erreur technique: ' + error.message;
-                        creatorError.style.display = 'block';
-                    }
-                    return;
-                }
-                
-                if (!data) {
-                    console.log('⚠️ Aucun créateur trouvé');
-                    if (creatorError) {
-                        creatorError.textContent = 'Marque ou mot de passe incorrect';
-                        creatorError.style.display = 'block';
-                    }
-                    return;
-                }
-                
-                console.log('✅ Connexion créateur réussie!', data);
-                
-                // Connexion réussie
-                sessionStorage.setItem('creatorLoggedIn', 'true');
-                sessionStorage.setItem('creatorId', data.id);
-                sessionStorage.setItem('creatorBrand', data.nom_marque);
-                
-                // Redirection vers le dashboard créateur
-                window.location.href = 'dashboard.html';
-                
-            } catch (error) {
-                console.error('💥 Erreur de connexion:', error);
-                if (creatorError) {
-                    creatorError.textContent = 'Une erreur est survenue lors de la connexion';
-                    creatorError.style.display = 'block';
-                }
+            // Vérification simple (remplacée par Supabase dans l'index.html)
+            if (creatorError) {
+                creatorError.style.display = 'block';
             }
         });
     }
 
     // ============================================
-    // 9. GESTION DES ÉVÉNEMENTS CLAVIER
+    // 7. GESTION DES ÉVÉNEMENTS CLAVIER
     // ============================================
     document.addEventListener('keydown', function(e) {
         // Échap pour fermer la fenêtre d'authentification
@@ -468,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================
-    // 10. EMPÊCHER LA SOUMISSION PAR DÉFAUT DES AUTRES FORMULAIRES
+    // 8. EMPÊCHER LA SOUMISSION PAR DÉFAUT DES AUTRES FORMULAIRES
     // ============================================
     const otherForms = document.querySelectorAll('form:not(#subscriber-form-element):not(#creator-register-form):not(#admin-form):not(#creator-form)');
     otherForms.forEach(form => {
@@ -478,4 +318,5 @@ document.addEventListener('DOMContentLoaded', function() {
             form.reset();
         });
     });
+
 });
