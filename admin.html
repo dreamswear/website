@@ -292,179 +292,27 @@
             <div class="empty-message">Les créateurs apparaissent ici</div>
         </div>
     </div>
-
-    <script src="script.js"></script>
-    <script>
-        // Attendre que le DOM soit chargé
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialisation
-            initAdminPage();
-        });
-        
-        function initAdminPage() {
-            // Vérifier la connexion admin
-            const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-            if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-                alert('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            // Éléments DOM
-            const logoutBtn = document.getElementById('logoutBtn');
-            const pendingCreatorsDiv = document.getElementById('pendingCreators');
-            const approvedCreatorsDiv = document.getElementById('approvedCreators');
-            const pendingCountSpan = document.getElementById('pendingCount');
-            const approvedCountSpan = document.getElementById('approvedCount');
-            
-            // Événement de déconnexion
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                        sessionStorage.clear();
-                        window.location.href = 'index.html';
-                    }
-                });
-            }
-            
-            // Initialiser les fonctions pour l'admin
-            window.adminFunctions = {
-                loadCreators: async function(status) {
-                    const container = status === 'pending' ? pendingCreatorsDiv : approvedCreatorsDiv;
-                    const countSpan = status === 'pending' ? pendingCountSpan : approvedCountSpan;
-                    
-                    if (!window.supabase) {
-                        container.innerHTML = '<div class="empty-message">Erreur de connexion à la base de données</div>';
-                        return;
-                    }
-                    
-                    try {
-                        const { data, error } = await window.supabase
-                            .from('créateurs')
-                            .select('*')
-                            .eq('statut', status === 'pending' ? 'pending' : 'actif')
-                            .order('created_at', { ascending: false });
-                        
-                        if (error) throw error;
-                        
-                        // Mettre à jour le compteur
-                        if (countSpan) {
-                            countSpan.textContent = data ? data.length : 0;
-                        }
-                        
-                        // Afficher les créateurs
-                        displayCreators(data, container, status);
-                        
-                    } catch (error) {
-                        console.error('Erreur:', error);
-                        container.innerHTML = `<div class="empty-message">Erreur : ${error.message}</div>`;
-                    }
-                },
-                
-                loadAllCreators: async function() {
-                    await this.loadCreators('pending');
-                    await this.loadCreators('approved');
-                },
-                
-                approveCreator: async function(id, brandName) {
-                    if (!confirm(`Approuver le créateur "${brandName}" ?`)) return;
-                    
-                    try {
-                        const { error } = await window.supabase
-                            .from('créateurs')
-                            .update({ 
-                                statut: 'actif',
-                                approved_at: new Date().toISOString()
-                            })
-                            .eq('id', id);
-                        
-                        if (error) throw error;
-                        
-                        alert(`"${brandName}" a été approuvé avec succès !`);
-                        await this.loadAllCreators();
-                        
-                    } catch (error) {
-                        alert('Erreur : ' + error.message);
-                    }
-                },
-                
-                rejectCreator: async function(id, brandName) {
-                    if (!confirm(`Refuser la demande de "${brandName}" ?`)) return;
-                    
-                    try {
-                        const { error } = await window.supabase
-                            .from('créateurs')
-                            .delete()
-                            .eq('id', id);
-                        
-                        if (error) throw error;
-                        
-                        alert(`"${brandName}" a été refusé.`);
-                        await this.loadAllCreators();
-                        
-                    } catch (error) {
-                        alert('Erreur : ' + error.message);
-                    }
-                }
-            };
-            
-            // Fonction pour afficher les créateurs
-            function displayCreators(creators, container, status) {
-                if (!creators || creators.length === 0) {
-                    const message = status === 'pending' 
-                        ? 'Aucune demande en attente'
-                        : 'Aucun créateur approuvé';
-                    container.innerHTML = `<div class="empty-message">${message}</div>`;
-                    return;
-                }
-                
-                let html = '';
-                
-                creators.forEach(creator => {
-                    const date = creator.created_at 
-                        ? new Date(creator.created_at).toLocaleDateString('fr-FR', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        })
-                        : 'Date inconnue';
-                    
-                    html += `
-                        <div class="creator-card">
-                            <h3>${creator.nom_marque || 'Sans nom de marque'}</h3>
-                            <p><strong>Contact :</strong> ${creator.prenom || ''} ${creator.nom || ''}</p>
-                            <p><strong>Email :</strong> ${creator.email || 'Non fourni'}</p>
-                            <p><strong>Téléphone :</strong> ${creator.telephone || 'Non fourni'}</p>
-                            <p><strong>Domaine :</strong> ${creator.domaine || 'Non spécifié'}</p>
-                            <p><strong>Date d'inscription :</strong> ${date}</p>
-                    `;
-                    
-                    if (status === 'pending') {
-                        html += `
-                            <div class="card-actions">
-                                <button class="action-btn approve-btn" onclick="window.adminFunctions.approveCreator(${creator.id}, '${(creator.nom_marque || '').replace(/'/g, "\\'")}')">
-                                    Approuver
-                                </button>
-                                <button class="action-btn reject-btn" onclick="window.adminFunctions.rejectCreator(${creator.id}, '${(creator.nom_marque || '').replace(/'/g, "\\'")}')">
-                                    Refuser
-                                </button>
-                            </div>
-                        `;
-                    }
-                    
-                    html += `</div>`;
-                });
-                
-                container.innerHTML = html;
-            }
-            
-            // Charger les créateurs au démarrage
-            if (window.adminFunctions && window.adminFunctions.loadAllCreators) {
-                setTimeout(() => {
-                    window.adminFunctions.loadAllCreators();
-                }, 500);
-            }
+<script src="script.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Vérifier la connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            alert('Accès non autorisé. Veuillez vous connecter.');
+            window.location.href = 'index.html';
         }
-    </script>
+        
+        // Gestion de la déconnexion
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>
