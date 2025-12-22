@@ -40,7 +40,7 @@
         .admin-nav-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-            background: linear-gradient(135deg, #0b0b0a, #b08924);
+            background: linear-gradient(135deg, #c19a2d, #b08924);
         }
         
         .admin-nav-btn i {
@@ -77,6 +77,107 @@
             font-size: 1.5rem;
         }
         
+        /* Styles pour les cartes de créateurs */
+        .submission-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #d4af37;
+            transition: transform 0.3s ease;
+        }
+        
+        .submission-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .submission-card h4 {
+            color: #333;
+            margin: 0 0 10px 0;
+            font-size: 1.2rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .submission-card p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        .submission-card strong {
+            color: #333;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .approve-btn, .deny-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .approve-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .approve-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .deny-btn {
+            background: #f44336;
+            color: white;
+        }
+        
+        .deny-btn:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 30px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border: 2px dashed #ddd;
+        }
+        
+        /* Style pour le thème sombre */
+        [data-theme="night"] .submission-card {
+            background: #2a2a2a;
+            border-left-color: #d4af37;
+        }
+        
+        [data-theme="night"] .submission-card h4 {
+            color: #ffffff;
+        }
+        
+        [data-theme="night"] .submission-card p {
+            color: #cccccc;
+        }
+        
+        [data-theme="night"] .no-data {
+            background: #333;
+            color: #aaa;
+            border-color: #444;
+        }
+
         @media (max-width: 768px) {
             .admin-nav {
                 gap: 10px;
@@ -94,6 +195,10 @@
             
             .admin-nav-btn i {
                 margin: 0;
+            }
+            
+            .card-actions {
+                flex-direction: column;
             }
         }
         
@@ -115,13 +220,9 @@
     <header class="main-header">
         <div class="container">
             <div class="admin-header-content">
-                <div class="logo"><a href="" style="color: inherit;">DREAMSWEAR</a></div>
+                <div class="logo"><a href="index.html" style="color: inherit; text-decoration: none;">DREAMSWEAR</a></div>
                 <h1>Panneau d'Administration</h1>
                 <div class="admin-nav">
-                    <a href="Actualisation.html" class="admin-nav-btn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Actualisation</span>
-                    </a>
                     <a href="index.html" class="back-link">
                         <i class="fas fa-arrow-left"></i>
                         <span>Retour au site</span>
@@ -133,113 +234,196 @@
 
     <main class="admin-container">
         <section class="admin-section">
-            <h2>Demandes en attente</h2>
-            <div id="pending-submissions" class="submission-list">
-                <!-- Pending submissions will be injected here -->
+            <h2>Créateurs en attente</h2>
+            <div id="pending-creators" class="submission-list">
+                <div class="loading">Chargement des demandes...</div>
             </div>
         </section>
 
         <section class="admin-section">
             <h2>Créateurs Approuvés</h2>
-            <div id="approved-creators" class="submission-list approved-list">
-                <!-- Approved creators will be injected here -->
+            <div id="approved-creators" class="submission-list">
+                <div class="loading">Chargement des créateurs approuvés...</div>
             </div>
         </section>
     </main>
     
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const pendingContainer = document.getElementById('pending-submissions');
+        // Configuration Supabase (les mêmes identifiants que dans script.js)
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const pendingContainer = document.getElementById('pending-creators');
             const approvedContainer = document.getElementById('approved-creators');
 
-            const renderSubmissions = () => {
-                const pendingSubmissions = JSON.parse(localStorage.getItem('pendingSubmissions')) || [];
-                const approvedCreators = JSON.parse(localStorage.getItem('approvedCreators')) || [];
-                
-                pendingContainer.innerHTML = '';
-                approvedContainer.innerHTML = '';
-
-                if (pendingSubmissions.length === 0) {
-                    pendingContainer.innerHTML = '<p class="no-data">Aucune nouvelle demande.</p>';
-                } else {
-                    pendingSubmissions.forEach(sub => {
-                        const card = document.createElement('div');
-                        card.className = 'submission-card';
-                        card.innerHTML = `
-                            <h4>${sub.marque}</h4>
-                            <p><strong>Contact:</strong> ${sub.prenom} ${sub.nom} (${sub.email})</p>
-                            <p><strong>Téléphone:</strong> ${sub.telephone || 'Non fourni'}</p>
-                            <p><strong>Domaine:</strong> ${sub.domaine}</p>
-                            <p><strong>Date:</strong> ${new Date(sub.submissionDate).toLocaleDateString('fr-FR')}</p>
-                            <div class="card-actions">
-                                <button class="approve-btn" data-id="${sub.id}">
-                                    <i class="fas fa-check"></i> Approuver
-                                </button>
-                                <button class="deny-btn" data-id="${sub.id}">
-                                    <i class="fas fa-times"></i> Refuser
-                                </button>
-                            </div>
-                        `;
-                        pendingContainer.appendChild(card);
-                    });
-                }
-                
-                if (approvedCreators.length === 0) {
-                    approvedContainer.innerHTML = '<p class="no-data">Aucun créateur approuvé.</p>';
-                } else {
-                    approvedCreators.forEach(creator => {
-                        const card = document.createElement('div');
-                        card.className = 'submission-card';
-                        card.innerHTML = `
-                            <h4>${creator.marque}</h4>
-                            <p><strong>Contact:</strong> ${creator.prenom} ${creator.nom} (${creator.email})</p>
-                            <p><strong>Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
-                            <p><strong>Domaine:</strong> ${creator.domaine}</p>
-                            <p><strong>Approuvé le:</strong> ${new Date(creator.submissionDate).toLocaleDateString('fr-FR')}</p>
-                        `;
-                        approvedContainer.appendChild(card);
-                    });
+            // Fonction pour charger les créateurs depuis Supabase
+            const loadCreators = async () => {
+                try {
+                    console.log('🔄 Chargement des créateurs depuis Supabase...');
+                    
+                    // Charger les créateurs en attente (statut = 'pending')
+                    const { data: pendingData, error: pendingError } = await supabase
+                        .from('créateurs')
+                        .select('*')
+                        .eq('statut', 'pending')
+                        .order('created_at', { ascending: false });
+                    
+                    if (pendingError) {
+                        console.error('❌ Erreur Supabase (pending):', pendingError);
+                        pendingContainer.innerHTML = `<div class="no-data">Erreur de chargement: ${pendingError.message}</div>`;
+                    } else {
+                        console.log('📋 Créateurs en attente:', pendingData);
+                        displayCreators(pendingData, pendingContainer, 'pending');
+                    }
+                    
+                    // Charger les créateurs approuvés (statut = 'actif')
+                    const { data: approvedData, error: approvedError } = await supabase
+                        .from('créateurs')
+                        .select('*')
+                        .eq('statut', 'actif')
+                        .order('created_at', { ascending: false });
+                    
+                    if (approvedError) {
+                        console.error('❌ Erreur Supabase (approved):', approvedError);
+                        approvedContainer.innerHTML = `<div class="no-data">Erreur de chargement: ${approvedError.message}</div>`;
+                    } else {
+                        console.log('✅ Créateurs approuvés:', approvedData);
+                        displayCreators(approvedData, approvedContainer, 'approved');
+                    }
+                    
+                } catch (error) {
+                    console.error('💥 Erreur inattendue:', error);
+                    pendingContainer.innerHTML = `<div class="no-data">Erreur inattendue: ${error.message}</div>`;
+                    approvedContainer.innerHTML = `<div class="no-data">Erreur inattendue: ${error.message}</div>`;
                 }
             };
 
-            const handleAction = (e) => {
-                if (!e.target.matches('button')) return;
-
-                const id = Number(e.target.dataset.id);
-                let pendingSubmissions = JSON.parse(localStorage.getItem('pendingSubmissions')) || [];
-                let approvedCreators = JSON.parse(localStorage.getItem('approvedCreators')) || [];
-                
-                const submissionIndex = pendingSubmissions.findIndex(sub => sub.id === id);
-                if (submissionIndex === -1) return;
-
-                if (e.target.classList.contains('approve-btn')) {
-                    const [approvedSubmission] = pendingSubmissions.splice(submissionIndex, 1);
-                    approvedSubmission.status = 'approved';
-                    approvedSubmission.approvalDate = new Date().toISOString();
-                    approvedCreators.push(approvedSubmission);
-                    
-                    // Confirmation
-                    alert(`Créateur "${approvedSubmission.marque}" approuvé avec succès !`);
-                } else if (e.target.classList.contains('deny-btn')) {
-                    const deniedSubmission = pendingSubmissions[submissionIndex];
-                    pendingSubmissions.splice(submissionIndex, 1);
-                    
-                    // Confirmation
-                    alert(`Demande de "${deniedSubmission.marque}" refusée.`);
+            // Fonction pour afficher les créateurs
+            const displayCreators = (creators, container, status) => {
+                if (!creators || creators.length === 0) {
+                    const message = status === 'pending' 
+                        ? 'Aucun créateur en attente de validation.'
+                        : 'Aucun créateur approuvé pour le moment.';
+                    container.innerHTML = `<div class="no-data">${message}</div>`;
+                    return;
                 }
                 
-                localStorage.setItem('pendingSubmissions', JSON.stringify(pendingSubmissions));
-                localStorage.setItem('approvedCreators', JSON.stringify(approvedCreators));
-                renderSubmissions();
+                container.innerHTML = '';
+                
+                creators.forEach(creator => {
+                    const card = document.createElement('div');
+                    card.className = 'submission-card';
+                    
+                    const date = creator.created_at 
+                        ? new Date(creator.created_at).toLocaleDateString('fr-FR', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })
+                        : 'Date non disponible';
+                    
+                    card.innerHTML = `
+                        <h4>${creator.nom_marque || 'Marque non spécifiée'}</h4>
+                        <p><strong>Contact:</strong> ${creator.prenom || ''} ${creator.nom || ''} (${creator.email || 'Email non fourni'})</p>
+                        <p><strong>Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
+                        <p><strong>Domaine:</strong> ${creator.domaine || 'Non spécifié'}</p>
+                        <p><strong>Date d'inscription:</strong> ${date}</p>
+                        <p><strong>Statut:</strong> <span style="color: ${status === 'pending' ? '#FF9800' : '#4CAF50'}">${status === 'pending' ? 'En attente' : 'Actif'}</span></p>
+                        
+                        ${status === 'pending' ? `
+                        <div class="card-actions">
+                            <button class="approve-btn" data-id="${creator.id}">
+                                <i class="fas fa-check"></i> Approuver
+                            </button>
+                            <button class="deny-btn" data-id="${creator.id}">
+                                <i class="fas fa-times"></i> Refuser
+                            </button>
+                        </div>
+                        ` : ''}
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+                // Ajouter les gestionnaires d'événements pour les boutons
+                if (status === 'pending') {
+                    addButtonEventListeners(container);
+                }
             };
 
-            pendingContainer.addEventListener('click', handleAction);
-            renderSubmissions();
+            // Fonction pour gérer les clics sur les boutons
+            const addButtonEventListeners = (container) => {
+                container.addEventListener('click', async (e) => {
+                    const button = e.target.closest('button');
+                    if (!button) return;
+                    
+                    const creatorId = button.dataset.id;
+                    const creatorCard = button.closest('.submission-card');
+                    const brandName = creatorCard.querySelector('h4').textContent;
+                    
+                    try {
+                        if (button.classList.contains('approve-btn')) {
+                            // Mettre à jour le statut à 'actif' dans Supabase
+                            const { error } = await supabase
+                                .from('créateurs')
+                                .update({ 
+                                    statut: 'actif',
+                                    approved_at: new Date().toISOString()
+                                })
+                                .eq('id', creatorId);
+                            
+                            if (error) throw error;
+                            
+                            alert(`✅ Créateur "${brandName}" approuvé avec succès !`);
+                            console.log(`Créateur ${creatorId} approuvé`);
+                            
+                        } else if (button.classList.contains('deny-btn')) {
+                            // Option 1: Supprimer le créateur
+                            const { error } = await supabase
+                                .from('créateurs')
+                                .delete()
+                                .eq('id', creatorId);
+                            
+                            if (error) throw error;
+                            
+                            alert(`❌ Demande de "${brandName}" refusée et supprimée.`);
+                            console.log(`Créateur ${creatorId} refusé et supprimé`);
+                            
+                            // Option 2: Mettre à jour le statut à 'rejected' si vous préférez garder l'historique
+                            // const { error } = await supabase
+                            //     .from('créateurs')
+                            //     .update({ statut: 'rejected' })
+                            //     .eq('id', creatorId);
+                        }
+                        
+                        // Recharger la liste
+                        await loadCreators();
+                        
+                    } catch (error) {
+                        console.error('💥 Erreur lors de la mise à jour:', error);
+                        alert(`Erreur: ${error.message}`);
+                    }
+                });
+            };
+
+            // Initialiser le chargement
+            await loadCreators();
             
-            // Ajout d'une confirmation avant de quitter si des modifications non sauvegardées
-            window.addEventListener('beforeunload', (e) => {
-                // Vous pouvez ajouter une logique de vérification ici si nécessaire
-            });
+            // Optionnel: Rafraîchir automatiquement toutes les 30 secondes
+            // setInterval(loadCreators, 30000);
+            
+            // Vérifier la connexion admin
+            const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+                alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+                window.location.href = 'index.html';
+            }
         });
     </script>
 </body>
