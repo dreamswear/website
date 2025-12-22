@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Styles pour les boutons de navigation admin */
         .admin-nav {
@@ -40,7 +41,7 @@
         .admin-nav-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-            background: linear-gradient(135deg, #c19a2d, #b08924);
+            background: linear-gradient(135deg, #0b0b0a, #b08924);
         }
         
         .admin-nav-btn i {
@@ -77,119 +78,87 @@
             font-size: 1.5rem;
         }
         
-        /* Styles pour les cartes de créateurs */
-        .submission-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-left: 4px solid #d4af37;
-            transition: transform 0.3s ease;
+        /* Chargement initial */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
         }
         
-        .submission-card:hover {
-            transform: translateY(-3px);
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #d4af37;
+            animation: spin 1s linear infinite;
         }
         
-        .submission-card h4 {
-            color: #333;
-            margin: 0 0 10px 0;
-            font-size: 1.2rem;
-            font-family: 'Playfair Display', serif;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        .submission-card p {
-            margin: 5px 0;
-            color: #555;
-            font-size: 0.9rem;
+        /* Message d'erreur */
+        .error-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
         }
         
-        .submission-card strong {
-            color: #333;
-        }
-        
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .approve-btn, .deny-btn {
-            padding: 8px 16px;
+        /* Bouton de déconnexion */
+        .logout-btn {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
             border: none;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 20px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
+            gap: 5px;
+            font-size: 0.8rem;
         }
         
-        .approve-btn {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .approve-btn:hover {
-            background: #45a049;
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #c82333, #bd2130);
             transform: translateY(-2px);
         }
         
-        .deny-btn {
-            background: #f44336;
-            color: white;
+        /* Info admin connecté */
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
         
-        .deny-btn:hover {
-            background: #d32f2f;
-            transform: translateY(-2px);
+        .admin-info i {
+            color: #d4af37;
         }
         
-        .no-data {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            padding: 30px;
-            background: #f9f9f9;
-            border-radius: 10px;
-            border: 2px dashed #ddd;
-        }
-        
-        /* Style pour le thème sombre */
-        [data-theme="night"] .submission-card {
-            background: #2a2a2a;
-            border-left-color: #d4af37;
-        }
-        
-        [data-theme="night"] .submission-card h4 {
-            color: #ffffff;
-        }
-        
-        [data-theme="night"] .submission-card p {
-            color: #cccccc;
-        }
-        
-        [data-theme="night"] .no-data {
-            background: #333;
-            color: #aaa;
-            border-color: #444;
-        }
-
         @media (max-width: 768px) {
             .admin-nav {
                 gap: 10px;
             }
             
             .admin-nav-btn span,
-            .back-link span {
+            .back-link span,
+            .logout-btn span {
                 display: none;
             }
             
             .admin-nav-btn,
-            .back-link {
+            .back-link,
+            .logout-btn {
                 padding: 10px;
             }
             
@@ -197,8 +166,8 @@
                 margin: 0;
             }
             
-            .card-actions {
-                flex-direction: column;
+            .admin-info span {
+                display: none;
             }
         }
         
@@ -220,9 +189,21 @@
     <header class="main-header">
         <div class="container">
             <div class="admin-header-content">
-                <div class="logo"><a href="index.html" style="color: inherit; text-decoration: none;">DREAMSWEAR</a></div>
+                <div class="logo"><a href="index.html" style="color: inherit;">DREAMSWEAR</a></div>
                 <h1>Panneau d'Administration</h1>
                 <div class="admin-nav">
+                    <div class="admin-info" id="admin-info">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin connecté</span>
+                    </div>
+                    <a href="Actualisation.html" class="admin-nav-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Actualisation</span>
+                    </a>
+                    <button id="logout-btn" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </button>
                     <a href="index.html" class="back-link">
                         <i class="fas fa-arrow-left"></i>
                         <span>Retour au site</span>
@@ -234,21 +215,137 @@
 
     <main class="admin-container">
         <section class="admin-section">
-            <h2>Créateurs en attente</h2>
+            <div class="section-header">
+                <h2><i class="fas fa-clock"></i> Demandes en attente</h2>
+                <div class="refresh-controls">
+                    <button id="refresh-btn" class="refresh-btn" title="Actualiser la liste">
+                        <i class="fas fa-redo"></i> Actualiser
+                    </button>
+                    <span id="pending-count" class="count-badge">0</span>
+                </div>
+            </div>
             <div id="pending-creators" class="submission-list">
-                <div class="loading">Chargement des demandes...</div>
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Chargement des créateurs en attente...</p>
+                </div>
             </div>
         </section>
 
         <section class="admin-section">
-            <h2>Créateurs Approuvés</h2>
-            <div id="approved-creators" class="submission-list">
-                <div class="loading">Chargement des créateurs approuvés...</div>
+            <div class="section-header">
+                <h2><i class="fas fa-check-circle"></i> Créateurs Approuvés</h2>
+                <div class="refresh-controls">
+                    <span id="approved-count" class="count-badge success">0</span>
+                </div>
+            </div>
+            <div id="approved-creators" class="submission-list approved-list">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Chargement des créateurs approuvés...</p>
+                </div>
             </div>
         </section>
+        
+        <div id="error-container" style="display: none;" class="error-message"></div>
     </main>
     
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Vérifier la connexion admin
+            const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            const adminName = sessionStorage.getItem('adminName');
+            
+            if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+                alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Afficher le nom de l'admin connecté
+            if (adminName) {
+                const adminInfo = document.getElementById('admin-info');
+                if (adminInfo) {
+                    adminInfo.innerHTML = `<i class="fas fa-user-shield"></i><span>${adminName}</span>`;
+                }
+            }
+            
+            // Gestion du bouton de déconnexion
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                        sessionStorage.removeItem('adminLoggedIn');
+                        sessionStorage.removeItem('adminId');
+                        sessionStorage.removeItem('adminName');
+                        sessionStorage.removeItem('adminEmail');
+                        window.location.href = 'index.html';
+                    }
+                });
+            }
+            
+            // Gestion du bouton d'actualisation
+            const refreshBtn = document.getElementById('refresh-btn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', () => {
+                    // Appeler la fonction loadCreators du script principal
+                    // Elle sera appelée automatiquement car les conteneurs existent
+                    const pendingContainer = document.getElementById('pending-creators');
+                    const approvedContainer = document.getElementById('approved-creators');
+                    
+                    // Afficher un indicateur de chargement
+                    pendingContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Actualisation en cours...</p></div>';
+                    approvedContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Actualisation en cours...</p></div>';
+                    
+                    // Le script principal va recharger automatiquement les données
+                    // car il détecte la présence des conteneurs
+                    console.log('🔄 Actualisation manuelle demandée');
+                });
+            }
+            
+            // Mettre à jour les compteurs (cette fonction sera appelée par le script principal)
+            window.updateCounters = function(pendingCount, approvedCount) {
+                const pendingCountElement = document.getElementById('pending-count');
+                const approvedCountElement = document.getElementById('approved-count');
+                
+                if (pendingCountElement) {
+                    pendingCountElement.textContent = pendingCount;
+                }
+                
+                if (approvedCountElement) {
+                    approvedCountElement.textContent = approvedCount;
+                }
+            };
+            
+            // Afficher une erreur (cette fonction sera appelée par le script principal si besoin)
+            window.showError = function(message) {
+                const errorContainer = document.getElementById('error-container');
+                if (errorContainer) {
+                    errorContainer.textContent = message;
+                    errorContainer.style.display = 'block';
+                    
+                    // Masquer l'erreur après 10 secondes
+                    setTimeout(() => {
+                        errorContainer.style.display = 'none';
+                    }, 10000);
+                }
+            };
+            
+            // Ajouter un événement pour rafraîchir automatiquement toutes les minutes
+            setInterval(() => {
+                console.log('🔄 Actualisation automatique des données');
+                const refreshBtn = document.getElementById('refresh-btn');
+                if (refreshBtn && !document.querySelector('.loading')) {
+                    refreshBtn.click();
+                }
+            }, 60000); // 60 secondes
+            
+            // Empêcher la navigation si l'admin n'est pas connecté
+            window.addEventListener('beforeunload', (e) => {
+                // Vous pouvez ajouter une logique de vérification ici si nécessaire
+            });
+        });
+    </script>
 </body>
 </html>
