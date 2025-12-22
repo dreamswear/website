@@ -2,13 +2,13 @@
 // CODE PRINCIPAL
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-// ============================================
-// CONFIGURATION SUPABASE
-// ============================================
-const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+    // ============================================
+    // CONFIGURATION SUPABASE
+    // ============================================
+    const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ============================================
     // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
@@ -220,7 +220,8 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                             domaine: domaine,
                             email: email,
                             telephone: telephone,
-                            mot_de_passe: password
+                            mot_de_passe: password,
+                            statut: 'pending'
                         }
                     ]);
                 
@@ -492,4 +493,178 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             form.reset();
         });
     });
+
+    // ============================================
+    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION
+    // ============================================
+    // Vérifier si nous sommes sur la page admin
+    const pendingContainer = document.getElementById('pending-creators');
+    const approvedContainer = document.getElementById('approved-creators');
+    
+    if (pendingContainer && approvedContainer) {
+        // Fonction pour charger les créateurs depuis Supabase
+        const loadCreators = async () => {
+            try {
+                console.log('🔄 Chargement des créateurs depuis Supabase...');
+                
+                // Charger les créateurs en attente (statut = 'pending')
+                const { data: pendingData, error: pendingError } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('statut', 'pending')
+                    .order('created_at', { ascending: false });
+                
+                if (pendingError) {
+                    console.error('❌ Erreur Supabase (pending):', pendingError);
+                    pendingContainer.innerHTML = `<div class="no-data">Erreur de chargement: ${pendingError.message}</div>`;
+                } else {
+                    console.log('📋 Créateurs en attente:', pendingData);
+                    displayCreators(pendingData, pendingContainer, 'pending');
+                }
+                
+                // Charger les créateurs approuvés (statut = 'actif')
+                const { data: approvedData, error: approvedError } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('statut', 'actif')
+                    .order('created_at', { ascending: false });
+                
+                if (approvedError) {
+                    console.error('❌ Erreur Supabase (approved):', approvedError);
+                    approvedContainer.innerHTML = `<div class="no-data">Erreur de chargement: ${approvedError.message}</div>`;
+                } else {
+                    console.log('✅ Créateurs approuvés:', approvedData);
+                    displayCreators(approvedData, approvedContainer, 'approved');
+                }
+                
+            } catch (error) {
+                console.error('💥 Erreur inattendue:', error);
+                pendingContainer.innerHTML = `<div class="no-data">Erreur inattendue: ${error.message}</div>`;
+                approvedContainer.innerHTML = `<div class="no-data">Erreur inattendue: ${error.message}</div>`;
+            }
+        };
+
+        // Fonction pour afficher les créateurs
+        const displayCreators = (creators, container, status) => {
+            if (!creators || creators.length === 0) {
+                const message = status === 'pending' 
+                    ? 'Aucun créateur en attente de validation.'
+                    : 'Aucun créateur approuvé pour le moment.';
+                container.innerHTML = `<div class="no-data">${message}</div>`;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            creators.forEach(creator => {
+                const card = document.createElement('div');
+                card.className = 'submission-card';
+                
+                const date = creator.created_at 
+                    ? new Date(creator.created_at).toLocaleDateString('fr-FR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                    : 'Date non disponible';
+                
+                card.innerHTML = `
+                    <h4>${creator.nom_marque || 'Marque non spécifiée'}</h4>
+                    <p><strong>Contact:</strong> ${creator.prenom || ''} ${creator.nom || ''} (${creator.email || 'Email non fourni'})</p>
+                    <p><strong>Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
+                    <p><strong>Domaine:</strong> ${creator.domaine || 'Non spécifié'}</p>
+                    <p><strong>Date d'inscription:</strong> ${date}</p>
+                    <p><strong>Statut:</strong> <span style="color: ${status === 'pending' ? '#FF9800' : '#4CAF50'}">${status === 'pending' ? 'En attente' : 'Actif'}</span></p>
+                    
+                    ${status === 'pending' ? `
+                    <div class="card-actions">
+                        <button class="approve-btn" data-id="${creator.id}">
+                            <i class="fas fa-check"></i> Approuver
+                        </button>
+                        <button class="deny-btn" data-id="${creator.id}">
+                            <i class="fas fa-times"></i> Refuser
+                        </button>
+                    </div>
+                    ` : ''}
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Ajouter les gestionnaires d'événements pour les boutons
+            if (status === 'pending') {
+                addButtonEventListeners(container);
+            }
+        };
+
+        // Fonction pour gérer les clics sur les boutons
+        const addButtonEventListeners = (container) => {
+            container.addEventListener('click', async (e) => {
+                const button = e.target.closest('button');
+                if (!button) return;
+                
+                const creatorId = button.dataset.id;
+                const creatorCard = button.closest('.submission-card');
+                const brandName = creatorCard.querySelector('h4').textContent;
+                
+                try {
+                    if (button.classList.contains('approve-btn')) {
+                        // Mettre à jour le statut à 'actif' dans Supabase
+                        const { error } = await supabase
+                            .from('créateurs')
+                            .update({ 
+                                statut: 'actif',
+                                approved_at: new Date().toISOString()
+                            })
+                            .eq('id', creatorId);
+                        
+                        if (error) throw error;
+                        
+                        alert(`✅ Créateur "${brandName}" approuvé avec succès !`);
+                        console.log(`Créateur ${creatorId} approuvé`);
+                        
+                    } else if (button.classList.contains('deny-btn')) {
+                        // Option 1: Supprimer le créateur
+                        const { error } = await supabase
+                            .from('créateurs')
+                            .delete()
+                            .eq('id', creatorId);
+                        
+                        if (error) throw error;
+                        
+                        alert(`❌ Demande de "${brandName}" refusée et supprimée.`);
+                        console.log(`Créateur ${creatorId} refusé et supprimé`);
+                        
+                        // Option 2: Mettre à jour le statut à 'rejected' si vous préférez garder l'historique
+                        // const { error } = await supabase
+                        //     .from('créateurs')
+                        //     .update({ statut: 'rejected' })
+                        //     .eq('id', creatorId);
+                    }
+                    
+                    // Recharger la liste
+                    await loadCreators();
+                    
+                } catch (error) {
+                    console.error('💥 Erreur lors de la mise à jour:', error);
+                    alert(`Erreur: ${error.message}`);
+                }
+            });
+        };
+
+        // Initialiser le chargement
+        loadCreators();
+        
+        // Optionnel: Rafraîchir automatiquement toutes les 30 secondes
+        // setInterval(loadCreators, 30000);
+        
+        // Vérifier la connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+            window.location.href = 'index.html';
+        }
+    }
 });
