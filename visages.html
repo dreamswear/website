@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Portrait créateur - DREAMSWEAR</title>
+</head>
+<body>
+  <div id="visage-detail">
+    <div class="visage-header">
+      <img id="visage-photo" src="" alt="">
+      <div>
+        <h1 id="visage-nom"></h1>
+        <p id="visage-domaine"></p>
+        <div id="visage-reseaux"></div>
+      </div>
+    </div>
+    
+    <div class="visage-content">
+      <section class="biographie">
+        <h2>Biographie</h2>
+        <div id="visage-bio"></div>
+      </section>
+      
+      <section class="interview">
+        <h2>Interview</h2>
+        <div id="visage-interview"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+  // Récupérer l'ID depuis l'URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const visageId = urlParams.get('id');
+  
+  async function loadVisageDetail() {
+    const { data, error } = await supabase
+      .from('visages')
+      .select('*')
+      .eq('id', visageId)
+      .single();
+    
+    if (error) {
+      document.getElementById('visage-detail').innerHTML = 
+        '<p>Créateur non trouvé</p>';
+      return;
+    }
+    
+    // Remplir la page avec les données
+    document.getElementById('visage-photo').src = data.photo_url;
+    document.getElementById('visage-nom').textContent = data.nom_marque;
+    document.getElementById('visage-domaine').textContent = data.domaine;
+    document.getElementById('visage-bio').innerHTML = data.biographie_fr;
+    document.getElementById('visage-interview').innerHTML = data.interview_fr;
+    
+    if (data.site_web) {
+      document.getElementById('visage-reseaux').innerHTML += 
+        `<a href="${data.site_web}" target="_blank">Site web</a>`;
+    }
+  }
+  
+  loadVisageDetail();
+  </script>
+</body>
+</html>
