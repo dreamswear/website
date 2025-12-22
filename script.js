@@ -493,80 +493,167 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
         });
     });
-// ============================================
-    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION
+ // ============================================
+    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION (VERSION DIAGNOSTIC)
     // ============================================
-    // Vérifier si nous sommes sur la page admin avec les nouveaux IDs
     const pendingCreatorsDiv = document.getElementById('pendingCreators');
     const approvedCreatorsDiv = document.getElementById('approvedCreators');
     
     if (pendingCreatorsDiv && approvedCreatorsDiv) {
-        console.log('🔄 Page admin détectée, initialisation...');
+        console.log('🔄 Page admin détectée');
         
-        // Fonction pour charger les créateurs
-        const loadAllCreators = async () => {
-            await loadCreators('pending');
-            await loadCreators('approved');
-        };
-        
-        // Fonction pour charger par statut
-        const loadCreators = async (status) => {
-            const container = status === 'pending' ? pendingCreatorsDiv : approvedCreatorsDiv;
-            const countSpan = status === 'pending' 
-                ? document.getElementById('pendingCount') 
-                : document.getElementById('approvedCount');
-            
+        // TEST 1: Vérifier si Supabase est accessible
+        async function testSupabaseConnection() {
             try {
-                const { data, error } = await supabase
+                console.log('🔍 Test connexion Supabase...');
+                
+                // Test simple : compter tous les créateurs
+                const { count, error: countError } = await supabase
                     .from('créateurs')
-                    .select('*')
-                    .eq('statut', status === 'pending' ? 'pending' : 'actif')
-                    .order('created_at', { ascending: false });
+                    .select('*', { count: 'exact', head: true });
                 
-                if (error) throw error;
-                
-                // Mettre à jour le compteur
-                if (countSpan) {
-                    countSpan.textContent = data ? data.length : 0;
+                if (countError) {
+                    console.error('❌ Erreur compte:', countError);
+                    alert('Erreur Supabase: ' + countError.message);
+                    return false;
                 }
                 
-                // Afficher les créateurs
-                displayCreators(data, container, status);
+                console.log(`📊 Total créateurs dans Supabase: ${count}`);
+                
+                // Test 2: Voir tous les statuts
+                const { data: allCreators, error: allError } = await supabase
+                    .from('créateurs')
+                    .select('id, nom_marque, statut')
+                    .order('created_at', { ascending: false });
+                
+                if (allError) {
+                    console.error('❌ Erreur récupération:', allError);
+                    return false;
+                }
+                
+                console.log('📋 Liste complète des créateurs:', allCreators);
+                
+                // Afficher dans la page pour debug
+                const debugDiv = document.createElement('div');
+                debugDiv.style.cssText = `
+                    background: #f8d7da;
+                    color: #721c24;
+                    padding: 15px;
+                    margin: 15px;
+                    border-radius: 5px;
+                    font-family: monospace;
+                    font-size: 12px;
+                `;
+                
+                let debugHtml = '<strong>DEBUG Supabase:</strong><br>';
+                debugHtml += `Total créateurs: ${count}<br>`;
+                debugHtml += '<strong>Statuts trouvés:</strong><br>';
+                
+                if (allCreators && allCreators.length > 0) {
+                    allCreators.forEach(creator => {
+                        debugHtml += `- ${creator.nom_marque} (ID: ${creator.id}) → Statut: <strong>${creator.statut}</strong><br>`;
+                    });
+                } else {
+                    debugHtml += 'Aucun créateur trouvé<br>';
+                }
+                
+                debugDiv.innerHTML = debugHtml;
+                document.body.prepend(debugDiv);
+                
+                return true;
                 
             } catch (error) {
-                container.innerHTML = `<div class="empty-message">Erreur : ${error.message}</div>`;
+                console.error('💥 Erreur test:', error);
+                alert('Erreur test: ' + error.message);
+                return false;
             }
-        };
+        }
         
-        // Fonction pour afficher les créateurs
-        function displayCreators(creators, container, status) {
-            if (!creators || creators.length === 0) {
-                const message = status === 'pending' 
-                    ? 'Aucune demande en attente'
-                    : 'Aucun créateur approuvé';
-                container.innerHTML = `<div class="empty-message">${message}</div>`;
+        // Fonction principale corrigée
+        const loadAllCreators = async () => {
+            console.log('🔄 Chargement créateurs...');
+            
+            // Afficher message temporaire
+            pendingCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
+            approvedCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
+            
+            // Tester la connexion d'abord
+            const connected = await testSupabaseConnection();
+            if (!connected) {
+                pendingCreatorsDiv.innerHTML = '<div class="empty-message">❌ Impossible de se connecter à la base de données</div>';
+                approvedCreatorsDiv.innerHTML = '<div class="empty-message">❌ Impossible de se connecter à la base de données</div>';
                 return;
             }
             
+            // Charger les créateurs en attente
+            try {
+                const { data: pendingData, error: pendingError } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('statut', 'pending')  // VÉRIFIEZ ICI LE STATUT EXACT
+                    .order('created_at', { ascending: false });
+                
+                console.log('📋 Données pending:', pendingData);
+                console.log('❌ Erreur pending:', pendingError);
+                
+                if (pendingError) {
+                    pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${pendingError.message}</div>`;
+                } else if (!pendingData || pendingData.length === 0) {
+                    pendingCreatorsDiv.innerHTML = '<div class="empty-message">Aucune demande avec statut "pending"</div>';
+                } else {
+                    displayCreators(pendingData, pendingCreatorsDiv, 'pending');
+                    document.getElementById('pendingCount').textContent = pendingData.length;
+                }
+                
+            } catch (error) {
+                console.error('💥 Erreur pending:', error);
+                pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
+            }
+            
+            // Charger les créateurs approuvés
+            try {
+                const { data: approvedData, error: approvedError } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('statut', 'actif')  // VÉRIFIEZ ICI LE STATUT EXACT
+                    .order('created_at', { ascending: false });
+                
+                console.log('✅ Données approved:', approvedData);
+                console.log('❌ Erreur approved:', approvedError);
+                
+                if (approvedError) {
+                    approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${approvedError.message}</div>`;
+                } else if (!approvedData || approvedData.length === 0) {
+                    approvedCreatorsDiv.innerHTML = '<div class="empty-message">Aucun créateur avec statut "actif"</div>';
+                } else {
+                    displayCreators(approvedData, approvedCreatorsDiv, 'approved');
+                    document.getElementById('approvedCount').textContent = approvedData.length;
+                }
+                
+            } catch (error) {
+                console.error('💥 Erreur approved:', error);
+                approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
+            }
+        };
+        
+        // Fonction d'affichage
+        function displayCreators(creators, container, status) {
             let html = '';
             
             creators.forEach(creator => {
                 const date = creator.created_at 
-                    ? new Date(creator.created_at).toLocaleDateString('fr-FR', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    })
+                    ? new Date(creator.created_at).toLocaleDateString('fr-FR')
                     : 'Date inconnue';
                 
                 html += `
                     <div class="creator-card">
-                        <h3>${creator.nom_marque || 'Sans nom de marque'}</h3>
+                        <h3>${creator.nom_marque || 'Sans nom'}</h3>
                         <p><strong>Contact :</strong> ${creator.prenom || ''} ${creator.nom || ''}</p>
                         <p><strong>Email :</strong> ${creator.email || 'Non fourni'}</p>
                         <p><strong>Téléphone :</strong> ${creator.telephone || 'Non fourni'}</p>
                         <p><strong>Domaine :</strong> ${creator.domaine || 'Non spécifié'}</p>
-                        <p><strong>Date d'inscription :</strong> ${date}</p>
+                        <p><strong>Date :</strong> ${date}</p>
+                        <p><strong>Statut dans BD :</strong> ${creator.statut}</p>
                 `;
                 
                 if (status === 'pending') {
@@ -588,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = html;
         }
         
-        // Fonctions globales pour les boutons
+        // Fonctions globales
         window.approveCreator = async function(id, brandName) {
             if (!confirm(`Approuver "${brandName}" ?`)) return;
             
@@ -603,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
                 
-                alert(`"${brandName}" approuvé avec succès !`);
+                alert(`"${brandName}" approuvé`);
                 await loadAllCreators();
                 
             } catch (error) {
@@ -622,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
                 
-                alert(`"${brandName}" refusé.`);
+                alert(`"${brandName}" refusé`);
                 await loadAllCreators();
                 
             } catch (error) {
@@ -630,16 +717,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         
-        // Charger les créateurs au démarrage
-        setTimeout(() => {
-            loadAllCreators();
-        }, 500);
-        
         // Vérifier la connexion admin
         const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
         if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
             alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
             window.location.href = 'index.html';
+            return;
         }
+        
+        // Charger les données
+        setTimeout(loadAllCreators, 1000);
     }
 });
