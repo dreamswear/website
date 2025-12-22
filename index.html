@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Style pour le bouton menu */
         .menu-btn {
@@ -400,7 +401,91 @@
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
         }
 
-        /* Responsive */
+        /* Styles pour la section Visages du mois (seule section dynamique sur la page principale) */
+        .featured-section {
+            padding: 60px 0;
+            background: var(--bg-section, #f9f9f9);
+        }
+
+        .featured-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .featured-card {
+            background: var(--card-bg, #ffffff);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow, 0 5px 15px rgba(0, 0, 0, 0.1));
+            transition: all 0.3s ease;
+        }
+
+        .featured-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .featured-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .featured-info {
+            padding: 25px;
+        }
+
+        .featured-info h3 {
+            margin: 0 0 10px 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: var(--text-primary, #1a1a1a);
+        }
+
+        .featured-info p {
+            color: var(--text-secondary, #666);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .featured-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color, #eee);
+        }
+
+        .featured-tag {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent, #d4af37);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .featured-btn {
+            display: inline-block;
+            padding: 10px 25px;
+            background: var(--accent, #d4af37);
+            color: var(--text-dark, #1a1a1a);
+            border-radius: 25px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .featured-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Responsive - Les mêmes règles que index.html */
         @media (max-width: 1100px) {
             .creator-btn span,
             .menu-btn span {
@@ -438,6 +523,11 @@
             
             .auth-modal-body {
                 padding: 20px;
+            }
+            
+            /* Responsive pour la section featured */
+            .featured-grid {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -480,11 +570,11 @@
                     </button>
                     <div class="dropdown-menu" id="dropdown-menu">
                         <ul>
-                            <li><a href="indisponible.html">Visages</a></li>
-                            <li><a href="indisponible.html">Coulisses</a></li>
-                            <li><a href="indisponible.html">Tendances</a></li>
-                            <li><a href="indisponible.html">Découvertes</a></li>
-                            <li><a href="indisponible.html">Culture/Agenda</a></li>
+                            <li><a href="visages.html">Visages</a></li>
+                            <li><a href="coulisses.html">Coulisses</a></li>
+                            <li><a href="tendances.html">Tendances</a></li>
+                            <li><a href="decouvertes.html">Découvertes</a></li>
+                            <li><a href="culture.html">Culture/Agenda</a></li>
                         </ul>
                     </div>
                 </div>
@@ -521,6 +611,20 @@
             </div>
         </section>
 
+        <!-- Section Visages du mois (seule section dynamique sur la page principale) -->
+        <section class="featured-section" id="featured">
+            <div class="container">
+                <h3 class="section-title"><span>Visages du mois</span></h3>
+                <div class="featured-grid" id="featured-container">
+                    <!-- Rempli dynamiquement -->
+                </div>
+                <div style="text-align: center; margin-top: 40px;">
+                    <a href="visages.html" class="featured-btn">Voir tous les créateurs</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Derniers Articles (identique à index.html) -->
         <section class="latest-articles">
             <div class="container">
                 <h3 class="section-title"><span>Derniers Articles</span></h3>
@@ -549,7 +653,7 @@
                             <a href="indisponible.html">Lire plus &rarr;</a>
                         </div>
                     </article>
-                     <article class="article-card hidden">
+                    <article class="article-card hidden">
                         <img src="article-image-4.png" alt="Style de rue">
                         <div class="card-content">
                             <h4>Street Style</h4>
@@ -581,7 +685,7 @@
         </div>
     </footer>
 
-    <!-- Fenêtre flottante pour l'authentification -->
+    <!-- Fenêtre flottante pour l'authentification (identique à index.html) -->
     <div class="auth-modal" id="auth-modal">
         <div class="auth-modal-content">
             <div class="auth-modal-header">
@@ -643,7 +747,7 @@
         </div>
     </div>
 
-    <!-- Modal d'abonnement -->
+    <!-- Modal d'abonnement (identique à index.html) -->
     <div id="subscribe-modal" class="modal-overlay hidden-modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
         <div class="modal-content">
             <button class="close-modal" aria-label="Fermer la fenêtre modale">&times;</button>
@@ -723,21 +827,22 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
     <script>
-        //Configuration Supabase
-        //const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        //const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';        
+        // Configuration Supabase - Même structure que index.html
+        const SUPABASE_URL = 'https://neensjugjhkvwcqslicr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU';
         
-      //  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Éléments du menu déroulant
+            // Charger uniquement les Visages du mois sur la page principale
+            loadFeaturedCreators();
+            
+            // Éléments du menu déroulant - Même code que index.html
             const menuBtn = document.getElementById('menu-btn');
             const dropdownMenu = document.getElementById('dropdown-menu');
             
-            // Éléments de la fenêtre d'authentification
+            // Éléments de la fenêtre d'authentification - Même code que index.html
             const authBtn = document.getElementById('auth-btn');
             const authModal = document.getElementById('auth-modal');
             const closeAuthModal = document.querySelector('.close-auth-modal');
@@ -747,13 +852,13 @@
             const adminError = document.getElementById('admin-error');
             const creatorError = document.getElementById('creator-error');
             
-            // Éléments du modal d'abonnement
+            // Éléments du modal d'abonnement - Même code que index.html
             const subscribeLink = document.getElementById('subscribe-link');
             const modal = document.getElementById('subscribe-modal');
             const closeModal = document.querySelector('.close-modal');
             const tabLinks = document.querySelectorAll('.tab-link');
             
-            // Gestion du menu déroulant
+            // Gestion du menu déroulant - Même code que index.html
             if (menuBtn && dropdownMenu) {
                 menuBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -771,7 +876,7 @@
                 });
             }
 
-            // Gestion de la fenêtre d'authentification
+            // Gestion de la fenêtre d'authentification - Même code que index.html
             if (authBtn && authModal) {
                 authBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -802,7 +907,7 @@
                 }
             });
 
-            // Gestion des onglets d'authentification
+            // Gestion des onglets d'authentification - Même code que index.html
             authTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const authType = this.getAttribute('data-auth-type');
@@ -825,7 +930,7 @@
                 });
             });
 
-             Gestion de la connexion administrateur
+            // Gestion de la connexion administrateur - Même code que index.html
             if (adminForm) {
                 adminForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
@@ -834,7 +939,7 @@
                     const password = document.getElementById('admin-password').value;
                     
                     try {
-                         Vérification dans la table administrateurs
+                        // Vérification dans la table administrateurs
                         const { data, error } = await supabase
                             .from('administrateurs')
                             .select('*')
@@ -847,12 +952,12 @@
                             return;
                         }
                         
-                         Connexion réussie
+                        // Connexion réussie
                         sessionStorage.setItem('adminLoggedIn', 'true');
                         sessionStorage.setItem('adminId', data.id);
                         sessionStorage.setItem('adminName', data.nom);
                         
-                         Redirection vers la page d'administration
+                        // Redirection vers la page d'administration
                         window.location.href = 'Actualisation.html';
                         
                     } catch (error) {
@@ -862,7 +967,7 @@
                 });
             }
 
-             Gestion de la connexion créateur
+            // Gestion de la connexion créateur - Même code que index.html
             if (creatorForm) {
                 creatorForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
@@ -871,7 +976,7 @@
                     const password = document.getElementById('creator-password').value;
                     
                     try {
-                         Vérification dans la table createurs
+                        // Vérification dans la table createurs
                         const { data, error } = await supabase
                             .from('créateurs')
                             .select('*')
@@ -885,12 +990,12 @@
                             return;
                         }
                         
-                         Connexion réussie
+                        // Connexion réussie
                         sessionStorage.setItem('creatorLoggedIn', 'true');
                         sessionStorage.setItem('creatorId', data.id);
                         sessionStorage.setItem('creatorBrand', data.nom_marque);
                         
-                         Redirection vers le dashboard créateur
+                        // Redirection vers le dashboard créateur
                         window.location.href = 'dashboard.html';
                         
                     } catch (error) {
@@ -900,7 +1005,7 @@
                 });
             }
 
-            // Gestion de l'inscription abonné
+            // Gestion de l'inscription abonné - Même code que index.html
             const subscriberForm = document.getElementById('subscriber-form-element');
             if (subscriberForm) {
                 subscriberForm.addEventListener('submit', async function(e) {
@@ -936,7 +1041,7 @@
                 });
             }
 
-            // Gestion de l'inscription créateur
+            // Gestion de l'inscription créateur - Même code que index.html
             const creatorRegisterForm = document.getElementById('creator-register-form');
             if (creatorRegisterForm) {
                 creatorRegisterForm.addEventListener('submit', async function(e) {
@@ -978,7 +1083,7 @@
                 });
             }
 
-            // Gestion du modal d'abonnement
+            // Gestion du modal d'abonnement - Même code que index.html
             if (subscribeLink) {
                 subscribeLink.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -1017,7 +1122,7 @@
                 });
             });
             
-            // Fermer la fenêtre d'authentification avec Échap
+            // Fermer la fenêtre d'authentification avec Échap - Même code que index.html
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && authModal.classList.contains('active')) {
                     authModal.classList.remove('active');
@@ -1029,6 +1134,56 @@
                 }
             });
         });
+
+        // Fonction unique pour charger les Visages du mois (seule section dynamique sur la page principale)
+        async function loadFeaturedCreators() {
+            const container = document.getElementById('featured-container');
+            
+            try {
+                const { data, error } = await supabase
+                    .from('visages')
+                    .select('*')
+                    .eq('statut', 'actif')
+                    .eq('mis_en_avant', true)
+                    .order('date_featured', { ascending: false })
+                    .limit(4);
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <p style="color: #666;">Aucun créateur mis en avant pour le moment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = data.map(creator => `
+                    <div class="featured-card">
+                        <img src="${creator.photo_url || 'https://placehold.co/400x250?text=DREAMSWEAR'}" 
+                             alt="${creator.nom_marque}"
+                             onerror="this.src='https://placehold.co/400x250?text=DREAMSWEAR'">
+                        <div class="featured-info">
+                            <h3>${creator.nom_marque}</h3>
+                            <p>${creator.biographie_fr ? creator.biographie_fr.substring(0, 150) + '...' : 'Découvrez ce créateur talentueux.'}</p>
+                            <div class="featured-meta">
+                                <span class="featured-tag">${creator.domaine || 'Mode'}</span>
+                                <a href="visage.html?id=${creator.id}" class="featured-btn">Voir le portrait</a>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erreur chargement des créateurs:', error);
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc3545;">
+                        <p>Erreur de chargement des créateurs mis en avant.</p>
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html>
