@@ -493,172 +493,147 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
         });
     });
-
-    // ============================================
+// ============================================
     // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION
     // ============================================
-    // Vérifier si nous sommes sur la page admin
-    const pendingContainer = document.getElementById('pending-creators');
-    const approvedContainer = document.getElementById('approved-creators');
+    // Vérifier si nous sommes sur la page admin avec les nouveaux IDs
+    const pendingCreatorsDiv = document.getElementById('pendingCreators');
+    const approvedCreatorsDiv = document.getElementById('approvedCreators');
     
-    if (pendingContainer && approvedContainer) {
-        // Fonction pour charger les créateurs depuis Supabase
-        const loadCreators = async () => {
+    if (pendingCreatorsDiv && approvedCreatorsDiv) {
+        console.log('🔄 Page admin détectée, initialisation...');
+        
+        // Fonction pour charger les créateurs
+        const loadAllCreators = async () => {
+            await loadCreators('pending');
+            await loadCreators('approved');
+        };
+        
+        // Fonction pour charger par statut
+        const loadCreators = async (status) => {
+            const container = status === 'pending' ? pendingCreatorsDiv : approvedCreatorsDiv;
+            const countSpan = status === 'pending' 
+                ? document.getElementById('pendingCount') 
+                : document.getElementById('approvedCount');
+            
             try {
-                console.log('🔄 Chargement des créateurs depuis Supabase...');
-                
-                // Charger les créateurs en attente (statut = 'pending')
-                const { data: pendingData, error: pendingError } = await supabase
+                const { data, error } = await supabase
                     .from('créateurs')
                     .select('*')
-                    .eq('statut', 'pending')
+                    .eq('statut', status === 'pending' ? 'pending' : 'actif')
                     .order('created_at', { ascending: false });
                 
-                if (pendingError) {
-                    console.error('❌ Erreur Supabase (pending):', pendingError);
-                    pendingContainer.innerHTML = `<div class="no-data">Erreur de chargement: ${pendingError.message}</div>`;
-                } else {
-                    console.log('📋 Créateurs en attente:', pendingData);
-                    displayCreators(pendingData, pendingContainer, 'pending');
+                if (error) throw error;
+                
+                // Mettre à jour le compteur
+                if (countSpan) {
+                    countSpan.textContent = data ? data.length : 0;
                 }
                 
-                // Charger les créateurs approuvés (statut = 'actif')
-                const { data: approvedData, error: approvedError } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('statut', 'actif')
-                    .order('created_at', { ascending: false });
-                
-                if (approvedError) {
-                    console.error('❌ Erreur Supabase (approved):', approvedError);
-                    approvedContainer.innerHTML = `<div class="no-data">Erreur de chargement: ${approvedError.message}</div>`;
-                } else {
-                    console.log('✅ Créateurs approuvés:', approvedData);
-                    displayCreators(approvedData, approvedContainer, 'approved');
-                }
+                // Afficher les créateurs
+                displayCreators(data, container, status);
                 
             } catch (error) {
-                console.error('💥 Erreur inattendue:', error);
-                pendingContainer.innerHTML = `<div class="no-data">Erreur inattendue: ${error.message}</div>`;
-                approvedContainer.innerHTML = `<div class="no-data">Erreur inattendue: ${error.message}</div>`;
+                container.innerHTML = `<div class="empty-message">Erreur : ${error.message}</div>`;
             }
         };
-
+        
         // Fonction pour afficher les créateurs
-        const displayCreators = (creators, container, status) => {
+        function displayCreators(creators, container, status) {
             if (!creators || creators.length === 0) {
                 const message = status === 'pending' 
-                    ? 'Aucun créateur en attente de validation.'
-                    : 'Aucun créateur approuvé pour le moment.';
-                container.innerHTML = `<div class="no-data">${message}</div>`;
+                    ? 'Aucune demande en attente'
+                    : 'Aucun créateur approuvé';
+                container.innerHTML = `<div class="empty-message">${message}</div>`;
                 return;
             }
             
-            container.innerHTML = '';
+            let html = '';
             
             creators.forEach(creator => {
-                const card = document.createElement('div');
-                card.className = 'submission-card';
-                
                 const date = creator.created_at 
                     ? new Date(creator.created_at).toLocaleDateString('fr-FR', {
                         year: 'numeric',
                         month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        day: 'numeric'
                     })
-                    : 'Date non disponible';
+                    : 'Date inconnue';
                 
-                card.innerHTML = `
-                    <h4>${creator.nom_marque || 'Marque non spécifiée'}</h4>
-                    <p><strong>Contact:</strong> ${creator.prenom || ''} ${creator.nom || ''} (${creator.email || 'Email non fourni'})</p>
-                    <p><strong>Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
-                    <p><strong>Domaine:</strong> ${creator.domaine || 'Non spécifié'}</p>
-                    <p><strong>Date d'inscription:</strong> ${date}</p>
-                    <p><strong>Statut:</strong> <span style="color: ${status === 'pending' ? '#FF9800' : '#4CAF50'}">${status === 'pending' ? 'En attente' : 'Actif'}</span></p>
-                    
-                    ${status === 'pending' ? `
-                    <div class="card-actions">
-                        <button class="approve-btn" data-id="${creator.id}">
-                            <i class="fas fa-check"></i> Approuver
-                        </button>
-                        <button class="deny-btn" data-id="${creator.id}">
-                            <i class="fas fa-times"></i> Refuser
-                        </button>
-                    </div>
-                    ` : ''}
+                html += `
+                    <div class="creator-card">
+                        <h3>${creator.nom_marque || 'Sans nom de marque'}</h3>
+                        <p><strong>Contact :</strong> ${creator.prenom || ''} ${creator.nom || ''}</p>
+                        <p><strong>Email :</strong> ${creator.email || 'Non fourni'}</p>
+                        <p><strong>Téléphone :</strong> ${creator.telephone || 'Non fourni'}</p>
+                        <p><strong>Domaine :</strong> ${creator.domaine || 'Non spécifié'}</p>
+                        <p><strong>Date d'inscription :</strong> ${date}</p>
                 `;
                 
-                container.appendChild(card);
+                if (status === 'pending') {
+                    html += `
+                        <div class="card-actions">
+                            <button class="action-btn approve-btn" onclick="approveCreator(${creator.id}, '${(creator.nom_marque || '').replace(/'/g, "\\'")}')">
+                                Approuver
+                            </button>
+                            <button class="action-btn reject-btn" onclick="rejectCreator(${creator.id}, '${(creator.nom_marque || '').replace(/'/g, "\\'")}')">
+                                Refuser
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
             });
             
-            // Ajouter les gestionnaires d'événements pour les boutons
-            if (status === 'pending') {
-                addButtonEventListeners(container);
+            container.innerHTML = html;
+        }
+        
+        // Fonctions globales pour les boutons
+        window.approveCreator = async function(id, brandName) {
+            if (!confirm(`Approuver "${brandName}" ?`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('créateurs')
+                    .update({ 
+                        statut: 'actif',
+                        approved_at: new Date().toISOString()
+                    })
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                alert(`"${brandName}" approuvé avec succès !`);
+                await loadAllCreators();
+                
+            } catch (error) {
+                alert('Erreur : ' + error.message);
             }
         };
-
-        // Fonction pour gérer les clics sur les boutons
-        const addButtonEventListeners = (container) => {
-            container.addEventListener('click', async (e) => {
-                const button = e.target.closest('button');
-                if (!button) return;
-                
-                const creatorId = button.dataset.id;
-                const creatorCard = button.closest('.submission-card');
-                const brandName = creatorCard.querySelector('h4').textContent;
-                
-                try {
-                    if (button.classList.contains('approve-btn')) {
-                        // Mettre à jour le statut à 'actif' dans Supabase
-                        const { error } = await supabase
-                            .from('créateurs')
-                            .update({ 
-                                statut: 'actif',
-                                approved_at: new Date().toISOString()
-                            })
-                            .eq('id', creatorId);
-                        
-                        if (error) throw error;
-                        
-                        alert(`✅ Créateur "${brandName}" approuvé avec succès !`);
-                        console.log(`Créateur ${creatorId} approuvé`);
-                        
-                    } else if (button.classList.contains('deny-btn')) {
-                        // Option 1: Supprimer le créateur
-                        const { error } = await supabase
-                            .from('créateurs')
-                            .delete()
-                            .eq('id', creatorId);
-                        
-                        if (error) throw error;
-                        
-                        alert(`❌ Demande de "${brandName}" refusée et supprimée.`);
-                        console.log(`Créateur ${creatorId} refusé et supprimé`);
-                        
-                        // Option 2: Mettre à jour le statut à 'rejected' si vous préférez garder l'historique
-                        // const { error } = await supabase
-                        //     .from('créateurs')
-                        //     .update({ statut: 'rejected' })
-                        //     .eq('id', creatorId);
-                    }
-                    
-                    // Recharger la liste
-                    await loadCreators();
-                    
-                } catch (error) {
-                    console.error('💥 Erreur lors de la mise à jour:', error);
-                    alert(`Erreur: ${error.message}`);
-                }
-            });
-        };
-
-        // Initialiser le chargement
-        loadCreators();
         
-        // Optionnel: Rafraîchir automatiquement toutes les 30 secondes
-        // setInterval(loadCreators, 30000);
+        window.rejectCreator = async function(id, brandName) {
+            if (!confirm(`Refuser "${brandName}" ?`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('créateurs')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                alert(`"${brandName}" refusé.`);
+                await loadAllCreators();
+                
+            } catch (error) {
+                alert('Erreur : ' + error.message);
+            }
+        };
+        
+        // Charger les créateurs au démarrage
+        setTimeout(() => {
+            loadAllCreators();
+        }, 500);
         
         // Vérifier la connexion admin
         const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
