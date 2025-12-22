@@ -78,36 +78,6 @@
             font-size: 1.5rem;
         }
         
-        /* Chargement initial */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        
-        .loading i {
-            font-size: 2rem;
-            margin-bottom: 15px;
-            color: #d4af37;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Message d'erreur */
-        .error-message {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
         /* Bouton de déconnexion */
         .logout-btn {
             background: linear-gradient(135deg, #dc3545, #c82333);
@@ -143,6 +113,47 @@
         
         .admin-info i {
             color: #d4af37;
+        }
+        
+        /* Compteurs */
+        .counter {
+            background: #007bff;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .counter.pending {
+            background: #ffc107;
+        }
+        
+        .counter.approved {
+            background: #28a745;
+        }
+        
+        /* Message vide */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Bouton d'actualisation */
+        .refresh-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
+        .refresh-btn:hover {
+            background: #5a6268;
         }
         
         @media (max-width: 768px) {
@@ -194,19 +205,19 @@
                 <div class="admin-nav">
                     <div class="admin-info" id="admin-info">
                         <i class="fas fa-user-shield"></i>
-                        <span>Admin connecté</span>
+                        <span id="admin-name">Administrateur</span>
                     </div>
-                    <a href="Actualisation.html" class="admin-nav-btn">
-                        <i class="fas fa-sync-alt"></i>
-                        <span>Actualisation</span>
-                    </a>
+                    <button id="refresh-all-btn" class="admin-nav-btn" style="background: #007bff;">
+                        <i class="fas fa-redo"></i>
+                        <span>Actualiser</span>
+                    </button>
                     <button id="logout-btn" class="logout-btn">
                         <i class="fas fa-sign-out-alt"></i>
                         <span>Déconnexion</span>
                     </button>
                     <a href="index.html" class="back-link">
                         <i class="fas fa-arrow-left"></i>
-                        <span>Retour au site</span>
+                        <span>Accueil</span>
                     </a>
                 </div>
             </div>
@@ -214,48 +225,47 @@
     </header>
 
     <main class="admin-container">
+        <!-- Section Pending -->
         <section class="admin-section">
-            <div class="section-header">
-                <h2><i class="fas fa-clock"></i> Demandes en attente</h2>
-                <div class="refresh-controls">
-                    <button id="refresh-btn" class="refresh-btn" title="Actualiser la liste">
-                        <i class="fas fa-redo"></i> Actualiser
-                    </button>
-                    <span id="pending-count" class="count-badge">0</span>
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2><i class="fas fa-clock"></i> Demandes en attente 
+                    <span id="pending-count" class="counter pending">0</span>
+                </h2>
+                <button id="refresh-pending-btn" class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
             </div>
             <div id="pending-creators" class="submission-list">
-                <div class="loading">
-                    <i class="fas fa-spinner"></i>
-                    <p>Chargement des créateurs en attente...</p>
-                </div>
+                <!-- Les créateurs en attente apparaîtront ici -->
             </div>
         </section>
 
+        <!-- Section Approved -->
         <section class="admin-section">
-            <div class="section-header">
-                <h2><i class="fas fa-check-circle"></i> Créateurs Approuvés</h2>
-                <div class="refresh-controls">
-                    <span id="approved-count" class="count-badge success">0</span>
-                </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2><i class="fas fa-check-circle"></i> Créateurs Approuvés 
+                    <span id="approved-count" class="counter approved">0</span>
+                </h2>
+                <button id="refresh-approved-btn" class="refresh-btn">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
             </div>
             <div id="approved-creators" class="submission-list approved-list">
-                <div class="loading">
-                    <i class="fas fa-spinner"></i>
-                    <p>Chargement des créateurs approuvés...</p>
-                </div>
+                <!-- Les créateurs approuvés apparaîtront ici -->
             </div>
         </section>
-        
-        <div id="error-container" style="display: none;" class="error-message"></div>
     </main>
-    
-    <script src="script.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Vérifier la connexion admin
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        
+        let supabase;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Vérifier la connexion admin
             const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-            const adminName = sessionStorage.getItem('adminName');
             
             if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
                 alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
@@ -263,89 +273,193 @@
                 return;
             }
             
-            // Afficher le nom de l'admin connecté
-            if (adminName) {
-                const adminInfo = document.getElementById('admin-info');
-                if (adminInfo) {
-                    adminInfo.innerHTML = `<i class="fas fa-user-shield"></i><span>${adminName}</span>`;
-                }
+            // Afficher le nom de l'admin
+            const adminName = sessionStorage.getItem('adminName');
+            if (adminName && document.getElementById('admin-name')) {
+                document.getElementById('admin-name').textContent = adminName;
             }
             
-            // Gestion du bouton de déconnexion
-            const logoutBtn = document.getElementById('logout-btn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', () => {
-                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                        sessionStorage.removeItem('adminLoggedIn');
-                        sessionStorage.removeItem('adminId');
-                        sessionStorage.removeItem('adminName');
-                        sessionStorage.removeItem('adminEmail');
-                        window.location.href = 'index.html';
-                    }
-                });
+            // 2. Initialiser Supabase
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } catch (error) {
+                alert('❌ Erreur de connexion à la base de données');
+                return;
             }
             
-            // Gestion du bouton d'actualisation
-            const refreshBtn = document.getElementById('refresh-btn');
-            if (refreshBtn) {
-                refreshBtn.addEventListener('click', () => {
-                    // Appeler la fonction loadCreators du script principal
-                    // Elle sera appelée automatiquement car les conteneurs existent
-                    const pendingContainer = document.getElementById('pending-creators');
-                    const approvedContainer = document.getElementById('approved-creators');
-                    
-                    // Afficher un indicateur de chargement
-                    pendingContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Actualisation en cours...</p></div>';
-                    approvedContainer.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Actualisation en cours...</p></div>';
-                    
-                    // Le script principal va recharger automatiquement les données
-                    // car il détecte la présence des conteneurs
-                    console.log('🔄 Actualisation manuelle demandée');
-                });
-            }
-            
-            // Mettre à jour les compteurs (cette fonction sera appelée par le script principal)
-            window.updateCounters = function(pendingCount, approvedCount) {
-                const pendingCountElement = document.getElementById('pending-count');
-                const approvedCountElement = document.getElementById('approved-count');
-                
-                if (pendingCountElement) {
-                    pendingCountElement.textContent = pendingCount;
+            // 3. Gestion de la déconnexion
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
                 }
-                
-                if (approvedCountElement) {
-                    approvedCountElement.textContent = approvedCount;
-                }
-            };
-            
-            // Afficher une erreur (cette fonction sera appelée par le script principal si besoin)
-            window.showError = function(message) {
-                const errorContainer = document.getElementById('error-container');
-                if (errorContainer) {
-                    errorContainer.textContent = message;
-                    errorContainer.style.display = 'block';
-                    
-                    // Masquer l'erreur après 10 secondes
-                    setTimeout(() => {
-                        errorContainer.style.display = 'none';
-                    }, 10000);
-                }
-            };
-            
-            // Ajouter un événement pour rafraîchir automatiquement toutes les minutes
-            setInterval(() => {
-                console.log('🔄 Actualisation automatique des données');
-                const refreshBtn = document.getElementById('refresh-btn');
-                if (refreshBtn && !document.querySelector('.loading')) {
-                    refreshBtn.click();
-                }
-            }, 60000); // 60 secondes
-            
-            // Empêcher la navigation si l'admin n'est pas connecté
-            window.addEventListener('beforeunload', (e) => {
-                // Vous pouvez ajouter une logique de vérification ici si nécessaire
             });
+            
+            // 4. Boutons d'actualisation
+            document.getElementById('refresh-all-btn').addEventListener('click', loadAllCreators);
+            document.getElementById('refresh-pending-btn').addEventListener('click', () => loadCreators('pending'));
+            document.getElementById('refresh-approved-btn').addEventListener('click', () => loadCreators('approved'));
+            
+            // 5. Charger les données initiales
+            loadAllCreators();
         });
+        
+        // Charger tous les créateurs
+        async function loadAllCreators() {
+            await loadCreators('pending');
+            await loadCreators('approved');
+        }
+        
+        // Charger les créateurs par statut
+        async function loadCreators(status) {
+            const containerId = status === 'pending' ? 'pending-creators' : 'approved-creators';
+            const countId = status === 'pending' ? 'pending-count' : 'approved-count';
+            const container = document.getElementById(containerId);
+            
+            if (!container) return;
+            
+            try {
+                // Requête Supabase
+                const { data, error } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('statut', status === 'pending' ? 'pending' : 'actif')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    throw new Error('Erreur Supabase: ' + error.message);
+                }
+                
+                // Mettre à jour le compteur
+                document.getElementById(countId).textContent = data ? data.length : 0;
+                
+                // Afficher les données
+                displayCreators(data, containerId, status);
+                
+            } catch (error) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <p>Erreur de chargement: ${error.message}</p>
+                        <button onclick="loadCreators('${status}')" class="refresh-btn" style="margin-top: 10px;">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Afficher les créateurs
+        function displayCreators(creators, containerId, status) {
+            const container = document.getElementById(containerId);
+            
+            if (!creators || creators.length === 0) {
+                const message = status === 'pending' 
+                    ? 'Aucun créateur en attente de validation.'
+                    : 'Aucun créateur approuvé pour le moment.';
+                
+                container.innerHTML = `<div class="no-data">${message}</div>`;
+                return;
+            }
+            
+            let html = '';
+            
+            creators.forEach(creator => {
+                const date = creator.created_at 
+                    ? new Date(creator.created_at).toLocaleDateString('fr-FR')
+                    : 'Date inconnue';
+                
+                html += `
+                    <div class="submission-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <h4 style="margin: 0;">${creator.nom_marque || 'Sans marque'}</h4>
+                            <span style="color: ${status === 'pending' ? '#FF9800' : '#4CAF50'}; font-weight: bold;">
+                                ${status === 'pending' ? '⏳ En attente' : '✅ Actif'}
+                            </span>
+                        </div>
+                        <div>
+                            <p><strong><i class="fas fa-user"></i> Contact:</strong> ${creator.prenom || ''} ${creator.nom || 'Non renseigné'}</p>
+                            <p><strong><i class="fas fa-envelope"></i> Email:</strong> ${creator.email || 'Non fourni'}</p>
+                            <p><strong><i class="fas fa-phone"></i> Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
+                            <p><strong><i class="fas fa-tag"></i> Domaine:</strong> ${creator.domaine || 'Non spécifié'}</p>
+                            <p><strong><i class="fas fa-calendar"></i> Inscrit le:</strong> ${date}</p>
+                        </div>
+                `;
+                
+                if (status === 'pending') {
+                    html += `
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button class="approve-btn" onclick="approveCreator('${creator.id}', '${creator.nom_marque || ''}')" 
+                                    style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">
+                                <i class="fas fa-check"></i> Approuver
+                            </button>
+                            <button class="deny-btn" onclick="denyCreator('${creator.id}', '${creator.nom_marque || ''}')" 
+                                    style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">
+                                <i class="fas fa-times"></i> Refuser
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Approuver un créateur
+        async function approveCreator(id, brandName) {
+            if (!confirm(`Approuver le créateur "${brandName}" ?`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('créateurs')
+                    .update({ 
+                        statut: 'actif',
+                        approved_at: new Date().toISOString()
+                    })
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                alert(`✅ "${brandName}" approuvé avec succès !`);
+                
+                // Recharger les listes
+                loadCreators('pending');
+                loadCreators('approved');
+                
+            } catch (error) {
+                alert('❌ Erreur lors de l\'approbation: ' + error.message);
+            }
+        }
+        
+        // Refuser un créateur
+        async function denyCreator(id, brandName) {
+            if (!confirm(`Refuser la demande de "${brandName}" ? Cette action est irréversible.`)) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('créateurs')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                alert(`❌ Demande de "${brandName}" refusée.`);
+                
+                // Recharger la liste pending
+                loadCreators('pending');
+                
+            } catch (error) {
+                alert('❌ Erreur lors du refus: ' + error.message);
+            }
+        }
+        
+        // Actualisation automatique toutes les 2 minutes
+        setInterval(() => {
+            if (document.visibilityState === 'visible') {
+                loadAllCreators();
+            }
+        }, 120000); // 2 minutes
     </script>
 </body>
 </html>
