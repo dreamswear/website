@@ -4,360 +4,269 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - DREAMSWEAR MAG</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="admin.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Styles pour les boutons de navigation admin */
-        .admin-nav {
-            display: flex;
-            gap: 15px;
-            margin-left: auto;
-            align-items: center;
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
         }
         
-        .admin-nav-btn {
-            background: linear-gradient(135deg, #d4af37, #c19a2d);
-            color: #1a1a1a;
-            border: none;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
             padding: 10px 20px;
+            border: none;
             border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
             text-decoration: none;
-            white-space: nowrap;
+            display: inline-block;
+            text-align: center;
+            transition: all 0.3s ease;
         }
         
-        .admin-nav-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-            background: linear-gradient(135deg, #0b0b0a, #b08924);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        .admin-nav-btn i {
-            font-size: 1rem;
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37, #c19a2d);
+            color: #1a1a1a;
         }
         
-        .back-link {
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-secondary {
             background: #f5f5f5;
             color: #333;
             border: 1px solid #ddd;
-            padding: 10px 20px;
-            border-radius: 25px;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            font-family: 'Playfair Display', serif;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .creator-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fff;
+        }
+        
+        .creator-card h3 {
+            margin-top: 0;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            margin-left: 15px;
+            color: #333;
         }
         
-        .back-link:hover {
-            background: #eaeaea;
-            transform: translateY(-2px);
-        }
-        
-        .admin-header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-        
-        .admin-header-content h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-        
-        /* Bouton de déconnexion */
-        .logout-btn {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
+        .creator-card p {
+            margin: 5px 0;
             font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.8rem;
+            font-weight: 400;
+            color: #666;
         }
         
-        .logout-btn:hover {
-            background: linear-gradient(135deg, #c82333, #bd2130);
-            transform: translateY(-2px);
-        }
-        
-        /* Info admin connecté */
-        .admin-info {
+        .card-actions {
+            margin-top: 15px;
             display: flex;
-            align-items: center;
             gap: 10px;
-            background: rgba(212, 175, 55, 0.1);
+        }
+        
+        .action-btn {
             padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            flex: 1;
+            transition: all 0.3s ease;
         }
         
-        .admin-info i {
-            color: #d4af37;
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        /* Compteurs */
-        .counter {
-            background: #007bff;
-            color: white;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            margin-left: 10px;
-        }
-        
-        .counter.pending {
-            background: #ffc107;
-        }
-        
-        .counter.approved {
+        .approve-btn {
             background: #28a745;
+            color: white;
         }
         
-        /* Message vide */
-        .no-data {
+        .reject-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .empty-message {
             text-align: center;
             padding: 40px;
             color: #666;
             font-style: italic;
+            font-family: 'Montserrat', sans-serif;
         }
         
-        /* Bouton d'actualisation */
-        .refresh-btn {
-            background: #6c757d;
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .status-pending {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .status-approved {
+            background: #28a745;
             color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-        
-        .refresh-btn:hover {
-            background: #5a6268;
-        }
-        
-        @media (max-width: 768px) {
-            .admin-nav {
-                gap: 10px;
-            }
-            
-            .admin-nav-btn span,
-            .back-link span,
-            .logout-btn span {
-                display: none;
-            }
-            
-            .admin-nav-btn,
-            .back-link,
-            .logout-btn {
-                padding: 10px;
-            }
-            
-            .admin-nav-btn i {
-                margin: 0;
-            }
-            
-            .admin-info span {
-                display: none;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .admin-header-content {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            
-            .admin-header-content h1 {
-                width: 100%;
-                text-align: center;
-                margin-bottom: 10px;
-            }
         }
     </style>
 </head>
 <body>
-    <header class="main-header">
-        <div class="container">
-            <div class="admin-header-content">
-                <div class="logo"><a href="index.html" style="color: inherit;">DREAMSWEAR</a></div>
-                <h1>Panneau d'Administration</h1>
-                <div class="admin-nav">
-                    <div class="admin-info" id="admin-info">
-                        <i class="fas fa-user-shield"></i>
-                        <span id="admin-name">Administrateur</span>
-                    </div>
-                    <button id="refresh-all-btn" class="admin-nav-btn" style="background: #007bff;">
-                        <i class="fas fa-redo"></i>
-                        <span>Actualiser</span>
-                    </button>
-                    <button id="logout-btn" class="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
-                    </button>
-                    <a href="index.html" class="back-link">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Accueil</span>
-                    </a>
-                </div>
-            </div>
+    <div class="header">
+        <h1>Administration DREAMSWEAR</h1>
+        <div class="header-buttons">
+            <a href="Actualisation.html" class="btn btn-primary">Poster sur le site</a>
+            <button class="btn btn-danger" id="logoutBtn">Déconnexion</button>
+            <a href="index.html" class="btn btn-secondary">Retour au site</a>
         </div>
-    </header>
+    </div>
+    
+    <div class="section">
+        <h2>Demandes en attente <span id="pendingCount" class="status-badge status-pending">0</span></h2>
+        <div id="pendingCreators">
+            <div class="empty-message">Les demandes apparaissent ici</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>Créateurs approuvés <span id="approvedCount" class="status-badge status-approved">0</span></h2>
+        <div id="approvedCreators">
+            <div class="empty-message">Les créateurs apparaissent ici</div>
+        </div>
+    </div>
 
-    <main class="admin-container">
-        <!-- Section Pending -->
-        <section class="admin-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2><i class="fas fa-clock"></i> Demandes en attente 
-                    <span id="pending-count" class="counter pending">0</span>
-                </h2>
-                <button id="refresh-pending-btn" class="refresh-btn">
-                    <i class="fas fa-sync-alt"></i> Actualiser
-                </button>
-            </div>
-            <div id="pending-creators" class="submission-list">
-                <!-- Les créateurs en attente apparaîtront ici -->
-            </div>
-        </section>
-
-        <!-- Section Approved -->
-        <section class="admin-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2><i class="fas fa-check-circle"></i> Créateurs Approuvés 
-                    <span id="approved-count" class="counter approved">0</span>
-                </h2>
-                <button id="refresh-approved-btn" class="refresh-btn">
-                    <i class="fas fa-sync-alt"></i> Actualiser
-                </button>
-            </div>
-            <div id="approved-creators" class="submission-list approved-list">
-                <!-- Les créateurs approuvés apparaîtront ici -->
-            </div>
-        </section>
-    </main>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // Configuration Supabase
         const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
         
-        let supabase;
+        // Vérifier la connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            alert('Accès non autorisé. Veuillez vous connecter.');
+            window.location.href = 'index.html';
+        }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. Vérifier la connexion admin
-            const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-            
-            if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-                alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+        // Initialiser Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Éléments DOM
+        const logoutBtn = document.getElementById('logoutBtn');
+        const pendingCreatorsDiv = document.getElementById('pendingCreators');
+        const approvedCreatorsDiv = document.getElementById('approvedCreators');
+        const pendingCountSpan = document.getElementById('pendingCount');
+        const approvedCountSpan = document.getElementById('approvedCount');
+        
+        // Événements
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                sessionStorage.clear();
                 window.location.href = 'index.html';
-                return;
             }
-            
-            // Afficher le nom de l'admin
-            const adminName = sessionStorage.getItem('adminName');
-            if (adminName && document.getElementById('admin-name')) {
-                document.getElementById('admin-name').textContent = adminName;
-            }
-            
-            // 2. Initialiser Supabase
-            try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            } catch (error) {
-                alert('❌ Erreur de connexion à la base de données');
-                return;
-            }
-            
-            // 3. Gestion de la déconnexion
-            document.getElementById('logout-btn').addEventListener('click', function() {
-                if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                    sessionStorage.clear();
-                    window.location.href = 'index.html';
-                }
-            });
-            
-            // 4. Boutons d'actualisation
-            document.getElementById('refresh-all-btn').addEventListener('click', loadAllCreators);
-            document.getElementById('refresh-pending-btn').addEventListener('click', () => loadCreators('pending'));
-            document.getElementById('refresh-approved-btn').addEventListener('click', () => loadCreators('approved'));
-            
-            // 5. Charger les données initiales
-            loadAllCreators();
         });
         
-        // Charger tous les créateurs
+        // Charger les créateurs
         async function loadAllCreators() {
             await loadCreators('pending');
             await loadCreators('approved');
         }
         
-        // Charger les créateurs par statut
+        // Charger par statut
         async function loadCreators(status) {
-            const containerId = status === 'pending' ? 'pending-creators' : 'approved-creators';
-            const countId = status === 'pending' ? 'pending-count' : 'approved-count';
-            const container = document.getElementById(containerId);
-            
-            if (!container) return;
+            const container = status === 'pending' ? pendingCreatorsDiv : approvedCreatorsDiv;
+            const countSpan = status === 'pending' ? pendingCountSpan : approvedCountSpan;
             
             try {
-                // Requête Supabase
                 const { data, error } = await supabase
                     .from('créateurs')
                     .select('*')
                     .eq('statut', status === 'pending' ? 'pending' : 'actif')
                     .order('created_at', { ascending: false });
                 
-                if (error) {
-                    throw new Error('Erreur Supabase: ' + error.message);
-                }
+                if (error) throw error;
                 
                 // Mettre à jour le compteur
-                document.getElementById(countId).textContent = data ? data.length : 0;
+                countSpan.textContent = data.length;
                 
-                // Afficher les données
-                displayCreators(data, containerId, status);
+                // Afficher les créateurs
+                displayCreators(data, container, status);
                 
             } catch (error) {
-                container.innerHTML = `
-                    <div class="no-data">
-                        <p>Erreur de chargement: ${error.message}</p>
-                        <button onclick="loadCreators('${status}')" class="refresh-btn" style="margin-top: 10px;">
-                            <i class="fas fa-redo"></i> Réessayer
-                        </button>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-message">Erreur de chargement : ${error.message}</div>`;
             }
         }
         
         // Afficher les créateurs
-        function displayCreators(creators, containerId, status) {
-            const container = document.getElementById(containerId);
-            
+        function displayCreators(creators, container, status) {
             if (!creators || creators.length === 0) {
                 const message = status === 'pending' 
-                    ? 'Aucun créateur en attente de validation.'
-                    : 'Aucun créateur approuvé pour le moment.';
-                
-                container.innerHTML = `<div class="no-data">${message}</div>`;
+                    ? 'Aucune demande en attente'
+                    : 'Aucun créateur approuvé';
+                container.innerHTML = `<div class="empty-message">${message}</div>`;
                 return;
             }
             
@@ -369,32 +278,23 @@
                     : 'Date inconnue';
                 
                 html += `
-                    <div class="submission-card">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                            <h4 style="margin: 0;">${creator.nom_marque || 'Sans marque'}</h4>
-                            <span style="color: ${status === 'pending' ? '#FF9800' : '#4CAF50'}; font-weight: bold;">
-                                ${status === 'pending' ? '⏳ En attente' : '✅ Actif'}
-                            </span>
-                        </div>
-                        <div>
-                            <p><strong><i class="fas fa-user"></i> Contact:</strong> ${creator.prenom || ''} ${creator.nom || 'Non renseigné'}</p>
-                            <p><strong><i class="fas fa-envelope"></i> Email:</strong> ${creator.email || 'Non fourni'}</p>
-                            <p><strong><i class="fas fa-phone"></i> Téléphone:</strong> ${creator.telephone || 'Non fourni'}</p>
-                            <p><strong><i class="fas fa-tag"></i> Domaine:</strong> ${creator.domaine || 'Non spécifié'}</p>
-                            <p><strong><i class="fas fa-calendar"></i> Inscrit le:</strong> ${date}</p>
-                        </div>
+                    <div class="creator-card">
+                        <h3>${creator.nom_marque || 'Sans nom'}</h3>
+                        <p><strong>Contact :</strong> ${creator.prenom || ''} ${creator.nom || ''}</p>
+                        <p><strong>Email :</strong> ${creator.email || 'Non fourni'}</p>
+                        <p><strong>Téléphone :</strong> ${creator.telephone || 'Non fourni'}</p>
+                        <p><strong>Domaine :</strong> ${creator.domaine || 'Non spécifié'}</p>
+                        <p><strong>Date :</strong> ${date}</p>
                 `;
                 
                 if (status === 'pending') {
                     html += `
-                        <div style="margin-top: 15px; display: flex; gap: 10px;">
-                            <button class="approve-btn" onclick="approveCreator('${creator.id}', '${creator.nom_marque || ''}')" 
-                                    style="background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">
-                                <i class="fas fa-check"></i> Approuver
+                        <div class="card-actions">
+                            <button class="action-btn approve-btn" onclick="approveCreator(${creator.id}, '${creator.nom_marque || ''}')">
+                                Approuver
                             </button>
-                            <button class="deny-btn" onclick="denyCreator('${creator.id}', '${creator.nom_marque || ''}')" 
-                                    style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; flex: 1;">
-                                <i class="fas fa-times"></i> Refuser
+                            <button class="action-btn reject-btn" onclick="rejectCreator(${creator.id}, '${creator.nom_marque || ''}')">
+                                Refuser
                             </button>
                         </div>
                     `;
@@ -407,8 +307,8 @@
         }
         
         // Approuver un créateur
-        async function approveCreator(id, brandName) {
-            if (!confirm(`Approuver le créateur "${brandName}" ?`)) return;
+        window.approveCreator = async function(id, brandName) {
+            if (!confirm(`Approuver "${brandName}" ?`)) return;
             
             try {
                 const { error } = await supabase
@@ -421,20 +321,17 @@
                 
                 if (error) throw error;
                 
-                alert(`✅ "${brandName}" approuvé avec succès !`);
-                
-                // Recharger les listes
-                loadCreators('pending');
-                loadCreators('approved');
+                alert(`"${brandName}" approuvé avec succès`);
+                loadAllCreators();
                 
             } catch (error) {
-                alert('❌ Erreur lors de l\'approbation: ' + error.message);
+                alert('Erreur lors de l\'approbation : ' + error.message);
             }
         }
         
         // Refuser un créateur
-        async function denyCreator(id, brandName) {
-            if (!confirm(`Refuser la demande de "${brandName}" ? Cette action est irréversible.`)) return;
+        window.rejectCreator = async function(id, brandName) {
+            if (!confirm(`Refuser "${brandName}" ?`)) return;
             
             try {
                 const { error } = await supabase
@@ -444,22 +341,19 @@
                 
                 if (error) throw error;
                 
-                alert(`❌ Demande de "${brandName}" refusée.`);
-                
-                // Recharger la liste pending
-                loadCreators('pending');
+                alert(`"${brandName}" refusé`);
+                loadAllCreators();
                 
             } catch (error) {
-                alert('❌ Erreur lors du refus: ' + error.message);
+                alert('Erreur lors du refus : ' + error.message);
             }
         }
         
-        // Actualisation automatique toutes les 2 minutes
-        setInterval(() => {
-            if (document.visibilityState === 'visible') {
-                loadAllCreators();
-            }
-        }, 120000); // 2 minutes
+        // Charger au démarrage
+        loadAllCreators();
+        
+        // Actualisation automatique toutes les 30 secondes
+        setInterval(loadAllCreators, 30000);
     </script>
 </body>
 </html>
