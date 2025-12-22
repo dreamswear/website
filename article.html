@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Article - DREAMSWEAR MAG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        .article-page {
+            padding: 40px 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .article-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .article-header img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .article-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+        }
+        
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .back-button {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 10px 25px;
+            background: var(--accent);
+            color: var(--text-dark);
+            border-radius: 25px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">DREAMSWEAR</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" id="subscribe-link">S'abonner</a></li>
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="menu-container">
+                    <button class="menu-btn" id="menu-btn">
+                        <i class="fas fa-bars"></i>
+                        <span>Menu</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <ul>
+                            <li><a href="index2.html">Accueil</a></li>
+                            <li><a href="visages.html">Visages</a></li>
+                            <li><a href="coulisses.html">Coulisses</a></li>
+                            <li><a href="tendances.html">Tendances</a></li>
+                            <li><a href="decouvertes.html">Découvertes</a></li>
+                            <li><a href="culture.html">Culture/Agenda</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="creator-btn" id="auth-btn">
+                    <i class="fas fa-palette"></i>
+                    <span>Espace Créateurs</span>
+                </button>
+                <div class="theme-selector">
+                    <button id="theme-select-button" aria-label="Choisir un thème">
+                        <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+                    </button>
+                    <ul id="theme-options" class="hidden-options">
+                        <li><a href="#" data-theme="night">Sombre</a></li>
+                        <li><a href="#" data-theme="day">Clair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="article-page">
+        <div class="container">
+            <div id="article-container">
+                <p>Chargement de l'article...</p>
+            </div>
+            <a href="javascript:history.back()" class="back-button">← Retour</a>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <h4>DREAMWEAR MAG</h4>
+                <p>Le style est une façon de dire qui vous êtes sans parler.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.tiktok.com/@dreams_wear0?is_from_webapp=1&sender_device=pc"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DREAMSWEAR MAG. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArticle();
+        });
+        
+        async function loadArticle() {
+            const container = document.getElementById('article-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+            
+            if (!articleId) {
+                container.innerHTML = '<p>Article non trouvé.</p>';
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('id', articleId)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (!data) {
+                    container.innerHTML = '<p>Article non trouvé.</p>';
+                    return;
+                }
+                
+                container.innerHTML = `
+                    <div class="article-header">
+                        ${data.image_url ? `<img src="${data.image_url}" alt="${data.titre_fr}" onerror="this.src='https://placehold.co/800x400?text=ARTICLE'">` : ''}
+                        <h1>${data.titre_fr}</h1>
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> ${new Date(data.date_publication).toLocaleDateString('fr-FR')}</span>
+                            <span><i class="fas fa-user"></i> ${data.auteur || 'Rédaction'}</span>
+                            <span><i class="fas fa-tag"></i> ${data.rubrique || 'Article'}</span>
+                        </div>
+                    </div>
+                    <div class="article-content">
+                        ${data.contenu_fr || '<p>Contenu non disponible.</p>'}
+                    </div>
+                `;
+                
+                // Mettre à jour le titre de la page
+                document.title = `${data.titre_fr} - DREAMSWEAR MAG`;
+                
+            } catch (error) {
+                console.error('Erreur chargement article:', error);
+                container.innerHTML = '<p>Erreur de chargement de l\'article. Veuillez réessayer.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
