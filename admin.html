@@ -9,18 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             font-family: 'Montserrat', sans-serif;
             background: #0a0a0a;
             color: #e0e0e0;
-            min-height: 100vh;
             padding: 20px;
+            margin: 0;
         }
         
         .day-mode {
@@ -28,121 +22,98 @@
             color: #333;
         }
         
-        .header {
+        .admin-header {
             background: #1a1a1a;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
-        .day-mode .header {
+        .day-mode .admin-header {
             background: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
-        .header h1 {
+        .admin-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 700;
             color: #d4af37;
             margin: 0;
         }
         
-        .day-mode .header h1 {
+        .day-mode .admin-header h1 {
             color: #1a1a1a;
         }
         
-        .header-buttons {
+        .admin-buttons {
             display: flex;
-            gap: 15px;
+            gap: 10px;
         }
         
-        .btn {
-            padding: 12px 24px;
+        .admin-btn {
+            padding: 10px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
-            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
+            gap: 8px;
             text-decoration: none;
         }
         
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        
         .btn-poster {
-            background: linear-gradient(135deg, #d4af37, #c19a2d);
+            background: #d4af37;
             color: #1a1a1a;
         }
         
-        .day-mode .btn-poster {
-            background: linear-gradient(135deg, #d4af37, #b08924);
-            color: #fff;
-        }
-        
         .btn-logout {
-            background: #333;
-            color: #fff;
-        }
-        
-        .day-mode .btn-logout {
-            background: #666;
-            color: #fff;
+            background: #dc3545;
+            color: white;
         }
         
         .btn-return {
-            background: transparent;
-            border: 1px solid #d4af37;
-            color: #d4af37;
+            background: #6c757d;
+            color: white;
         }
         
-        .day-mode .btn-return {
-            border-color: #333;
-            color: #333;
-        }
-        
-        .section {
+        .admin-section {
             background: #1a1a1a;
-            padding: 25px;
+            padding: 20px;
             border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-        
-        .day-mode .section {
-            background: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        
-        .section h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 22px;
-            color: #d4af37;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
         }
         
-        .day-mode .section h2 {
+        .day-mode .admin-section {
+            background: white;
+        }
+        
+        .admin-section h2 {
+            color: #d4af37;
+            margin-top: 0;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .day-mode .admin-section h2 {
             color: #333;
-            border-bottom-color: rgba(51, 51, 51, 0.3);
+        }
+        
+        .counter {
+            background: #d4af37;
+            color: #1a1a1a;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 14px;
+            margin-left: 8px;
         }
         
         .creator-card {
             background: #252525;
             border-left: 4px solid #d4af37;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
             border-radius: 5px;
         }
         
@@ -153,8 +124,7 @@
         
         .creator-card h3 {
             color: #d4af37;
-            font-size: 18px;
-            margin-bottom: 15px;
+            margin-top: 0;
         }
         
         .day-mode .creator-card h3 {
@@ -162,43 +132,28 @@
         }
         
         .creator-card p {
+            margin: 5px 0;
             color: #ccc;
-            margin-bottom: 8px;
-            font-size: 14px;
         }
         
         .day-mode .creator-card p {
             color: #666;
         }
         
-        .creator-card strong {
-            color: #fff;
-        }
-        
-        .day-mode .creator-card strong {
-            color: #333;
-        }
-        
         .card-actions {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
-            gap: 15px;
+            gap: 10px;
         }
         
         .action-btn {
-            padding: 10px 20px;
+            padding: 8px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
-            font-size: 14px;
             flex: 1;
-            transition: all 0.3s ease;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
         }
         
         .approve-btn {
@@ -216,103 +171,42 @@
             padding: 40px;
             color: #888;
             font-style: italic;
-            font-size: 16px;
-        }
-        
-        .counter {
-            background: #d4af37;
-            color: #1a1a1a;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-        
-        .day-mode .counter {
-            background: #333;
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 20px;
-                text-align: center;
-            }
-            
-            .header-buttons {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .btn {
-                padding: 10px 15px;
-            }
-            
-            .card-actions {
-                flex-direction: column;
-            }
-            
-            .action-btn {
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="header">
+    <div class="admin-header">
         <h1>Administration DREAMSWEAR</h1>
-        <div class="header-buttons">
-            <a href="Actualisation.html" class="btn btn-poster">
-                <i class="fas fa-newspaper"></i>
-                Poster
+        <div class="admin-buttons">
+            <a href="Actualisation.html" class="admin-btn btn-poster">
+                <i class="fas fa-newspaper"></i> Poster
             </a>
-            <button class="btn btn-logout" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i>
-                Déconnexion
+            <button id="logoutBtn" class="admin-btn btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
             </button>
-            <a href="index.html" class="btn btn-return">
-                <i class="fas fa-arrow-left"></i>
-                Retour
+            <a href="index.html" class="admin-btn btn-return">
+                <i class="fas fa-arrow-left"></i> Retour
             </a>
         </div>
     </div>
     
-    <div class="section">
+    <div class="admin-section">
         <h2>Demandes en attente <span id="pendingCount" class="counter">0</span></h2>
         <div id="pendingCreators">
             <div class="empty-message">Les demandes apparaissent ici</div>
         </div>
     </div>
     
-    <div class="section">
+    <div class="admin-section">
         <h2>Créateurs approuvés <span id="approvedCount" class="counter">0</span></h2>
         <div id="approvedCreators">
             <div class="empty-message">Les créateurs apparaissent ici</div>
         </div>
     </div>
-<script src="script.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Vérifier la connexion admin
-        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            alert('Accès non autorisé. Veuillez vous connecter.');
-            window.location.href = 'index.html';
-        }
-        
-        // Gestion de la déconnexion
-        const logoutBtn = document.getElementById('logoutBtn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                if (confirm('Déconnexion ?')) {
-                    sessionStorage.clear();
-                    window.location.href = 'index.html';
-                }
-            });
-        }
-    });
-</script>
+    
+    <!-- Script Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Notre script admin -->
+    <script src="admin-script.js"></script>
 </body>
 </html>
