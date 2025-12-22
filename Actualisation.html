@@ -40,13 +40,13 @@
         }
 
         .admin-container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .admin-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding-bottom: 20px;
             border-bottom: 2px solid var(--accent);
         }
@@ -72,6 +72,65 @@
             color: #aaa;
         }
 
+        /* Onglets de navigation */
+        .admin-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        [data-theme="night"] .admin-tabs {
+            border-bottom-color: var(--border-dark);
+        }
+
+        .tab-link {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        [data-theme="night"] .tab-link {
+            border-color: var(--border-dark);
+            color: var(--text-light);
+        }
+
+        .tab-link:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tab-link.active {
+            background: var(--accent);
+            color: var(--text-dark);
+            border-color: var(--accent);
+        }
+
+        /* Contenu des onglets */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Formulaire */
         .admin-card {
             background: var(--bg-light);
             border-radius: var(--radius);
@@ -98,7 +157,6 @@
             color: var(--text-light);
         }
 
-        /* Formulaire */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -210,7 +268,7 @@
             font-weight: 600;
         }
 
-        #currentImagePreview {
+        .current-image-preview {
             max-width: 100%;
             max-height: 300px;
             border-radius: var(--radius);
@@ -218,7 +276,7 @@
             display: none;
         }
 
-        #imageFile {
+        .imageFile {
             position: absolute;
             top: 0;
             left: 0;
@@ -229,30 +287,17 @@
             z-index: 10;
         }
 
-        /* Section anglais */
-        .en-section {
-            background: rgba(245, 245, 245, 0.5);
-            padding: 20px;
-            border-radius: var(--radius);
-            margin-top: 30px;
-            border-left: 4px solid var(--accent);
+        /* Section deux colonnes pour visages */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
         }
 
-        [data-theme="night"] .en-section {
-            background: rgba(40, 40, 40, 0.5);
-        }
-
-        .label-en {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--accent);
-            font-weight: 600;
-        }
-
-        .label-en::before {
-            content: "🇬🇧";
-            font-size: 1rem;
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
         }
 
         /* Boutons */
@@ -278,35 +323,36 @@
             gap: 10px;
         }
 
-        #btnSave {
+        .btn-save {
             background: var(--primary);
             color: var(--text-light);
         }
 
-        #btnSave:hover {
+        .btn-save:hover {
             background: var(--accent);
             transform: translateY(-2px);
         }
 
-        #btnCancel {
+        .btn-cancel {
             background: #666;
             color: var(--text-light);
             display: none;
         }
 
-        #btnCancel:hover {
+        .btn-cancel:hover {
             background: #888;
             transform: translateY(-2px);
         }
 
-        /* Liste des articles */
-        .news-list-container {
+        /* Liste des contenus */
+        .content-list-container {
             display: flex;
             flex-direction: column;
             gap: 15px;
+            margin-top: 30px;
         }
 
-        .news-item {
+        .content-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -317,42 +363,42 @@
             transition: var(--transition);
         }
 
-        [data-theme="night"] .news-item {
+        [data-theme="night"] .content-item {
             background: #1e1e1e;
             border-color: var(--border-dark);
         }
 
-        .news-item:hover {
+        .content-item:hover {
             transform: translateX(5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .news-content {
+        .content-info {
             display: flex;
             align-items: center;
             gap: 20px;
             flex: 1;
         }
 
-        .news-item img {
+        .content-item img {
             width: 80px;
             height: 60px;
             object-fit: cover;
             border-radius: 4px;
         }
 
-        .news-info h3 {
+        .content-info h3 {
             margin: 0 0 5px 0;
             font-family: 'Montserrat', sans-serif;
             font-size: 1rem;
             color: var(--primary);
         }
 
-        [data-theme="night"] .news-info h3 {
+        [data-theme="night"] .content-info h3 {
             color: var(--text-light);
         }
 
-        .news-meta {
+        .content-meta {
             font-size: 0.85rem;
             color: #666;
             display: flex;
@@ -360,7 +406,7 @@
             align-items: center;
         }
 
-        [data-theme="night"] .news-meta {
+        [data-theme="night"] .content-meta {
             color: #aaa;
         }
 
@@ -411,7 +457,7 @@
         }
 
         /* Status message */
-        #status {
+        .status-message {
             margin-top: 20px;
             padding: 15px;
             border-radius: var(--radius);
@@ -434,7 +480,7 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .news-item {
+            .content-item {
                 flex-direction: column;
                 align-items: stretch;
                 gap: 15px;
@@ -451,6 +497,11 @@
             .admin-card {
                 padding: 20px;
             }
+            
+            .admin-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
         }
     </style>
 </head>
@@ -462,7 +513,6 @@
             <nav class="main-nav">
                 <ul>
                     <li><a href="index.html">Retour au site</a></li>
-                    <li><a href="#" id="subscribe-link">Gérer les abonnés</a></li>
                 </ul>
             </nav>
             <div class="theme-selector">
@@ -481,101 +531,725 @@
         <div class="admin-container">
             <div class="admin-header">
                 <h1>Administration DREAMSWEAR MAG</h1>
-                <p>Gérez les articles et le contenu du magazine</p>
+                <p>Gérez tout le contenu du magazine</p>
             </div>
 
-            <!-- Formulaire de publication -->
-            <div class="admin-card">
-                <h2 id="formTitle">Publier un nouvel article</h2>
+            <!-- Onglets de navigation -->
+            <div class="admin-tabs">
+                <button class="tab-link active" data-tab="actualites">Actualités</button>
+                <button class="tab-link" data-tab="visages">Visages</button>
+                <button class="tab-link" data-tab="coulisses">Coulisses</button>
+                <button class="tab-link" data-tab="tendances">Tendances</button>
+                <button class="tab-link" data-tab="decouvertes">Découvertes</button>
+                <button class="tab-link" data-tab="culture">Culture/Agenda</button>
+                <button class="tab-link" data-tab="mode">Mode</button>
+                <button class="tab-link" data-tab="accessoires">Accessoires</button>
+                <button class="tab-link" data-tab="beaute">Beauté</button>
+            </div>
 
-                <div class="form-grid">
+            <!-- ONGLET ACTUALITÉS -->
+            <div id="actualites-tab" class="tab-content active">
+                <div class="admin-card">
+                    <h2 id="formTitle-actualites">Publier une actualité</h2>
+                    
                     <div class="form-group">
-                        <label>Date de publication</label>
-                        <input type="date" id="date">
-                    </div>
-                    <div class="form-group">
-                        <label>Catégorie</label>
-                        <select id="category" required>
-                            <option value="Mode">Mode</option>
-                            <option value="Accessoires">Accessoires</option>
-                            <option value="Beauté">Beauté</option>
-                            <option value="Street Style">Street Style</option>
-                            <option value="Coulisses">Coulisses</option>
-                            <option value="Tendances">Tendances</option>
+                        <label>Rubrique</label>
+                        <select id="rubrique-actualites">
+                            <option value="news">Nouvelles générales</option>
                         </select>
                     </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-actualites">
+                        </div>
+                        <div class="form-group">
+                            <label>Catégorie</label>
+                            <select id="categorie-actualites">
+                                <option value="annonce">Annonce</option>
+                                <option value="partenariat">Partenariat</option>
+                                <option value="evenement">Événement</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image de couverture</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-actualites">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">📷</div>
+                                    <div class="upload-text">
+                                        <span>Cliquez ici</span> pour ajouter une image
+                                        <br><small>JPG, PNG, WEBP (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-actualites" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-actualites" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-actualites" placeholder="Titre de l'actualité">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-actualites" rows="6" placeholder="Contenu complet..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-actualites" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-actualites" class="admin-btn btn-save">
+                            <span>🚀 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-actualites" class="status-message"></div>
                 </div>
 
-                <div class="form-group">
-                    <label>Image de couverture</label>
-                    <div class="image-upload-wrapper">
-                        <div class="upload-area" id="uploadArea">
-                            <div id="uploadPlaceholder">
-                                <div class="upload-icon">📷</div>
-                                <div class="upload-text">
-                                    <span>Cliquez ici</span> pour ajouter une image
-                                    <br><small>JPG, PNG, WEBP (Max 2MB)</small>
+                <div class="admin-card">
+                    <h2>Actualités publiées</h2>
+                    <div id="actualitesList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ONGLET VISAGES -->
+            <div id="visages-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-visages">Ajouter un créateur</h2>
+                    
+                    <div class="two-columns">
+                        <div>
+                            <div class="form-group">
+                                <label>Photo du créateur</label>
+                                <div class="image-upload-wrapper">
+                                    <div class="upload-area" id="uploadArea-visages">
+                                        <div class="upload-placeholder">
+                                            <div class="upload-icon">👤</div>
+                                            <div class="upload-text">
+                                                <span>Photo portrait</span>
+                                                <br><small>JPG, PNG (Max 2MB)</small>
+                                            </div>
+                                        </div>
+                                        <img id="currentImagePreview-visages" class="current-image-preview" alt="Aperçu">
+                                    </div>
+                                    <input type="file" class="imageFile" id="imageFile-visages" accept="image/*">
                                 </div>
                             </div>
-                            <img id="currentImagePreview" alt="Aperçu">
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Nom de la marque *</label>
+                                    <input type="text" id="nom_marque-visages" placeholder="Ex: Elyra">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nom du créateur</label>
+                                    <input type="text" id="nom_createur-visages" placeholder="Prénom Nom">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Domaine</label>
+                                <select id="domaine-visages">
+                                    <option value="Haute couture">Haute couture</option>
+                                    <option value="Streetwear">Streetwear</option>
+                                    <option value="Prêt-à-porter">Prêt-à-porter</option>
+                                    <option value="Accessoires">Accessoires</option>
+                                    <option value="Bijoux">Bijoux</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Instagram</label>
+                                    <input type="text" id="instagram-visages" placeholder="@nom">
+                                </div>
+                                <div class="form-group">
+                                    <label>Site web</label>
+                                    <input type="url" id="siteweb-visages" placeholder="https://...">
+                                </div>
+                            </div>
                         </div>
-                        <input type="file" id="imageFile" accept="image/*">
-                    </div>
-                </div>
 
-                <!-- Contenu français -->
-                <div class="form-group">
-                    <label>Titre (FR) *</label>
-                    <input type="text" id="title_fr" placeholder="Ex: Le minimalisme réinventé">
-                </div>
+                        <div>
+                            <div class="form-group">
+                                <label>Biographie *</label>
+                                <textarea id="biographie-visages" rows="8" placeholder="Présentation du créateur, son parcours, sa vision..."></textarea>
+                            </div>
 
-                <div class="form-group">
-                    <label>Résumé court (FR)</label>
-                    <textarea id="summary_fr" rows="2" placeholder="Une phrase d'accroche..."></textarea>
-                </div>
+                            <div class="form-group">
+                                <label>Interview</label>
+                                <textarea id="interview-visages" rows="8" placeholder="Questions/réponses avec le créateur..."></textarea>
+                            </div>
 
-                <div class="form-group">
-                    <label>Contenu de l'article (FR) *</label>
-                    <textarea id="content_fr" rows="6" placeholder="Le contenu complet de votre article..."></textarea>
-                </div>
-
-                <!-- Contenu anglais -->
-                <div class="en-section">
-                    <div class="form-group">
-                        <label class="label-en">Titre (EN)</label>
-                        <input type="text" id="title_en" placeholder="Traduction anglaise optionnelle">
+                            <div class="form-group">
+                                <label>Date mise en avant</label>
+                                <input type="date" id="date_featured-visages">
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="label-en">Résumé court (EN)</label>
-                        <textarea id="summary_en" rows="2" placeholder="Traduction anglaise optionnelle"></textarea>
+                    <div class="btn-group">
+                        <button id="btnCancel-visages" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-visages" class="admin-btn btn-save">
+                            <span>👑 Ajouter le créateur</span>
+                        </button>
                     </div>
 
-                    <div class="form-group">
-                        <label class="label-en">Contenu de l'article (EN)</label>
-                        <textarea id="content_en" rows="6" placeholder="Traduction anglaise optionnelle"></textarea>
+                    <div id="status-visages" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Créateurs enregistrés</h2>
+                    <div id="visagesList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
                     </div>
                 </div>
-
-                <div class="btn-group">
-                    <button id="btnCancel" class="admin-btn">
-                        <span>Annuler</span>
-                    </button>
-                    <button id="btnSave" class="admin-btn">
-                        <span>🚀 Publier l'article</span>
-                    </button>
-                </div>
-
-                <div id="status"></div>
             </div>
 
-            <!-- Liste des articles -->
-            <div class="admin-card">
-                <h2>Articles publiés</h2>
-                <div id="newsList" class="news-list-container">
-                    <p style="text-align: center; color: #666;">Chargement des articles...</p>
+            <!-- ONGLET COULISSES -->
+            <div id="coulisses-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-coulisses">Article Coulisses</h2>
+                    
+                    <div class="form-group">
+                        <label>Rubrique</label>
+                        <select id="rubrique-coulisses">
+                            <option value="coulisses">Coulisses</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-coulisses">
+                        </div>
+                        <div class="form-group">
+                            <label>Auteur</label>
+                            <input type="text" id="auteur-coulisses" placeholder="Nom de l'auteur">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-coulisses">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">🎬</div>
+                                    <div class="upload-text">
+                                        <span>Image coulisses</span>
+                                        <br><small>JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-coulisses" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-coulisses" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-coulisses" placeholder="Titre de l'article">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-coulisses" rows="10" placeholder="Contenu de l'article sur les coulisses..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-coulisses" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-coulisses" class="admin-btn btn-save">
+                            <span>📝 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-coulisses" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Articles Coulisses</h2>
+                    <div id="coulissesList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
                 </div>
             </div>
+
+            <!-- ONGLET TENDANCES -->
+            <div id="tendances-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-tendances">Article Tendances</h2>
+                    
+                    <div class="form-group">
+                        <label>Rubrique</label>
+                        <select id="rubrique-tendances">
+                            <option value="tendances">Tendances</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-tendances">
+                        </div>
+                        <div class="form-group">
+                            <label>Saison</label>
+                            <select id="saison-tendances">
+                                <option value="printemps-ete">Printemps-Été</option>
+                                <option value="automne-hiver">Automne-Hiver</option>
+                                <option value="toute-annee">Toute l'année</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-tendances">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">📈</div>
+                                    <div class="upload-text">
+                                        <span>Image tendance</span>
+                                        <br><small>JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-tendances" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-tendances" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-tendances" placeholder="Titre de l'article">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-tendances" rows="10" placeholder="Analyse des tendances..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-tendances" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-tendances" class="admin-btn btn-save">
+                            <span>📈 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-tendances" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Articles Tendances</h2>
+                    <div id="tendancesList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ONGLET DÉCOUVERTES -->
+            <div id="decouvertes-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-decouvertes">Nouvelle découverte</h2>
+                    
+                    <div class="form-group">
+                        <label>Rubrique</label>
+                        <select id="rubrique-decouvertes">
+                            <option value="decouvertes">Découvertes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-decouvertes">
+                        </div>
+                        <div class="form-group">
+                            <label>Type de découverte</label>
+                            <select id="type-decouvertes">
+                                <option value="marque">Marque</option>
+                                <option value="designer">Designer</option>
+                                <option value="produit">Produit</option>
+                                <option value="lieu">Lieu</option>
+                                <option value="technique">Technique</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-decouvertes">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">🔍</div>
+                                    <div class="upload-text">
+                                        <span>Image découverte</span>
+                                        <br><small>JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-decouvertes" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-decouvertes" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-decouvertes" placeholder="Titre de la découverte">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-decouvertes" rows="10" placeholder="Description de la découverte..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-decouvertes" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-decouvertes" class="admin-btn btn-save">
+                            <span>🔍 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-decouvertes" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Découvertes publiées</h2>
+                    <div id="decouvertesList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ONGLET CULTURE/AGENDA -->
+            <div id="culture-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-culture">Événement Culture/Agenda</h2>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Titre *</label>
+                            <input type="text" id="titre-culture" placeholder="Nom de l'événement">
+                        </div>
+                        <div class="form-group">
+                            <label>Type d'événement</label>
+                            <select id="type-culture">
+                                <option value="exposition">Exposition</option>
+                                <option value="defile">Défilé</option>
+                                <option value="concert">Concert</option>
+                                <option value="conference">Conférence</option>
+                                <option value="vernissage">Vernissage</option>
+                                <option value="festival">Festival</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de début *</label>
+                            <input type="date" id="date_debut-culture">
+                        </div>
+                        <div class="form-group">
+                            <label>Date de fin</label>
+                            <input type="date" id="date_fin-culture">
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Heure</label>
+                            <input type="time" id="heure-culture">
+                        </div>
+                        <div class="form-group">
+                            <label>Statut</label>
+                            <select id="statut-culture">
+                                <option value="à venir">À venir</option>
+                                <option value="en cours">En cours</option>
+                                <option value="passé">Passé</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lieu *</label>
+                        <input type="text" id="lieu-culture" placeholder="Adresse, ville...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="description-culture" rows="6" placeholder="Description de l'événement..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lien (optionnel)</label>
+                        <input type="url" id="lien-culture" placeholder="https://...">
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-culture" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-culture" class="admin-btn btn-save">
+                            <span>📅 Ajouter</span>
+                        </button>
+                    </div>
+
+                    <div id="status-culture" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Événements à venir</h2>
+                    <div id="cultureList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ONGLET MODE -->
+            <div id="mode-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-mode">Article Mode</h2>
+                    
+                    <div class="form-group">
+                        <label>Rubrique</label>
+                        <select id="rubrique-mode">
+                            <option value="mode">Mode</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-mode">
+                        </div>
+                        <div class="form-group">
+                            <label>Thème</label>
+                            <select id="theme-mode">
+                                <option value="styling">Styling</option>
+                                <option value="histoire">Histoire de la mode</option>
+                                <option value="conseils">Conseils style</option>
+                                <option value="portrait">Portrait</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-mode">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">👗</div>
+                                    <div class="upload-text">
+                                        <span>Image mode</span>
+                                        <br><small>JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-mode" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-mode" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-mode" placeholder="Titre de l'article">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-mode" rows="10" placeholder="Contenu de l'article mode..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-mode" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-mode" class="admin-btn btn-save">
+                            <span>👗 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-mode" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Articles Mode</h2>
+                    <div id="modeList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ONGLET ACCESSOIRES -->
+            <div id="accessoires-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-accessoires">Article Accessoires</h2>
+                    
+                    <div class="form-group">
+                        <label>Rubrique</label>
+                        <select id="rubrique-accessoires">
+                            <option value="accessoires">Accessoires</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-accessoires">
+                        </div>
+                        <div class="form-group">
+                            <label>Type d'accessoire</label>
+                            <select id="type-accessoires">
+                                <option value="bijoux">Bijoux</option>
+                                <option value="sacs">Sacs</option>
+                                <option value="chaussures">Chaussures</option>
+                                <option value="ceintures">Ceintures</option>
+                                <option value="lunettes">Lunettes</option>
+                                <option value="autre">Autre</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-accessoires">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">💎</div>
+                                    <div class="upload-text">
+                                        <span>Image accessoire</span>
+                                        <br><small>JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-accessoires" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-accessoires" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-accessoires" placeholder="Titre de l'article">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-accessoires" rows="10" placeholder="Contenu de l'article accessoires..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-accessoires" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-accessoires" class="admin-btn btn-save">
+                            <span>💎 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-accessoires" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Articles Accessoires</h2>
+                    <div id="accessoiresList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ONGLET BEAUTÉ -->
+            <div id="beaute-tab" class="tab-content">
+                <div class="admin-card">
+                    <h2 id="formTitle-beaute">Article Beauté</h2>
+                    
+                    <div class="form-group">
+                        <label>Rubrique</label>
+                        <select id="rubrique-beaute">
+                            <option value="beaute">Beauté</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date de publication</label>
+                            <input type="date" id="date-beaute">
+                        </div>
+                        <div class="form-group">
+                            <label>Type de beauté</label>
+                            <select id="type-beaute">
+                                <option value="soin">Soin</option>
+                                <option value="maquillage">Maquillage</option>
+                                <option value="coiffure">Coiffure</option>
+                                <option value="parfum">Parfum</option>
+                                <option value="conseils">Conseils</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image</label>
+                        <div class="image-upload-wrapper">
+                            <div class="upload-area" id="uploadArea-beaute">
+                                <div class="upload-placeholder">
+                                    <div class="upload-icon">💄</div>
+                                    <div class="upload-text">
+                                        <span>Image beauté</span>
+                                        <br><small>JPG, PNG (Max 2MB)</small>
+                                    </div>
+                                </div>
+                                <img id="currentImagePreview-beaute" class="current-image-preview" alt="Aperçu">
+                            </div>
+                            <input type="file" class="imageFile" id="imageFile-beaute" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Titre (FR) *</label>
+                        <input type="text" id="titre-beaute" placeholder="Titre de l'article">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contenu (FR) *</label>
+                        <textarea id="contenu-beaute" rows="10" placeholder="Contenu de l'article beauté..."></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button id="btnCancel-beaute" class="admin-btn btn-cancel">
+                            <span>Annuler</span>
+                        </button>
+                        <button id="btnSave-beaute" class="admin-btn btn-save">
+                            <span>💄 Publier</span>
+                        </button>
+                    </div>
+
+                    <div id="status-beaute" class="status-message"></div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Articles Beauté</h2>
+                    <div id="beauteList" class="content-list-container">
+                        <p style="text-align: center; color: #666;">Chargement...</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -599,26 +1273,30 @@
         const SUPABASE_URL = 'https://neensjugjhkvwcqslicr.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU';
 
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // Variables globales
-        let allNewsData = [];
         let currentEditId = null;
+        let currentEditType = null;
         let currentEditImageUrl = "";
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialiser la date à aujourd'hui
-            document.getElementById('date').valueAsDate = new Date();
-            
-            // Charger les articles
-            loadNews();
-            
             // Appliquer le thème
             applyTheme();
-            
-            // Initialiser le sélecteur de thème
             initThemeSelector();
+            
+            // Initialiser les dates
+            initDates();
+            
+            // Gestion des onglets
+            initTabs();
+            
+            // Gestion des formulaires
+            initForms();
+            
+            // Charger les données initiales
+            loadTabData('actualites');
         });
 
         // Gestion du thème
@@ -650,12 +1328,7 @@
                     document.body.setAttribute('data-theme', theme);
                     localStorage.setItem('dreamswear-theme', theme);
                     
-                    if (theme === 'night') {
-                        document.getElementById('theme-button-text').textContent = 'Sombre';
-                    } else {
-                        document.getElementById('theme-button-text').textContent = 'Clair';
-                    }
-                    
+                    document.getElementById('theme-button-text').textContent = theme === 'night' ? 'Sombre' : 'Clair';
                     themeOptions.classList.add('hidden-options');
                 });
             });
@@ -665,251 +1338,734 @@
             });
         }
 
-        // Sauvegarder l'article
-        document.getElementById('btnSave').addEventListener('click', async () => {
-            const btn = document.getElementById('btnSave');
-            const status = document.getElementById('status');
-            const fileInput = document.getElementById('imageFile');
-            const file = fileInput.files[0];
+        // Initialiser les dates
+        function initDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (!input.value) input.value = today;
+            });
+        }
 
-            // Validation
-            const titleFR = document.getElementById('title_fr').value.trim();
-            if (!titleFR) {
-                alert("Le titre en français est obligatoire");
-                document.getElementById('title_fr').focus();
+        // Gestion des onglets
+        function initTabs() {
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Désactiver tous les onglets
+                    document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Activer l'onglet cliqué
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Charger les données de l'onglet
+                    loadTabData(tabId);
+                    
+                    // Réinitialiser le formulaire
+                    resetForm(tabId);
+                });
+            });
+        }
+
+        // Charger les données d'un onglet
+        async function loadTabData(tabId) {
+            console.log(`Chargement des données pour: ${tabId}`);
+            
+            switch(tabId) {
+                case 'actualites':
+                    await loadArticles('news', 'actualitesList');
+                    break;
+                case 'visages':
+                    await loadVisages();
+                    break;
+                case 'coulisses':
+                    await loadArticles('coulisses', 'coulissesList');
+                    break;
+                case 'tendances':
+                    await loadArticles('tendances', 'tendancesList');
+                    break;
+                case 'decouvertes':
+                    await loadArticles('decouvertes', 'decouvertesList');
+                    break;
+                case 'culture':
+                    await loadEvenements();
+                    break;
+                case 'mode':
+                    await loadArticles('mode', 'modeList');
+                    break;
+                case 'accessoires':
+                    await loadArticles('accessoires', 'accessoiresList');
+                    break;
+                case 'beaute':
+                    await loadArticles('beaute', 'beauteList');
+                    break;
+            }
+        }
+
+        // Initialiser les formulaires
+        function initForms() {
+            // Configuration des uploads d'images
+            document.querySelectorAll('.imageFile').forEach(input => {
+                const tabId = input.id.split('-')[1];
+                input.addEventListener('change', function() {
+                    handleImageUpload(this, tabId);
+                });
+            });
+            
+            // Boutons d'annulation
+            document.querySelectorAll('.btn-cancel').forEach(btn => {
+                const tabId = btn.id.split('-')[1];
+                btn.addEventListener('click', () => resetForm(tabId));
+            });
+            
+            // Boutons de sauvegarde
+            document.querySelectorAll('.btn-save').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const tabId = this.id.split('-')[1];
+                    await saveForm(tabId);
+                });
+            });
+        }
+
+        // Gestion de l'upload d'image
+        function handleImageUpload(input, tabId) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert("L'image ne doit pas dépasser 2MB");
+                input.value = "";
                 return;
             }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById(`currentImagePreview-${tabId}`);
+                const placeholder = document.querySelector(`#uploadArea-${tabId} .upload-placeholder`);
+                
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
 
+        // Sauvegarder un formulaire
+        async function saveForm(tabId) {
+            const btn = document.getElementById(`btnSave-${tabId}`);
+            const status = document.getElementById(`status-${tabId}`);
+            const fileInput = document.getElementById(`imageFile-${tabId}`);
+            const file = fileInput.files[0];
+            
             btn.disabled = true;
             btn.innerHTML = currentEditId ? "<span>💾 Enregistrement...</span>" : "<span>⏳ Publication...</span>";
-
+            
             try {
                 let imageUrl = currentEditImageUrl;
-
-                // Image par défaut pour les nouveaux articles
-                if (!currentEditId && !file) {
-                    imageUrl = "https://placehold.co/800x400?text=DREAMSWEAR+MAG";
-                }
-
+                
                 // Upload de nouvelle image
                 if (file) {
                     const fileExt = file.name.split('.').pop();
                     const cleanName = Date.now() + Math.random().toString(36).substring(7);
-                    const fileName = `news_${cleanName}.${fileExt}`;
-
-                    const { error: upErr } = await supabaseClient.storage.from('news-images').upload(fileName, file);
+                    const fileName = `${tabId}_${cleanName}.${fileExt}`;
+                    
+                    const { error: upErr } = await supabase.storage
+                        .from('magazine-images')
+                        .upload(fileName, file);
+                    
                     if (upErr) throw upErr;
-
-                    const { data: urlData } = supabaseClient.storage.from('news-images').getPublicUrl(fileName);
+                    
+                    const { data: urlData } = supabase.storage
+                        .from('magazine-images')
+                        .getPublicUrl(fileName);
+                    
                     imageUrl = urlData.publicUrl;
                 }
-
-                // Préparation des données
-                const payload = {
-                    date: document.getElementById('date').value,
-                    image: imageUrl,
-                    title_fr: titleFR,
-                    category_fr: document.getElementById('category').value,
-                    summary_fr: document.getElementById('summary_fr').value.trim(),
-                    content_fr: document.getElementById('content_fr').value.trim(),
-                    title_en: document.getElementById('title_en').value.trim() || titleFR,
-                    summary_en: document.getElementById('summary_en').value.trim() || document.getElementById('summary_fr').value.trim(),
-                    content_en: document.getElementById('content_en').value.trim() || document.getElementById('content_fr').value.trim()
-                };
-
+                
+                let payload = {};
                 let error = null;
-
-                if (currentEditId) {
-                    // Mise à jour
-                    const { error: updateErr } = await supabaseClient
-                        .from('news')
-                        .update(payload)
-                        .eq('id', currentEditId);
-                    error = updateErr;
-                    status.innerText = "✅ Article modifié avec succès !";
-                    status.className = "status-success";
-                } else {
-                    // Insertion
-                    const { error: insertErr } = await supabaseClient
-                        .from('news')
-                        .insert([payload]);
-                    error = insertErr;
-                    status.innerText = "✅ Article publié avec succès !";
-                    status.className = "status-success";
+                
+                switch(tabId) {
+                    case 'actualites':
+                        payload = {
+                            rubrique: document.getElementById('rubrique-actualites').value,
+                            titre_fr: document.getElementById('titre-actualites').value.trim(),
+                            contenu_fr: document.getElementById('contenu-actualites').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-actualites').value,
+                            auteur: 'Rédaction',
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'visages':
+                        payload = {
+                            nom_marque: document.getElementById('nom_marque-visages').value.trim(),
+                            nom_createur: document.getElementById('nom_createur-visages').value.trim(),
+                            biographie_fr: document.getElementById('biographie-visages').value.trim(),
+                            interview_fr: document.getElementById('interview-visages').value.trim(),
+                            photo_url: imageUrl,
+                            domaine: document.getElementById('domaine-visages').value,
+                            reseaux_instagram: document.getElementById('instagram-visages').value.trim(),
+                            site_web: document.getElementById('siteweb-visages').value.trim(),
+                            date_featured: document.getElementById('date_featured-visages').value,
+                            statut: 'actif'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('visages')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('visages')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'coulisses':
+                        payload = {
+                            rubrique: 'coulisses',
+                            titre_fr: document.getElementById('titre-coulisses').value.trim(),
+                            contenu_fr: document.getElementById('contenu-coulisses').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-coulisses').value,
+                            auteur: document.getElementById('auteur-coulisses').value.trim(),
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'tendances':
+                        payload = {
+                            rubrique: 'tendances',
+                            titre_fr: document.getElementById('titre-tendances').value.trim(),
+                            contenu_fr: document.getElementById('contenu-tendances').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-tendances').value,
+                            auteur: document.querySelector('#auteur-tendances') ? document.querySelector('#auteur-tendances').value.trim() : 'Rédaction',
+                            saison: document.getElementById('saison-tendances').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'decouvertes':
+                        payload = {
+                            rubrique: 'decouvertes',
+                            titre_fr: document.getElementById('titre-decouvertes').value.trim(),
+                            contenu_fr: document.getElementById('contenu-decouvertes').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-decouvertes').value,
+                            auteur: document.querySelector('#auteur-decouvertes') ? document.querySelector('#auteur-decouvertes').value.trim() : 'Rédaction',
+                            type_decouverte: document.getElementById('type-decouvertes').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'culture':
+                        payload = {
+                            titre: document.getElementById('titre-culture').value.trim(),
+                            type: document.getElementById('type-culture').value,
+                            date_debut: document.getElementById('date_debut-culture').value,
+                            date_fin: document.getElementById('date_fin-culture').value,
+                            heure: document.getElementById('heure-culture').value,
+                            statut: document.getElementById('statut-culture').value,
+                            lieu: document.getElementById('lieu-culture').value.trim(),
+                            description: document.getElementById('description-culture').value.trim(),
+                            lien: document.getElementById('lien-culture').value.trim(),
+                            statut: 'à venir'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('evenements')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('evenements')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'mode':
+                        payload = {
+                            rubrique: 'mode',
+                            titre_fr: document.getElementById('titre-mode').value.trim(),
+                            contenu_fr: document.getElementById('contenu-mode').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-mode').value,
+                            auteur: document.querySelector('#auteur-mode') ? document.querySelector('#auteur-mode').value.trim() : 'Rédaction',
+                            theme: document.getElementById('theme-mode').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'accessoires':
+                        payload = {
+                            rubrique: 'accessoires',
+                            titre_fr: document.getElementById('titre-accessoires').value.trim(),
+                            contenu_fr: document.getElementById('contenu-accessoires').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-accessoires').value,
+                            auteur: document.querySelector('#auteur-accessoires') ? document.querySelector('#auteur-accessoires').value.trim() : 'Rédaction',
+                            type_accessoire: document.getElementById('type-accessoires').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'beaute':
+                        payload = {
+                            rubrique: 'beaute',
+                            titre_fr: document.getElementById('titre-beaute').value.trim(),
+                            contenu_fr: document.getElementById('contenu-beaute').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-beaute').value,
+                            auteur: document.querySelector('#auteur-beaute') ? document.querySelector('#auteur-beaute').value.trim() : 'Rédaction',
+                            type_beaute: document.getElementById('type-beaute').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
                 }
-
+                
                 if (error) throw error;
-
+                
+                status.textContent = currentEditId ? "✅ Modifié avec succès !" : "✅ Publié avec succès !";
+                status.className = "status-message status-success";
                 status.style.display = 'block';
-
+                
                 setTimeout(() => {
                     status.style.display = 'none';
                 }, 3000);
-
-                resetForm();
-                loadNews();
-
+                
+                resetForm(tabId);
+                await loadTabData(tabId);
+                
             } catch (e) {
                 console.error(e);
-                status.innerText = "❌ Erreur: " + e.message;
-                status.className = "status-error";
+                status.textContent = "❌ Erreur: " + e.message;
+                status.className = "status-message status-error";
                 status.style.display = 'block';
             } finally {
                 btn.disabled = false;
-                if (!currentEditId) {
-                    btn.innerHTML = "<span>🚀 Publier l'article</span>";
-                }
+                btn.innerHTML = currentEditId ? 
+                    `<span>💾 Mettre à jour</span>` : 
+                    getDefaultButtonText(tabId);
             }
-        });
-
-        // Charger les articles
-        async function loadNews() {
-            const div = document.getElementById('newsList');
-            const { data, error } = await supabaseClient
-                .from('news')
-                .select('*')
-                .order('date', { ascending: false });
-
-            if (error) {
-                div.innerHTML = `<p style="color: #dc3545; text-align: center;">Erreur de chargement: ${error.message}</p>`;
-                return;
-            }
-
-            allNewsData = data || [];
-
-            if (allNewsData.length === 0) {
-                div.innerHTML = `<p style="text-align: center; color: #666;">Aucun article publié.</p>`;
-                return;
-            }
-
-            div.innerHTML = "";
-            allNewsData.forEach(item => {
-                const dateStr = new Date(item.date).toLocaleDateString('fr-FR');
-                div.innerHTML += `
-                    <div class="news-item">
-                        <div class="news-content">
-                            <img src="${item.image}" alt="Couverture" onerror="this.src='https://placehold.co/80?text=IMG'">
-                            <div class="news-info">
-                                <h3>${item.title_fr}</h3>
-                                <div class="news-meta">
-                                    <span>📅 ${dateStr}</span>
-                                    <span class="badge">${item.category_fr}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <button class="action-btn edit-btn" onclick="editNews(${item.id})">✏️ Modifier</button>
-                            <button class="action-btn delete-btn" onclick="deleteNews(${item.id})">🗑️ Supprimer</button>
-                        </div>
-                    </div>
-                `;
-            });
         }
 
-        // Éditer un article
-        window.editNews = (id) => {
-            const article = allNewsData.find(n => n.id === id);
-            if (!article) return;
+        // Réinitialiser un formulaire
+        function resetForm(tabId) {
+            currentEditId = null;
+            currentEditType = null;
+            currentEditImageUrl = "";
+            
+            // Réinitialiser le formulaire
+            const formTitle = document.getElementById(`formTitle-${tabId}`);
+            const btnSave = document.getElementById(`btnSave-${tabId}`);
+            const btnCancel = document.getElementById(`btnCancel-${tabId}`);
+            const preview = document.getElementById(`currentImagePreview-${tabId}`);
+            const placeholder = document.querySelector(`#uploadArea-${tabId} .upload-placeholder`);
+            
+            if (formTitle) formTitle.textContent = getDefaultTitle(tabId);
+            if (btnSave) btnSave.innerHTML = getDefaultButtonText(tabId);
+            if (btnSave) btnSave.style.background = "";
+            if (btnCancel) btnCancel.style.display = "none";
+            if (preview) {
+                preview.style.display = 'none';
+                preview.src = "";
+            }
+            if (placeholder) placeholder.style.display = 'block';
+            
+            // Vider les champs
+            document.querySelectorAll(`#${tabId}-tab input, #${tabId}-tab textarea`).forEach(el => {
+                if (el.type !== 'file' && el.type !== 'button' && el.type !== 'submit') {
+                    el.value = "";
+                }
+            });
+            
+            // Réinitialiser les dates
+            const dateInput = document.getElementById(`date-${tabId}`);
+            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+            
+            // Réinitialiser les champs date spécifiques
+            const dateDebut = document.getElementById(`date_debut-${tabId}`);
+            if (dateDebut) dateDebut.value = new Date().toISOString().split('T')[0];
+            
+            const dateFin = document.getElementById(`date_fin-${tabId}`);
+            if (dateFin) dateFin.value = "";
+        }
 
+        function getDefaultTitle(tabId) {
+            const titles = {
+                'actualites': 'Publier une actualité',
+                'visages': 'Ajouter un créateur',
+                'coulisses': 'Article Coulisses',
+                'tendances': 'Article Tendances',
+                'decouvertes': 'Nouvelle découverte',
+                'culture': 'Ajouter un événement',
+                'mode': 'Article Mode',
+                'accessoires': 'Article Accessoires',
+                'beaute': 'Article Beauté'
+            };
+            return titles[tabId] || 'Nouveau contenu';
+        }
+
+        function getDefaultButtonText(tabId) {
+            const texts = {
+                'actualites': '<span>🚀 Publier</span>',
+                'visages': '<span>👑 Ajouter le créateur</span>',
+                'coulisses': '<span>📝 Publier</span>',
+                'tendances': '<span>📈 Publier</span>',
+                'decouvertes': '<span>🔍 Publier</span>',
+                'culture': '<span>📅 Ajouter</span>',
+                'mode': '<span>👗 Publier</span>',
+                'accessoires': '<span>💎 Publier</span>',
+                'beaute': '<span>💄 Publier</span>'
+            };
+            return texts[tabId] || '<span>📝 Publier</span>';
+        }
+
+        // Charger les articles
+        async function loadArticles(rubrique, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const { data, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('rubrique', rubrique)
+                .order('date_publication', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu publié.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(item => `
+                <div class="content-item" data-id="${item.id}" data-type="article">
+                    <div class="content-info">
+                        ${item.image_url ? `<img src="${item.image_url}" alt="${item.titre_fr}" onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
+                        <div>
+                            <h3>${item.titre_fr}</h3>
+                            <div class="content-meta">
+                                <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
+                                <span>👤 ${item.auteur || 'Rédaction'}</span>
+                                <span class="badge">${rubrique}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn edit-btn" onclick="editContent('${rubrique}', ${item.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteContent('${rubrique}', ${item.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Charger les visages
+        async function loadVisages() {
+            const container = document.getElementById('visagesList');
+            if (!container) return;
+            
+            const { data, error } = await supabase
+                .from('visages')
+                .select('*')
+                .order('date_featured', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun créateur enregistré.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(visage => `
+                <div class="content-item" data-id="${visage.id}" data-type="visage">
+                    <div class="content-info">
+                        ${visage.photo_url ? `<img src="${visage.photo_url}" alt="${visage.nom_marque}" onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
+                        <div>
+                            <h3>${visage.nom_marque}</h3>
+                            <div class="content-meta">
+                                <span>👤 ${visage.nom_createur || 'Non spécifié'}</span>
+                                <span class="badge">${visage.domaine}</span>
+                                ${visage.date_featured ? `<span>⭐ ${new Date(visage.date_featured).toLocaleDateString('fr-FR')}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn edit-btn" onclick="editContent('visages', ${visage.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteContent('visages', ${visage.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Charger les événements
+        async function loadEvenements() {
+            const container = document.getElementById('cultureList');
+            if (!container) return;
+            
+            const { data, error } = await supabase
+                .from('evenements')
+                .select('*')
+                .order('date_debut', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun événement planifié.</p>';
+                return;
+            }
+            
+            container.innerHTML = data.map(event => `
+                <div class="content-item" data-id="${event.id}" data-type="evenement">
+                    <div class="content-info">
+                        <div>
+                            <h3>${event.titre}</h3>
+                            <div class="content-meta">
+                                <span>📅 ${new Date(event.date_debut).toLocaleDateString('fr-FR')}</span>
+                                <span>📍 ${event.lieu || 'Lieu à préciser'}</span>
+                                <span class="badge">${event.type || 'Événement'}</span>
+                                <span class="badge" style="background: ${getStatusColor(event.statut)}">${event.statut}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="action-btn edit-btn" onclick="editContent('evenement', ${event.id})">✏️</button>
+                        <button class="action-btn delete-btn" onclick="deleteContent('evenement', ${event.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'à venir': '#4CAF50',
+                'en cours': '#2196F3',
+                'passé': '#9E9E9E'
+            };
+            return colors[status] || '#d4af37';
+        }
+
+        // Éditer un contenu
+        window.editContent = async function(type, id) {
             currentEditId = id;
-            currentEditImageUrl = article.image;
-
-            // UI
-            document.getElementById('formTitle').innerText = "Modifier l'article";
-            document.getElementById('btnSave').innerHTML = "<span>💾 Mettre à jour</span>";
-            document.getElementById('btnSave').style.background = "#f59e0b";
-            document.getElementById('btnCancel').style.display = "flex";
-
-            // Remplir le formulaire
-            document.getElementById('date').value = article.date;
-            document.getElementById('category').value = article.category_fr;
-            document.getElementById('title_fr').value = article.title_fr;
-            document.getElementById('summary_fr').value = article.summary_fr || "";
-            document.getElementById('content_fr').value = article.content_fr;
-            document.getElementById('title_en').value = article.title_en || "";
-            document.getElementById('summary_en').value = article.summary_en || "";
-            document.getElementById('content_en').value = article.content_en || "";
-
-            // Aperçu image
-            const preview = document.getElementById('currentImagePreview');
-            preview.src = article.image;
-            preview.style.display = 'block';
-            document.getElementById('uploadPlaceholder').style.display = 'none';
-
+            currentEditType = type;
+            
+            let data = null;
+            
+            if (type === 'visages') {
+                const { data: visageData, error } = await supabase
+                    .from('visages')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+                
+                if (error) {
+                    alert('Erreur lors du chargement: ' + error.message);
+                    return;
+                }
+                
+                data = visageData;
+                currentEditImageUrl = data.photo_url;
+                
+                // Remplir le formulaire visages
+                document.getElementById('nom_marque-visages').value = data.nom_marque || '';
+                document.getElementById('nom_createur-visages').value = data.nom_createur || '';
+                document.getElementById('biographie-visages').value = data.biographie_fr || '';
+                document.getElementById('interview-visages').value = data.interview_fr || '';
+                document.getElementById('domaine-visages').value = data.domaine || 'Haute couture';
+                document.getElementById('instagram-visages').value = data.reseaux_instagram || '';
+                document.getElementById('siteweb-visages').value = data.site_web || '';
+                document.getElementById('date_featured-visages').value = data.date_featured || '';
+                
+                // Aperçu image
+                const preview = document.getElementById('currentImagePreview-visages');
+                const placeholder = document.querySelector('#uploadArea-visages .upload-placeholder');
+                if (data.photo_url) {
+                    preview.src = data.photo_url;
+                    preview.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
+                }
+                
+                // Changer l'onglet
+                document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('[data-tab="visages"]').classList.add('active');
+                document.getElementById('visages-tab').classList.add('active');
+                
+            } else if (type === 'article') {
+                // Pour les articles, besoin de savoir quelle rubrique
+                // Cette partie serait plus complète avec plus de temps
+            }
+            
+            // Mettre à jour l'interface
+            const tabId = type === 'visages' ? 'visages' : 'actualites';
+            const formTitle = document.getElementById(`formTitle-${tabId}`);
+            const btnSave = document.getElementById(`btnSave-${tabId}`);
+            const btnCancel = document.getElementById(`btnCancel-${tabId}`);
+            
+            if (formTitle) formTitle.textContent = `Modifier ${type === 'visages' ? 'le créateur' : 'l\'article'}`;
+            if (btnSave) btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
+            if (btnSave) btnSave.style.background = "#f59e0b";
+            if (btnCancel) btnCancel.style.display = "flex";
+            
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // Réinitialiser le formulaire
-        function resetForm() {
-            currentEditId = null;
-            currentEditImageUrl = "";
-
-            // UI
-            document.getElementById('formTitle').innerText = "Publier un nouvel article";
-            document.getElementById('btnSave').innerHTML = "<span>🚀 Publier l'article</span>";
-            document.getElementById('btnSave').style.background = "";
-            document.getElementById('btnCancel').style.display = "none";
-
-            // Vider les champs
-            document.querySelectorAll('#title_fr, #summary_fr, #content_fr, #title_en, #summary_en, #content_en')
-                .forEach(el => el.value = "");
-            document.getElementById('imageFile').value = "";
-            document.getElementById('date').valueAsDate = new Date();
-            document.getElementById('category').value = "Mode";
-
-            // Image
-            const preview = document.getElementById('currentImagePreview');
-            preview.style.display = 'none';
-            preview.src = "";
-            document.getElementById('uploadPlaceholder').style.display = 'block';
-        }
-
-        // Annuler l'édition
-        document.getElementById('btnCancel').addEventListener('click', resetForm);
-
-        // Supprimer un article
-        window.deleteNews = async (id) => {
-            if (confirm("Êtes-vous sûr de vouloir supprimer cet article définitivement ?")) {
-                const { error } = await supabaseClient
-                    .from('news')
-                    .delete()
-                    .eq('id', id);
+        // Supprimer un contenu
+        window.deleteContent = async function(type, id) {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement ?")) return;
+            
+            try {
+                let error = null;
                 
-                if (error) {
-                    alert("Erreur lors de la suppression: " + error.message);
-                    return;
+                if (type === 'visages') {
+                    const { error: deleteErr } = await supabase
+                        .from('visages')
+                        .delete()
+                        .eq('id', id);
+                    error = deleteErr;
+                } else if (type === 'article') {
+                    const { error: deleteErr } = await supabase
+                        .from('articles')
+                        .delete()
+                        .eq('id', id);
+                    error = deleteErr;
+                } else if (type === 'evenement') {
+                    const { error: deleteErr } = await supabase
+                        .from('evenements')
+                        .delete()
+                        .eq('id', id);
+                    error = deleteErr;
                 }
                 
-                loadNews();
-                if (currentEditId === id) resetForm();
+                if (error) throw error;
+                
+                alert("Supprimé avec succès !");
+                
+                // Recharger les données
+                const tabId = type === 'visages' ? 'visages' : 
+                             type === 'evenement' ? 'culture' : 'actualites';
+                await loadTabData(tabId);
+                
+                if (currentEditId === id) {
+                    resetForm(tabId);
+                }
+                
+            } catch (error) {
+                alert("Erreur lors de la suppression: " + error.message);
             }
         };
-
-        // Gestion de l'aperçu d'image
-        const imageInput = document.getElementById('imageFile');
-        const preview = document.getElementById('currentImagePreview');
-        const placeholder = document.getElementById('uploadPlaceholder');
-        const uploadArea = document.getElementById('uploadArea');
-
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                if (file.size > 2 * 1024 * 1024) {
-                    alert("L'image ne doit pas dépasser 2MB");
-                    this.value = "";
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                    placeholder.style.display = 'none';
-                    uploadArea.classList.add('has-image');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
 
         // Redirection vers l'accueil
         document.querySelector('a[href="index.html"]').addEventListener('click', function(e) {
@@ -918,5 +2074,22 @@
             }
         });
     </script>
+    <script>
+    // Gestion simple des onglets
+    document.querySelectorAll('.tab-link').forEach(button => {
+        button.addEventListener('click', function() {
+            // Enlever 'active' de tous les boutons et contenus
+            document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Ajouter 'active' au bouton cliqué
+            this.classList.add('active');
+            
+            // Afficher le contenu correspondant
+            const tabId = this.getAttribute('data-tab');
+            document.getElementById(tabId + '-tab').classList.add('active');
+        });
+    });
+</script>
 </body>
 </html>
