@@ -1,4 +1,4 @@
-// admin-script.js - Version avec boutons adaptés
+// admin-script.js - Version finale avec requêtes correctes
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Script admin démarré');
     
@@ -31,149 +31,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // 4. Style CSS dynamique pour les boutons
-    const style = document.createElement('style');
-    style.textContent = `
-        /* Styles pour les boutons de la page admin */
-        .admin-action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-        
-        .admin-action-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            flex: 1;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px; /* Taille minimale pour accessibilité */
-        }
-        
-        .admin-action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .admin-action-btn:active {
-            transform: translateY(0);
-        }
-        
-        .admin-approve-btn {
-            background: linear-gradient(135deg, #28a745, #218838);
-            color: white;
-        }
-        
-        .admin-reject-btn {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-        }
-        
-        .admin-approve-btn:hover {
-            background: linear-gradient(135deg, #218838, #1e7e34);
-        }
-        
-        .admin-reject-btn:hover {
-            background: linear-gradient(135deg, #c82333, #bd2130);
-        }
-        
-        /* Boutons d'en-tête */
-        .admin-header-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            min-height: 44px;
-        }
-        
-        .admin-poster-btn {
-            background: linear-gradient(135deg, #007bff, #0056b3);
-            color: white;
-        }
-        
-        .admin-logout-btn {
-            background: linear-gradient(135deg, #6c757d, #545b62);
-            color: white;
-        }
-        
-        .admin-return-btn {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-        }
-        
-        .admin-header-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        /* Pour les petits écrans */
-        @media (max-width: 768px) {
-            .admin-action-buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .admin-action-btn {
-                width: 100%;
-                padding: 14px 20px;
-            }
-            
-            .admin-header-btn {
-                padding: 10px 16px;
-                font-size: 13px;
-            }
-        }
-        
-        /* Pour les très petits écrans */
-        @media (max-width: 480px) {
-            .admin-header-btn span {
-                display: none;
-            }
-            
-            .admin-header-btn {
-                padding: 12px;
-            }
-            
-            .admin-header-btn i {
-                margin: 0;
-                font-size: 16px;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // 5. Fonction pour formater la date
-    function getDateDisplay() {
-        return new Date().toLocaleDateString('fr-FR', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-    }
-    
-    // 6. REQUÊTE PRINCIPALE : Lire les créateurs depuis la base
-    async function chargerCreeateurs() {
-        console.log('📡 Chargement des créateurs...');
+    // 4. REQUÊTE : Charger tous les créateurs
+    async function chargerTousLesCreateurs() {
+        console.log('📡 Connexion à Supabase...');
         
         try {
-            // REQUÊTE 1 : Créateurs en attente
-            console.log('🔍 Recherche des créateurs "pending"...');
+            // Test de connexion d'abord
+            const { count, error: testError } = await supabase
+                .from('créateurs')
+                .select('*', { count: 'exact', head: true });
+            
+            if (testError) {
+                console.error('❌ Erreur connexion:', testError);
+                pendingDiv.innerHTML = `
+                    <div style="color: red; padding: 20px; text-align: center;">
+                        Erreur connexion: ${testError.message}
+                    </div>
+                `;
+                return;
+            }
+            
+            console.log(`✅ ${count} créateurs dans la base`);
+            
+            // Charger les créateurs en attente
             const { data: pendingData, error: pendingError } = await supabase
                 .from('créateurs')
                 .select('*')
@@ -181,28 +61,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (pendingError) {
                 console.error('❌ Erreur pending:', pendingError);
-                pendingDiv.innerHTML = `
-                    <div style="
-                        color: #721c24;
-                        background: #f8d7da;
-                        padding: 20px;
-                        border-radius: 8px;
-                        text-align: center;
-                        margin: 20px 0;
-                        border: 1px solid #f5c6cb;
-                    ">
-                        <i class="fas fa-exclamation-triangle"></i><br>
-                        Erreur: ${pendingError.message}
-                    </div>
-                `;
+                pendingDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
+                    Erreur: ${pendingError.message}
+                </div>`;
             } else {
-                console.log(`📊 ${pendingData?.length || 0} créateurs pending trouvés`);
-                afficherCreeateurs(pendingData, pendingDiv, 'pending');
+                console.log(`📊 ${pendingData?.length || 0} créateurs pending`);
+                afficherCreateurs(pendingData, pendingDiv, 'pending');
                 if (pendingCount) pendingCount.textContent = pendingData?.length || 0;
             }
             
-            // REQUÊTE 2 : Créateurs approuvés
-            console.log('🔍 Recherche des créateurs "actif"...');
+            // Charger les créateurs approuvés
             const { data: approvedData, error: approvedError } = await supabase
                 .from('créateurs')
                 .select('*')
@@ -210,181 +78,194 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (approvedError) {
                 console.error('❌ Erreur approved:', approvedError);
-                approvedDiv.innerHTML = `
-                    <div style="
-                        color: #721c24;
-                        background: #f8d7da;
-                        padding: 20px;
-                        border-radius: 8px;
-                        text-align: center;
-                        margin: 20px 0;
-                        border: 1px solid #f5c6cb;
-                    ">
-                        <i class="fas fa-exclamation-triangle"></i><br>
-                        Erreur: ${approvedError.message}
-                    </div>
-                `;
+                approvedDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
+                    Erreur: ${approvedError.message}
+                </div>`;
             } else {
-                console.log(`✅ ${approvedData?.length || 0} créateurs approuvés trouvés`);
-                afficherCreeateurs(approvedData, approvedDiv, 'approved');
+                console.log(`✅ ${approvedData?.length || 0} créateurs approuvés`);
+                afficherCreateurs(approvedData, approvedDiv, 'approved');
                 if (approvedCount) approvedCount.textContent = approvedData?.length || 0;
             }
             
         } catch (error) {
             console.error('💥 Erreur générale:', error);
-            pendingDiv.innerHTML = `
-                <div style="
-                    color: #856404;
-                    background: #fff3cd;
-                    padding: 20px;
-                    border-radius: 8px;
-                    text-align: center;
-                    margin: 20px 0;
-                    border: 1px solid #ffeaa7;
-                ">
-                    <i class="fas fa-exclamation-circle"></i><br>
-                    Erreur inattendue: ${error.message}
-                </div>
-            `;
+            pendingDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
+                Erreur: ${error.message}
+            </div>`;
         }
     }
     
-    // 7. Fonction pour afficher les créateurs avec boutons adaptés
-    function afficherCreeateurs(creators, container, status) {
+    // 5. REQUÊTE : Approuver un créateur (changer son statut)
+    async function approuverCreateur(id, nomMarque) {
+        console.log(`🔄 Tentative d'approbation: ${id} - "${nomMarque}"`);
+        
+        if (!confirm(`Approuver le créateur "${nomMarque}" ?\n\nIl pourra se connecter à son espace.`)) {
+            return;
+        }
+        
+        try {
+            // REQUÊTE DE MISE À JOUR : Changer le statut de 'pending' à 'actif'
+            const { data, error } = await supabase
+                .from('créateurs')
+                .update({ 
+                    statut: 'actif',  // Change le statut
+                    date_approbation: new Date().toISOString()  // Ajoute une date d'approbation
+                })
+                .eq('id', id)  // Cible l'ID spécifique
+                .eq('statut', 'pending');  // Sécurité : vérifie qu'il est bien en attente
+            
+            console.log('📊 Résultat mise à jour:', { data, error: error?.message });
+            
+            if (error) {
+                throw new Error(`Erreur Supabase: ${error.message}`);
+            }
+            
+            if (data && data.length === 0) {
+                throw new Error('Créateur non trouvé ou déjà approuvé');
+            }
+            
+            // Succès
+            alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
+            console.log(`✅ Créateur ${id} approuvé`);
+            
+            // Recharger les listes
+            setTimeout(() => {
+                chargerTousLesCreateurs();
+            }, 500);
+            
+        } catch (error) {
+            console.error('❌ Erreur approbation:', error);
+            alert(`❌ Échec de l'approbation: ${error.message}`);
+        }
+    }
+    
+    // 6. REQUÊTE : Refuser un créateur (le supprimer)
+    async function refuserCreateur(id, nomMarque) {
+        console.log(`🗑️ Tentative de refus: ${id} - "${nomMarque}"`);
+        
+        if (!confirm(`Refuser définitivement "${nomMarque}" ?\n\nCette action supprimera complètement la demande.`)) {
+            return;
+        }
+        
+        try {
+            // REQUÊTE DE SUPPRESSION : Supprimer le créateur
+            const { data, error } = await supabase
+                .from('créateurs')
+                .delete()
+                .eq('id', id)  // Cible l'ID spécifique
+                .eq('statut', 'pending');  // Sécurité : vérifie qu'il est bien en attente
+            
+            console.log('📊 Résultat suppression:', { data, error: error?.message });
+            
+            if (error) {
+                throw new Error(`Erreur Supabase: ${error.message}`);
+            }
+            
+            if (data && data.length === 0) {
+                throw new Error('Créateur non trouvé ou déjà traité');
+            }
+            
+            // Succès
+            alert(`❌ "${nomMarque}" a été refusé et supprimé.`);
+            console.log(`🗑️ Créateur ${id} supprimé`);
+            
+            // Recharger les listes
+            setTimeout(() => {
+                chargerTousLesCreateurs();
+            }, 500);
+            
+        } catch (error) {
+            console.error('❌ Erreur refus:', error);
+            alert(`❌ Échec du refus: ${error.message}`);
+        }
+    }
+    
+    // 7. Fonction pour afficher les créateurs
+    function afficherCreateurs(creators, container, status) {
         if (!creators || creators.length === 0) {
             const message = status === 'pending' 
                 ? 'Aucune demande en attente'
                 : 'Aucun créateur approuvé';
-            container.innerHTML = `
-                <div class="empty-message" style="
-                    text-align: center;
-                    padding: 40px;
-                    color: #6c757d;
-                    font-style: italic;
-                    font-size: 16px;
-                    background: #f8f9fa;
-                    border-radius: 8px;
-                    border: 2px dashed #dee2e6;
-                ">
-                    <i class="fas fa-inbox" style="font-size: 24px; margin-bottom: 10px; display: block; color: #adb5bd;"></i>
-                    ${message}
-                </div>
-            `;
+            container.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">${message}</div>`;
             return;
         }
         
         let html = '';
         
-        creators.forEach((creator, index) => {
-            const dateDisplay = getDateDisplay();
+        creators.forEach(creator => {
+            const safeNom = escapeHtml(creator.nom_marque || 'Sans nom');
+            const safePrenom = escapeHtml(creator.prenom || '');
+            const safeNomComplet = escapeHtml(creator.nom || '');
+            const safeEmail = escapeHtml(creator.email || 'Non fourni');
+            const safeTel = escapeHtml(creator.telephone || 'Non fourni');
+            const safeDomaine = escapeHtml(creator.domaine || 'Non spécifié');
             
             html += `
-                <div class="creator-card" style="
+                <div style="
                     background: white;
-                    border-radius: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
                     padding: 20px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                    border-left: 5px solid ${status === 'pending' ? '#ffc107' : '#28a745'};
+                    margin-bottom: 15px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                 ">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
-                        <h3 style="
-                            margin: 0;
-                            color: #333;
-                            font-size: 18px;
-                            font-weight: 600;
-                        ">
-                            ${escapeHtml(creator.nom_marque || 'Sans nom de marque')}
-                        </h3>
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: #333;">${safeNom}</h3>
                         <span style="
                             background: ${status === 'pending' ? '#ffc107' : '#28a745'};
                             color: ${status === 'pending' ? '#000' : 'white'};
-                            padding: 4px 12px;
-                            border-radius: 20px;
+                            padding: 4px 10px;
+                            border-radius: 12px;
                             font-size: 12px;
                             font-weight: bold;
                         ">
-                            ${status === 'pending' ? '⏳ EN ATTENTE' : '✅ APPROUVÉ'}
+                            ${status === 'pending' ? 'EN ATTENTE' : 'APPROUVÉ'}
                         </span>
                     </div>
                     
-                    <div style="
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                        gap: 12px;
-                        margin-bottom: 20px;
-                    ">
-                        <div style="
-                            background: #f8f9fa;
-                            padding: 12px;
-                            border-radius: 6px;
-                        ">
-                            <strong style="color: #6c757d; font-size: 12px; display: block; margin-bottom: 4px;">CONTACT</strong>
-                            <span style="color: #333; font-weight: 500;">
-                                ${escapeHtml(creator.prenom || '')} ${escapeHtml(creator.nom || '')}
-                            </span>
-                        </div>
-                        
-                        <div style="
-                            background: #f8f9fa;
-                            padding: 12px;
-                            border-radius: 6px;
-                        ">
-                            <strong style="color: #6c757d; font-size: 12px; display: block; margin-bottom: 4px;">EMAIL</strong>
-                            <span style="color: #007bff; font-weight: 500;">
-                                ${escapeHtml(creator.email || 'Non fourni')}
-                            </span>
-                        </div>
-                        
-                        <div style="
-                            background: #f8f9fa;
-                            padding: 12px;
-                            border-radius: 6px;
-                        ">
-                            <strong style="color: #6c757d; font-size: 12px; display: block; margin-bottom: 4px;">TÉLÉPHONE</strong>
-                            <span style="color: #333; font-weight: 500;">
-                                ${escapeHtml(creator.telephone || 'Non fourni')}
-                            </span>
-                        </div>
-                        
-                        <div style="
-                            background: #f8f9fa;
-                            padding: 12px;
-                            border-radius: 6px;
-                        ">
-                            <strong style="color: #6c757d; font-size: 12px; display: block; margin-bottom: 4px;">DOMAINE</strong>
-                            <span style="color: #333; font-weight: 500;">
-                                ${escapeHtml(creator.domaine || 'Non spécifié')}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div style="
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding-top: 15px;
-                        border-top: 1px solid #e9ecef;
-                        color: #6c757d;
-                        font-size: 13px;
-                    ">
-                        <span>ID: <code style="background: #e9ecef; padding: 2px 6px; border-radius: 4px;">${creator.id}</code></span>
-                        <span>Inscrit le: ${dateDisplay}</span>
+                    <div style="margin-bottom: 15px;">
+                        <p><strong>Contact:</strong> ${safePrenom} ${safeNomComplet}</p>
+                        <p><strong>Email:</strong> ${safeEmail}</p>
+                        <p><strong>Téléphone:</strong> ${safeTel}</p>
+                        <p><strong>Domaine:</strong> ${safeDomaine}</p>
+                        <p><strong>ID:</strong> <code>${creator.id}</code></p>
                     </div>
             `;
             
             if (status === 'pending') {
                 html += `
-                    <div class="admin-action-buttons">
-                        <button class="admin-action-btn admin-approve-btn" 
-                                onclick="approuverCreator(${creator.id}, '${escapeHtml(creator.nom_marque || '').replace(/'/g, "\\'")}')">
-                            <i class="fas fa-check-circle"></i>
-                            <span>Approuver</span>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button onclick="approuverCreateur(${creator.id}, '${safeNom.replace(/'/g, "\\'")}')"
+                                style="
+                                    flex: 1;
+                                    background: #28a745;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    font-weight: bold;
+                                    transition: background 0.3s;
+                                "
+                                onmouseover="this.style.background='#218838'"
+                                onmouseout="this.style.background='#28a745'">
+                            ✅ Approuver
                         </button>
-                        <button class="admin-action-btn admin-reject-btn" 
-                                onclick="refuserCreator(${creator.id}, '${escapeHtml(creator.nom_marque || '').replace(/'/g, "\\'")}')">
-                            <i class="fas fa-times-circle"></i>
-                            <span>Refuser</span>
+                        <button onclick="refuserCreateur(${creator.id}, '${safeNom.replace(/'/g, "\\'")}')"
+                                style="
+                                    flex: 1;
+                                    background: #dc3545;
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    font-weight: bold;
+                                    transition: background 0.3s;
+                                "
+                                onmouseover="this.style.background='#c82333'"
+                                onmouseout="this.style.background='#dc3545'">
+                            ❌ Refuser
                         </button>
                     </div>
                 `;
@@ -396,95 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = html;
     }
     
-    // 8. Fonctions d'action (à rendre globales)
-    window.approuverCreator = async function(id, nomMarque) {
-        if (!confirm(`Voulez-vous approuver le créateur "${nomMarque}" ?\n\nIl pourra alors se connecter à son espace.`)) return;
-        
-        try {
-            console.log(`🔄 Approuver créateur ${id}...`);
-            
-            // Mettre à jour le statut
-            const { error } = await supabase
-                .from('créateurs')
-                .update({ 
-                    statut: 'actif',
-                    approved_at: new Date().toISOString()
-                })
-                .eq('id', id);
-            
-            if (error) throw error;
-            
-            // Message de succès
-            const successMsg = document.createElement('div');
-            successMsg.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #28a745;
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                z-index: 10000;
-                box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-                animation: slideIn 0.3s ease;
-            `;
-            successMsg.innerHTML = `<i class="fas fa-check-circle"></i> "${nomMarque}" approuvé !`;
-            document.body.appendChild(successMsg);
-            
-            setTimeout(() => {
-                successMsg.remove();
-                chargerCreeateurs(); // Recharger la liste
-            }, 2000);
-            
-        } catch (error) {
-            console.error('❌ Erreur approbation:', error);
-            alert(`❌ Erreur: ${error.message}`);
-        }
-    };
-    
-    window.refuserCreator = async function(id, nomMarque) {
-        if (!confirm(`Voulez-vous refuser la demande de "${nomMarque}" ?\n\nCette action est irréversible.`)) return;
-        
-        try {
-            console.log(`🔄 Refuser créateur ${id}...`);
-            
-            // Supprimer le créateur
-            const { error } = await supabase
-                .from('créateurs')
-                .delete()
-                .eq('id', id);
-            
-            if (error) throw error;
-            
-            // Message de succès
-            const successMsg = document.createElement('div');
-            successMsg.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #dc3545;
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                z-index: 10000;
-                box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-                animation: slideIn 0.3s ease;
-            `;
-            successMsg.innerHTML = `<i class="fas fa-times-circle"></i> "${nomMarque}" refusé`;
-            document.body.appendChild(successMsg);
-            
-            setTimeout(() => {
-                successMsg.remove();
-                chargerCreeateurs(); // Recharger la liste
-            }, 2000);
-            
-        } catch (error) {
-            console.error('❌ Erreur refus:', error);
-            alert(`❌ Erreur: ${error.message}`);
-        }
-    };
-    
-    // 9. Fonction utilitaire pour échapper le HTML
+    // 8. Fonction utilitaire
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -492,42 +285,26 @@ document.addEventListener('DOMContentLoaded', function() {
         return div.innerHTML;
     }
     
-    // 10. Gestion de la déconnexion
+    // 9. Rendre les fonctions globales
+    window.approuverCreateur = approuverCreateur;
+    window.refuserCreateur = refuserCreateur;
+    
+    // 10. Gestion déconnexion
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
-            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+            if (confirm('Déconnexion ?')) {
                 sessionStorage.clear();
                 window.location.href = 'index.html';
             }
         });
     }
     
-    // 11. Animation CSS pour les messages
-    const animationStyle = document.createElement('style');
-    animationStyle.textContent = `
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-    `;
-    document.head.appendChild(animationStyle);
+    // 11. Démarrer
+    console.log('🚀 Chargement initial...');
+    chargerTousLesCreateurs();
     
-    // 12. Démarrer le chargement
-    console.log('🚀 Démarrage du script admin...');
+    // Actualisation automatique
+    setInterval(chargerTousLesCreateurs, 30000);
     
-    // Charger les créateurs après un court délai
-    setTimeout(() => {
-        chargerCreeateurs();
-        
-        // Actualisation automatique toutes les 30 secondes
-        setInterval(chargerCreeateurs, 30000);
-    }, 500);
-    
-    console.log('🎯 Script admin initialisé');
+    console.log('🎯 Script admin prêt');
 });
