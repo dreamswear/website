@@ -1,64 +1,343 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Portrait créateur - DREAMSWEAR</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visages - DREAMSWEAR MAG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Styles spécifiques à la page Visages */
+        .visages-page {
+            padding: 40px 0;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .page-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .page-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 25px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--text-dark);
+        }
+        
+        .visages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .visage-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+        
+        .visage-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .visage-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        .visage-content {
+            padding: 25px;
+        }
+        
+        .visage-content h3 {
+            margin: 0 0 10px 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .visage-domain {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .visage-content p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .visage-link {
+            display: inline-block;
+            padding: 10px 25px;
+            background: var(--accent);
+            color: var(--text-dark);
+            border-radius: 25px;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .visage-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 50px;
+        }
+        
+        .page-number {
+            padding: 10px 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .page-number.active,
+        .page-number:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--text-dark);
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .visages-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-btn {
+                width: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="visage-detail">
-    <div class="visage-header">
-      <img id="visage-photo" src="" alt="">
-      <div>
-        <h1 id="visage-nom"></h1>
-        <p id="visage-domaine"></p>
-        <div id="visage-reseaux"></div>
-      </div>
-    </div>
-    
-    <div class="visage-content">
-      <section class="biographie">
-        <h2>Biographie</h2>
-        <div id="visage-bio"></div>
-      </section>
-      
-      <section class="interview">
-        <h2>Interview</h2>
-        <div id="visage-interview"></div>
-      </section>
-    </div>
-  </div>
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">DREAMSWEAR</div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" id="subscribe-link">S'abonner</a></li>
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="menu-container">
+                    <button class="menu-btn" id="menu-btn">
+                        <i class="fas fa-bars"></i>
+                        <span>Menu</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <ul>
+                            <li><a href="index2.html">Accueil</a></li>
+                            <li><a href="visages.html" class="active">Visages</a></li>
+                            <li><a href="coulisses.html">Coulisses</a></li>
+                            <li><a href="tendances.html">Tendances</a></li>
+                            <li><a href="decouvertes.html">Découvertes</a></li>
+                            <li><a href="culture.html">Culture/Agenda</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="creator-btn" id="auth-btn">
+                    <i class="fas fa-palette"></i>
+                    <span>Espace Créateurs</span>
+                </button>
+                <div class="theme-selector">
+                    <button id="theme-select-button" aria-label="Choisir un thème">
+                        <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+                    </button>
+                    <ul id="theme-options" class="hidden-options">
+                        <li><a href="#" data-theme="night">Sombre</a></li>
+                        <li><a href="#" data-theme="day">Clair</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
 
-  <script>
-  // Récupérer l'ID depuis l'URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const visageId = urlParams.get('id');
-  
-  async function loadVisageDetail() {
-    const { data, error } = await supabase
-      .from('visages')
-      .select('*')
-      .eq('id', visageId)
-      .single();
+    <main class="visages-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Visages</h1>
+                <p>Découvrez les créateurs et créatrices qui façonnent l'avenir de la mode. Des talents émergents aux noms établis, plongez dans l'univers de ceux qui innovent et inspirent.</p>
+            </div>
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Tous</button>
+                <button class="filter-btn" data-filter="haute-couture">Haute Couture</button>
+                <button class="filter-btn" data-filter="streetwear">Streetwear</button>
+                <button class="filter-btn" data-filter="bijoux">Bijoux</button>
+                <button class="filter-btn" data-filter="accessoires">Accessoires</button>
+            </div>
+            
+            <div class="visages-grid" id="visages-container">
+                <!-- Chargé dynamiquement -->
+            </div>
+            
+            <div class="pagination">
+                <button class="page-number active">1</button>
+                <button class="page-number">2</button>
+                <button class="page-number">3</button>
+                <span style="margin: 0 10px; color: var(--text-secondary);">...</span>
+                <button class="page-number">10</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <h4>DREAMWEAR MAG</h4>
+                <p>Le style est une façon de dire qui vous êtes sans parler.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.tiktok.com/@dreams_wear0?is_from_webapp=1&sender_device=pc"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DREAMSWEAR MAG. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+ <script src="config.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadVisages();
+        setupFilters();
+    });
     
-    if (error) {
-      document.getElementById('visage-detail').innerHTML = 
-        '<p>Créateur non trouvé</p>';
-      return;
+    async function loadVisages(filter = 'all') {
+        const container = document.getElementById('visages-container');
+        
+        try {
+            let query = supabase
+                .from('visages')
+                .select('*')
+                .eq('statut', 'actif')
+                .order('date_featured', { ascending: false });
+            
+            // Si un filtre spécifique est sélectionné (autre que "all")
+            if (filter !== 'all') {
+                query = query.eq('domaine', getDomainFromFilter(filter));
+            }
+            
+            const { data, error } = await query;
+            
+            if (error) throw error;
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                        <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                            Aucun créateur ne correspond à ce filtre pour le moment.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = data.map(visage => `
+                <div class="visage-card">
+                    <img src="${visage.photo_url || 'https://placehold.co/400x250?text=DREAMSWEAR'}" 
+                         alt="${visage.nom_marque}"
+                         class="visage-image"
+                         onerror="this.src='https://placehold.co/400x250?text=DREAMSWEAR'">
+                    <div class="visage-content">
+                        <span class="visage-domain">${visage.domaine || 'Mode'}</span>
+                        <h3>${visage.nom_marque}</h3>
+                        <p>${visage.biographie_fr ? visage.biographie_fr.substring(0, 150) + '...' : 'Découvrez ce créateur talentueux.'}</p>
+                        <a href="visage-detail.html?id=${visage.id}" class="visage-link">Voir le portrait</a>
+                    </div>
+                </div>
+            `).join('');
+            
+        } catch (error) {
+            console.error('Erreur chargement visages:', error);
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
+                    <p>Erreur de chargement des créateurs. Veuillez réessayer.</p>
+                </div>
+            `;
+        }
     }
     
-    // Remplir la page avec les données
-    document.getElementById('visage-photo').src = data.photo_url;
-    document.getElementById('visage-nom').textContent = data.nom_marque;
-    document.getElementById('visage-domaine').textContent = data.domaine;
-    document.getElementById('visage-bio').innerHTML = data.biographie_fr;
-    document.getElementById('visage-interview').innerHTML = data.interview_fr;
-    
-    if (data.site_web) {
-      document.getElementById('visage-reseaux').innerHTML += 
-        `<a href="${data.site_web}" target="_blank">Site web</a>`;
+    function getDomainFromFilter(filter) {
+        const domains = {
+            'haute-couture': 'Haute couture',
+            'streetwear': 'Streetwear',
+            'bijoux': 'Bijoux',
+            'accessoires': 'Accessoires'
+        };
+        return domains[filter] || filter;
     }
-  }
-  
-  loadVisageDetail();
-  </script>
+</script>
 </body>
 </html>
