@@ -667,25 +667,4 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         }
     }
-    // ============================================
-// 12. FONCTIONS ADMINISTRATEUR
-// ============================================
-// Vérifier si nous sommes sur la page admin
-const isAdminPage = document.getElementById('pendingCreators') && document.getElementById('approvedCreators');
-
-if (isAdminPage && supabase) {
-    console.log('🔄 Page admin détectée, initialisation...');
-    
-    // Les fonctions admin sont définies dans admin.html
-    // Le script admin.html appelle window.adminFunctions.loadAllCreators()
-    
-    // Vérifier la connexion admin
-    const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-    if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-        console.log('⚠️ Admin non connecté, redirection...');
-        // La redirection est gérée dans admin.html
-    } else {
-        console.log('✅ Admin connecté, Supabase prêt');
-    }
-}
 });
