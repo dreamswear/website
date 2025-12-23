@@ -28,8 +28,8 @@
             border-radius: 10px;
             margin-bottom: 30px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
         }
         
         .day-mode .admin-header {
@@ -40,6 +40,8 @@
             font-family: 'Playfair Display', serif;
             color: #d4af37;
             margin: 0;
+            font-size: 1.5rem;
+            text-align: center;
         }
         
         .day-mode .admin-header h1 {
@@ -49,10 +51,11 @@
         .admin-buttons {
             display: flex;
             gap: 10px;
+            justify-content: center;
         }
         
         .admin-btn {
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -62,6 +65,7 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            transition: all 0.3s ease;
         }
         
         .btn-poster {
@@ -94,6 +98,7 @@
             color: #d4af37;
             margin-top: 0;
             font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
         }
         
         .day-mode .admin-section h2 {
@@ -125,6 +130,7 @@
         .creator-card h3 {
             color: #d4af37;
             margin-top: 0;
+            font-size: 1.1rem;
         }
         
         .day-mode .creator-card h3 {
@@ -134,6 +140,7 @@
         .creator-card p {
             margin: 5px 0;
             color: #ccc;
+            font-size: 0.9rem;
         }
         
         .day-mode .creator-card p {
@@ -144,16 +151,24 @@
             margin-top: 15px;
             display: flex;
             gap: 10px;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 480px) {
+            .card-actions {
+                flex-direction: row;
+            }
         }
         
         .action-btn {
-            padding: 8px 15px;
+            padding: 10px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
             flex: 1;
+            font-size: 0.9rem;
         }
         
         .approve-btn {
@@ -172,20 +187,98 @@
             color: #888;
             font-style: italic;
         }
+        
+        /* Styles pour le texte des boutons sur desktop */
+        .btn-text {
+            display: inline;
+        }
+        
+        /* Media queries pour responsivité */
+        @media (min-width: 768px) {
+            .admin-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .admin-header h1 {
+                font-size: 1.8rem;
+                text-align: left;
+            }
+            
+            .admin-btn {
+                padding: 10px 20px;
+            }
+            
+            .admin-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Pour les très petits écrans (téléphones) */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .admin-header {
+                padding: 15px;
+            }
+            
+            .admin-buttons {
+                width: 100%;
+            }
+            
+            .admin-btn {
+                padding: 15px;
+                justify-content: center;
+                min-width: 50px;
+                flex: 1;
+            }
+            
+            /* Cacher le texte des boutons, ne montrer que les icônes */
+            .btn-text {
+                display: none;
+            }
+            
+            /* Agrandir les icônes pour une meilleure accessibilité */
+            .admin-btn i {
+                font-size: 1.2rem;
+            }
+            
+            .admin-section {
+                padding: 15px;
+            }
+            
+            .creator-card {
+                padding: 12px;
+            }
+        }
+        
+        /* Pour les écrans moyens (tablettes) */
+        @media (min-width: 481px) and (max-width: 767px) {
+            .admin-btn {
+                padding: 10px 15px;
+            }
+            
+            .btn-text {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="admin-header">
         <h1>Administration DREAMSWEAR</h1>
         <div class="admin-buttons">
-            <a href="Actualisation.html" class="admin-btn btn-poster">
-                <i class="fas fa-newspaper"></i> Poster
+            <a href="Actualisation.html" class="admin-btn btn-poster" title="Poster un article">
+                <i class="fas fa-newspaper"></i> <span class="btn-text">Poster</span>
             </a>
-            <button id="logoutBtn" class="admin-btn btn-logout">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            <button id="logoutBtn" class="admin-btn btn-logout" title="Déconnexion">
+                <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnexion</span>
             </button>
-            <a href="index.html" class="admin-btn btn-return">
-                <i class="fas fa-arrow-left"></i> Retour
+            <a href="index.html" class="admin-btn btn-return" title="Retour à l'accueil">
+                <i class="fas fa-arrow-left"></i> <span class="btn-text">Retour</span>
             </a>
         </div>
     </div>
