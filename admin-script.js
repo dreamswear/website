@@ -1,13 +1,8 @@
 // 1. Configuration Supabase AVEC CLÉ DE SERVICE (ADMIN)
 const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
 // REMPLACEZ par votre clé "service_role" (secrète) depuis Dashboard > API
-const SUPABASE_SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjA2ODE4MiwiZXhwIjoyMDgxNjQ0MTgyfQ.8AxNaPkV9EHJUBNClWRWKGCrhxEv_rZvFethzEPQrWg'; // <-- CRITIQUE
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
-  auth: {
-    persistSession: false // Important pour les opérations admin
-  }
-});
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 2. Vérification de connexion admin (RENFORCÉE)
 const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
