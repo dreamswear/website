@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <title>Admin - DREAMSWEAR MAG</title>
     <link rel="stylesheet" href="style.css">
@@ -502,6 +504,65 @@
                 overflow-x: auto;
                 flex-wrap: nowrap;
             }
+            /* Dans votre CSS existant */
+@media (max-width: 768px) {
+    .admin-page {
+        padding: 20px 10px;
+    }
+    
+    .admin-container {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    .admin-card {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .two-columns {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .admin-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .tab-link {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .admin-btn {
+        width: 100%;
+    }
+}
+
+/* Pour empêcher le débordement horizontal */
+* {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden;
+    position: relative;
+}
         }
     </style>
 </head>
