@@ -1,7 +1,7 @@
-// 1. Configuration Supabase AVEC CLÉ DE SERVICE (ADMIN)
+// admin-script.js - Utiliser la clé anon d'origine
 const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-// REMPLACEZ par votre clé "service_role" (secrète) depuis Dashboard > API
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // 2. Vérification de connexion admin (RENFORCÉE)
