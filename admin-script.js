@@ -1,27 +1,17 @@
-// admin-script.js - Version corrigée
+// Solution minimaliste - admin-script.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Script admin démarré');
     
-    // 1. Configuration Supabase - NE PAS REDÉCLARER SI DÉJÀ FAIT
-    // SUPPRIMEZ CES 3 LIGNES :
-    // const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-    // const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-    // const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
-    // UTILISEZ DIRECTEMENT L'OBJET EXISTANT
-    // Vérifiez d'abord s'il existe déjà
-    if (!window.supabase || !window.supabaseClient) {
-        console.error('❌ Supabase non initialisé');
-        // Si vraiment nécessaire, initialisez-le UNE FOIS
+    // Utiliser l'instance Supabase déjà créée
+    // Si supabase n'existe pas, on la crée
+    if (!window.supabase) {
         const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
     
-    // Utilisez l'objet existant
-    const supabase = window.supabaseClient || window.supabase;
-    
-    // 2. Vérification de connexion admin...
+    const supabase = window.supabase;
+  // 2. Vérification de connexion admin
     const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
     if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
         alert('⚠️ Accès non autorisé. Connectez-vous en tant qu\'administrateur.');
