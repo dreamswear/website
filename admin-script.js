@@ -1,271 +1,92 @@
-// admin-script.js - Version finale avec requêtes correctes
+// admin-script.js - Version simplifiée
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔧 Script admin démarré');
+    console.log('🚀 admin-script.js chargé');
     
-    // 1. Configuration Supabase
+    // Configuration
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
     
-    // Initialiser Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     
-    // 2. Vérifier la connexion admin
-    const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-    if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-        alert('⚠️ Accès non autorisé. Connectez-vous en tant qu\'administrateur.');
+    // Vérifier connexion admin
+    if (!sessionStorage.getItem('adminLoggedIn')) {
+        alert('Accès non autorisé');
         window.location.href = 'index.html';
         return;
     }
     
-    console.log('✅ Admin connecté');
-    
-    // 3. Éléments de la page
-    const pendingDiv = document.getElementById('pendingCreators');
-    const approvedDiv = document.getElementById('approvedCreators');
-    const pendingCount = document.getElementById('pendingCount');
-    const approvedCount = document.getElementById('approvedCount');
-    const logoutBtn = document.getElementById('logoutBtn');
-    
-    if (!pendingDiv || !approvedDiv) {
-        console.error('❌ Éléments manquants dans la page');
-        return;
-    }
-    
-    // 4. REQUÊTE : Charger tous les créateurs
-    async function chargerTousLesCreateurs() {
-        console.log('📡 Connexion à Supabase...');
-        
+    // Charger les créateurs
+    async function loadCreators() {
         try {
-            // Test de connexion d'abord
-            const { count, error: testError } = await supabase
-                .from('créateurs')
-                .select('*', { count: 'exact', head: true });
-            
-            if (testError) {
-                console.error('❌ Erreur connexion:', testError);
-                pendingDiv.innerHTML = `
-                    <div style="color: red; padding: 20px; text-align: center;">
-                        Erreur connexion: ${testError.message}
-                    </div>
-                `;
-                return;
-            }
-            
-            console.log(`✅ ${count} créateurs dans la base`);
-            
-            // Charger les créateurs en attente
-            const { data: pendingData, error: pendingError } = await supabase
+            // Créateurs en attente
+            const { data: pending, error: err1 } = await supabase
                 .from('créateurs')
                 .select('*')
-                .eq('statut', 'pending');
+                .eq('statut', 'pending')
+                .order('created_at', { ascending: false });
             
-            if (pendingError) {
-                console.error('❌ Erreur pending:', pendingError);
-                pendingDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
-                    Erreur: ${pendingError.message}
-                </div>`;
-            } else {
-                console.log(`📊 ${pendingData?.length || 0} créateurs pending`);
-                afficherCreateurs(pendingData, pendingDiv, 'pending');
-                if (pendingCount) pendingCount.textContent = pendingData?.length || 0;
-            }
+            if (err1) console.error('Erreur pending:', err1);
+            displayCreators(pending || [], 'pending');
             
-            // Charger les créateurs approuvés
-            const { data: approvedData, error: approvedError } = await supabase
+            // Créateurs approuvés
+            const { data: approved, error: err2 } = await supabase
                 .from('créateurs')
                 .select('*')
-                .eq('statut', 'actif');
+                .eq('statut', 'actif')
+                .order('date_validation', { ascending: false });
             
-            if (approvedError) {
-                console.error('❌ Erreur approved:', approvedError);
-                approvedDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
-                    Erreur: ${approvedError.message}
-                </div>`;
-            } else {
-                console.log(`✅ ${approvedData?.length || 0} créateurs approuvés`);
-                afficherCreateurs(approvedData, approvedDiv, 'approved');
-                if (approvedCount) approvedCount.textContent = approvedData?.length || 0;
-            }
+            if (err2) console.error('Erreur approved:', err2);
+            displayCreators(approved || [], 'approved');
             
         } catch (error) {
-            console.error('💥 Erreur générale:', error);
-            pendingDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
-                Erreur: ${error.message}
-            </div>`;
+            console.error('Erreur générale:', error);
         }
     }
     
-    // 5. REQUÊTE : Approuver un créateur (changer son statut)
-    async function approuverCreateur(id, nomMarque) {
-        console.log(`🔄 Tentative d'approbation: ${id} - "${nomMarque}"`);
+    // Afficher les créateurs
+    function displayCreators(creators, type) {
+        const container = type === 'pending' 
+            ? document.getElementById('pendingCreators')
+            : document.getElementById('approvedCreators');
         
-        if (!confirm(`Approuver le créateur "${nomMarque}" ?\n\nIl pourra se connecter à son espace.`)) {
+        const countElement = type === 'pending'
+            ? document.getElementById('pendingCount')
+            : document.getElementById('approvedCount');
+        
+        if (!container) return;
+        
+        // Mettre à jour le compteur
+        if (countElement) countElement.textContent = creators.length;
+        
+        // Si aucun créateur
+        if (creators.length === 0) {
+            container.innerHTML = `<div class="empty-message">Aucun créateur ${type === 'pending' ? 'en attente' : 'approuvé'}</div>`;
             return;
         }
         
-        try {
-            // REQUÊTE DE MISE À JOUR : Changer le statut de 'pending' à 'actif'
-            const { data, error } = await supabase
-                .from('créateurs')
-                .update({ 
-                    statut: 'actif',  // Change le statut
-                    date_approbation: new Date().toISOString()  // Ajoute une date d'approbation
-                })
-                .eq('id', id)  // Cible l'ID spécifique
-                .eq('statut', 'pending');  // Sécurité : vérifie qu'il est bien en attente
-            
-            console.log('📊 Résultat mise à jour:', { data, error: error?.message });
-            
-            if (error) {
-                throw new Error(`Erreur Supabase: ${error.message}`);
-            }
-            
-            if (data && data.length === 0) {
-                throw new Error('Créateur non trouvé ou déjà approuvé');
-            }
-            
-            // Succès
-            alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
-            console.log(`✅ Créateur ${id} approuvé`);
-            
-            // Recharger les listes
-            setTimeout(() => {
-                chargerTousLesCreateurs();
-            }, 500);
-            
-        } catch (error) {
-            console.error('❌ Erreur approbation:', error);
-            alert(`❌ Échec de l'approbation: ${error.message}`);
-        }
-    }
-    
-    // 6. REQUÊTE : Refuser un créateur (le supprimer)
-    async function refuserCreateur(id, nomMarque) {
-        console.log(`🗑️ Tentative de refus: ${id} - "${nomMarque}"`);
-        
-        if (!confirm(`Refuser définitivement "${nomMarque}" ?\n\nCette action supprimera complètement la demande.`)) {
-            return;
-        }
-        
-        try {
-            // REQUÊTE DE SUPPRESSION : Supprimer le créateur
-            const { data, error } = await supabase
-                .from('créateurs')
-                .delete()
-                .eq('id', id)  // Cible l'ID spécifique
-                .eq('statut', 'pending');  // Sécurité : vérifie qu'il est bien en attente
-            
-            console.log('📊 Résultat suppression:', { data, error: error?.message });
-            
-            if (error) {
-                throw new Error(`Erreur Supabase: ${error.message}`);
-            }
-            
-            if (data && data.length === 0) {
-                throw new Error('Créateur non trouvé ou déjà traité');
-            }
-            
-            // Succès
-            alert(`❌ "${nomMarque}" a été refusé et supprimé.`);
-            console.log(`🗑️ Créateur ${id} supprimé`);
-            
-            // Recharger les listes
-            setTimeout(() => {
-                chargerTousLesCreateurs();
-            }, 500);
-            
-        } catch (error) {
-            console.error('❌ Erreur refus:', error);
-            alert(`❌ Échec du refus: ${error.message}`);
-        }
-    }
-    
-    // 7. Fonction pour afficher les créateurs
-    function afficherCreateurs(creators, container, status) {
-        if (!creators || creators.length === 0) {
-            const message = status === 'pending' 
-                ? 'Aucune demande en attente'
-                : 'Aucun créateur approuvé';
-            container.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">${message}</div>`;
-            return;
-        }
-        
+        // Générer le HTML
         let html = '';
-        
         creators.forEach(creator => {
-            const safeNom = escapeHtml(creator.nom_marque || 'Sans nom');
-            const safePrenom = escapeHtml(creator.prenom || '');
-            const safeNomComplet = escapeHtml(creator.nom || '');
-            const safeEmail = escapeHtml(creator.email || 'Non fourni');
-            const safeTel = escapeHtml(creator.telephone || 'Non fourni');
-            const safeDomaine = escapeHtml(creator.domaine || 'Non spécifié');
+            const safeName = creator.nom_marque ? creator.nom_marque.replace(/'/g, "\\'") : '';
             
             html += `
-                <div style="
-                    background: white;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
-                    padding: 20px;
-                    margin-bottom: 15px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                ">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                        <h3 style="margin: 0; color: #333;">${safeNom}</h3>
-                        <span style="
-                            background: ${status === 'pending' ? '#ffc107' : '#28a745'};
-                            color: ${status === 'pending' ? '#000' : 'white'};
-                            padding: 4px 10px;
-                            border-radius: 12px;
-                            font-size: 12px;
-                            font-weight: bold;
-                        ">
-                            ${status === 'pending' ? 'EN ATTENTE' : 'APPROUVÉ'}
-                        </span>
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <p><strong>Contact:</strong> ${safePrenom} ${safeNomComplet}</p>
-                        <p><strong>Email:</strong> ${safeEmail}</p>
-                        <p><strong>Téléphone:</strong> ${safeTel}</p>
-                        <p><strong>Domaine:</strong> ${safeDomaine}</p>
-                        <p><strong>ID:</strong> <code>${creator.id}</code></p>
-                    </div>
+                <div class="creator-card">
+                    <h3>${creator.nom_marque || 'Sans nom'}</h3>
+                    <p><strong>Contact:</strong> ${creator.prenom || ''} ${creator.nom || ''}</p>
+                    <p><strong>Email:</strong> ${creator.email || ''}</p>
+                    <p><strong>Téléphone:</strong> ${creator.telephone || ''}</p>
+                    <p><strong>Domaine:</strong> ${creator.domaine || ''}</p>
+                    <p><strong>Statut:</strong> ${creator.statut}</p>
             `;
             
-            if (status === 'pending') {
+            if (type === 'pending') {
                 html += `
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button onclick="approuverCreateur(${creator.id}, '${safeNom.replace(/'/g, "\\'")}')"
-                                style="
-                                    flex: 1;
-                                    background: #28a745;
-                                    color: white;
-                                    border: none;
-                                    padding: 10px 20px;
-                                    border-radius: 6px;
-                                    cursor: pointer;
-                                    font-weight: bold;
-                                    transition: background 0.3s;
-                                "
-                                onmouseover="this.style.background='#218838'"
-                                onmouseout="this.style.background='#28a745'">
-                            ✅ Approuver
+                    <div class="card-actions">
+                        <button class="action-btn approve-btn" onclick="approveCreator('${creator.id}', '${safeName}')">
+                            Approuver
                         </button>
-                        <button onclick="refuserCreateur(${creator.id}, '${safeNom.replace(/'/g, "\\'")}')"
-                                style="
-                                    flex: 1;
-                                    background: #dc3545;
-                                    color: white;
-                                    border: none;
-                                    padding: 10px 20px;
-                                    border-radius: 6px;
-                                    cursor: pointer;
-                                    font-weight: bold;
-                                    transition: background 0.3s;
-                                "
-                                onmouseover="this.style.background='#c82333'"
-                                onmouseout="this.style.background='#dc3545'">
-                            ❌ Refuser
+                        <button class="action-btn reject-btn" onclick="rejectCreator('${creator.id}', '${safeName}')">
+                            Refuser
                         </button>
                     </div>
                 `;
@@ -277,34 +98,55 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = html;
     }
     
-    // 8. Fonction utilitaire
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    // Fonctions globales
+    window.approveCreator = async function(id, name) {
+        if (!confirm(`Approuver "${name}" ?`)) return;
+        
+        try {
+            const { error } = await supabase
+                .from('créateurs')
+                .update({ 
+                    statut: 'actif',
+                    date_validation: new Date().toISOString()
+                })
+                .eq('id', id);
+            
+            if (error) throw error;
+            
+            alert(`"${name}" approuvé !`);
+            loadCreators(); // Recharger
+        } catch (error) {
+            alert('Erreur: ' + error.message);
+        }
+    };
     
-    // 9. Rendre les fonctions globales
-    window.approuverCreateur = approuverCreateur;
-    window.refuserCreateur = refuserCreateur;
+    window.rejectCreator = async function(id, name) {
+        if (!confirm(`Refuser "${name}" ?`)) return;
+        
+        try {
+            const { error } = await supabase
+                .from('créateurs')
+                .delete()
+                .eq('id', id);
+            
+            if (error) throw error;
+            
+            alert(`"${name}" refusé.`);
+            loadCreators(); // Recharger
+        } catch (error) {
+            alert('Erreur: ' + error.message);
+        }
+    };
     
-    // 10. Gestion déconnexion
+    // Déconnexion
+    const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
-            if (confirm('Déconnexion ?')) {
-                sessionStorage.clear();
-                window.location.href = 'index.html';
-            }
+            sessionStorage.clear();
+            window.location.href = 'index.html';
         });
     }
     
-    // 11. Démarrer
-    console.log('🚀 Chargement initial...');
-    chargerTousLesCreateurs();
-    
-    // Actualisation automatique
-    setInterval(chargerTousLesCreateurs, 30000);
-    
-    console.log('🎯 Script admin prêt');
+    // Initialisation
+    loadCreators();
 });
