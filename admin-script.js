@@ -1,8 +1,8 @@
-// admin-script.js - Version corrigée
+// admin-script.js - Version corrigée avec les bons noms de colonnes
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Script admin démarré');
     
-    // 1. Configuration Supabase (même que script.js)
+    // 1. Configuration Supabase
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
     
@@ -48,12 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log(`✅ ${count} créateurs dans la base`);
             
-            // Charger les créateurs en attente
+            // Charger les créateurs en attente - CORRIGÉ: utiliser date_inscription
             const { data: pendingData, error: pendingError } = await supabase
                 .from('créateurs')
                 .select('*')
                 .eq('statut', 'pending')
-                .order('created_at', { ascending: false });
+                .order('date_inscription', { ascending: false }); // CORRECTION ICI
             
             if (pendingError) {
                 console.error('❌ Erreur pending:', pendingError);
@@ -64,12 +64,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (pendingCount) pendingCount.textContent = pendingData?.length || 0;
             }
             
-            // Charger les créateurs approuvés
+            // Charger les créateurs approuvés - CORRIGÉ: utiliser date_inscription
             const { data: approvedData, error: approvedError } = await supabase
                 .from('créateurs')
                 .select('*')
                 .eq('statut', 'actif')
-                .order('created_at', { ascending: false });
+                .order('date_inscription', { ascending: false }); // CORRECTION ICI
             
             if (approvedError) {
                 console.error('❌ Erreur approved:', approvedError);
@@ -95,11 +95,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
+            // CORRECTION: Utiliser date_validation au lieu de date_approbation
             const { error } = await supabase
                 .from('créateurs')
                 .update({ 
                     statut: 'actif',
-                    date_approbation: new Date().toISOString()
+                    date_validation: new Date().toISOString() // CORRECTION ICI
                 })
                 .eq('id', id);
             
@@ -162,14 +163,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = '';
         
         creators.forEach(creator => {
+            // CORRECTION: Utiliser date_inscription au lieu de created_at
+            const date = creator.date_inscription 
+                ? new Date(creator.date_inscription).toLocaleDateString('fr-FR')
+                : 'Date inconnue';
+            
             const safeBrand = escapeHtml(creator.nom_marque || 'Sans nom');
             const safeName = escapeHtml(`${creator.prenom || ''} ${creator.nom || ''}`.trim() || 'Non fourni');
             const safeEmail = escapeHtml(creator.email || 'Non fourni');
             const safeTel = escapeHtml(creator.telephone || 'Non fourni');
             const safeDomaine = escapeHtml(creator.domaine || 'Non spécifié');
-            const date = creator.created_at 
-                ? new Date(creator.created_at).toLocaleDateString('fr-FR')
-                : 'Date inconnue';
             
             html += `
                 <div class="creator-card">
@@ -209,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return div.innerHTML;
     }
     
-    // 9. Rendre les fonctions globales avec des noms en anglais
+    // 9. Rendre les fonctions globales
     window.approveCreator = approveCreator;
     window.rejectCreator = rejectCreator;
     
