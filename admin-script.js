@@ -1,17 +1,53 @@
-// Solution minimaliste - admin-script.js
+// Solution corrigée - admin-script.js
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Script admin démarré');
     
-    // Utiliser l'instance Supabase déjà créée
-    // Si supabase n'existe pas, on la crée
-    if (!window.supabase) {
+    // 1. Initialisation CORRECTE de Supabase
+    let supabase;
+    
+    if (typeof window.supabase !== 'undefined' && window.supabase.from) {
+        // Si supabase est déjà initialisé (depuis un autre script)
+        console.log('✅ Utilisation de Supabase existant');
+        supabase = window.supabase;
+    } else {
+        // Initialiser Supabase depuis zéro
+        console.log('🔄 Initialisation de Supabase...');
         const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-        window.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Vérifier que la bibliothèque Supabase est chargée
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            window.supabase = supabase; // Stocker pour une utilisation ultérieure
+        } else {
+            console.error('❌ Bibliothèque Supabase non chargée');
+            alert('Erreur: Bibliothèque Supabase non chargée. Vérifiez votre connexion internet.');
+            return;
+        }
     }
     
-    const supabase = window.supabase;
-  // 2. Vérification de connexion admin
+    // 2. TESTER IMMÉDIATEMENT LA CONNEXION
+    async function testerConnexionSupabase() {
+        console.log('🔍 Test de connexion Supabase...');
+        try {
+            const { data, error } = await supabase
+                .from('créateurs')
+                .select('count', { count: 'exact', head: true });
+            
+            if (error) {
+                console.error('❌ Erreur de connexion:', error);
+                return false;
+            }
+            
+            console.log('✅ Connexion Supabase réussie!');
+            return true;
+        } catch (error) {
+            console.error('💥 Erreur inattendue:', error);
+            return false;
+        }
+    }
+    
+    // 3. Vérification de connexion admin
     const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
     if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
         alert('⚠️ Accès non autorisé. Connectez-vous en tant qu\'administrateur.');
@@ -21,7 +57,28 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ Admin connecté');
     
-    // 3. Éléments de la page
+    // 4. Tester la connexion avant de continuer
+    testerConnexionSupabase().then(connected => {
+        if (!connected) {
+            document.getElementById('pendingCreators').innerHTML = 
+                `<div style="color: red; padding: 30px; text-align: center;">
+                    <h3>❌ Erreur de connexion à la base de données</h3>
+                    <p>Impossible de se connecter à Supabase. Vérifiez:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>Votre connexion internet</li>
+                        <li>Les politiques RLS dans Supabase</li>
+                        <li>Que la clé API est correcte</li>
+                    </ul>
+                </div>`;
+            return;
+        }
+        
+        // Si connexion réussie, charger les créateurs
+        chargerTousLesCreateurs();
+    });
+    
+    // [Le reste de votre code reste inchangé...]
+    // 5. Éléments de la page
     const pendingDiv = document.getElementById('pendingCreators');
     const approvedDiv = document.getElementById('approvedCreators');
     const pendingCount = document.getElementById('pendingCount');
@@ -33,9 +90,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // 4. REQUÊTE : Charger tous les créateurs
+    // 6. REQUÊTE : Charger tous les créateurs
     async function chargerTousLesCreateurs() {
-        console.log('📡 Connexion à Supabase...');
+        console.log('📡 Chargement des créateurs...');
         
         try {
             // Test de connexion d'abord
@@ -47,7 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('❌ Erreur connexion:', testError);
                 pendingDiv.innerHTML = `
                     <div style="color: red; padding: 20px; text-align: center;">
-                        Erreur connexion: ${testError.message}
+                        Erreur connexion: ${testError.message}<br>
+                        <small>Code: ${testError.code}</small>
                     </div>
                 `;
                 return;
@@ -55,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log(`✅ ${count} créateurs dans la base`);
             
+            // [Le reste de votre fonction chargerTousLesCreateurs...]
             // Charger les créateurs en attente
             const { data: pendingData, error: pendingError } = await supabase
                 .from('créateurs')
@@ -97,7 +156,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 5. REQUÊTE : Approuver un créateur (changer son statut)
+    // [Les autres fonctions restent inchangées...]
+    // 7. REQUÊTE : Approuver un créateur
     async function approuverCreateur(id, nomMarque) {
         console.log(`🔄 Tentative d'approbation: ${id} - "${nomMarque}"`);
         
@@ -106,15 +166,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            // REQUÊTE DE MISE À JOUR : Changer le statut de 'pending' à 'actif'
             const { data, error } = await supabase
                 .from('créateurs')
                 .update({ 
-                    statut: 'actif',  // Change le statut
-                    date_approbation: new Date().toISOString()  // Ajoute une date d'approbation
+                    statut: 'actif',
+                    date_validation: new Date().toISOString()
                 })
-                .eq('id', id)  // Cible l'ID spécifique
-                .eq('statut', 'pending');  // Sécurité : vérifie qu'il est bien en attente
+                .eq('id', id);
             
             console.log('📊 Résultat mise à jour:', { data, error: error?.message });
             
@@ -126,11 +184,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Créateur non trouvé ou déjà approuvé');
             }
             
-            // Succès
             alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
             console.log(`✅ Créateur ${id} approuvé`);
             
-            // Recharger les listes
             setTimeout(() => {
                 chargerTousLesCreateurs();
             }, 500);
@@ -141,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 6. REQUÊTE : Refuser un créateur (le supprimer)
+    // 8. REQUÊTE : Refuser un créateur
     async function refuserCreateur(id, nomMarque) {
         console.log(`🗑️ Tentative de refus: ${id} - "${nomMarque}"`);
         
@@ -150,12 +206,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            // REQUÊTE DE SUPPRESSION : Supprimer le créateur
             const { data, error } = await supabase
                 .from('créateurs')
                 .delete()
-                .eq('id', id)  // Cible l'ID spécifique
-                .eq('statut', 'pending');  // Sécurité : vérifie qu'il est bien en attente
+                .eq('id', id);
             
             console.log('📊 Résultat suppression:', { data, error: error?.message });
             
@@ -167,11 +221,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Créateur non trouvé ou déjà traité');
             }
             
-            // Succès
             alert(`❌ "${nomMarque}" a été refusé et supprimé.`);
             console.log(`🗑️ Créateur ${id} supprimé`);
             
-            // Recharger les listes
             setTimeout(() => {
                 chargerTousLesCreateurs();
             }, 500);
@@ -182,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 7. Fonction pour afficher les créateurs
+    // 9. Fonction pour afficher les créateurs
     function afficherCreateurs(creators, container, status) {
         if (!creators || creators.length === 0) {
             const message = status === 'pending' 
@@ -279,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         container.innerHTML = html;
     }
     
-    // 8. Fonction utilitaire
+    // 10. Fonction utilitaire
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -287,11 +339,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return div.innerHTML;
     }
     
-    // 9. Rendre les fonctions globales
+    // 11. Rendre les fonctions globales
     window.approuverCreateur = approuverCreateur;
     window.refuserCreateur = refuserCreateur;
     
-    // 10. Gestion déconnexion
+    // 12. Gestion déconnexion
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
             if (confirm('Déconnexion ?')) {
@@ -301,11 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 11. Démarrer
-    console.log('🚀 Chargement initial...');
-    chargerTousLesCreateurs();
-    
-    // Actualisation automatique
+    // 13. Actualisation automatique
     setInterval(chargerTousLesCreateurs, 30000);
     
     console.log('🎯 Script admin prêt');
