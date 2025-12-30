@@ -8,26 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Header Commun -->
     <header class="dashboard-header">
         <div class="container">
             <div class="logo">
                 <a href="index.html">DREAMSWEAR</a>
             </div>
-            <div class="user-menu">
-                <div class="user-info">
-                    <img id="userAvatar" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iI0Q0QUYzNyIvPHRleHQgeD0iMjAiIHk9IjI0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMUEwQTBBIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+QzwvdGV4dD48L3N2Zz4=" alt="Avatar">
-                    <div>
-                        <span class="creator-name" id="userName">Créateur</span>
-                        <span class="creator-status" id="portfolioStatus">Portfolio incomplet</span>
-                    </div>
-                </div>
-                <nav class="main-nav">
-                    <a href="dashboard-home.html" class="nav-link active"><i class="fas fa-home"></i> Accueil</a>
-                    <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-edit"></i> Portfolio</a>
-                    <a href="dashboard-ressources.html" class="nav-link"><i class="fas fa-book"></i> Ressources</a>
-                    <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-                </nav>
-            </div>
+            <nav class="main-nav">
+                <a href="dashboard-home.html" class="nav-link active"><i class="fas fa-home"></i> Accueil</a>
+                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
+                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
+                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
+                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
+                <a href="dashboard-temoignages.html" class="nav-link"><i class="fas fa-star"></i> Témoignages</a>
+                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
+                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
             <button class="menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
@@ -35,190 +31,121 @@
     </header>
 
     <main class="dashboard-main">
-        <section class="welcome-banner">
+        <!-- Section Bienvenue Personnalisée -->
+        <section class="welcome-section">
             <div class="container">
-                <div class="banner-content">
-                    <h1>Bienvenue, <span id="creatorBrand">Créateur</span> !</h1>
-                    <p class="subtitle">Votre espace personnel pour gérer votre présence sur Dreamswear</p>
-                    
-                    <div class="welcome-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-calendar-alt"></i>
-                            <div>
-                                <span class="stat-number" id="memberSince">Aujourd'hui</span>
-                                <span class="stat-label">Membre depuis</span>
-                            </div>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-chart-line"></i>
-                            <div>
-                                <span class="stat-number" id="portfolioCompletion">0%</span>
-                                <span class="stat-label">Portfolio complété</span>
-                            </div>
+                <div class="welcome-header">
+                    <div class="welcome-avatar" id="welcomeAvatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="welcome-text">
+                        <h1>Bienvenue, <span id="creatorName">Créateur</span> !</h1>
+                        <p class="welcome-subtitle" id="welcomeSubtitle">
+                            Votre espace personnel pour faire grandir votre marque
+                        </p>
+                        <div class="creator-domain" id="creatorDomain">
+                            <i class="fas fa-tag"></i>
+                            <span>En attente de spécialisation...</span>
                         </div>
                     </div>
                 </div>
-                
-                <div class="banner-actions">
-                    <a href="dashboard-portfolio.html" class="btn btn-primary">
-                        <i class="fas fa-user-edit"></i> Compléter mon portfolio
-                    </a>
-                    <a href="dashboard-opportunities.html" class="btn btn-secondary">
-                        <i class="fas fa-bullhorn"></i> Voir les opportunités
-                    </a>
+
+                <!-- Description Personnalisée par Domaine -->
+                <div class="domain-description" id="domainDescription">
+                    <h2><i class="fas fa-gem"></i> Votre Espace Créateur</h2>
+                    <p>Dans cet espace, vous pourrez :</p>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> <strong>Gérer votre portfolio</strong> - Présentez votre marque avec une photo professionnelle et une biographie captivante</li>
+                        <li><i class="fas fa-check"></i> <strong>Interagir avec l'équipe</strong> - Posez vos questions et recevez des conseils personnalisés</li>
+                        <li><i class="fas fa-check"></i> <strong>Découvrir des opportunités</strong> - Participez à des appels à projets exclusifs</li>
+                        <li><i class="fas fa-check"></i> <strong>Rencontrer d'autres créateurs</strong> - Échangez avec une communauté passionnée</li>
+                        <li><i class="fas fa-check"></i> <strong>Accéder à l'annuaire professionnel</strong> - Trouvez les meilleurs partenaires pour vos projets</li>
+                    </ul>
+                </div>
+
+                <!-- Statistiques Simples -->
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <div>
+                            <span class="stat-number" id="memberDays">0</span>
+                            <span class="stat-label">jours avec nous</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <span class="stat-number" id="portfolioCompletion">0%</span>
+                            <span class="stat-label">portfolio complété</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <div class="container">
-            <!-- Section Progression Portfolio -->
-            <section class="portfolio-progress-section">
+        <!-- Aperçu du Portfolio -->
+        <section class="portfolio-preview-section">
+            <div class="container">
                 <div class="section-header">
-                    <h2><i class="fas fa-tasks"></i> Progression de votre portfolio</h2>
-                    <a href="dashboard-portfolio.html" class="edit-link">
+                    <h2><i class="fas fa-eye"></i> Aperçu de votre portfolio</h2>
+                    <a href="dashboard-portfolio.html" class="edit-btn">
                         <i class="fas fa-edit"></i> Modifier
                     </a>
                 </div>
                 
-                <div class="progress-container">
-                    <div class="progress-info">
-                        <div class="progress-bar large">
-                            <div class="progress-fill" id="progressBarFill" style="width: 30%;"></div>
-                        </div>
-                        <div class="progress-text">
-                            <span id="progressPercentage">30%</span> complété
-                        </div>
-                    </div>
-                    
-                    <div class="progress-checklist" id="portfolioChecklist">
-                        <!-- Généré dynamiquement -->
+                <div class="preview-container" id="portfolioPreview">
+                    <!-- Chargé dynamiquement -->
+                    <div class="empty-preview">
+                        <i class="fas fa-portrait"></i>
+                        <h3>Votre portfolio est vide</h3>
+                        <p>Complétez-le pour être visible par la communauté</p>
+                        <a href="dashboard-portfolio.html" class="btn btn-primary">
+                            <i class="fas fa-plus-circle"></i> Créer mon portfolio
+                        </a>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Section Accès Rapide -->
-            <section class="quick-access-section">
-                <h2><i class="fas fa-rocket"></i> Accès rapide</h2>
-                <div class="dashboard-grid">
-                    <a href="dashboard-portfolio.html" class="dashboard-card priority">
-                        <div class="card-icon" style="background: #4CAF50;">
-                            <i class="fas fa-portrait"></i>
+        <!-- Navigation Rapide -->
+        <section class="quick-nav-section">
+            <div class="container">
+                <h2><i class="fas fa-compass"></i> Explorez votre espace</h2>
+                <div class="quick-nav-grid">
+                    <a href="dashboard-portfolio.html" class="nav-card">
+                        <div class="nav-icon" style="background: #4CAF50;">
+                            <i class="fas fa-user-edit"></i>
                         </div>
                         <h3>Mon Portfolio</h3>
-                        <p>Gérez votre profil, photos et biographie</p>
-                        <div class="card-badge" id="portfolioBadge">À compléter</div>
+                        <p>Personnalisez votre présentation</p>
                     </a>
                     
-                    <a href="dashboard-ressources.html" class="dashboard-card">
-                        <div class="card-icon" style="background: #2196F3;">
-                            <i class="fas fa-graduation-cap"></i>
+                    <a href="dashboard-interactions.html" class="nav-card">
+                        <div class="nav-icon" style="background: #2196F3;">
+                            <i class="fas fa-comments"></i>
                         </div>
-                        <h3>Ressources</h3>
-                        <p>Guides, conseils et tendances 2024</p>
-                        <div class="card-meta">
-                            <i class="fas fa-book-open"></i>
-                            <span>5 nouveaux articles</span>
-                        </div>
+                        <h3>Interactions</h3>
+                        <p>Contactez l'équipe Dreamswear</p>
                     </a>
                     
-                    <a href="dashboard-opportunities.html" class="dashboard-card">
-                        <div class="card-icon" style="background: #FF9800;">
+                    <a href="dashboard-creators.html" class="nav-card">
+                        <div class="nav-icon" style="background: #9C27B0;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Créateurs</h3>
+                        <p>Découvrez la communauté</p>
+                    </a>
+                    
+                    <a href="dashboard-opportunities.html" class="nav-card">
+                        <div class="nav-icon" style="background: #FF9800;">
                             <i class="fas fa-bullhorn"></i>
                         </div>
                         <h3>Opportunités</h3>
-                        <p>Appels à participation et collaborations</p>
-                        <div class="card-meta">
-                            <i class="fas fa-clock"></i>
-                            <span>3 ouvertes</span>
-                        </div>
-                    </a>
-                    
-                    <a href="dashboard-community.html" class="dashboard-card">
-                        <div class="card-icon" style="background: #9C27B0;">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h3>Communauté</h3>
-                        <p>Connectez-vous avec d'autres créateurs</p>
-                        <div class="card-meta">
-                            <i class="fas fa-user-plus"></i>
-                            <span>45 membres</span>
-                        </div>
+                        <p>Participez aux projets</p>
                     </a>
                 </div>
-            </section>
-
-            <!-- Section Actions Recommandées -->
-            <section class="recommended-actions">
-                <h2><i class="fas fa-lightbulb"></i> Recommandé pour vous</h2>
-                <div class="actions-grid">
-                    <div class="action-card" id="photoAction">
-                        <div class="action-icon">
-                            <i class="fas fa-camera"></i>
-                        </div>
-                        <div class="action-content">
-                            <h3>Ajoutez votre photo</h3>
-                            <p>Les profils avec photo reçoivent 3x plus de visites</p>
-                            <a href="dashboard-portfolio.html" class="action-link">Ajouter maintenant →</a>
-                        </div>
-                    </div>
-                    
-                    <div class="action-card" id="bioAction">
-                        <div class="action-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="action-content">
-                            <h3>Complétez votre biographie</h3>
-                            <p>Racontez votre histoire pour attirer les collaborations</p>
-                            <a href="dashboard-portfolio.html" class="action-link">Écrire bio →</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Section Activité -->
-            <section class="activity-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-history"></i> Activité récente</h2>
-                    <button class="btn-refresh" id="refreshActivity">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                </div>
-                <div class="activity-list" id="activityList">
-                    <!-- Généré dynamiquement -->
-                </div>
-            </section>
-
-            <!-- Section Prochaines Étapes -->
-            <section class="next-steps">
-                <h2><i class="fas fa-flag-checkered"></i> Prochaines étapes</h2>
-                <ol class="steps-list">
-                    <li class="step-item" id="step1">
-                        <span class="step-number">1</span>
-                        <div class="step-content">
-                            <h3>Compléter votre portfolio</h3>
-                            <p>Ajoutez photo, biographie et informations de contact</p>
-                        </div>
-                        <a href="dashboard-portfolio.html" class="step-action">Commencer</a>
-                    </li>
-                    <li class="step-item" id="step2">
-                        <span class="step-number">2</span>
-                        <div class="step-content">
-                            <h3>Explorer les opportunités</h3>
-                            <p>Découvrez les appels à participation adaptés à votre domaine</p>
-                        </div>
-                        <a href="dashboard-opportunities.html" class="step-action disabled">Bientôt disponible</a>
-                    </li>
-                    <li class="step-item" id="step3">
-                        <span class="step-number">3</span>
-                        <div class="step-content">
-                            <h3>Rejoindre la communauté</h3>
-                            <p>Échangez avec d'autres créateurs et partagez vos expériences</p>
-                        </div>
-                        <a href="dashboard-community.html" class="step-action disabled">Bientôt disponible</a>
-                    </li>
-                </ol>
-            </section>
-        </div>
+            </div>
+        </section>
     </main>
 
     <script>
@@ -233,17 +160,11 @@
             }
             
             // Charger les données du portfolio
-            const portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {
-                brandName: '',
-                creatorName: '',
-                domain: '',
-                bio: '',
-                instagram: '',
-                photoBase64: ''
-            };
+            const portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {};
             
             // Mettre à jour les informations
-            updateDashboard(portfolioData, creatorBrand);
+            updateWelcomeSection(portfolioData, creatorBrand);
+            updatePortfolioPreview(portfolioData);
             
             // Déconnexion
             document.getElementById('logoutBtn').addEventListener('click', function(e) {
@@ -254,212 +175,99 @@
                 }
             });
             
-            // Rafraîchir l'activité
-            document.getElementById('refreshActivity').addEventListener('click', function() {
-                loadActivity(portfolioData);
-                this.classList.add('rotating');
-                setTimeout(() => this.classList.remove('rotating'), 500);
-            });
-            
             // Menu mobile
             document.querySelector('.menu-toggle').addEventListener('click', function() {
-                document.querySelector('.user-menu').classList.toggle('active');
+                document.querySelector('.main-nav').classList.toggle('active');
             });
             
-            // Initialisation
-            function updateDashboard(portfolioData, creatorBrand) {
-                // Mettre à jour le nom
+            // Fonctions
+            function updateWelcomeSection(portfolioData, creatorBrand) {
+                // Nom du créateur
                 const displayName = portfolioData.brandName || creatorBrand || 'Créateur';
-                document.getElementById('creatorBrand').textContent = displayName;
-                document.getElementById('userName').textContent = displayName;
+                document.getElementById('creatorName').textContent = displayName;
                 
-                // Mettre à jour l'avatar
-                if (portfolioData.photoBase64) {
-                    document.getElementById('userAvatar').src = portfolioData.photoBase64;
-                    document.getElementById('portfolioStatus').textContent = 'Portfolio actif';
-                    document.getElementById('portfolioStatus').classList.add('active');
+                // Domaine
+                if (portfolioData.domain) {
+                    document.getElementById('creatorDomain').innerHTML = `
+                        <i class="fas fa-tag"></i>
+                        <span>${portfolioData.domain}</span>
+                    `;
+                    
+                    // Description personnalisée par domaine
+                    updateDomainDescription(portfolioData.domain);
                 }
                 
-                // Calculer la progression
-                const progress = calculatePortfolioProgress(portfolioData);
-                updateProgressUI(progress);
-                updateChecklist(portfolioData);
-                updateRecommendedActions(portfolioData);
-                updateNextSteps(progress);
-                loadActivity(portfolioData);
+                // Avatar
+                if (portfolioData.photoBase64) {
+                    document.getElementById('welcomeAvatar').innerHTML = 
+                        `<img src="${portfolioData.photoBase64}" alt="${displayName}">`;
+                }
                 
-                // Mettre à jour la date
+                // Jours depuis l'inscription
                 const joinDate = sessionStorage.getItem('joinDate') || new Date().toISOString();
-                document.getElementById('memberSince').textContent = formatDate(joinDate);
+                const days = Math.floor((new Date() - new Date(joinDate)) / (1000 * 60 * 60 * 24));
+                document.getElementById('memberDays').textContent = days;
+                
+                // Progression portfolio
+                const progress = calculateProgress(portfolioData);
+                document.getElementById('portfolioCompletion').textContent = `${progress}%`;
             }
             
-            // Calculer la progression du portfolio
-            function calculatePortfolioProgress(portfolioData) {
+            function calculateProgress(portfolioData) {
                 const checks = [
-                    portfolioData.brandName && portfolioData.brandName.trim() !== '',
-                    portfolioData.creatorName && portfolioData.creatorName.trim() !== '',
-                    portfolioData.domain && portfolioData.domain.trim() !== '',
-                    portfolioData.bio && portfolioData.bio.trim() !== '',
-                    portfolioData.photoBase64 && portfolioData.photoBase64.trim() !== ''
+                    portfolioData.brandName,
+                    portfolioData.creatorName,
+                    portfolioData.domain,
+                    portfolioData.bio,
+                    portfolioData.photoBase64
                 ];
-                
-                const completed = checks.filter(check => check).length;
+                const completed = checks.filter(item => item && item.trim() !== '').length;
                 return Math.round((completed / checks.length) * 100);
             }
             
-            // Mettre à jour l'interface de progression
-            function updateProgressUI(progress) {
-                document.getElementById('progressBarFill').style.width = `${progress}%`;
-                document.getElementById('progressPercentage').textContent = `${progress}%`;
-                document.getElementById('portfolioCompletion').textContent = `${progress}%`;
+            function updateDomainDescription(domain) {
+                const descriptions = {
+                    'Styliste haute couture': 'Votre expertise en haute couture vous donne accès à des opportunités exclusives et des collaborations prestigieuses.',
+                    'Styliste streetwear': 'L\'univers streetwear est en effervescence. Partagez votre vision unique avec notre communauté.',
+                    'Designer': 'Votre créativité est votre atout principal. Montrez vos collections et inspirez d\'autres créateurs.',
+                    'Marque de bijoux': 'Les accessoires font la différence. Présentez vos créations à un public passionné.',
+                    'Artisans du tricot': 'L\'artisanat textile est à l\'honneur. Partagez vos techniques et votre savoir-faire unique.'
+                };
                 
-                // Mettre à jour le badge
-                const badge = document.getElementById('portfolioBadge');
-                if (progress === 100) {
-                    badge.textContent = 'Complet ✓';
-                    badge.style.background = '#4CAF50';
-                } else if (progress >= 50) {
-                    badge.textContent = 'En cours';
-                    badge.style.background = '#FF9800';
-                } else {
-                    badge.textContent = 'À compléter';
-                    badge.style.background = '#f44336';
-                }
+                const defaultDesc = 'Votre expertise est précieuse. Partagez-la avec notre communauté de passionnés.';
+                const description = descriptions[domain] || defaultDesc;
+                
+                document.getElementById('welcomeSubtitle').textContent = description;
             }
             
-            // Mettre à jour la checklist
-            function updateChecklist(portfolioData) {
-                const checklist = document.getElementById('portfolioChecklist');
-                const items = [
-                    { id: 'brand', label: 'Nom de marque', value: portfolioData.brandName },
-                    { id: 'name', label: 'Nom du créateur', value: portfolioData.creatorName },
-                    { id: 'domain', label: 'Domaine', value: portfolioData.domain },
-                    { id: 'bio', label: 'Biographie', value: portfolioData.bio },
-                    { id: 'photo', label: 'Photo de profil', value: portfolioData.photoBase64 }
-                ];
+            function updatePortfolioPreview(portfolioData) {
+                const previewContainer = document.getElementById('portfolioPreview');
                 
-                checklist.innerHTML = items.map(item => `
-                    <div class="checklist-item ${item.value && item.value.trim() !== '' ? 'completed' : ''}">
-                        <i class="fas fa-${item.value && item.value.trim() !== '' ? 'check-circle' : 'circle'}"></i>
-                        <span>${item.label}</span>
-                        <a href="dashboard-portfolio.html#${item.id}" class="checklist-action">
-                            ${item.value && item.value.trim() !== '' ? 'Modifier' : 'Ajouter'}
-                        </a>
-                    </div>
-                `).join('');
-            }
-            
-            // Mettre à jour les actions recommandées
-            function updateRecommendedActions(portfolioData) {
-                // Photo
-                const photoAction = document.getElementById('photoAction');
-                if (!portfolioData.photoBase64) {
-                    photoAction.style.display = 'flex';
-                } else {
-                    photoAction.style.display = 'none';
-                }
-                
-                // Bio
-                const bioAction = document.getElementById('bioAction');
-                if (!portfolioData.bio || portfolioData.bio.trim() === '') {
-                    bioAction.style.display = 'flex';
-                } else {
-                    bioAction.style.display = 'none';
-                }
-            }
-            
-            // Mettre à jour les prochaines étapes
-            function updateNextSteps(progress) {
-                const step1 = document.getElementById('step1');
-                if (progress === 100) {
-                    step1.classList.add('completed');
-                    step1.querySelector('.step-action').textContent = 'Terminé ✓';
-                    step1.querySelector('.step-action').classList.remove('disabled');
-                }
-            }
-            
-            // Charger l'activité
-            function loadActivity(portfolioData) {
-                const activityList = document.getElementById('activityList');
-                const activities = [];
-                
-                // Date actuelle formatée
-                const now = new Date();
-                const today = now.toLocaleDateString('fr-FR', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
-                
-                // Activité par défaut
-                activities.push({
-                    icon: 'user-check',
-                    title: 'Bienvenue sur Dreamswear !',
-                    description: 'Votre compte créateur est maintenant actif',
-                    time: today
-                });
-                
-                // Ajouter activités basées sur le portfolio
-                if (portfolioData.brandName) {
-                    activities.push({
-                        icon: 'tag',
-                        title: 'Marque enregistrée',
-                        description: `Votre marque "${portfolioData.brandName}" a été ajoutée`,
-                        time: 'Récemment'
-                    });
-                }
-                
-                if (portfolioData.photoBase64) {
-                    activities.push({
-                        icon: 'camera',
-                        title: 'Photo ajoutée',
-                        description: 'Votre photo de profil est maintenant visible',
-                        time: 'Récemment'
-                    });
-                }
-                
-                if (portfolioData.bio && portfolioData.bio.trim().length > 50) {
-                    activities.push({
-                        icon: 'file-alt',
-                        title: 'Biographie complétée',
-                        description: 'Votre histoire créative est maintenant en ligne',
-                        time: 'Récemment'
-                    });
-                }
-                
-                // Afficher les activités
-                activityList.innerHTML = activities.map(activity => `
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-${activity.icon}"></i>
+                if (portfolioData.brandName || portfolioData.photoBase64) {
+                    previewContainer.innerHTML = `
+                        <div class="portfolio-preview-card">
+                            ${portfolioData.photoBase64 ? `
+                            <div class="preview-photo">
+                                <img src="${portfolioData.photoBase64}" alt="${portfolioData.brandName || 'Portfolio'}">
+                            </div>
+                            ` : ''}
+                            
+                            <div class="preview-content">
+                                <h3>${portfolioData.brandName || 'Votre marque'}</h3>
+                                ${portfolioData.domain ? `<p class="preview-domain"><i class="fas fa-tag"></i> ${portfolioData.domain}</p>` : ''}
+                                ${portfolioData.bio ? `<p class="preview-bio">${portfolioData.bio.substring(0, 150)}${portfolioData.bio.length > 150 ? '...' : ''}</p>` : ''}
+                                
+                                <div class="preview-meta">
+                                    ${portfolioData.creatorName ? `<span><i class="fas fa-user"></i> ${portfolioData.creatorName}</span>` : ''}
+                                    ${portfolioData.instagram ? `<span><i class="fab fa-instagram"></i> ${portfolioData.instagram}</span>` : ''}
+                                </div>
+                            </div>
                         </div>
-                        <div class="activity-content">
-                            <p><strong>${activity.title}</strong> ${activity.description}</p>
-                            <small>${activity.time}</small>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }
             }
             
-            // Formater la date
-            function formatDate(dateString) {
-                const date = new Date(dateString);
-                const now = new Date();
-                const diffTime = Math.abs(now - date);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays === 1) return 'Aujourd\'hui';
-                if (diffDays <= 7) return `Il y a ${diffDays} jours`;
-                
-                return date.toLocaleDateString('fr-FR', { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
-                });
-            }
-            
-            // Sauvegarder la date d'inscription si elle n'existe pas
+            // Sauvegarder la date d'inscription
             if (!sessionStorage.getItem('joinDate')) {
                 sessionStorage.setItem('joinDate', new Date().toISOString());
             }
