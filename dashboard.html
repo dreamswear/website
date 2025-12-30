@@ -3,991 +3,466 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace Créateur - DREAMSWEAR MAG</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Accueil Créateur - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background: #f5f5f5;
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .night-mode {
-            background: #0a0a0a;
-            color: #e0e0e0;
-        }
-
-        /* HEADER */
-        .main-header {
-            background: #1a1a1a;
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .night-mode .main-header {
-            background: #252525;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #d4af37;
-        }
-
-        .logo a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .welcome-message {
-            font-size: 1rem;
-            color: #d4af37;
-            font-weight: 600;
-        }
-
-        /* DROPDOWN MENU */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-btn {
-            background: #d4af37;
-            color: #1a1a1a;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-btn:hover {
-            background: #c19a2d;
-            transform: translateY(-2px);
-        }
-
-        .dropdown-content {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            min-width: 250px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .night-mode .dropdown-content {
-            background: #2a2a2a;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .dropdown.active .dropdown-content {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-content a {
-            display: block;
-            padding: 12px 20px;
-            color: #333;
-            text-decoration: none;
-            font-weight: 500;
-            border-bottom: 1px solid #eee;
-            transition: all 0.2s ease;
-        }
-
-        .night-mode .dropdown-content a {
-            color: #fff;
-            border-bottom-color: #444;
-        }
-
-        .dropdown-content a:hover {
-            background: #f5f5f5;
-            color: #d4af37;
-            padding-left: 25px;
-        }
-
-        .night-mode .dropdown-content a:hover {
-            background: #3a3a3a;
-        }
-
-        .dropdown-content a:last-child {
-            border-bottom: none;
-        }
-
-        /* WELCOME SECTION */
-        .welcome-section {
-            text-align: center;
-            padding: 60px 20px;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-            color: white;
-            margin-bottom: 40px;
-        }
-
-        .night-mode .welcome-section {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-        }
-
-        .welcome-section h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: #d4af37;
-        }
-
-        .welcome-section p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin: 0 auto 30px;
-            opacity: 0.9;
-        }
-
-        /* DASHBOARD SECTIONS */
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px 40px;
-        }
-
-        .section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .night-mode .section {
-            background: #1a1a1a;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        .section:hover {
-            transform: translateY(-5px);
-        }
-
-        .section h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            color: #d4af37;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #d4af37;
-            padding-bottom: 10px;
-        }
-
-        .night-mode .section h2 {
-            color: #d4af37;
-        }
-
-        /* PORTFOLIO EDIT FORM */
-        .portfolio-form {
-            display: grid;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .night-mode .form-group label {
-            color: #fff;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1rem;
-            background: #f9f9f9;
-            transition: all 0.3s ease;
-        }
-
-        .night-mode .form-group input,
-        .night-mode .form-group textarea,
-        .night-mode .form-group select {
-            background: #2a2a2a;
-            border-color: #444;
-            color: #fff;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #d4af37;
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
-        }
-
-        .form-group textarea {
-            min-height: 150px;
-            resize: vertical;
-        }
-
-        /* PORTFOLIO PREVIEW */
-        .portfolio-preview {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-            margin-top: 30px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 10px;
-        }
-
-        .night-mode .portfolio-preview {
-            background: #2a2a2a;
-        }
-
-        .portfolio-pic {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #d4af37;
-        }
-
-        .portfolio-info {
-            flex: 1;
-        }
-
-        .portfolio-info h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .night-mode .portfolio-info h3 {
-            color: #fff;
-        }
-
-        .portfolio-info p {
-            margin-bottom: 10px;
-            color: #666;
-        }
-
-        .night-mode .portfolio-info p {
-            color: #ccc;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            color: #d4af37;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        /* BUTTONS */
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: #d4af37;
-            color: #1a1a1a;
-        }
-
-        .btn-primary:hover {
-            background: #c19a2d;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-        /* CARDS GRID */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .card {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .night-mode .card {
-            background: #2a2a2a;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-        .card h3 {
-            color: #d4af37;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .card p {
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .night-mode .card p {
-            color: #ccc;
-        }
-
-        /* MODAL */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 15px;
-            padding: 30px;
-            position: relative;
-        }
-
-        .night-mode .modal-content {
-            background: #2a2a2a;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #666;
-            cursor: pointer;
-        }
-
-        .night-mode .close-modal {
-            color: #ccc;
-        }
-
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .header-right {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .dropdown-btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .dropdown-content {
-                left: 0;
-                right: 0;
-            }
-
-            .welcome-section h1 {
-                font-size: 2rem;
-            }
-
-            .welcome-section p {
-                font-size: 1rem;
-            }
-
-            .section {
-                padding: 20px;
-            }
-
-            .portfolio-preview {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .card-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .welcome-section {
-                padding: 40px 15px;
-            }
-
-            .welcome-section h1 {
-                font-size: 1.8rem;
-            }
-
-            .section {
-                padding: 15px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
-        /* STATUS MESSAGE */
-        .status-message {
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .night-mode .status-success {
-            background: #1e4620;
-            color: #d4edda;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .night-mode .status-error {
-            background: #4a1c24;
-            color: #f8d7da;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* LOGOUT BUTTON */
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .logout-btn:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-        }
-    </style>
 </head>
 <body>
-    <header class="main-header">
+    <header class="dashboard-header">
         <div class="container">
             <div class="logo">
-                <a href="index.html">DREAMSWEAR</a>
+                <a href="../index.html">DREAMSWEAR</a>
             </div>
-            <div class="header-right">
-                <div class="welcome-message" id="welcomeMessage">
-                    Bienvenue, Créateur !
-                </div>
-                <div class="dropdown">
-                    <button class="dropdown-btn" id="dropdownBtn">
-                        <i class="fas fa-bars"></i>
-                        <span>Menu</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="dropdown-content" id="dropdownContent">
-                        <a href="#resources">📚 Ressources utiles</a>
-                        <a href="#interactions">💬 Interactions directes</a>
-                        <a href="#creator-wall">🎨 Mur des créateurs</a>
-                        <a href="#opportunities">💼 Appels à participation</a>
-                        <a href="#testimonials">🌟 Témoignages</a>
-                        <a href="#portfolio">📁 Votre Portfolio</a>
-                        <a href="#directory">📋 Annuaire pro</a>
+            <div class="user-menu">
+                <div class="user-info">
+                    <img id="userAvatar" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iI0Q0QUYzNyIvPHRleHQgeD0iMjAiIHk9IjI0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjMUEwQTBBIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+QzwvdGV4dD48L3N2Zz4=" alt="Avatar">
+                    <div>
+                        <span class="creator-name" id="userName">Créateur</span>
+                        <span class="creator-status" id="portfolioStatus">Portfolio incomplet</span>
                     </div>
                 </div>
-                <button class="logout-btn" id="logoutBtn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Déconnexion</span>
-                </button>
+                <nav class="main-nav">
+                    <a href="dashboard-home.html" class="nav-link active"><i class="fas fa-home"></i> Accueil</a>
+                    <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-edit"></i> Portfolio</a>
+                    <a href="dashboard-ressources.html" class="nav-link"><i class="fas fa-book"></i> Ressources</a>
+                    <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                </nav>
             </div>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
 
-    <section class="welcome-section">
-        <h1>Bienvenue dans votre espace créateur</h1>
-        <p>Personnalisez votre portfolio, découvrez des opportunités exclusives et connectez-vous avec la communauté Dreamswear</p>
-        <button class="btn btn-primary" id="editPortfolioBtn">
-            <i class="fas fa-edit"></i>
-            Modifier mon portfolio
-        </button>
-    </section>
-
-    <main class="dashboard-container">
-        <!-- Section Portfolio (modifiable) -->
-        <section id="portfolio" class="section">
-            <h2>📁 Votre Portfolio</h2>
-            <div id="portfolioFormContainer">
-                <!-- Le formulaire sera injecté ici par JavaScript -->
-            </div>
-            <div class="portfolio-preview" id="portfolioPreview">
-                <!-- L'aperçu sera mis à jour dynamiquement -->
-            </div>
-            <div id="portfolioStatus" class="status-message"></div>
-        </section>
-
-        <!-- Autres sections (non modifiables) -->
-        <section id="resources" class="section">
-            <h2>📚 Ressources Utiles</h2>
-            <div class="card-grid">
-                <div class="card">
-                    <h3>Conseils de Pro</h3>
-                    <p>Apprenez à développer votre image de marque et à captiver votre audience.</p>
+    <main class="dashboard-main">
+        <section class="welcome-banner">
+            <div class="container">
+                <div class="banner-content">
+                    <h1>Bienvenue, <span id="creatorBrand">Créateur</span> !</h1>
+                    <p class="subtitle">Votre espace personnel pour gérer votre présence sur Dreamswear</p>
+                    
+                    <div class="welcome-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <span class="stat-number" id="memberSince">Aujourd'hui</span>
+                                <span class="stat-label">Membre depuis</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <span class="stat-number" id="portfolioCompletion">0%</span>
+                                <span class="stat-label">Portfolio complété</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card">
-                    <h3>Tendances 2024</h3>
-                    <p>Un résumé des courants de mode à ne pas manquer cette saison.</p>
-                </div>
-                <div class="card">
-                    <h3>Guide du Branding</h3>
-                    <p>Les clés pour construire une identité de marque forte et mémorable.</p>
+                
+                <div class="banner-actions">
+                    <a href="dashboard-portfolio.html" class="btn btn-primary">
+                        <i class="fas fa-user-edit"></i> Compléter mon portfolio
+                    </a>
+                    <a href="dashboard-opportunities.html" class="btn btn-secondary">
+                        <i class="fas fa-bullhorn"></i> Voir les opportunités
+                    </a>
                 </div>
             </div>
         </section>
 
-        <section id="interactions" class="section">
-            <h2>💬 Interactions Directes</h2>
-            <div class="card-grid">
-                <div class="card">
-                    <h3>Contacter l'équipe</h3>
-                    <p>Une question ? Une proposition ? Nous sommes à votre écoute.</p>
-                    <button class="btn btn-secondary">Envoyer un message</button>
+        <div class="container">
+            <!-- Section Progression Portfolio -->
+            <section class="portfolio-progress-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-tasks"></i> Progression de votre portfolio</h2>
+                    <a href="dashboard-portfolio.html" class="edit-link">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
                 </div>
-                <div class="card">
-                    <h3>Newsletter Créateurs</h3>
-                    <p>Inscrivez-vous pour recevoir des exclusivités et des opportunités.</p>
-                    <button class="btn btn-secondary">S'inscrire</button>
+                
+                <div class="progress-container">
+                    <div class="progress-info">
+                        <div class="progress-bar large">
+                            <div class="progress-fill" id="progressBarFill" style="width: 30%;"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progressPercentage">30%</span> complété
+                        </div>
+                    </div>
+                    
+                    <div class="progress-checklist" id="portfolioChecklist">
+                        <!-- Généré dynamiquement -->
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="opportunities" class="section">
-            <h2>💼 Appels à Participation</h2>
-            <div class="card-grid">
-                <div class="card">
-                    <h3>Édito "Avant-Garde"</h3>
-                    <p>Nous recherchons des pièces uniques pour notre prochain shooting.</p>
-                    <span class="price-tag">À partir de 250€</span>
-                    <button class="btn btn-primary">Postuler</button>
+            <!-- Section Accès Rapide -->
+            <section class="quick-access-section">
+                <h2><i class="fas fa-rocket"></i> Accès rapide</h2>
+                <div class="dashboard-grid">
+                    <a href="dashboard-portfolio.html" class="dashboard-card priority">
+                        <div class="card-icon" style="background: #4CAF50;">
+                            <i class="fas fa-portrait"></i>
+                        </div>
+                        <h3>Mon Portfolio</h3>
+                        <p>Gérez votre profil, photos et biographie</p>
+                        <div class="card-badge" id="portfolioBadge">À compléter</div>
+                    </a>
+                    
+                    <a href="dashboard-ressources.html" class="dashboard-card">
+                        <div class="card-icon" style="background: #2196F3;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Ressources</h3>
+                        <p>Guides, conseils et tendances 2024</p>
+                        <div class="card-meta">
+                            <i class="fas fa-book-open"></i>
+                            <span>5 nouveaux articles</span>
+                        </div>
+                    </a>
+                    
+                    <a href="dashboard-opportunities.html" class="dashboard-card">
+                        <div class="card-icon" style="background: #FF9800;">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h3>Opportunités</h3>
+                        <p>Appels à participation et collaborations</p>
+                        <div class="card-meta">
+                            <i class="fas fa-clock"></i>
+                            <span>3 ouvertes</span>
+                        </div>
+                    </a>
+                    
+                    <a href="dashboard-community.html" class="dashboard-card">
+                        <div class="card-icon" style="background: #9C27B0;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Communauté</h3>
+                        <p>Connectez-vous avec d'autres créateurs</p>
+                        <div class="card-meta">
+                            <i class="fas fa-user-plus"></i>
+                            <span>45 membres</span>
+                        </div>
+                    </a>
                 </div>
-                <div class="card">
-                    <h3>Focus Accessoires</h3>
-                    <p>Votre marque d'accessoires mérite d'être sous les projecteurs.</p>
-                    <span class="price-tag">À partir de 180€</span>
-                    <button class="btn btn-primary">En savoir plus</button>
-                </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="testimonials" class="section">
-            <h2>🌟 Témoignages</h2>
-            <div class="card">
-                <blockquote>"Collaborer avec Dreamwear a offert une visibilité incroyable à ma collection. Une équipe professionnelle et passionnée."</blockquote>
-                <cite>- Chloé Dubois, Marque "Aetheria"</cite>
-            </div>
-        </section>
+            <!-- Section Actions Recommandées -->
+            <section class="recommended-actions">
+                <h2><i class="fas fa-lightbulb"></i> Recommandé pour vous</h2>
+                <div class="actions-grid">
+                    <div class="action-card" id="photoAction">
+                        <div class="action-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Ajoutez votre photo</h3>
+                            <p>Les profils avec photo reçoivent 3x plus de visites</p>
+                            <a href="dashboard-portfolio.html" class="action-link">Ajouter maintenant →</a>
+                        </div>
+                    </div>
+                    
+                    <div class="action-card" id="bioAction">
+                        <div class="action-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="action-content">
+                            <h3>Complétez votre biographie</h3>
+                            <p>Racontez votre histoire pour attirer les collaborations</p>
+                            <a href="dashboard-portfolio.html" class="action-link">Écrire bio →</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-        <section id="directory" class="section">
-            <h2>📋 Annuaire Professionnel</h2>
-            <p>Notre réseau de partenaires pour vous aider à concrétiser vos projets.</p>
-            <ul>
-                <li><strong>Photographes:</strong> Studio Lumière, Hélène Girard</li>
-                <li><strong>Mannequins:</strong> Agence Aura, Léo Martin</li>
-                <li><strong>Crocheteurs:</strong> L'Art du Fil</li>
-                <li><strong>Couturiers:</strong> Atelier Précision</li>
-                <li><strong>Accessoristes:</strong> Bijoux Céleste</li>
-            </ul>
-        </section>
-    </main>
+            <!-- Section Activité -->
+            <section class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> Activité récente</h2>
+                    <button class="btn-refresh" id="refreshActivity">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="activity-list" id="activityList">
+                    <!-- Généré dynamiquement -->
+                </div>
+            </section>
 
-    <!-- Modal pour éditer le portfolio -->
-    <div class="modal" id="portfolioModal">
-        <div class="modal-content">
-            <button class="close-modal" id="closeModal">&times;</button>
-            <h2>Modifier votre portfolio</h2>
-            <form id="portfolioForm">
-                <div class="form-group">
-                    <label for="brandName">Nom de la marque *</label>
-                    <input type="text" id="brandName" required>
-                </div>
-                <div class="form-group">
-                    <label for="creatorName">Votre nom *</label>
-                    <input type="text" id="creatorName" required>
-                </div>
-                <div class="form-group">
-                    <label for="domain">Domaine *</label>
-                    <select id="domain" required>
-                        <option value="">Sélectionnez votre domaine</option>
-                        <option value="Styliste haute couture">Styliste haute couture</option>
-                        <option value="Styliste streetwear">Styliste streetwear</option>
-                        <option value="Designer">Designer</option>
-                        <option value="Marque de bijoux">Marque de bijoux</option>
-                        <option value="Artisans du tricot">Artisans du tricot</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="bio">Biographie *</label>
-                    <textarea id="bio" required placeholder="Parlez de votre marque, votre philosophie, votre parcours..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="website">Site Web</label>
-                    <input type="url" id="website" placeholder="https://votresite.com">
-                </div>
-                <div class="form-group">
-                    <label for="instagram">Instagram</label>
-                    <input type="text" id="instagram" placeholder="@votremarque">
-                </div>
-                <div class="form-group">
-                    <label for="photoUrl">Photo de profil (URL)</label>
-                    <input type="url" id="photoUrl" placeholder="https://example.com/photo.jpg">
-                    <small>Laissez vide pour utiliser une photo par défaut</small>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i>
-                    Enregistrer les modifications
-                </button>
-            </form>
+            <!-- Section Prochaines Étapes -->
+            <section class="next-steps">
+                <h2><i class="fas fa-flag-checkered"></i> Prochaines étapes</h2>
+                <ol class="steps-list">
+                    <li class="step-item" id="step1">
+                        <span class="step-number">1</span>
+                        <div class="step-content">
+                            <h3>Compléter votre portfolio</h3>
+                            <p>Ajoutez photo, biographie et informations de contact</p>
+                        </div>
+                        <a href="dashboard-portfolio.html" class="step-action">Commencer</a>
+                    </li>
+                    <li class="step-item" id="step2">
+                        <span class="step-number">2</span>
+                        <div class="step-content">
+                            <h3>Explorer les opportunités</h3>
+                            <p>Découvrez les appels à participation adaptés à votre domaine</p>
+                        </div>
+                        <a href="dashboard-opportunities.html" class="step-action disabled">Bientôt disponible</a>
+                    </li>
+                    <li class="step-item" id="step3">
+                        <span class="step-number">3</span>
+                        <div class="step-content">
+                            <h3>Rejoindre la communauté</h3>
+                            <p>Échangez avec d'autres créateurs et partagez vos expériences</p>
+                        </div>
+                        <a href="dashboard-community.html" class="step-action disabled">Bientôt disponible</a>
+                    </li>
+                </ol>
+            </section>
         </div>
-    </div>
+    </main>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Vérifier si le créateur est connecté
-            const isCreatorLoggedIn = sessionStorage.getItem('creatorLoggedIn');
-            const creatorBrand = sessionStorage.getItem('creatorBrand') || 'Créateur';
+            // Vérifier la connexion
             const creatorId = sessionStorage.getItem('creatorId');
+            const creatorBrand = sessionStorage.getItem('creatorBrand');
             
-            if (!isCreatorLoggedIn || isCreatorLoggedIn !== 'true') {
-                alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant que créateur.');
-                window.location.href = 'index.html';
+            if (!creatorId) {
+                window.location.href = '../index.html';
                 return;
             }
             
-            // 2. Personnaliser le message de bienvenue
-            document.getElementById('welcomeMessage').textContent = `Bienvenue, ${creatorBrand} !`;
-            
-            // 3. Gestion du menu déroulant
-            const dropdownBtn = document.getElementById('dropdownBtn');
-            const dropdownContent = document.getElementById('dropdownContent');
-            
-            dropdownBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                dropdownBtn.parentElement.classList.toggle('active');
-            });
-            
-            document.addEventListener('click', function(e) {
-                if (!dropdownBtn.contains(e.target) && !dropdownContent.contains(e.target)) {
-                    dropdownBtn.parentElement.classList.remove('active');
-                }
-            });
-            
-            // 4. Gestion du défilement vers les sections
-            dropdownContent.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    e.preventDefault();
-                    const targetId = e.target.getAttribute('href');
-                    document.querySelector(targetId).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                    dropdownBtn.parentElement.classList.remove('active');
-                }
-            });
-            
-            // 5. Charger le portfolio depuis localStorage
-            let portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {
-                brandName: creatorBrand,
+            // Charger les données du portfolio
+            const portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {
+                brandName: '',
                 creatorName: '',
                 domain: '',
                 bio: '',
-                website: '',
                 instagram: '',
-                photoUrl: ''
+                photoBase64: ''
             };
             
-            // 6. Afficher le formulaire de portfolio
-            function renderPortfolioForm() {
-                const container = document.getElementById('portfolioFormContainer');
-                container.innerHTML = `
-                    <div class="portfolio-form">
-                        <div class="form-group">
-                            <label for="editBrandName">Nom de la marque *</label>
-                            <input type="text" id="editBrandName" value="${portfolioData.brandName}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editCreatorName">Votre nom *</label>
-                            <input type="text" id="editCreatorName" value="${portfolioData.creatorName}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="editDomain">Domaine *</label>
-                            <select id="editDomain" required>
-                                <option value="">Sélectionnez votre domaine</option>
-                                <option value="Styliste haute couture" ${portfolioData.domain === 'Styliste haute couture' ? 'selected' : ''}>Styliste haute couture</option>
-                                <option value="Styliste streetwear" ${portfolioData.domain === 'Styliste streetwear' ? 'selected' : ''}>Styliste streetwear</option>
-                                <option value="Designer" ${portfolioData.domain === 'Designer' ? 'selected' : ''}>Designer</option>
-                                <option value="Marque de bijoux" ${portfolioData.domain === 'Marque de bijoux' ? 'selected' : ''}>Marque de bijoux</option>
-                                <option value="Artisans du tricot" ${portfolioData.domain === 'Artisans du tricot' ? 'selected' : ''}>Artisans du tricot</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" id="savePortfolioBtn">
-                            <i class="fas fa-save"></i>
-                            Enregistrer les modifications
-                        </button>
-                    </div>
-                `;
-                
-                // Ajouter l'événement pour sauvegarder
-                document.getElementById('savePortfolioBtn').addEventListener('click', savePortfolio);
-            }
+            // Mettre à jour les informations
+            updateDashboard(portfolioData, creatorBrand);
             
-            // 7. Afficher l'aperçu du portfolio
-            function renderPortfolioPreview() {
-                const preview = document.getElementById('portfolioPreview');
-                preview.innerHTML = `
-                    <img src="${portfolioData.photoUrl || 'https://source.unsplash.com/random/150x150/?portrait,fashion'}" 
-                         alt="Photo de ${portfolioData.brandName}" 
-                         class="portfolio-pic">
-                    <div class="portfolio-info">
-                        <h3>${portfolioData.brandName}</h3>
-                        <p><strong>Créateur:</strong> ${portfolioData.creatorName || 'Non spécifié'}</p>
-                        <p><strong>Domaine:</strong> ${portfolioData.domain || 'Non spécifié'}</p>
-                        <p class="bio-placeholder">${portfolioData.bio || 'Aucune biographie pour le moment.'}</p>
-                        <div class="social-links">
-                            ${portfolioData.website ? `<a href="${portfolioData.website}" target="_blank"><i class="fas fa-globe"></i> Site Web</a>` : ''}
-                            ${portfolioData.instagram ? `<a href="https://instagram.com/${portfolioData.instagram.replace('@', '')}" target="_blank"><i class="fab fa-instagram"></i> ${portfolioData.instagram}</a>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-            
-            // 8. Sauvegarder le portfolio
-            function savePortfolio() {
-                const brandName = document.getElementById('editBrandName').value.trim();
-                const creatorName = document.getElementById('editCreatorName').value.trim();
-                const domain = document.getElementById('editDomain').value;
-                
-                if (!brandName || !creatorName || !domain) {
-                    showStatus('Veuillez remplir tous les champs obligatoires.', 'error');
-                    return;
-                }
-                
-                portfolioData = {
-                    ...portfolioData,
-                    brandName,
-                    creatorName,
-                    domain
-                };
-                
-                localStorage.setItem(`portfolio_${creatorId}`, JSON.stringify(portfolioData));
-                
-                // Mettre à jour le message de bienvenue si le nom de la marque a changé
-                if (brandName !== creatorBrand) {
-                    sessionStorage.setItem('creatorBrand', brandName);
-                    document.getElementById('welcomeMessage').textContent = `Bienvenue, ${brandName} !`;
-                }
-                
-                renderPortfolioPreview();
-                showStatus('Portfolio mis à jour avec succès !', 'success');
-            }
-            
-            // 9. Gestion de la modal
-            const editPortfolioBtn = document.getElementById('editPortfolioBtn');
-            const portfolioModal = document.getElementById('portfolioModal');
-            const closeModalBtn = document.getElementById('closeModal');
-            const modalForm = document.getElementById('portfolioForm');
-            
-            editPortfolioBtn.addEventListener('click', function() {
-                // Remplir le formulaire modal avec les données actuelles
-                document.getElementById('brandName').value = portfolioData.brandName;
-                document.getElementById('creatorName').value = portfolioData.creatorName;
-                document.getElementById('domain').value = portfolioData.domain;
-                document.getElementById('bio').value = portfolioData.bio;
-                document.getElementById('website').value = portfolioData.website;
-                document.getElementById('instagram').value = portfolioData.instagram;
-                document.getElementById('photoUrl').value = portfolioData.photoUrl;
-                
-                portfolioModal.classList.add('active');
-            });
-            
-            closeModalBtn.addEventListener('click', function() {
-                portfolioModal.classList.remove('active');
-            });
-            
-            portfolioModal.addEventListener('click', function(e) {
-                if (e.target === portfolioModal) {
-                    portfolioModal.classList.remove('active');
-                }
-            });
-            
-            // Sauvegarder depuis la modal
-            modalForm.addEventListener('submit', function(e) {
+            // Déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
                 e.preventDefault();
-                
-                portfolioData = {
-                    brandName: document.getElementById('brandName').value.trim(),
-                    creatorName: document.getElementById('creatorName').value.trim(),
-                    domain: document.getElementById('domain').value,
-                    bio: document.getElementById('bio').value.trim(),
-                    website: document.getElementById('website').value.trim(),
-                    instagram: document.getElementById('instagram').value.trim(),
-                    photoUrl: document.getElementById('photoUrl').value.trim()
-                };
-                
-                localStorage.setItem(`portfolio_${creatorId}`, JSON.stringify(portfolioData));
-                
-                // Mettre à jour le message de bienvenue
-                sessionStorage.setItem('creatorBrand', portfolioData.brandName);
-                document.getElementById('welcomeMessage').textContent = `Bienvenue, ${portfolioData.brandName} !`;
-                
-                renderPortfolioForm();
-                renderPortfolioPreview();
-                portfolioModal.classList.remove('active');
-                
-                showStatus('Portfolio complet mis à jour avec succès !', 'success');
-            });
-            
-            // 10. Fonction pour afficher les messages de statut
-            function showStatus(message, type) {
-                const statusDiv = document.getElementById('portfolioStatus');
-                statusDiv.textContent = message;
-                statusDiv.className = `status-message status-${type}`;
-                statusDiv.style.display = 'block';
-                
-                setTimeout(() => {
-                    statusDiv.style.display = 'none';
-                }, 5000);
-            }
-            
-            // 11. Déconnexion
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                if (confirm('Déconnexion ?')) {
                     sessionStorage.clear();
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }
             });
             
-            // 12. Initialiser l'affichage
-            renderPortfolioForm();
-            renderPortfolioPreview();
+            // Rafraîchir l'activité
+            document.getElementById('refreshActivity').addEventListener('click', function() {
+                loadActivity(portfolioData);
+                this.classList.add('rotating');
+                setTimeout(() => this.classList.remove('rotating'), 500);
+            });
             
-            // 13. Gestion du thème jour/nuit (optionnel)
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'night') {
-                document.body.classList.add('night-mode');
+            // Menu mobile
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.user-menu').classList.toggle('active');
+            });
+            
+            // Initialisation
+            function updateDashboard(portfolioData, creatorBrand) {
+                // Mettre à jour le nom
+                const displayName = portfolioData.brandName || creatorBrand || 'Créateur';
+                document.getElementById('creatorBrand').textContent = displayName;
+                document.getElementById('userName').textContent = displayName;
+                
+                // Mettre à jour l'avatar
+                if (portfolioData.photoBase64) {
+                    document.getElementById('userAvatar').src = portfolioData.photoBase64;
+                    document.getElementById('portfolioStatus').textContent = 'Portfolio actif';
+                    document.getElementById('portfolioStatus').classList.add('active');
+                }
+                
+                // Calculer la progression
+                const progress = calculatePortfolioProgress(portfolioData);
+                updateProgressUI(progress);
+                updateChecklist(portfolioData);
+                updateRecommendedActions(portfolioData);
+                updateNextSteps(progress);
+                loadActivity(portfolioData);
+                
+                // Mettre à jour la date
+                const joinDate = sessionStorage.getItem('joinDate') || new Date().toISOString();
+                document.getElementById('memberSince').textContent = formatDate(joinDate);
             }
             
-            console.log('✅ Dashboard chargé pour:', creatorBrand);
+            // Calculer la progression du portfolio
+            function calculatePortfolioProgress(portfolioData) {
+                const checks = [
+                    portfolioData.brandName && portfolioData.brandName.trim() !== '',
+                    portfolioData.creatorName && portfolioData.creatorName.trim() !== '',
+                    portfolioData.domain && portfolioData.domain.trim() !== '',
+                    portfolioData.bio && portfolioData.bio.trim() !== '',
+                    portfolioData.photoBase64 && portfolioData.photoBase64.trim() !== ''
+                ];
+                
+                const completed = checks.filter(check => check).length;
+                return Math.round((completed / checks.length) * 100);
+            }
+            
+            // Mettre à jour l'interface de progression
+            function updateProgressUI(progress) {
+                document.getElementById('progressBarFill').style.width = `${progress}%`;
+                document.getElementById('progressPercentage').textContent = `${progress}%`;
+                document.getElementById('portfolioCompletion').textContent = `${progress}%`;
+                
+                // Mettre à jour le badge
+                const badge = document.getElementById('portfolioBadge');
+                if (progress === 100) {
+                    badge.textContent = 'Complet ✓';
+                    badge.style.background = '#4CAF50';
+                } else if (progress >= 50) {
+                    badge.textContent = 'En cours';
+                    badge.style.background = '#FF9800';
+                } else {
+                    badge.textContent = 'À compléter';
+                    badge.style.background = '#f44336';
+                }
+            }
+            
+            // Mettre à jour la checklist
+            function updateChecklist(portfolioData) {
+                const checklist = document.getElementById('portfolioChecklist');
+                const items = [
+                    { id: 'brand', label: 'Nom de marque', value: portfolioData.brandName },
+                    { id: 'name', label: 'Nom du créateur', value: portfolioData.creatorName },
+                    { id: 'domain', label: 'Domaine', value: portfolioData.domain },
+                    { id: 'bio', label: 'Biographie', value: portfolioData.bio },
+                    { id: 'photo', label: 'Photo de profil', value: portfolioData.photoBase64 }
+                ];
+                
+                checklist.innerHTML = items.map(item => `
+                    <div class="checklist-item ${item.value && item.value.trim() !== '' ? 'completed' : ''}">
+                        <i class="fas fa-${item.value && item.value.trim() !== '' ? 'check-circle' : 'circle'}"></i>
+                        <span>${item.label}</span>
+                        <a href="dashboard-portfolio.html#${item.id}" class="checklist-action">
+                            ${item.value && item.value.trim() !== '' ? 'Modifier' : 'Ajouter'}
+                        </a>
+                    </div>
+                `).join('');
+            }
+            
+            // Mettre à jour les actions recommandées
+            function updateRecommendedActions(portfolioData) {
+                // Photo
+                const photoAction = document.getElementById('photoAction');
+                if (!portfolioData.photoBase64) {
+                    photoAction.style.display = 'flex';
+                } else {
+                    photoAction.style.display = 'none';
+                }
+                
+                // Bio
+                const bioAction = document.getElementById('bioAction');
+                if (!portfolioData.bio || portfolioData.bio.trim() === '') {
+                    bioAction.style.display = 'flex';
+                } else {
+                    bioAction.style.display = 'none';
+                }
+            }
+            
+            // Mettre à jour les prochaines étapes
+            function updateNextSteps(progress) {
+                const step1 = document.getElementById('step1');
+                if (progress === 100) {
+                    step1.classList.add('completed');
+                    step1.querySelector('.step-action').textContent = 'Terminé ✓';
+                    step1.querySelector('.step-action').classList.remove('disabled');
+                }
+            }
+            
+            // Charger l'activité
+            function loadActivity(portfolioData) {
+                const activityList = document.getElementById('activityList');
+                const activities = [];
+                
+                // Date actuelle formatée
+                const now = new Date();
+                const today = now.toLocaleDateString('fr-FR', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                // Activité par défaut
+                activities.push({
+                    icon: 'user-check',
+                    title: 'Bienvenue sur Dreamswear !',
+                    description: 'Votre compte créateur est maintenant actif',
+                    time: today
+                });
+                
+                // Ajouter activités basées sur le portfolio
+                if (portfolioData.brandName) {
+                    activities.push({
+                        icon: 'tag',
+                        title: 'Marque enregistrée',
+                        description: `Votre marque "${portfolioData.brandName}" a été ajoutée`,
+                        time: 'Récemment'
+                    });
+                }
+                
+                if (portfolioData.photoBase64) {
+                    activities.push({
+                        icon: 'camera',
+                        title: 'Photo ajoutée',
+                        description: 'Votre photo de profil est maintenant visible',
+                        time: 'Récemment'
+                    });
+                }
+                
+                if (portfolioData.bio && portfolioData.bio.trim().length > 50) {
+                    activities.push({
+                        icon: 'file-alt',
+                        title: 'Biographie complétée',
+                        description: 'Votre histoire créative est maintenant en ligne',
+                        time: 'Récemment'
+                    });
+                }
+                
+                // Afficher les activités
+                activityList.innerHTML = activities.map(activity => `
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-${activity.icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <p><strong>${activity.title}</strong> ${activity.description}</p>
+                            <small>${activity.time}</small>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Formater la date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const now = new Date();
+                const diffTime = Math.abs(now - date);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays === 1) return 'Aujourd\'hui';
+                if (diffDays <= 7) return `Il y a ${diffDays} jours`;
+                
+                return date.toLocaleDateString('fr-FR', { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+            }
+            
+            // Sauvegarder la date d'inscription si elle n'existe pas
+            if (!sessionStorage.getItem('joinDate')) {
+                sessionStorage.setItem('joinDate', new Date().toISOString());
+            }
         });
     </script>
 </body>
