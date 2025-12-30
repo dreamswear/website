@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opportunités - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">DREAMSWEAR</a>
+            </div>
+            <nav class="main-nav">
+                <a href="dashboard-home.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
+                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
+                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
+                <a href="dashboard-opportunities.html" class="nav-link active"><i class="fas fa-bullhorn"></i> Opportunités</a>
+                <a href="dashboard-temoignages.html" class="nav-link"><i class="fas fa-star"></i> Témoignages</a>
+                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
+                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-bullhorn"></i> Opportunités</h1>
+                <p class="page-subtitle">Participez à des projets exclusifs et développez votre visibilité</p>
+            </div>
+
+            <!-- Opportunités en vedette -->
+            <section class="featured-opportunities">
+                <h2><i class="fas fa-crown"></i> Opportunités en vedette</h2>
+                <div class="opportunities-grid">
+                    <div class="opportunity-card featured">
+                        <div class="opportunity-header">
+                            <span class="opportunity-badge">Nouveau</span>
+                            <h3>Éditorial "Printemps 2024"</h3>
+                            <p class="opportunity-domain">Mode • Accessoires • Bijoux</p>
+                        </div>
+                        <div class="opportunity-body">
+                            <p>Nous recherchons des créations innovantes pour notre prochain éditorial printemps. Les pièces sélectionnées seront présentées dans notre magazine et sur nos réseaux sociaux.</p>
+                            <div class="opportunity-details">
+                                <div class="detail">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Date limite : 15 janvier 2024</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-euro-sign"></i>
+                                    <span>Participation : 250€</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-users"></i>
+                                    <span>12 places disponibles</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="opportunity-actions">
+                            <button class="btn btn-primary apply-btn">
+                                <i class="fas fa-paper-plane"></i> Postuler
+                            </button>
+                            <button class="btn btn-outline details-btn">
+                                <i class="fas fa-info-circle"></i> Détails
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="opportunity-card">
+                        <div class="opportunity-header">
+                            <h3>Collection capsule été</h3>
+                            <p class="opportunity-domain">Streetwear • Design</p>
+                        </div>
+                        <div class="opportunity-body">
+                            <p>Création d'une collection capsule exclusive en collaboration avec Dreamswear. Les créateurs sélectionnés bénéficieront d'un accompagnement complet.</p>
+                            <div class="opportunity-details">
+                                <div class="detail">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Date limite : 28 février 2024</span>
+                                </div>
+                                <div class="detail">
+                                    <i class="fas fa-euro-sign"></i>
+                                    <span>Participation : 500€</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="opportunity-actions">
+                            <button class="btn btn-primary apply-btn">
+                                <i class="fas fa-paper-plane"></i> Postuler
+                            </button>
+                            <button class="btn btn-outline details-btn">
+                                <i class="fas fa-info-circle"></i> Détails
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Toutes les opportunités -->
+            <section class="all-opportunities">
+                <div class="section-header">
+                    <h2><i class="fas fa-list"></i> Toutes les opportunités</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">Toutes</button>
+                        <button class="filter-tab" data-filter="open">En cours</button>
+                        <button class="filter-tab" data-filter="upcoming">À venir</button>
+                        <button class="filter-tab" data-filter="closed">Terminées</button>
+                    </div>
+                </div>
+                
+                <div class="opportunities-list" id="opportunitiesList">
+                    <!-- Liste dynamique -->
+                </div>
+            </section>
+
+            <!-- Comment ça marche -->
+            <section class="how-it-works">
+                <h2><i class="fas fa-question-circle"></i> Comment participer ?</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>Complétez votre portfolio</h3>
+                            <p>Un portfolio complet augmente vos chances d'être sélectionné</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Choisissez une opportunité</h3>
+                            <p>Sélectionnez un projet qui correspond à votre domaine et vos ambitions</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Postulez en ligne</h3>
+                            <p>Remplissez le formulaire de candidature en quelques minutes</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3>Attendez la réponse</h3>
+                            <p>Notre équipe examine chaque candidature sous 7 jours</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de candidature -->
+    <div class="modal" id="applicationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-paper-plane"></i> Postuler à une opportunité</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="applicationForm">
+                    <div class="form-group">
+                        <label for="applicantName">Votre nom complet</label>
+                        <input type="text" id="applicantName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="applicantEmail">Email de contact</label>
+                        <input type="email" id="applicantEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="applicationMessage">Message de motivation</label>
+                        <textarea id="applicationMessage" rows="4" required 
+                                  placeholder="Pourquoi souhaitez-vous participer à ce projet ?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="portfolioLink">Lien vers votre portfolio</label>
+                        <input type="url" id="portfolioLink" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Soumettre ma candidature
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier la connexion
+            const creatorId = sessionStorage.getItem('creatorId');
+            if (!creatorId) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = '../index.html';
+                }
+            });
+            
+            // Menu mobile
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.main-nav').classList.toggle('active');
+            });
+            
+            // Charger les opportunités
+            loadOpportunities();
+            
+            // Filtres
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    filterOpportunities(this.dataset.filter);
+                });
+            });
+            
+            // Boutons postuler
+            document.querySelectorAll('.apply-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.getElementById('applicationModal').classList.add('active');
+                });
+            });
+            
+            // Fermer modal
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('applicationModal').classList.remove('active');
+            });
+            
+            // Formulaire de candidature
+            document.getElementById('applicationForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Candidature envoyée avec succès ! Nous vous contacterons bientôt.');
+                document.getElementById('applicationModal').classList.remove('active');
+                this.reset();
+            });
+            
+            function loadOpportunities() {
+                // Simuler le chargement depuis Supabase
+                const opportunities = [
+                    {
+                        id: 1,
+                        title: "Focus accessoires printemps",
+                        domain: "Accessoires",
+                        description: "Mise en avant des accessoires de mode pour la saison printemps",
+                        deadline: "2024-02-10",
+                        price: 180,
+                        status: "open",
+                        spots: 8
+                    },
+                    {
+                        id: 2,
+                        title: "Collaboration durable",
+                        domain: "Mode éthique",
+                        description: "Projet de collection éco-responsable",
+                        deadline: "2024-03-15",
+                        price: 350,
+                        status: "open",
+                        spots: 5
+                    },
+                    {
+                        id: 3,
+                        title: "Éditorial automne/hiver",
+                        domain: "Mode",
+                        description: "Shooting pour la collection automne/hiver 2024",
+                        deadline: "2024-04-01",
+                        price: 300,
+                        status: "upcoming",
+                        spots: 10
+                    }
+                ];
+                
+                displayOpportunities(opportunities);
+            }
+            
+            function displayOpportunities(opportunities) {
+                const list = document.getElementById('opportunitiesList');
+                
+                if (opportunities.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-bullhorn"></i>
+                            <h3>Aucune opportunité pour le moment</h3>
+                            <p>Revenez bientôt pour découvrir de nouveaux projets !</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                list.innerHTML = opportunities.map(opp => `
+                    <div class="opportunity-item" data-status="${opp.status}">
+                        <div class="opportunity-item-header">
+                            <h3>${opp.title}</h3>
+                            <span class="opportunity-domain">${opp.domain}</span>
+                        </div>
+                        <p class="opportunity-description">${opp.description}</p>
+                        <div class="opportunity-item-details">
+                            <span><i class="fas fa-calendar"></i> Jusqu'au ${opp.deadline}</span>
+                            <span><i class="fas fa-euro-sign"></i> ${opp.price}€</span>
+                            <span><i class="fas fa-user-friends"></i> ${opp.spots} places</span>
+                        </div>
+                        <button class="btn btn-primary apply-btn">
+                            <i class="fas fa-paper-plane"></i> Postuler
+                        </button>
+                    </div>
+                `).join('');
+                
+                // Ré-attacher les événements
+                document.querySelectorAll('.apply-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        document.getElementById('applicationModal').classList.add('active');
+                    });
+                });
+            }
+            
+            function filterOpportunities(filter) {
+                const items = document.querySelectorAll('.opportunity-item');
+                items.forEach(item => {
+                    if (filter === 'all' || item.dataset.status === filter) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
