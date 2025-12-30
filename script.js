@@ -1,29 +1,14 @@
 // ============================================
-// CONFIGURATION SUPABASE PARTAGÉE
-// ============================================
-const SUPABASE_CONFIG = {
-    URL: 'https://neensjugjhkvwcqslicr.supabase.co',
-    KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU'
-};
-
-// Initialiser Supabase client
-const supabase = window.supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
-
-// ============================================
 // CODE PRINCIPAL
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================
-    // CONFIGURATION SUPABASE (supplémentaire - gardée pour compatibilité)
+    // CONFIGURATION SUPABASE
     // ============================================
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
-    // Créer un deuxième client si besoin (pour compatibilité avec le code existant)
-    const supabaseSecondary = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
-    // Utiliser le client principal par défaut (celui de config.js)
-    const activeSupabase = supabase;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ============================================
     // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
@@ -179,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('📝 Tentative inscription abonné:', email);
             
             try {
-                const { data, error } = await activeSupabase
+                const { data, error } = await supabase
                     .from('Abonnés')  // Note: 'a' minuscule
                     .insert([
                         {
@@ -225,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🎨 Tentative inscription créateur:', marque);
             
             try {
-                const { data, error } = await activeSupabase
+                const { data, error } = await supabase
                     .from('créateurs')
                     .insert([
                         {
@@ -366,11 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🔐 Tentative connexion admin:', nom);
             
             try {
-                // Essayer d'abord avec le client principal
-                let supabaseClient = activeSupabase;
-                
                 // Vérification dans la table administrateurs
-                const { data, error } = await supabaseClient
+                const { data, error } = await supabase
                     .from('administrateurs')
                     .select('*')
                     .eq('nom', nom)
@@ -381,29 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur Supabase:', error.message);
-                    // Essayer avec le client secondaire si le premier échoue
-                    const { data: data2, error: error2 } = await supabaseSecondary
-                        .from('administrateurs')
-                        .select('*')
-                        .eq('nom', nom)
-                        .eq('mot_de_passe', password)
-                        .single();
-                    
-                    if (error2 || !data2) {
-                        if (adminError) {
-                            adminError.textContent = 'Nom d\'administrateur ou mot de passe incorrect';
-                            adminError.style.display = 'block';
-                        }
-                        return;
+                    if (adminError) {
+                        adminError.textContent = 'Erreur technique: ' + error.message;
+                        adminError.style.display = 'block';
                     }
-                    
-                    // Connexion réussie avec le client secondaire
-                    console.log('✅ Connexion réussie avec client secondaire! Admin:', data2);
-                    sessionStorage.setItem('adminLoggedIn', 'true');
-                    sessionStorage.setItem('adminId', data2.id);
-                    sessionStorage.setItem('adminName', data2.nom);
-                    sessionStorage.setItem('adminEmail', data2.email);
-                    window.location.href = 'admin.html';
                     return;
                 }
                 
@@ -450,11 +413,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🎨 Tentative connexion créateur:', brand);
             
             try {
-                // Essayer d'abord avec le client principal
-                let supabaseClient = activeSupabase;
-                
                 // Vérification dans la table créateurs
-                const { data, error } = await supabaseClient
+                const { data, error } = await supabase
                     .from('créateurs')
                     .select('*')
                     .eq('nom_marque', brand)
@@ -466,29 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur Supabase:', error.message);
-                    // Essayer avec le client secondaire si le premier échoue
-                    const { data: data2, error: error2 } = await supabaseSecondary
-                        .from('créateurs')
-                        .select('*')
-                        .eq('nom_marque', brand)
-                        .eq('mot_de_passe', password)
-                        .eq('statut', 'actif')
-                        .single();
-                    
-                    if (error2 || !data2) {
-                        if (creatorError) {
-                            creatorError.textContent = 'Marque ou mot de passe incorrect';
-                            creatorError.style.display = 'block';
-                        }
-                        return;
+                    if (creatorError) {
+                        creatorError.textContent = 'Erreur technique: ' + error.message;
+                        creatorError.style.display = 'block';
                     }
-                    
-                    // Connexion réussie avec le client secondaire
-                    console.log('✅ Connexion créateur réussie avec client secondaire!', data2);
-                    sessionStorage.setItem('creatorLoggedIn', 'true');
-                    sessionStorage.setItem('creatorId', data2.id);
-                    sessionStorage.setItem('creatorBrand', data2.nom_marque);
-                    window.location.href = 'dashboard.html';
                     return;
                 }
                 
@@ -552,8 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
         });
     });
-
-    // ============================================
+ // ============================================
     // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION (VERSION DIAGNOSTIC)
     // ============================================
     const pendingCreatorsDiv = document.getElementById('pendingCreators');
@@ -567,38 +507,65 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 console.log('🔍 Test connexion Supabase...');
                 
-                // Essayer d'abord avec le client principal
-                let supabaseClient = activeSupabase;
-                
                 // Test simple : compter tous les créateurs
-                const { count, error: countError } = await supabaseClient
+                const { count, error: countError } = await supabase
                     .from('créateurs')
                     .select('*', { count: 'exact', head: true });
                 
                 if (countError) {
-                    console.log('⚠️ Client principal échoué, essai avec client secondaire...');
-                    // Essayer avec le client secondaire
-                    const { count: count2, error: countError2 } = await supabaseSecondary
-                        .from('créateurs')
-                        .select('*', { count: 'exact', head: true });
-                    
-                    if (countError2) {
-                        console.error('❌ Erreur compte avec les deux clients:', countError2);
-                        alert('Erreur Supabase: ' + countError2.message);
-                        return { connected: false, client: null };
-                    }
-                    
-                    console.log(`📊 Total créateurs dans Supabase (client secondaire): ${count2}`);
-                    return { connected: true, client: supabaseSecondary };
+                    console.error('❌ Erreur compte:', countError);
+                    alert('Erreur Supabase: ' + countError.message);
+                    return false;
                 }
                 
-                console.log(`📊 Total créateurs dans Supabase (client principal): ${count}`);
-                return { connected: true, client: supabaseClient };
+                console.log(`📊 Total créateurs dans Supabase: ${count}`);
+                
+                // Test 2: Voir tous les statuts
+                const { data: allCreators, error: allError } = await supabase
+                    .from('créateurs')
+                    .select('id, nom_marque, statut')
+                    .order('created_at', { ascending: false });
+                
+                if (allError) {
+                    console.error('❌ Erreur récupération:', allError);
+                    return false;
+                }
+                
+                console.log('📋 Liste complète des créateurs:', allCreators);
+                
+                // Afficher dans la page pour debug
+                const debugDiv = document.createElement('div');
+                debugDiv.style.cssText = `
+                    background: #f8d7da;
+                    color: #721c24;
+                    padding: 15px;
+                    margin: 15px;
+                    border-radius: 5px;
+                    font-family: monospace;
+                    font-size: 12px;
+                `;
+                
+                let debugHtml = '<strong>DEBUG Supabase:</strong><br>';
+                debugHtml += `Total créateurs: ${count}<br>`;
+                debugHtml += '<strong>Statuts trouvés:</strong><br>';
+                
+                if (allCreators && allCreators.length > 0) {
+                    allCreators.forEach(creator => {
+                        debugHtml += `- ${creator.nom_marque} (ID: ${creator.id}) → Statut: <strong>${creator.statut}</strong><br>`;
+                    });
+                } else {
+                    debugHtml += 'Aucun créateur trouvé<br>';
+                }
+                
+                debugDiv.innerHTML = debugHtml;
+                document.body.prepend(debugDiv);
+                
+                return true;
                 
             } catch (error) {
                 console.error('💥 Erreur test:', error);
                 alert('Erreur test: ' + error.message);
-                return { connected: false, client: null };
+                return false;
             }
         }
         
@@ -611,18 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
             approvedCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
             
             // Tester la connexion d'abord
-            const connection = await testSupabaseConnection();
-            if (!connection.connected) {
+            const connected = await testSupabaseConnection();
+            if (!connected) {
                 pendingCreatorsDiv.innerHTML = '<div class="empty-message">❌ Impossible de se connecter à la base de données</div>';
                 approvedCreatorsDiv.innerHTML = '<div class="empty-message">❌ Impossible de se connecter à la base de données</div>';
                 return;
             }
             
-            const supabaseClient = connection.client;
-            
             // Charger les créateurs en attente
             try {
-                const { data: pendingData, error: pendingError } = await supabaseClient
+                const { data: pendingData, error: pendingError } = await supabase
                     .from('créateurs')
                     .select('*')
                     .eq('statut', 'pending')  // VÉRIFIEZ ICI LE STATUT EXACT
@@ -647,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Charger les créateurs approuvés
             try {
-                const { data: approvedData, error: approvedError } = await supabaseClient
+                const { data: approvedData, error: approvedError } = await supabase
                     .from('créateurs')
                     .select('*')
                     .eq('statut', 'actif')  // VÉRIFIEZ ICI LE STATUT EXACT
@@ -715,39 +680,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirm(`Approuver "${brandName}" ?`)) return;
             
             try {
-                // Essayer avec les deux clients pour plus de fiabilité
-                let supabaseClient = activeSupabase;
-                let success = false;
+                const { error } = await supabase
+                    .from('créateurs')
+                    .update({ 
+                        statut: 'actif',
+                        approved_at: new Date().toISOString()
+                    })
+                    .eq('id', id);
                 
-                try {
-                    const { error } = await supabaseClient
-                        .from('créateurs')
-                        .update({ 
-                            statut: 'actif',
-                            approved_at: new Date().toISOString()
-                        })
-                        .eq('id', id);
-                    
-                    if (error) throw error;
-                    success = true;
-                } catch (e) {
-                    console.log('⚠️ Client principal échoué, essai avec client secondaire...');
-                    const { error } = await supabaseSecondary
-                        .from('créateurs')
-                        .update({ 
-                            statut: 'actif',
-                            approved_at: new Date().toISOString()
-                        })
-                        .eq('id', id);
-                    
-                    if (error) throw error;
-                    success = true;
-                }
+                if (error) throw error;
                 
-                if (success) {
-                    alert(`"${brandName}" approuvé`);
-                    await loadAllCreators();
-                }
+                alert(`"${brandName}" approuvé`);
+                await loadAllCreators();
                 
             } catch (error) {
                 alert('Erreur : ' + error.message);
@@ -758,33 +702,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirm(`Refuser "${brandName}" ?`)) return;
             
             try {
-                // Essayer avec les deux clients pour plus de fiabilité
-                let supabaseClient = activeSupabase;
-                let success = false;
+                const { error } = await supabase
+                    .from('créateurs')
+                    .delete()
+                    .eq('id', id);
                 
-                try {
-                    const { error } = await supabaseClient
-                        .from('créateurs')
-                        .delete()
-                        .eq('id', id);
-                    
-                    if (error) throw error;
-                    success = true;
-                } catch (e) {
-                    console.log('⚠️ Client principal échoué, essai avec client secondaire...');
-                    const { error } = await supabaseSecondary
-                        .from('créateurs')
-                        .delete()
-                        .eq('id', id);
-                    
-                    if (error) throw error;
-                    success = true;
-                }
+                if (error) throw error;
                 
-                if (success) {
-                    alert(`"${brandName}" refusé`);
-                    await loadAllCreators();
-                }
+                alert(`"${brandName}" refusé`);
+                await loadAllCreators();
                 
             } catch (error) {
                 alert('Erreur : ' + error.message);
