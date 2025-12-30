@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annuaire Professionnel - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles spécifiques à l'annuaire */
+        .directory-search {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        [data-theme="night"] .directory-search {
+            background: #2a2a2a;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-box .btn {
+                width: 100%;
+            }
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            background: #f8f9fa url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23666" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>') no-repeat 15px center;
+            background-size: 20px;
+        }
+
+        [data-theme="night"] .search-box input {
+            background: #3a3a3a;
+            border-color: #444;
+            color: #ffffff;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23cccccc" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>');
+        }
+
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .category-filter {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+        }
+
+        [data-theme="night"] .category-filter {
+            background: #2a2a2a;
+            border-color: #444;
+            color: #ffffff;
+        }
+
+        .category-filter:hover, .category-filter.active {
+            background: #d4af37;
+            color: #1a1a1a;
+            border-color: #d4af37;
+        }
+
+        /* Grille des professionnels */
+        .professionals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .professionals-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .professional-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        [data-theme="night"] .professional-card {
+            background: #2a2a2a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .professional-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .professional-header {
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        [data-theme="night"] .professional-header {
+            background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+        }
+
+        .pro-avatar {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #d4af37;
+            border: 3px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="night"] .pro-avatar {
+            background: #1a1a1a;
+            border-color: #2a2a2a;
+        }
+
+        .pro-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+            color: #1a1a1a;
+        }
+
+        [data-theme="night"] .pro-info h3 {
+            color: #ffffff;
+        }
+
+        .pro-category {
+            display: inline-block;
+            background: #e9ecef;
+            color: #666;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        [data-theme="night"] .pro-category {
+            background: #3a3a3a;
+            color: #cccccc;
+        }
+
+        .pro-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pro-rating .fa-star {
+            color: #d4af37;
+        }
+
+        .professional-body {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        [data-theme="night"] .professional-body {
+            border-bottom-color: #444;
+        }
+
+        .pro-specialty {
+            color: #d4af37;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .pro-description {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        [data-theme="night"] .pro-description {
+            color: #cccccc;
+        }
+
+        .professional-footer {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 480px) {
+            .professional-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+        }
+
+        .pro-contact {
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        [data-theme="night"] .pro-contact {
+            color: #cccccc;
+        }
+
+        /* Catégories */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .category-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        [data-theme="night"] .category-card {
+            background: #2a2a2a;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .category-card h3 {
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+        }
+
+        [data-theme="night"] .category-card h3 {
+            color: #ffffff;
+        }
+
+        .category-card p {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        [data-theme="night"] .category-card p {
+            color: #cccccc;
+        }
+
+        .category-count {
+            display: inline-block;
+            background: #f8f9fa;
+            color: #d4af37;
+            padding: 0.3rem 1rem;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        [data-theme="night"] .category-count {
+            background: #3a3a3a;
+        }
+
+        /* Ajout professionnel */
+        .add-card {
+            background: linear-gradient(135deg, #d4af37 0%, #c19a2d 100%);
+            color: #1a1a1a;
+            padding: 2rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .add-card {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .add-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-benefits {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .add-benefits li {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="logo">
+                <a href="../index.html">DREAMSWEAR</a>
+            </div>
+            <nav class="main-nav">
+                <a href="dashboard-home.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
+                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
+                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
+                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
+                <a href="dashboard-temoignages.html" class="nav-link"><i class="fas fa-star"></i> Témoignages</a>
+                <a href="dashboard-annuaire.html" class="nav-link active"><i class="fas fa-address-book"></i> Annuaire</a>
+                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-address-book"></i> Annuaire Professionnel</h1>
+                <p class="page-subtitle">Trouvez les meilleurs partenaires pour concrétiser vos projets créatifs</p>
+            </div>
+
+            <!-- Recherche et Filtres -->
+            <section class="directory-search">
+                <div class="search-box">
+                    <input type="text" id="directorySearch" placeholder="Rechercher un professionnel...">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                </div>
+                
+                <div class="category-filters">
+                    <button class="category-filter active" data-category="all">
+                        <i class="fas fa-th"></i> Tous
+                    </button>
+                    <button class="category-filter" data-category="photographers">
+                        <i class="fas fa-camera"></i> Photographes
+                    </button>
+                    <button class="category-filter" data-category="models">
+                        <i class="fas fa-user-tie"></i> Mannequins
+                    </button>
+                    <button class="category-filter" data-category="seamstresses">
+                        <i class="fas fa-cut"></i> Couturiers
+                    </button>
+                    <button class="category-filter" data-category="accessories">
+                        <i class="fas fa-gem"></i> Accessoiristes
+                    </button>
+                    <button class="category-filter" data-category="stylists">
+                        <i class="fas fa-palette"></i> Stylistes
+                    </button>
+                </div>
+            </section>
+
+            <!-- Liste des Professionnels -->
+            <section>
+                <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-user-tie"></i> Professionnels recommandés</h2>
+                <div class="professionals-grid" id="professionalsGrid">
+                    <!-- Chargé dynamiquement -->
+                </div>
+            </section>
+
+            <!-- Par Catégorie -->
+            <section>
+                <h2 style="margin-bottom: 1.5rem;"><i class="fas fa-folder-open"></i> Par catégorie</h2>
+                <div class="categories-grid">
+                    <div class="category-card">
+                        <div class="category-icon" style="background: #2196F3;">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>Photographes</h3>
+                        <p>Spécialistes en mode et portrait</p>
+                        <span class="category-count">12 professionnels</span>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon" style="background: #4CAF50;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h3>Mannequins</h3>
+                        <p>Professionnels et agences</p>
+                        <span class="category-count">25 profils</span>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon" style="background: #FF9800;">
+                            <i class="fas fa-cut"></i>
+                        </div>
+                        <h3>Couturiers</h3>
+                        <p>Artisans et ateliers</p>
+                        <span class="category-count">8 ateliers</span>
+                    </div>
+                    
+                    <div class="category-card">
+                        <div class="category-icon" style="background: #9C27B0;">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h3>Accessoiristes</h3>
+                        <p>Bijoux et accessoires mode</p>
+                        <span class="category-count">15 créateurs</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Soumettre un professionnel -->
+            <section>
+                <div class="add-card">
+                    <div class="add-content">
+                        <h3><i class="fas fa-user-plus"></i> Ajouter un professionnel</h3>
+                        <p>Connaissez-vous un professionnel talentueux qui mériterait d'être dans notre annuaire ?</p>
+                        <ul class="add-benefits">
+                            <li><i class="fas fa-check"></i> Aidez la communauté</li>
+                            <li><i class="fas fa-check"></i> Recommandez des talents</li>
+                            <li><i class="fas fa-check"></i> Élargissez le réseau</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary" id="addProfessionalBtn">
+                        <i class="fas fa-plus-circle"></i> Proposer un professionnel
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal Ajout Professionnel -->
+    <div class="modal" id="addProfessionalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Proposer un professionnel</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="professionalForm">
+                    <div class="form-group">
+                        <label for="proName">Nom du professionnel / Entreprise</label>
+                        <input type="text" id="proName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proCategory">Catégorie</label>
+                        <select id="proCategory" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            <option value="photographers">Photographe</option>
+                            <option value="models">Mannequin / Agence</option>
+                            <option value="seamstresses">Couturier / Atelier</option>
+                            <option value="accessories">Accessoiriste</option>
+                            <option value="stylists">Styliste</option>
+                            <option value="other">Autre</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proSpecialty">Spécialité</label>
+                        <input type="text" id="proSpecialty" required 
+                               placeholder="Ex: Photographie de mode, Couture sur mesure...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proContact">Contact (email ou site web)</label>
+                        <input type="text" id="proContact" required 
+                               placeholder="Ex: contact@exemple.com ou www.exemple.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proDescription">Description / Recommandation</label>
+                        <textarea id="proDescription" rows="4" required 
+                                  placeholder="Pourquoi recommandez-vous ce professionnel ?"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Soumettre la proposition
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="dashboard-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <a href="../index.html">DREAMSWEAR</a>
+                    <p>Plateforme de collaboration créative</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Navigation</h4>
+                    <a href="dashboard-home.html">Accueil</a>
+                    <a href="dashboard-portfolio.html">Portfolio</a>
+                    <a href="dashboard-annuaire.html">Annuaire</a>
+                    <a href="dashboard-opportunities.html">Opportunités</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Support</h4>
+                    <a href="#">Centre d'aide</a>
+                    <a href="#">Contact</a>
+                    <a href="#">Confidentialité</a>
+                    <a href="#">Conditions d'utilisation</a>
+                </div>
+                <div class="footer-social">
+                    <h4>Suivez-nous</h4>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Dreamswear. Tous droits réservés.</p>
+                <p>Plateforme dédiée aux créateurs de mode</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier la connexion
+            const creatorId = sessionStorage.getItem('creatorId');
+            if (!creatorId) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = '../index.html';
+                }
+            });
+            
+            // Menu mobile
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.main-nav').classList.toggle('active');
+            });
+            
+            // Charger les professionnels
+            loadProfessionals();
+            
+            // Filtres par catégorie
+            document.querySelectorAll('.category-filter').forEach(filter => {
+                filter.addEventListener('click', function() {
+                    document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    filterProfessionals(this.dataset.category);
+                });
+            });
+            
+            // Recherche
+            document.getElementById('directorySearch').addEventListener('input', function() {
+                searchProfessionals(this.value);
+            });
+            
+            // Recherche avec bouton
+            document.querySelector('.search-box .btn').addEventListener('click', function() {
+                searchProfessionals(document.getElementById('directorySearch').value);
+            });
+            
+            // Modal d'ajout
+            document.getElementById('addProfessionalBtn').addEventListener('click', function() {
+                document.getElementById('addProfessionalModal').classList.add('active');
+            });
+            
+            // Fermer modal
+            document.querySelector('.close-modal').addEventListener('click', function() {
+                document.getElementById('addProfessionalModal').classList.remove('active');
+            });
+            
+            // Formulaire d'ajout
+            document.getElementById('professionalForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Merci pour votre suggestion ! Elle sera examinée par notre équipe.');
+                document.getElementById('addProfessionalModal').classList.remove('active');
+                this.reset();
+            });
+            
+            // Données des professionnels
+            function loadProfessionals() {
+                const professionals = [
+                    {
+                        id: 1,
+                        name: "Studio Lumière",
+                        category: "photographers",
+                        specialty: "Photographie de mode & portrait",
+                        description: "Spécialiste en photographie éditoriale et lookbook. Plus de 10 ans d'expérience dans la mode.",
+                        contact: "contact@studiolumiere.com",
+                        rating: 4.8
+                    },
+                    {
+                        id: 2,
+                        name: "Agence Aura",
+                        category: "models",
+                        specialty: "Mannequins professionnels",
+                        description: "Agence de mannequins pour défilés et shootings. Représente plus de 50 talents.",
+                        contact: "info@agenceaura.fr",
+                        rating: 4.6
+                    },
+                    {
+                        id: 3,
+                        name: "L'Art du Fil",
+                        category: "seamstresses",
+                        specialty: "Tricot et crochet sur mesure",
+                        description: "Atelier artisanal de création textile. Pièces uniques faites main avec passion.",
+                        contact: "atelier@artdufil.com",
+                        rating: 4.9
+                    },
+                    {
+                        id: 4,
+                        name: "Bijoux Céleste",
+                        category: "accessories",
+                        specialty: "Création de bijoux uniques",
+                        description: "Artisan bijoutier spécialisé en pièces uniques inspirées par la nature.",
+                        contact: "www.bijouxceleste.com",
+                        rating: 4.7
+                    },
+                    {
+                        id: 5,
+                        name: "Studio Coloré",
+                        category: "stylists",
+                        specialty: "Stylisme éditorial",
+                        description: "Styliste créative spécialisée dans les collections haute couture.",
+                        contact: "contact@studiocolore.fr",
+                        rating: 4.5
+                    },
+                    {
+                        id: 6,
+                        name: "Photo Moderne",
+                        category: "photographers",
+                        specialty: "Photographie numérique",
+                        description: "Expert en retouche et traitement d'images pour la mode moderne.",
+                        contact: "hello@photomoderne.com",
+                        rating: 4.3
+                    }
+                ];
+                
+                displayProfessionals(professionals);
+            }
+            
+            function displayProfessionals(professionals) {
+                const grid = document.getElementById('professionalsGrid');
+                
+                if (professionals.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-user-tie"></i>
+                            <h3>Aucun professionnel trouvé</h3>
+                            <p>Essayez avec d'autres critères de recherche</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = professionals.map(pro => `
+                    <div class="professional-card" data-category="${pro.category}">
+                        <div class="professional-header">
+                            <div class="pro-avatar">
+                                <i class="fas fa-${getCategoryIcon(pro.category)}"></i>
+                            </div>
+                            <div class="pro-info">
+                                <h3>${pro.name}</h3>
+                                <span class="pro-category">${getCategoryName(pro.category)}</span>
+                                <div class="pro-rating">
+                                    ${generateStars(pro.rating)}
+                                    <span>${pro.rating}/5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="professional-body">
+                            <p class="pro-specialty"><i class="fas fa-star"></i> ${pro.specialty}</p>
+                            <p class="pro-description">${pro.description}</p>
+                        </div>
+                        <div class="professional-footer">
+                            <span class="pro-contact"><i class="fas fa-envelope"></i> ${pro.contact}</span>
+                            <button class="btn btn-outline contact-btn">
+                                <i class="fas fa-envelope"></i> Contacter
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            function getCategoryIcon(category) {
+                const icons = {
+                    'photographers': 'camera',
+                    'models': 'user-tie',
+                    'seamstresses': 'cut',
+                    'accessories': 'gem',
+                    'stylists': 'palette',
+                    'other': 'user-tie'
+                };
+                return icons[category] || 'user-tie';
+            }
+            
+            function getCategoryName(category) {
+                const names = {
+                    'photographers': 'Photographe',
+                    'models': 'Mannequin / Agence',
+                    'seamstresses': 'Couturier',
+                    'accessories': 'Accessoiriste',
+                    'stylists': 'Styliste',
+                    'other': 'Autre'
+                };
+                return names[category] || 'Professionnel';
+            }
+            
+            function generateStars(rating) {
+                let stars = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= Math.floor(rating)) {
+                        stars += '<i class="fas fa-star"></i>';
+                    } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
+                        stars += '<i class="fas fa-star-half-alt"></i>';
+                    } else {
+                        stars += '<i class="far fa-star"></i>';
+                    }
+                }
+                return stars;
+            }
+            
+            function filterProfessionals(category) {
+                const cards = document.querySelectorAll('.professional-card');
+                cards.forEach(card => {
+                    if (category === 'all' || card.dataset.category === category) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            function searchProfessionals(query) {
+                query = query.toLowerCase().trim();
+                const cards = document.querySelectorAll('.professional-card');
+                let visibleCount = 0;
+                
+                cards.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    const specialty = card.querySelector('.pro-specialty').textContent.toLowerCase();
+                    const description = card.querySelector('.pro-description').textContent.toLowerCase();
+                    const category = card.querySelector('.pro-category').textContent.toLowerCase();
+                    
+                    if (query === '' || 
+                        name.includes(query) || 
+                        specialty.includes(query) || 
+                        description.includes(query) ||
+                        category.includes(query)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Afficher message si aucun résultat
+                if (visibleCount === 0 && query !== '') {
+                    const grid = document.getElementById('professionalsGrid');
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-search"></i>
+                            <h3>Aucun résultat trouvé</h3>
+                            <p>Aucun professionnel ne correspond à "${query}"</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('directorySearch').value=''; searchProfessionals('')">
+                                Réinitialiser la recherche
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Gérer les boutons de contact
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.contact-btn')) {
+                    const card = e.target.closest('.professional-card');
+                    const name = card.querySelector('h3').textContent;
+                    const contact = card.querySelector('.pro-contact').textContent;
+                    
+                    alert(`Contact pour ${name}:\n${contact}\n\nVous pouvez les contacter directement via ces coordonnées.`);
+                }
+            });
+            
+            // Gestion du modal - fermeture en cliquant en dehors
+            document.addEventListener('click', function(e) {
+                const modal = document.getElementById('addProfessionalModal');
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+            
+            // Gestion du modal - fermeture avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.getElementById('addProfessionalModal').classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
