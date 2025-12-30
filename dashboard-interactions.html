@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactions - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">DREAMSWEAR</a>
+            </div>
+            <nav class="main-nav">
+                <a href="dashboard-home.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
+                <a href="dashboard-interactions.html" class="nav-link active"><i class="fas fa-comments"></i> Interactions</a>
+                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
+                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
+                <a href="dashboard-temoignages.html" class="nav-link"><i class="fas fa-star"></i> Témoignages</a>
+                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
+                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-comments"></i> Interactions</h1>
+                <p class="page-subtitle">Contactez l'équipe Dreamswear et participez à la communauté</p>
+            </div>
+
+            <!-- Formulaire de Contact -->
+            <section class="contact-section">
+                <h2><i class="fas fa-envelope"></i> Contactez l'équipe</h2>
+                <div class="contact-card">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="contactSubject">Sujet</label>
+                            <select id="contactSubject" required>
+                                <option value="">Sélectionnez un sujet</option>
+                                <option value="question">Question générale</option>
+                                <option value="collaboration">Proposition de collaboration</option>
+                                <option value="technical">Problème technique</option>
+                                <option value="suggestion">Suggestion d'amélioration</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contactMessage">Votre message</label>
+                            <textarea id="contactMessage" rows="6" required 
+                                      placeholder="Décrivez votre demande en détail..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Envoyer le message
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="contact-info">
+                        <h3><i class="fas fa-info-circle"></i> Informations de contact</h3>
+                        <ul>
+                            <li><i class="fas fa-clock"></i> Réponse sous 48h ouvrées</li>
+                            <li><i class="fas fa-envelope"></i> contact@dreamswear.com</li>
+                            <li><i class="fas fa-phone"></i> +33 1 23 45 67 89</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Newsletter -->
+            <section class="newsletter-section">
+                <h2><i class="fas fa-newspaper"></i> Newsletter Créateurs</h2>
+                <div class="newsletter-card">
+                    <div class="newsletter-content">
+                        <h3>Restez informé</h3>
+                        <p>Recevez chaque mois :</p>
+                        <ul>
+                            <li>Les dernières tendances mode</li>
+                            <li>Les appels à participation exclusifs</li>
+                            <li>Les conseils de professionnels</li>
+                            <li>Les événements à ne pas manquer</li>
+                        </ul>
+                    </div>
+                    <div class="newsletter-form">
+                        <form id="newsletterForm">
+                            <div class="form-group">
+                                <label for="newsletterEmail">Votre email</label>
+                                <input type="email" id="newsletterEmail" required 
+                                       placeholder="votre@email.com">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-bell"></i> S'abonner
+                            </button>
+                        </form>
+                        <p class="form-note">Vous pouvez vous désabonner à tout moment</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ -->
+            <section class="faq-section">
+                <h2><i class="fas fa-question-circle"></i> Questions fréquentes</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Comment participer aux appels à projets ?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Rendez-vous dans la section "Opportunités" pour voir les appels ouverts. Chaque projet a ses propres conditions de participation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Comment modifier mon portfolio ?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Allez dans "Mon Portfolio" et cliquez sur "Modifier". Vous pourrez changer votre photo, biographie et toutes vos informations.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Quand serai-je visible dans l'annuaire ?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="faq-answer">
+                            <p>Dès que votre portfolio est complété à 100%, vous apparaissez automatiquement dans l'annuaire des créateurs.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier la connexion
+            const creatorId = sessionStorage.getItem('creatorId');
+            if (!creatorId) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = '../index.html';
+                }
+            });
+            
+            // Menu mobile
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.main-nav').classList.toggle('active');
+            });
+            
+            // FAQ interactif
+            document.querySelectorAll('.faq-question').forEach(button => {
+                button.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    answer.classList.toggle('active');
+                    icon.classList.toggle('fa-chevron-down');
+                    icon.classList.toggle('fa-chevron-up');
+                });
+            });
+            
+            // Formulaire de contact
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Message envoyé ! Nous vous répondrons dans les plus brefs délais.');
+                this.reset();
+            });
+            
+            // Newsletter
+            document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = document.getElementById('newsletterEmail').value;
+                alert(`Merci ! Vous êtes maintenant abonné à notre newsletter (${email})`);
+                this.reset();
+            });
+        });
+    </script>
+</body>
+</html>
