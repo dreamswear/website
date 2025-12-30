@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('creatorBrand', data.nom_marque);
                 
                 // Redirection vers le dashboard créateur
-                window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard-home.html';
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
