@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Témoignages - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">DREAMSWEAR</a>
+            </div>
+            <nav class="main-nav">
+                <a href="dashboard-home.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
+                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
+                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
+                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
+                <a href="dashboard-temoignages.html" class="nav-link active"><i class="fas fa-star"></i> Témoignages</a>
+                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
+                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            </nav>
+            <button class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-star"></i> Témoignages</h1>
+                <p class="page-subtitle">Découvrez les expériences de créateurs qui ont collaboré avec Dreamswear</p>
+            </div>
+
+            <!-- Témoignages en vedette -->
+            <section class="featured-testimonials">
+                <h2><i class="fas fa-crown"></i> Témoignages à la une</h2>
+                <div class="testimonial-slider">
+                    <div class="testimonial-card featured">
+                        <div class="testimonial-header">
+                            <img src="https://source.unsplash.com/random/100x100/?portrait,woman" alt="Chloé Dubois">
+                            <div class="testimonial-author">
+                                <h3>Chloé Dubois</h3>
+                                <p class="author-brand">Marque "Aetheria"</p>
+                                <p class="author-domain">Haute Couture</p>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <i class="fas fa-quote-left"></i>
+                            <blockquote>
+                                "Collaborer avec Dreamswear a été une expérience transformative pour ma marque. 
+                                L'équipe m'a accompagnée à chaque étape, de la création à la promotion. 
+                                Grâce à eux, ma collection a été vue par des milliers de passionnés de mode."
+                            </blockquote>
+                        </div>
+                        <div class="testimonial-stats">
+                            <div class="stat">
+                                <i class="fas fa-chart-line"></i>
+                                <span>+300% de visibilité</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-handshake"></i>
+                                <span>5 nouvelles collaborations</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tous les témoignages -->
+            <section class="all-testimonials">
+                <h2><i class="fas fa-comments"></i> Autres témoignages</h2>
+                <div class="testimonials-grid" id="testimonialsGrid">
+                    <!-- Chargé dynamiquement -->
+                </div>
+            </section>
+
+            <!-- Soumettre un témoignage -->
+            <section class="submit-testimonial">
+                <h2><i class="fas fa-edit"></i> Partagez votre expérience</h2>
+                <div class="submit-card">
+                    <div class="submit-info">
+                        <h3>Votre avis compte !</h3>
+                        <p>Partagez votre expérience avec Dreamswear et inspirez d'autres créateurs.</p>
+                        <ul class="benefits">
+                            <li><i class="fas fa-check"></i> Gagnez en visibilité</li>
+                            <li><i class="fas fa-check"></i> Inspirez la communauté</li>
+                            <li><i class="fas fa-check"></i> Contribuez à notre amélioration</li>
+                        </ul>
+                    </div>
+                    <div class="submit-form">
+                        <form id="testimonialForm">
+                            <div class="form-group">
+                                <label for="testimonialName">Votre nom</label>
+                                <input type="text" id="testimonialName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="testimonialBrand">Nom de votre marque</label>
+                                <input type="text" id="testimonialBrand" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="testimonialMessage">Votre témoignage</label>
+                                <textarea id="testimonialMessage" rows="5" required 
+                                          placeholder="Partagez votre expérience avec Dreamswear..."></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Soumettre mon témoignage
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier la connexion
+            const creatorId = sessionStorage.getItem('creatorId');
+            if (!creatorId) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = '../index.html';
+                }
+            });
+            
+            // Menu mobile
+            document.querySelector('.menu-toggle').addEventListener('click', function() {
+                document.querySelector('.main-nav').classList.toggle('active');
+            });
+            
+            // Charger les témoignages
+            loadTestimonials();
+            
+            // Formulaire de témoignage
+            document.getElementById('testimonialForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Merci pour votre témoignage ! Il sera examiné par notre équipe avant publication.');
+                this.reset();
+            });
+            
+            function loadTestimonials() {
+                const testimonials = [
+                    {
+                        name: "Lucas Martin",
+                        brand: "StreetStyle Co",
+                        domain: "Streetwear",
+                        message: "Une plateforme incroyable pour les créateurs émergents. Les opportunités sont réelles et l'accompagnement est professionnel.",
+                        photo: "https://source.unsplash.com/random/100x100/?portrait,man"
+                    },
+                    {
+                        name: "Sophie Laurent",
+                        brand: "Bijoux Céleste",
+                        domain: "Bijoux",
+                        message: "Grâce à Dreamswear, mes créations ont touché un public international. L'équipe est à l'écoute et très réactive.",
+                        photo: "https://source.unsplash.com/random/100x100/?portrait,woman2"
+                    },
+                    {
+                        name: "Thomas Dubois",
+                        brand: "Atelier Précision",
+                        domain: "Couture",
+                        message: "La qualité des collaborations proposées est exceptionnelle. Je recommande Dreamswear à tous les créateurs sérieux.",
+                        photo: "https://source.unsplash.com/random/100x100/?portrait,man2"
+                    }
+                ];
+                
+                displayTestimonials(testimonials);
+            }
+            
+            function displayTestimonials(testimonials) {
+                const grid = document.getElementById('testimonialsGrid');
+                
+                grid.innerHTML = testimonials.map(testimonial => `
+                    <div class="testimonial-card">
+                        <div class="testimonial-header">
+                            <img src="${testimonial.photo}" alt="${testimonial.name}">
+                            <div class="testimonial-author">
+                                <h3>${testimonial.name}</h3>
+                                <p class="author-brand">${testimonial.brand}</p>
+                                <p class="author-domain">${testimonial.domain}</p>
+                            </div>
+                        </div>
+                        <div class="testimonial-content">
+                            <i class="fas fa-quote-left"></i>
+                            <blockquote>${testimonial.message}</blockquote>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        });
+    </script>
+</body>
+</html>
