@@ -224,7 +224,7 @@
                     </button>
                     <div class="dropdown-menu" id="dropdown-menu">
                         <ul>
-                            <li><a href="index2.html">Accueil</a></li>
+                            <li><a href="index.html">Accueil</a></li>
                             <li><a href="visages.html">Visages</a></li>
                             <li><a href="coulisses.html" class="active">Coulisses</a></li>
                             <li><a href="tendances.html">Tendances</a></li>
@@ -290,14 +290,36 @@
         </div>
     </footer>
 
-<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         loadCoulissesArticles();
     });
     
     async function loadCoulissesArticles() {
+        const featuredContainer = document.getElementById('featured-article');
+        const articlesContainer = document.getElementById('articles-list');
+        
         try {
+            // Utilisez la supabase du script.js
+            const supabase = window.supabase.createClient(
+                'https://kfptsbpriihydidnfzhj.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk'
+            );
+            
+            // Testez d'abord la connexion
+            const { data: testData, error: testError } = await supabase
+                .from('articles')
+                .select('count', { count: 'exact', head: true });
+            
+            if (testError) {
+                console.log('Test connexion échoué:', testError);
+                throw testError;
+            }
+            
+            console.log('Connexion Supabase OK');
+            
             // Charger l'article à la une
             const { data: featuredData, error: featuredError } = await supabase
                 .from('articles')
@@ -308,22 +330,21 @@
                 .order('date_publication', { ascending: false })
                 .limit(1);
             
-            if (featuredError) throw featuredError;
-            
             // Charger les autres articles
             const { data: articlesData, error: articlesError } = await supabase
                 .from('articles')
                 .select('*')
                 .eq('rubrique', 'coulisses')
                 .eq('statut', 'publié')
-                .neq('a_la_une', true)
                 .order('date_publication', { ascending: false })
                 .limit(6);
             
-            if (articlesError) throw articlesError;
+            if (featuredError || articlesError) {
+                console.error('Erreurs:', { featuredError, articlesError });
+                throw featuredError || articlesError;
+            }
             
             // Afficher l'article à la une
-            const featuredContainer = document.getElementById('featured-article');
             if (featuredData && featuredData.length > 0) {
                 const article = featuredData[0];
                 featuredContainer.innerHTML = `
@@ -338,15 +359,22 @@
                         <div class="featured-meta">
                             <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
                             <span>👤 ${article.auteur || 'Rédaction'}</span>
-                            <span>⏱️ ${article.temps_lecture || '5 min'}</span>
                         </div>
                         <a href="article.html?id=${article.id}" class="featured-link">Lire l'article</a>
+                    </div>
+                `;
+            } else {
+                featuredContainer.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; background: var(--card-bg); border-radius: 15px; padding: 60px; text-align: center;">
+                        <div>
+                            <h3 style="color: var(--text-secondary); margin-bottom: 15px;">Aucun article à la une</h3>
+                            <p style="color: var(--text-muted);">Revenez bientôt pour découvrir nos nouveaux articles</p>
+                        </div>
                     </div>
                 `;
             }
             
             // Afficher les autres articles
-            const articlesContainer = document.getElementById('articles-list');
             if (articlesData && articlesData.length > 0) {
                 articlesContainer.innerHTML = articlesData.map(article => `
                     <div class="article-card">
@@ -374,9 +402,15 @@
             
         } catch (error) {
             console.error('Erreur chargement articles:', error);
-            document.getElementById('articles-list').innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc3545;">
-                    <p>Erreur de chargement des articles. Veuillez réessayer.</p>
+            featuredContainer.innerHTML = '';
+            articlesContainer.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                    <p style="color: #dc3545; font-size: 1.1rem;">
+                        Impossible de charger les articles. Vérifiez votre connexion.
+                    </p>
+                    <button onclick="loadCoulissesArticles()" style="margin-top: 20px; padding: 10px 20px; background: var(--accent); color: var(--text-dark); border: none; border-radius: 5px; cursor: pointer;">
+                        Réessayer
+                    </button>
                 </div>
             `;
         }
