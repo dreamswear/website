@@ -4,27 +4,260 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil Créateur - Dreamswear</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <style>
+        /* Styles pour le menu mobile amélioré */
+        .dashboard-header {
+            position: relative;
+        }
+
+        .main-nav {
+            display: flex;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Menu déroulant */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dropdown-item:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            color: #666;
+        }
+
+        /* Header mobile */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .main-nav {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: #2c3e50;
+                flex-direction: column;
+                padding: 1rem;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+
+            .main-nav.active {
+                display: flex;
+            }
+
+            .main-nav .nav-link {
+                width: 100%;
+                text-align: left;
+                padding: 0.75rem 1rem;
+                border-radius: 4px;
+                margin: 0.25rem 0;
+            }
+
+            /* Menu déroulant mobile */
+            .dropdown {
+                width: 100%;
+            }
+
+            .dropdown-toggle {
+                width: 100%;
+                justify-content: space-between;
+                background: rgba(255,255,255,0.1);
+                border-radius: 4px;
+            }
+
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                background: rgba(0,0,0,0.2);
+                margin-top: 0.25rem;
+                border-radius: 4px;
+            }
+
+            .dropdown-item {
+                color: white;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+
+            .dropdown-item:hover {
+                background: rgba(255,255,255,0.1);
+            }
+
+            .dropdown-item i {
+                color: rgba(255,255,255,0.7);
+            }
+
+            /* Correction du header */
+            .dashboard-header {
+                padding: 0;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.2rem;
+            }
+
+            .main-nav {
+                top: 60px;
+            }
+
+            .welcome-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .quick-nav-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .quick-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Header Commun -->
     <header class="dashboard-header">
-        <div class="container">
+        <div class="container header-container">
             <div class="logo">
                 <a href="index.html">DREAMSWEAR</a>
             </div>
+            
             <nav class="main-nav">
-                <a href="dashboard-home.html" class="nav-link active"><i class="fas fa-home"></i> Accueil</a>
-                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
-                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
-                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
-                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
-                <a href="dashboard-temoignages.html" class="nav-link"><i class="fas fa-star"></i> Témoignages</a>
-                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
-                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+                <a href="dashboard-home.html" class="nav-link active">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+                
+                <!-- Menu déroulant pour les rubriques -->
+                <div class="dropdown">
+                    <div class="dropdown-toggle nav-link">
+                        <i class="fas fa-th-large"></i>
+                        <span>Rubriques</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="dashboard-portfolio.html" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i>
+                            Portfolio
+                        </a>
+                        <a href="dashboard-interactions.html" class="dropdown-item">
+                            <i class="fas fa-comments"></i>
+                            Interactions
+                        </a>
+                        <a href="dashboard-creators.html" class="dropdown-item">
+                            <i class="fas fa-users"></i>
+                            Créateurs
+                        </a>
+                        <a href="dashboard-opportunities.html" class="dropdown-item">
+                            <i class="fas fa-bullhorn"></i>
+                            Opportunités
+                        </a>
+                        <a href="dashboard-temoignages.html" class="dropdown-item">
+                            <i class="fas fa-star"></i>
+                            Témoignages
+                        </a>
+                        <a href="dashboard-annuaire.html" class="dropdown-item">
+                            <i class="fas fa-address-book"></i>
+                            Annuaire
+                        </a>
+                    </div>
+                </div>
+                
+                <a href="#" id="logoutBtn" class="nav-link logout">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </a>
             </nav>
+            
             <button class="menu-toggle">
                 <i class="fas fa-bars"></i>
             </button>
@@ -148,7 +381,186 @@
             </div>
         </section>
     </main>
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    
-<script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier la connexion
+            const creatorId = sessionStorage.getItem('creatorId');
+            const creatorBrand = sessionStorage.getItem('creatorBrand');
+            
+            if (!creatorId) {
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // Charger les données du portfolio
+            const portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {};
+            
+            // Mettre à jour les informations
+            updateWelcomeSection(portfolioData, creatorBrand);
+            updatePortfolioPreview(portfolioData);
+            
+            // Déconnexion
+            document.getElementById('logoutBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = '../index.html';
+                }
+            });
+            
+            // Menu mobile principal
+            const menuToggle = document.querySelector('.menu-toggle');
+            const mainNav = document.querySelector('.main-nav');
+            
+            menuToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                mainNav.classList.toggle('active');
+                
+                // Fermer les sous-menus quand on ouvre/ferme le menu principal
+                const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+                dropdownMenus.forEach(menu => menu.classList.remove('active'));
+            });
+            
+            // Gestion du menu déroulant
+            const dropdownToggle = document.querySelector('.dropdown-toggle');
+            const dropdownMenu = document.querySelector('.dropdown-menu');
+            
+            if (dropdownToggle && dropdownMenu) {
+                dropdownToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdownMenu.classList.toggle('active');
+                });
+            }
+            
+            // Fermer les menus en cliquant à l'extérieur
+            document.addEventListener('click', function(e) {
+                if (dropdownMenu && !dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('active');
+                }
+                
+                // Fermer le menu principal en cliquant à l'extérieur (mobile uniquement)
+                if (window.innerWidth <= 768 && mainNav.classList.contains('active') && 
+                    !menuToggle.contains(e.target) && !mainNav.contains(e.target)) {
+                    mainNav.classList.remove('active');
+                }
+            });
+            
+            // Fermer le menu quand on clique sur un lien
+            document.querySelectorAll('.nav-link, .dropdown-item').forEach(link => {
+                link.addEventListener('click', function() {
+                    mainNav.classList.remove('active');
+                    if (dropdownMenu) {
+                        dropdownMenu.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Fonctions
+            function updateWelcomeSection(portfolioData, creatorBrand) {
+                // Nom du créateur
+                const displayName = portfolioData.brandName || creatorBrand || 'Créateur';
+                document.getElementById('creatorName').textContent = displayName;
+                
+                // Domaine
+                if (portfolioData.domain) {
+                    document.getElementById('creatorDomain').innerHTML = `
+                        <i class="fas fa-tag"></i>
+                        <span>${portfolioData.domain}</span>
+                    `;
+                    
+                    // Description personnalisée par domaine
+                    updateDomainDescription(portfolioData.domain);
+                }
+                
+                // Avatar
+                if (portfolioData.photoBase64) {
+                    document.getElementById('welcomeAvatar').innerHTML = 
+                        `<img src="${portfolioData.photoBase64}" alt="${displayName}">`;
+                }
+                
+                // Jours depuis l'inscription
+                const joinDate = sessionStorage.getItem('joinDate') || new Date().toISOString();
+                const days = Math.floor((new Date() - new Date(joinDate)) / (1000 * 60 * 60 * 24));
+                document.getElementById('memberDays').textContent = days;
+                
+                // Progression portfolio
+                const progress = calculateProgress(portfolioData);
+                document.getElementById('portfolioCompletion').textContent = `${progress}%`;
+            }
+            
+            function calculateProgress(portfolioData) {
+                const checks = [
+                    portfolioData.brandName,
+                    portfolioData.creatorName,
+                    portfolioData.domain,
+                    portfolioData.bio,
+                    portfolioData.photoBase64
+                ];
+                const completed = checks.filter(item => item && item.trim() !== '').length;
+                return Math.round((completed / checks.length) * 100);
+            }
+            
+            function updateDomainDescription(domain) {
+                const descriptions = {
+                    'Styliste haute couture': 'Votre expertise en haute couture vous donne accès à des opportunités exclusives et des collaborations prestigieuses.',
+                    'Styliste streetwear': 'L\'univers streetwear est en effervescence. Partagez votre vision unique avec notre communauté.',
+                    'Designer': 'Votre créativité est votre atout principal. Montrez vos collections et inspirez d\'autres créateurs.',
+                    'Marque de bijoux': 'Les accessoires font la différence. Présentez vos créations à un public passionné.',
+                    'Artisans du tricot': 'L\'artisanat textile est à l\'honneur. Partagez vos techniques et votre savoir-faire unique.'
+                };
+                
+                const defaultDesc = 'Votre expertise est précieuse. Partagez-la avec notre communauté de passionnés.';
+                const description = descriptions[domain] || defaultDesc;
+                
+                document.getElementById('welcomeSubtitle').textContent = description;
+            }
+            
+            function updatePortfolioPreview(portfolioData) {
+                const previewContainer = document.getElementById('portfolioPreview');
+                
+                if (portfolioData.brandName || portfolioData.photoBase64) {
+                    previewContainer.innerHTML = `
+                        <div class="portfolio-preview-card">
+                            ${portfolioData.photoBase64 ? `
+                            <div class="preview-photo">
+                                <img src="${portfolioData.photoBase64}" alt="${portfolioData.brandName || 'Portfolio'}">
+                            </div>
+                            ` : ''}
+                            
+                            <div class="preview-content">
+                                <h3>${portfolioData.brandName || 'Votre marque'}</h3>
+                                ${portfolioData.domain ? `<p class="preview-domain"><i class="fas fa-tag"></i> ${portfolioData.domain}</p>` : ''}
+                                ${portfolioData.bio ? `<p class="preview-bio">${portfolioData.bio.substring(0, 150)}${portfolioData.bio.length > 150 ? '...' : ''}</p>` : ''}
+                                
+                                <div class="preview-meta">
+                                    ${portfolioData.creatorName ? `<span><i class="fas fa-user"></i> ${portfolioData.creatorName}</span>` : ''}
+                                    ${portfolioData.instagram ? `<span><i class="fab fa-instagram"></i> ${portfolioData.instagram}</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Sauvegarder la date d'inscription
+            if (!sessionStorage.getItem('joinDate')) {
+                sessionStorage.setItem('joinDate', new Date().toISOString());
+            }
+            
+            // Ajuster le menu pour mobile
+            function adjustMenuForMobile() {
+                if (window.innerWidth <= 768) {
+                    // Cache le menu déroulant si le menu principal est fermé
+                    if (!mainNav.classList.contains('active')) {
+                        dropdownMenu.classList.remove('active');
+                    }
+                }
+            }
+            
+            // Écouter les changements de taille d'écran
+            window.addEventListener('resize', adjustMenuForMobile);
+            adjustMenuForMobile(); // Appel initial
+        });
+    </script>
 </body>
 </html>
