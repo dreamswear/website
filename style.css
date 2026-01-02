@@ -77,7 +77,10 @@ img {
     display: block;
 }
 
-/* Header */
+/* ============================================ */
+/* HEADER PRINCIPAL */
+/* ============================================ */
+
 .main-header {
     padding: 2rem 0;
     border-bottom: 1px solid var(--color-border);
@@ -88,6 +91,7 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
 }
 
 .logo {
@@ -96,7 +100,12 @@ img {
     font-weight: 700;
     letter-spacing: 2px;
     color: var(--color-text);
+    z-index: 1;
 }
+
+/* ============================================ */
+/* NAVIGATION PRINCIPALE (DESKTOP) */
+/* ============================================ */
 
 .main-nav ul {
     list-style: none;
@@ -129,7 +138,133 @@ img {
     width: 100%;
 }
 
-/* Theme Selector Dropdown */
+/* ============================================ */
+/* SECTION DROITE DU HEADER */
+/* ============================================ */
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 0 0 auto;
+}
+
+/* ============================================ */
+/* MENU DÉROULANT PRINCIPAL (MOBILE) */
+/* ============================================ */
+
+.menu-container {
+    position: relative;
+}
+
+.menu-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.menu-btn:hover {
+    background: var(--color-surface);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1rem;
+    width: 200px;
+    z-index: 100;
+    box-shadow: 0 4px 10px var(--card-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+
+.dropdown-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.dropdown-menu li {
+    margin: 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 12px;
+    color: var(--color-text);
+    text-transform: none;
+    font-weight: 400;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    position: relative;
+}
+
+.dropdown-menu a::after {
+    display: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: var(--color-background);
+    color: var(--color-primary);
+}
+
+.dropdown-menu a.active {
+    color: var(--color-primary);
+    font-weight: 600;
+    background-color: rgba(192, 159, 88, 0.1);
+}
+
+/* ============================================ */
+/* BOUTON ESPACE CRÉATEURS */
+/* ============================================ */
+
+.creator-btn {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.creator-btn:hover {
+    background: var(--color-surface);
+    border-color: var(--color-primary);
+}
+
+/* ============================================ */
+/* SELECTEUR DE THÈME */
+/* ============================================ */
+
 .theme-selector {
     position: relative;
 }
@@ -205,7 +340,10 @@ img {
     display: none; /* Hide old button */
 }
 
-/* Hero Section */
+/* ============================================ */
+/* HERO SECTION */
+/* ============================================ */
+
 .hero {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -280,7 +418,10 @@ img {
     color: var(--color-background);
 }
 
-/* Latest Articles */
+/* ============================================ */
+/* LATEST ARTICLES */
+/* ============================================ */
+
 .latest-articles {
     padding: 4rem 0;
 }
@@ -362,7 +503,10 @@ img {
     font-weight: 600;
 }
 
-/* Footer */
+/* ============================================ */
+/* FOOTER */
+/* ============================================ */
+
 .main-footer {
     background-color: var(--color-surface);
     padding: 3rem 0;
@@ -419,7 +563,10 @@ img {
     transition: border-color 0.3s ease;
 }
 
-/* Subscription Modal Refinements */
+/* ============================================ */
+/* SUBSCRIPTION MODAL */
+/* ============================================ */
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -584,7 +731,10 @@ img {
     margin-top: 1rem;
 }
 
-/* Animations & Responsive */
+/* ============================================ */
+/* ANIMATIONS */
+/* ============================================ */
+
 .hidden {
     opacity: 0;
     filter: blur(5px);
@@ -597,6 +747,10 @@ img {
     filter: blur(0);
     transform: translateY(0);
 }
+
+/* ============================================ */
+/* RESPONSIVE DESIGN */
+/* ============================================ */
 
 @media (max-width: 900px) {
     .hero {
@@ -639,13 +793,62 @@ img {
         gap: 1.5rem;
     }
     
-    .main-nav ul {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem 1.5rem;
+    .main-nav {
+        display: none; /* Masquer la navigation principale sur mobile */
     }
-
+    
+    .menu-container {
+        display: block; /* Afficher le bouton menu sur mobile */
+    }
+    
+    .header-right {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+    }
+    
+    .menu-btn,
+    .creator-btn,
+    #theme-select-button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        width: auto;
+    }
+    
     .hero-text h2 {
         font-size: 2.5rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .menu-container {
+        display: none; /* Masquer le bouton menu sur desktop */
+    }
+    
+    .main-nav {
+        display: block; /* Afficher la navigation principale sur desktop */
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .header-right {
+        flex-direction: row;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 1rem;
+    }
+    
+    .dropdown-menu {
+        width: 180px;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
     }
 }
