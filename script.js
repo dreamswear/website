@@ -1,6 +1,10 @@
 // ============================================
 // CODE PRINCIPAL
 // ============================================
+
+// Déclarer supabase comme variable globale
+let supabase;
+
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================
     // CONFIGURATION SUPABASE
@@ -8,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ============================================
     // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
@@ -450,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('creatorBrand', data.nom_marque);
                 
                 // Redirection vers le dashboard créateur
-                window.location.href = 'dashboard.html';
+                window.location.href = 'dashboard-home.html';
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
@@ -493,8 +497,9 @@ document.addEventListener('DOMContentLoaded', () => {
             form.reset();
         });
     });
- // ============================================
-    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION (VERSION DIAGNOSTIC)
+
+    // ============================================
+    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION
     // ============================================
     const pendingCreatorsDiv = document.getElementById('pendingCreators');
     const approvedCreatorsDiv = document.getElementById('approvedCreators');
@@ -502,141 +507,66 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pendingCreatorsDiv && approvedCreatorsDiv) {
         console.log('🔄 Page admin détectée');
         
-        // TEST 1: Vérifier si Supabase est accessible
-        async function testSupabaseConnection() {
-            try {
-                console.log('🔍 Test connexion Supabase...');
-                
-                // Test simple : compter tous les créateurs
-                const { count, error: countError } = await supabase
-                    .from('créateurs')
-                    .select('*', { count: 'exact', head: true });
-                
-                if (countError) {
-                    console.error('❌ Erreur compte:', countError);
-                    alert('Erreur Supabase: ' + countError.message);
-                    return false;
-                }
-                
-                console.log(`📊 Total créateurs dans Supabase: ${count}`);
-                
-                // Test 2: Voir tous les statuts
-                const { data: allCreators, error: allError } = await supabase
-                    .from('créateurs')
-                    .select('id, nom_marque, statut')
-                    .order('created_at', { ascending: false });
-                
-                if (allError) {
-                    console.error('❌ Erreur récupération:', allError);
-                    return false;
-                }
-                
-                console.log('📋 Liste complète des créateurs:', allCreators);
-                
-                // Afficher dans la page pour debug
-                const debugDiv = document.createElement('div');
-                debugDiv.style.cssText = `
-                    background: #f8d7da;
-                    color: #721c24;
-                    padding: 15px;
-                    margin: 15px;
-                    border-radius: 5px;
-                    font-family: monospace;
-                    font-size: 12px;
-                `;
-                
-                let debugHtml = '<strong>DEBUG Supabase:</strong><br>';
-                debugHtml += `Total créateurs: ${count}<br>`;
-                debugHtml += '<strong>Statuts trouvés:</strong><br>';
-                
-                if (allCreators && allCreators.length > 0) {
-                    allCreators.forEach(creator => {
-                        debugHtml += `- ${creator.nom_marque} (ID: ${creator.id}) → Statut: <strong>${creator.statut}</strong><br>`;
-                    });
-                } else {
-                    debugHtml += 'Aucun créateur trouvé<br>';
-                }
-                
-                debugDiv.innerHTML = debugHtml;
-                document.body.prepend(debugDiv);
-                
-                return true;
-                
-            } catch (error) {
-                console.error('💥 Erreur test:', error);
-                alert('Erreur test: ' + error.message);
-                return false;
-            }
+        // Vérifier la connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+            window.location.href = 'index.html';
+            return;
         }
         
-        // Fonction principale corrigée
-        const loadAllCreators = async () => {
+        // Charger les données
+        loadAllCreators();
+        
+        async function loadAllCreators() {
             console.log('🔄 Chargement créateurs...');
             
             // Afficher message temporaire
             pendingCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
             approvedCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
             
-            // Tester la connexion d'abord
-            const connected = await testSupabaseConnection();
-            if (!connected) {
-                pendingCreatorsDiv.innerHTML = '<div class="empty-message">❌ Impossible de se connecter à la base de données</div>';
-                approvedCreatorsDiv.innerHTML = '<div class="empty-message">❌ Impossible de se connecter à la base de données</div>';
-                return;
-            }
-            
-            // Charger les créateurs en attente
             try {
+                // Charger les créateurs en attente
                 const { data: pendingData, error: pendingError } = await supabase
                     .from('créateurs')
                     .select('*')
-                    .eq('statut', 'pending')  // VÉRIFIEZ ICI LE STATUT EXACT
+                    .eq('statut', 'pending')
                     .order('created_at', { ascending: false });
                 
-                console.log('📋 Données pending:', pendingData);
-                console.log('❌ Erreur pending:', pendingError);
-                
                 if (pendingError) {
+                    console.error('❌ Erreur pending:', pendingError);
                     pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${pendingError.message}</div>`;
                 } else if (!pendingData || pendingData.length === 0) {
-                    pendingCreatorsDiv.innerHTML = '<div class="empty-message">Aucune demande avec statut "pending"</div>';
+                    pendingCreatorsDiv.innerHTML = '<div class="empty-message">Aucune demande en attente</div>';
                 } else {
                     displayCreators(pendingData, pendingCreatorsDiv, 'pending');
                     document.getElementById('pendingCount').textContent = pendingData.length;
                 }
                 
-            } catch (error) {
-                console.error('💥 Erreur pending:', error);
-                pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
-            }
-            
-            // Charger les créateurs approuvés
-            try {
+                // Charger les créateurs approuvés
                 const { data: approvedData, error: approvedError } = await supabase
                     .from('créateurs')
                     .select('*')
-                    .eq('statut', 'actif')  // VÉRIFIEZ ICI LE STATUT EXACT
+                    .eq('statut', 'actif')
                     .order('created_at', { ascending: false });
                 
-                console.log('✅ Données approved:', approvedData);
-                console.log('❌ Erreur approved:', approvedError);
-                
                 if (approvedError) {
+                    console.error('❌ Erreur approved:', approvedError);
                     approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${approvedError.message}</div>`;
                 } else if (!approvedData || approvedData.length === 0) {
-                    approvedCreatorsDiv.innerHTML = '<div class="empty-message">Aucun créateur avec statut "actif"</div>';
+                    approvedCreatorsDiv.innerHTML = '<div class="empty-message">Aucun créateur approuvé</div>';
                 } else {
                     displayCreators(approvedData, approvedCreatorsDiv, 'approved');
                     document.getElementById('approvedCount').textContent = approvedData.length;
                 }
                 
             } catch (error) {
-                console.error('💥 Erreur approved:', error);
+                console.error('💥 Erreur générale:', error);
+                pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
                 approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
             }
-        };
+        }
         
-        // Fonction d'affichage
         function displayCreators(creators, container, status) {
             let html = '';
             
@@ -653,7 +583,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p><strong>Téléphone :</strong> ${creator.telephone || 'Non fourni'}</p>
                         <p><strong>Domaine :</strong> ${creator.domaine || 'Non spécifié'}</p>
                         <p><strong>Date :</strong> ${date}</p>
-                        <p><strong>Statut dans BD :</strong> ${creator.statut}</p>
+                        <p><strong>Statut :</strong> ${creator.statut}</p>
                 `;
                 
                 if (status === 'pending') {
@@ -691,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (error) throw error;
                 
                 alert(`"${brandName}" approuvé`);
-                await loadAllCreators();
+                loadAllCreators();
                 
             } catch (error) {
                 alert('Erreur : ' + error.message);
@@ -710,22 +640,447 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (error) throw error;
                 
                 alert(`"${brandName}" refusé`);
-                await loadAllCreators();
+                loadAllCreators();
                 
             } catch (error) {
                 alert('Erreur : ' + error.message);
             }
         };
+    }
+    
+    // ============================================
+    // 12. INITIALISATION DES DONNÉES DE PAGE
+    // ============================================
+    initPageData();
+});
+
+// ============================================
+// FONCTIONS DE CHARGEMENT POUR TOUTES LES PAGES
+// ============================================
+
+// Fonction pour charger les articles de Coulisses
+window.loadCoulissesArticles = async function() {
+    try {
+        console.log('🔄 Chargement des articles Coulisses...');
         
-        // Vérifier la connexion admin
-        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
-            window.location.href = 'index.html';
+        if (!supabase) {
+            console.error('❌ Supabase non initialisé');
             return;
         }
         
-        // Charger les données
-        setTimeout(loadAllCreators, 1000);
+        // Charger l'article à la une
+        const { data: featuredData, error: featuredError } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('rubrique', 'coulisses')
+            .eq('statut', 'publié')
+            .eq('a_la_une', true)
+            .order('date_publication', { ascending: false })
+            .limit(1);
+        
+        if (featuredError) throw featuredError;
+        
+        // Charger les autres articles
+        const { data: articlesData, error: articlesError } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('rubrique', 'coulisses')
+            .eq('statut', 'publié')
+            .neq('a_la_une', true)
+            .order('date_publication', { ascending: false })
+            .limit(6);
+        
+        if (articlesError) throw articlesError;
+        
+        // Afficher l'article à la une
+        const featuredContainer = document.getElementById('featured-article');
+        if (featuredData && featuredData.length > 0) {
+            const article = featuredData[0];
+            featuredContainer.innerHTML = `
+                <img src="${article.image_url || 'https://placehold.co/600x400?text=COULISSES'}" 
+                     alt="${article.titre_fr}"
+                     class="featured-image"
+                     onerror="this.src='https://placehold.co/600x400?text=COULISSES'">
+                <div class="featured-content">
+                    <span class="category">COULISSES</span>
+                    <h2>${article.titre_fr}</h2>
+                    <p>${article.contenu_fr ? article.contenu_fr.substring(0, 200) + '...' : 'Découvrez cet article exclusif.'}</p>
+                    <div class="featured-meta">
+                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
+                        <span>👤 ${article.auteur || 'Rédaction'}</span>
+                        <span>⏱️ ${article.temps_lecture || '5 min'}</span>
+                    </div>
+                    <a href="article.html?id=${article.id}" class="featured-link">Lire l'article</a>
+                </div>
+            `;
+        }
+        
+        // Afficher les autres articles
+        const articlesContainer = document.getElementById('articles-list');
+        if (articlesData && articlesData.length > 0) {
+            articlesContainer.innerHTML = articlesData.map(article => `
+                <div class="article-card">
+                    <img src="${article.image_url || 'https://placehold.co/400x200?text=ARTICLE'}" 
+                         alt="${article.titre_fr}"
+                         onerror="this.src='https://placehold.co/400x200?text=ARTICLE'">
+                    <div class="article-card-content">
+                        <span class="category">COULISSES</span>
+                        <h3>${article.titre_fr}</h3>
+                        <p>${article.contenu_fr ? article.contenu_fr.substring(0, 100) + '...' : ''}</p>
+                        <div class="card-meta">
+                            <span>${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
+                            <a href="article.html?id=${article.id}" class="read-more">Lire →</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            articlesContainer.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <p style="color: var(--text-secondary);">Aucun article disponible pour le moment.</p>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Erreur chargement articles Coulisses:', error);
+        const container = document.getElementById('articles-list') || document.getElementById('featured-article');
+        if (container) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc3545;">
+                    <p>Erreur de chargement des articles. Veuillez réessayer.</p>
+                </div>
+            `;
+        }
     }
-});
+};
+
+// Fonction pour charger les Tendances
+window.loadTrends = async function() {
+    const container = document.getElementById('trends-container');
+    if (!container) return;
+    
+    try {
+        console.log('🔄 Chargement des tendances...');
+        
+        if (!supabase) {
+            console.error('❌ Supabase non initialisé');
+            return;
+        }
+        
+        const { data, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('rubrique', 'tendances')
+            .eq('statut', 'publié')
+            .order('date_publication', { ascending: false })
+            .limit(6);
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                    <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                        Aucun article sur les tendances pour le moment.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = data.map(article => `
+            <div class="trend-card">
+                <img src="${article.image_url || 'https://placehold.co/400x200?text=TRENDS'}" 
+                     alt="${article.titre_fr}"
+                     onerror="this.src='https://placehold.co/400x200?text=TRENDS'">
+                <div class="trend-card-content">
+                    <span class="trend-tag">${article.categorie || 'TENDANCE'}</span>
+                    <h3>${article.titre_fr}</h3>
+                    <p>${article.contenu_fr ? article.contenu_fr.substring(0, 120) + '...' : ''}</p>
+                    <div class="trend-meta">
+                        <span>${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
+                        <a href="article.html?id=${article.id}" class="trend-link">Découvrir →</a>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Erreur chargement tendances:', error);
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
+                <p>Erreur de chargement des tendances. Veuillez réessayer.</p>
+            </div>
+        `;
+    }
+};
+
+// Fonction pour charger les Visages
+window.loadVisages = async function(filter = 'all') {
+    const container = document.getElementById('visages-container');
+    if (!container) return;
+    
+    try {
+        console.log('🔄 Chargement des visages...');
+        
+        if (!supabase) {
+            console.error('❌ Supabase non initialisé');
+            return;
+        }
+        
+        let query = supabase
+            .from('visages')
+            .select('*')
+            .eq('statut', 'actif')
+            .order('date_featured', { ascending: false });
+        
+        // Appliquer le filtre si nécessaire
+        if (filter !== 'all') {
+            const domainMap = {
+                'haute-couture': 'Haute couture',
+                'streetwear': 'Streetwear',
+                'bijoux': 'Bijoux',
+                'accessoires': 'Accessoires'
+            };
+            query = query.eq('domaine', domainMap[filter] || filter);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                    <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                        Aucun créateur ne correspond à ce filtre pour le moment.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = data.map(visage => `
+            <div class="visage-card">
+                <img src="${visage.photo_url || 'https://placehold.co/400x250?text=DREAMSWEAR'}" 
+                     alt="${visage.nom_marque}"
+                     class="visage-image"
+                     onerror="this.src='https://placehold.co/400x250?text=DREAMSWEAR'">
+                <div class="visage-content">
+                    <span class="visage-domain">${visage.domaine || 'Mode'}</span>
+                    <h3>${visage.nom_marque}</h3>
+                    <p>${visage.biographie_fr ? visage.biographie_fr.substring(0, 150) + '...' : 'Découvrez ce créateur talentueux.'}</p>
+                    <a href="visage-detail.html?id=${visage.id}" class="visage-link">Voir le portrait</a>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Erreur chargement visages:', error);
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
+                <p>Erreur de chargement des créateurs. Veuillez réessayer.</p>
+            </div>
+        `;
+    }
+};
+
+// Fonction pour charger les Découvertes
+window.loadDiscoveries = async function() {
+    const container = document.getElementById('discoveries-container');
+    if (!container) return;
+    
+    try {
+        console.log('🔄 Chargement des découvertes...');
+        
+        if (!supabase) {
+            console.error('❌ Supabase non initialisé');
+            return;
+        }
+        
+        const { data, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('rubrique', 'decouvertes')
+            .eq('statut', 'publié')
+            .order('date_publication', { ascending: false })
+            .limit(6);
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                    <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                        Aucune découverte pour le moment.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = data.map(article => {
+            const authorInitial = article.auteur ? article.auteur.charAt(0).toUpperCase() : 'A';
+            
+            return `
+                <div class="discovery-card">
+                    <img src="${article.image_url || 'https://placehold.co/400x200?text=DECOUVERTE'}" 
+                         alt="${article.titre_fr}"
+                         class="discovery-image"
+                         onerror="this.src='https://placehold.co/400x200?text=DECOUVERTE'">
+                    <div class="discovery-content">
+                        <span class="discovery-tag">${article.categorie || 'DÉCOUVERTE'}</span>
+                        <h3>${article.titre_fr}</h3>
+                        <p>${article.contenu_fr ? article.contenu_fr.substring(0, 150) + '...' : ''}</p>
+                        <div class="discovery-meta">
+                            <div class="discovery-author">
+                                <div class="author-avatar">${authorInitial}</div>
+                                <span>${article.auteur || 'Rédaction'}</span>
+                            </div>
+                            <a href="article.html?id=${article.id}" class="discovery-link">Lire →</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Erreur chargement découvertes:', error);
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
+                <p>Erreur de chargement des découvertes. Veuillez réessayer.</p>
+            </div>
+        `;
+    }
+};
+
+// Fonction pour charger les Événements (Culture/Agenda)
+window.loadEvents = async function() {
+    const container = document.getElementById('events-container');
+    if (!container) return;
+    
+    try {
+        console.log('🔄 Chargement des événements...');
+        
+        if (!supabase) {
+            console.error('❌ Supabase non initialisé');
+            return;
+        }
+        
+        const { data, error } = await supabase
+            .from('evenements')
+            .select('*')
+            .eq('statut', 'à venir')
+            .order('date_debut', { ascending: true })
+            .limit(6);
+        
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
+                    <p style="color: var(--text-secondary); font-size: 1.1rem;">
+                        Aucun événement à venir pour le moment.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = data.map(event => {
+            const eventDate = new Date(event.date_debut);
+            const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 
+                               'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+            
+            return `
+                <div class="event-card">
+                    <div class="event-date">
+                        <div class="day">${eventDate.getDate()}</div>
+                        <div class="month">${monthNames[eventDate.getMonth()]}</div>
+                    </div>
+                    <div class="event-content">
+                        <span class="event-type">${event.type || 'Événement'}</span>
+                        <h3>${event.titre}</h3>
+                        <p>${event.description ? event.description.substring(0, 100) + '...' : ''}</p>
+                        <div class="event-details">
+                            <span><i class="far fa-calendar"></i> ${eventDate.toLocaleDateString('fr-FR')}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${event.lieu || 'Lieu à préciser'}</span>
+                            <span><i class="fas fa-clock"></i> ${event.heure || 'Horaire à venir'}</span>
+                        </div>
+                        <a href="evenement.html?id=${event.id}" class="event-link">Plus d'informations</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Erreur chargement événements:', error);
+        container.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
+                <p>Erreur de chargement des événements. Veuillez réessayer.</p>
+            </div>
+        `;
+    }
+};
+
+// Fonction pour configurer les filtres
+window.setupFilters = function() {
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const filter = this.dataset.filter;
+            if (typeof loadVisages === 'function') {
+                loadVisages(filter);
+            }
+        });
+    });
+};
+
+// Fonction pour configurer les catégories
+window.setupCategoryFilters = function() {
+    const categoryElements = document.querySelectorAll('[data-category]');
+    categoryElements.forEach(el => {
+        el.addEventListener('click', function() {
+            const category = this.dataset.category;
+            alert(`Filtre: ${category} - Fonctionnalité à implémenter`);
+        });
+    });
+};
+
+// ============================================
+// INITIALISATION AUTOMATIQUE BASÉE SUR LA PAGE
+// ============================================
+window.initPageData = function() {
+    console.log('🔄 Initialisation des données de la page...');
+    
+    // Détection basée sur l'ID des conteneurs
+    if (document.getElementById('articles-list') && document.getElementById('featured-article')) {
+        console.log('📄 Page Coulisses détectée');
+        loadCoulissesArticles();
+    }
+    
+    if (document.getElementById('trends-container')) {
+        console.log('📈 Page Tendances détectée');
+        loadTrends();
+    }
+    
+    if (document.getElementById('visages-container')) {
+        console.log('👤 Page Visages détectée');
+        loadVisages();
+        setupFilters();
+    }
+    
+    if (document.getElementById('discoveries-container')) {
+        console.log('🔍 Page Découvertes détectée');
+        loadDiscoveries();
+        setupCategoryFilters();
+    }
+    
+    if (document.getElementById('events-container')) {
+        console.log('📅 Page Culture/Agenda détectée');
+        loadEvents();
+    }
+};
