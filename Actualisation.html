@@ -504,65 +504,58 @@
                 overflow-x: auto;
                 flex-wrap: nowrap;
             }
-            /* Dans votre CSS existant */
-@media (max-width: 768px) {
-    .admin-page {
-        padding: 20px 10px;
-    }
-    
-    .admin-container {
-        width: 100%;
-        overflow-x: hidden;
-    }
-    
-    .admin-card {
-        padding: 15px;
-        margin-bottom: 20px;
-    }
-    
-    .form-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-    }
-    
-    .two-columns {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .admin-tabs {
-        overflow-x: auto;
-        white-space: nowrap;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
-    
-    .tab-link {
-        padding: 8px 15px;
-        font-size: 0.8rem;
-        white-space: nowrap;
-    }
-    
-    .btn-group {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .admin-btn {
-        width: 100%;
-    }
-}
+            
+            .admin-page {
+                padding: 20px 10px;
+            }
+            
+            .admin-container {
+                width: 100%;
+                overflow-x: hidden;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .two-columns {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .admin-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .tab-link {
+                padding: 8px 15px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .admin-btn {
+                width: 100%;
+            }
+        }
 
-/* Pour empêcher le débordement horizontal */
-* {
-    max-width: 100%;
-    box-sizing: border-box;
-}
+        /* Pour empêcher le débordement horizontal */
+        * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
 
-html, body {
-    overflow-x: hidden;
-    position: relative;
-}
+        html, body {
+            overflow-x: hidden;
+            position: relative;
         }
     </style>
 </head>
@@ -616,7 +609,7 @@ html, body {
                     <div class="form-group">
                         <label>Rubrique</label>
                         <select id="rubrique-actualites">
-                            <option value="news">Nouvelles générales</option>
+                            <option value="actualites">Actualités</option>
                         </select>
                     </div>
 
@@ -660,6 +653,11 @@ html, body {
                     <div class="form-group">
                         <label>Contenu (FR) *</label>
                         <textarea id="contenu-actualites" rows="6" placeholder="Contenu complet..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="auteur-actualites" placeholder="Nom de l'auteur" value="Rédaction">
                     </div>
 
                     <div class="btn-group">
@@ -753,8 +751,8 @@ html, body {
                             </div>
 
                             <div class="form-group">
-                                <label>Date mise en avant</label>
-                                <input type="date" id="date_featured-visages">
+                                <label>Date de publication</label>
+                                <input type="date" id="date-visages">
                             </div>
                         </div>
                     </div>
@@ -903,6 +901,11 @@ html, body {
                         <textarea id="contenu-tendances" rows="10" placeholder="Analyse des tendances..."></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="auteur-tendances" placeholder="Nom de l'auteur" value="Rédaction">
+                    </div>
+
                     <div class="btn-group">
                         <button id="btnCancel-tendances" class="admin-btn btn-cancel">
                             <span>Annuler</span>
@@ -977,6 +980,11 @@ html, body {
                     <div class="form-group">
                         <label>Contenu (FR) *</label>
                         <textarea id="contenu-decouvertes" rows="10" placeholder="Description de la découverte..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="auteur-decouvertes" placeholder="Nom de l'auteur" value="Rédaction">
                     </div>
 
                     <div class="btn-group">
@@ -1138,6 +1146,11 @@ html, body {
                         <textarea id="contenu-mode" rows="10" placeholder="Contenu de l'article mode..."></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="auteur-mode" placeholder="Nom de l'auteur" value="Rédaction">
+                    </div>
+
                     <div class="btn-group">
                         <button id="btnCancel-mode" class="admin-btn btn-cancel">
                             <span>Annuler</span>
@@ -1213,6 +1226,11 @@ html, body {
                     <div class="form-group">
                         <label>Contenu (FR) *</label>
                         <textarea id="contenu-accessoires" rows="10" placeholder="Contenu de l'article accessoires..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="auteur-accessoires" placeholder="Nom de l'auteur" value="Rédaction">
                     </div>
 
                     <div class="btn-group">
@@ -1291,6 +1309,11 @@ html, body {
                         <textarea id="contenu-beaute" rows="10" placeholder="Contenu de l'article beauté..."></textarea>
                     </div>
 
+                    <div class="form-group">
+                        <label>Auteur</label>
+                        <input type="text" id="auteur-beaute" placeholder="Nom de l'auteur" value="Rédaction">
+                    </div>
+
                     <div class="btn-group">
                         <button id="btnCancel-beaute" class="admin-btn btn-cancel">
                             <span>Annuler</span>
@@ -1318,9 +1341,12 @@ html, body {
         <div class="container">
             <div class="footer-content">
                 <h4>DREAMSWEAR MAG ADMIN</h4>
-                <div class="social-links">
-                    <a href="#"><i class="fab fa-instagram"></i></a>
+               <div class="social-links">
+                    <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.tiktok.com/@dreams_wear0?is_from_webapp=1&sender_device=pc"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -1331,11 +1357,10 @@ html, body {
 
     <script>
         // Configuration Supabase
-        const SUPABASE_URL = 'https://neensjugjhkvwcqslicr.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5lZW5zanVnamhrdndjcXNsaWNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU5Mjg1NzQsImV4cCI6MjA4MTUwNDU3NH0.eDEhhT8HzetCntUZ2LYkZhtoUjSjmFxPQqm03aAL8tU';
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         // Variables globales
         let currentEditId = null;
         let currentEditType = null;
@@ -1434,35 +1459,79 @@ html, body {
         async function loadTabData(tabId) {
             console.log(`Chargement des données pour: ${tabId}`);
             
-            switch(tabId) {
-                case 'actualites':
-                    await loadArticles('news', 'actualitesList');
-                    break;
-                case 'visages':
-                    await loadVisages();
-                    break;
-                case 'coulisses':
-                    await loadArticles('coulisses', 'coulissesList');
-                    break;
-                case 'tendances':
-                    await loadArticles('tendances', 'tendancesList');
-                    break;
-                case 'decouvertes':
-                    await loadArticles('decouvertes', 'decouvertesList');
-                    break;
-                case 'culture':
-                    await loadEvenements();
-                    break;
-                case 'mode':
-                    await loadArticles('mode', 'modeList');
-                    break;
-                case 'accessoires':
-                    await loadArticles('accessoires', 'accessoiresList');
-                    break;
-                case 'beaute':
-                    await loadArticles('beaute', 'beauteList');
-                    break;
+            const container = document.getElementById(`${tabId}List`);
+            if (!container) return;
+            
+            const { data, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('rubrique', tabId)
+                .eq('statut', 'publié')
+                .order('date_publication', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
+                return;
             }
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu publié.</p>';
+                return;
+            }
+            
+            // Générer le HTML pour chaque article
+            container.innerHTML = data.map(item => {
+                // Déterminer le texte à afficher selon la rubrique
+                let metaText = '';
+                switch(tabId) {
+                    case 'visages':
+                        metaText = `${item.nom_createur || ''} • ${item.domaine || ''}`;
+                        break;
+                    case 'culture':
+                        metaText = `${item.type_evenement || 'Événement'} • ${item.lieu || ''}`;
+                        break;
+                    case 'decouvertes':
+                        metaText = `Découverte: ${item.type_decouverte || ''}`;
+                        break;
+                    case 'tendances':
+                        metaText = `Saison: ${item.saison || ''}`;
+                        break;
+                    case 'mode':
+                        metaText = `Thème: ${item.theme_mode || ''}`;
+                        break;
+                    case 'accessoires':
+                        metaText = `Type: ${item.type_accessoire || ''}`;
+                        break;
+                    case 'beaute':
+                        metaText = `Catégorie: ${item.type_beaute || ''}`;
+                        break;
+                    case 'actualites':
+                        metaText = `${item.categorie_actualite || 'Actualité'}`;
+                        break;
+                    default:
+                        metaText = `${item.auteur || 'Rédaction'}`;
+                }
+                
+                return `
+                    <div class="content-item" data-id="${item.id}" data-type="article">
+                        <div class="content-info">
+                            ${item.image_url ? `<img src="${item.image_url}" alt="${item.titre_fr}" onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
+                            <div>
+                                <h3>${item.titre_fr}</h3>
+                                <div class="content-meta">
+                                    <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
+                                    <span>${metaText}</span>
+                                    <span class="badge">${tabId}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" onclick="editContent('article', ${item.id})">✏️</button>
+                            <button class="action-btn delete-btn" onclick="deleteContent('article', ${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Initialiser les formulaires
@@ -1556,8 +1625,9 @@ html, body {
                             contenu_fr: document.getElementById('contenu-actualites').value.trim(),
                             image_url: imageUrl,
                             date_publication: document.getElementById('date-actualites').value,
-                            auteur: 'Rédaction',
-                            statut: 'publié'
+                            auteur: document.getElementById('auteur-actualites').value.trim() || 'Rédaction',
+                            statut: 'publié',
+                            categorie_actualite: document.getElementById('categorie-actualites').value
                         };
                         
                         if (currentEditId) {
@@ -1576,27 +1646,31 @@ html, body {
                         
                     case 'visages':
                         payload = {
+                            rubrique: 'visages',
+                            titre_fr: document.getElementById('nom_marque-visages').value.trim(),
+                            contenu_fr: document.getElementById('biographie-visages').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-visages').value || new Date().toISOString().split('T')[0],
+                            auteur: 'Rédaction',
+                            statut: 'publié',
+                            // Champs spécifiques visages
                             nom_marque: document.getElementById('nom_marque-visages').value.trim(),
                             nom_createur: document.getElementById('nom_createur-visages').value.trim(),
-                            biographie_fr: document.getElementById('biographie-visages').value.trim(),
-                            interview_fr: document.getElementById('interview-visages').value.trim(),
-                            photo_url: imageUrl,
                             domaine: document.getElementById('domaine-visages').value,
                             reseaux_instagram: document.getElementById('instagram-visages').value.trim(),
                             site_web: document.getElementById('siteweb-visages').value.trim(),
-                            date_featured: document.getElementById('date_featured-visages').value,
-                            statut: 'actif'
+                            interview_fr: document.getElementById('interview-visages').value.trim()
                         };
                         
                         if (currentEditId) {
                             const { error: updateErr } = await supabase
-                                .from('visages')
+                                .from('articles')
                                 .update(payload)
                                 .eq('id', currentEditId);
                             error = updateErr;
                         } else {
                             const { error: insertErr } = await supabase
-                                .from('visages')
+                                .from('articles')
                                 .insert([payload]);
                             error = insertErr;
                         }
@@ -1634,7 +1708,7 @@ html, body {
                             contenu_fr: document.getElementById('contenu-tendances').value.trim(),
                             image_url: imageUrl,
                             date_publication: document.getElementById('date-tendances').value,
-                            auteur: document.querySelector('#auteur-tendances') ? document.querySelector('#auteur-tendances').value.trim() : 'Rédaction',
+                            auteur: document.getElementById('auteur-tendances').value.trim() || 'Rédaction',
                             saison: document.getElementById('saison-tendances').value,
                             statut: 'publié'
                         };
@@ -1660,7 +1734,7 @@ html, body {
                             contenu_fr: document.getElementById('contenu-decouvertes').value.trim(),
                             image_url: imageUrl,
                             date_publication: document.getElementById('date-decouvertes').value,
-                            auteur: document.querySelector('#auteur-decouvertes') ? document.querySelector('#auteur-decouvertes').value.trim() : 'Rédaction',
+                            auteur: document.getElementById('auteur-decouvertes').value.trim() || 'Rédaction',
                             type_decouverte: document.getElementById('type-decouvertes').value,
                             statut: 'publié'
                         };
@@ -1681,27 +1755,32 @@ html, body {
                         
                     case 'culture':
                         payload = {
-                            titre: document.getElementById('titre-culture').value.trim(),
-                            type: document.getElementById('type-culture').value,
-                            date_debut: document.getElementById('date_debut-culture').value,
+                            rubrique: 'culture',
+                            titre_fr: document.getElementById('titre-culture').value.trim(),
+                            contenu_fr: document.getElementById('description-culture').value.trim(),
+                            image_url: '', // Pas d'image dans votre formulaire culture
+                            date_publication: document.getElementById('date_debut-culture').value || new Date().toISOString().split('T')[0],
+                            auteur: 'Rédaction',
+                            statut: 'publié',
+                            // Champs spécifiques culture
+                            type_evenement: document.getElementById('type-culture').value,
+                            date_evenement: document.getElementById('date_debut-culture').value,
                             date_fin: document.getElementById('date_fin-culture').value,
-                            heure: document.getElementById('heure-culture').value,
-                            statut: document.getElementById('statut-culture').value,
+                            heure_evenement: document.getElementById('heure-culture').value,
+                            statut_evenement: document.getElementById('statut-culture').value,
                             lieu: document.getElementById('lieu-culture').value.trim(),
-                            description: document.getElementById('description-culture').value.trim(),
-                            lien: document.getElementById('lien-culture').value.trim(),
-                            statut: 'à venir'
+                            lien_evenement: document.getElementById('lien-culture').value.trim()
                         };
                         
                         if (currentEditId) {
                             const { error: updateErr } = await supabase
-                                .from('evenements')
+                                .from('articles')
                                 .update(payload)
                                 .eq('id', currentEditId);
                             error = updateErr;
                         } else {
                             const { error: insertErr } = await supabase
-                                .from('evenements')
+                                .from('articles')
                                 .insert([payload]);
                             error = insertErr;
                         }
@@ -1714,8 +1793,8 @@ html, body {
                             contenu_fr: document.getElementById('contenu-mode').value.trim(),
                             image_url: imageUrl,
                             date_publication: document.getElementById('date-mode').value,
-                            auteur: document.querySelector('#auteur-mode') ? document.querySelector('#auteur-mode').value.trim() : 'Rédaction',
-                            theme: document.getElementById('theme-mode').value,
+                            auteur: document.getElementById('auteur-mode').value.trim() || 'Rédaction',
+                            theme_mode: document.getElementById('theme-mode').value,
                             statut: 'publié'
                         };
                         
@@ -1740,7 +1819,7 @@ html, body {
                             contenu_fr: document.getElementById('contenu-accessoires').value.trim(),
                             image_url: imageUrl,
                             date_publication: document.getElementById('date-accessoires').value,
-                            auteur: document.querySelector('#auteur-accessoires') ? document.querySelector('#auteur-accessoires').value.trim() : 'Rédaction',
+                            auteur: document.getElementById('auteur-accessoires').value.trim() || 'Rédaction',
                             type_accessoire: document.getElementById('type-accessoires').value,
                             statut: 'publié'
                         };
@@ -1766,7 +1845,7 @@ html, body {
                             contenu_fr: document.getElementById('contenu-beaute').value.trim(),
                             image_url: imageUrl,
                             date_publication: document.getElementById('date-beaute').value,
-                            auteur: document.querySelector('#auteur-beaute') ? document.querySelector('#auteur-beaute').value.trim() : 'Rédaction',
+                            auteur: document.getElementById('auteur-beaute').value.trim() || 'Rédaction',
                             type_beaute: document.getElementById('type-beaute').value,
                             statut: 'publié'
                         };
@@ -1836,22 +1915,23 @@ html, body {
             if (placeholder) placeholder.style.display = 'block';
             
             // Vider les champs
-            document.querySelectorAll(`#${tabId}-tab input, #${tabId}-tab textarea`).forEach(el => {
+            document.querySelectorAll(`#${tabId}-tab input, #${tabId}-tab textarea, #${tabId}-tab select`).forEach(el => {
                 if (el.type !== 'file' && el.type !== 'button' && el.type !== 'submit') {
-                    el.value = "";
+                    if (el.id.includes('date') && !el.id.includes('date_fin')) {
+                        el.value = new Date().toISOString().split('T')[0];
+                    } else if (el.tagName === 'SELECT') {
+                        el.selectedIndex = 0;
+                    } else {
+                        el.value = "";
+                    }
                 }
             });
             
-            // Réinitialiser les dates
-            const dateInput = document.getElementById(`date-${tabId}`);
-            if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
-            
-            // Réinitialiser les champs date spécifiques
-            const dateDebut = document.getElementById(`date_debut-${tabId}`);
-            if (dateDebut) dateDebut.value = new Date().toISOString().split('T')[0];
-            
-            const dateFin = document.getElementById(`date_fin-${tabId}`);
-            if (dateFin) dateFin.value = "";
+            // Réinitialiser les valeurs par défaut des auteurs
+            const auteurFields = document.querySelectorAll(`#${tabId}-tab input[id*="auteur-"]`);
+            auteurFields.forEach(field => {
+                if (field) field.value = "Rédaction";
+            });
         }
 
         function getDefaultTitle(tabId) {
@@ -1884,198 +1964,162 @@ html, body {
             return texts[tabId] || '<span>📝 Publier</span>';
         }
 
-        // Charger les articles
-        async function loadArticles(rubrique, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('rubrique', rubrique)
-                .order('date_publication', { ascending: false });
-            
-            if (error) {
-                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
-                return;
-            }
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu publié.</p>';
-                return;
-            }
-            
-            container.innerHTML = data.map(item => `
-                <div class="content-item" data-id="${item.id}" data-type="article">
-                    <div class="content-info">
-                        ${item.image_url ? `<img src="${item.image_url}" alt="${item.titre_fr}" onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
-                        <div>
-                            <h3>${item.titre_fr}</h3>
-                            <div class="content-meta">
-                                <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
-                                <span>👤 ${item.auteur || 'Rédaction'}</span>
-                                <span class="badge">${rubrique}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="action-btn edit-btn" onclick="editContent('${rubrique}', ${item.id})">✏️</button>
-                        <button class="action-btn delete-btn" onclick="deleteContent('${rubrique}', ${item.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Charger les visages
-        async function loadVisages() {
-            const container = document.getElementById('visagesList');
-            if (!container) return;
-            
-            const { data, error } = await supabase
-                .from('visages')
-                .select('*')
-                .order('date_featured', { ascending: false });
-            
-            if (error) {
-                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
-                return;
-            }
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun créateur enregistré.</p>';
-                return;
-            }
-            
-            container.innerHTML = data.map(visage => `
-                <div class="content-item" data-id="${visage.id}" data-type="visage">
-                    <div class="content-info">
-                        ${visage.photo_url ? `<img src="${visage.photo_url}" alt="${visage.nom_marque}" onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
-                        <div>
-                            <h3>${visage.nom_marque}</h3>
-                            <div class="content-meta">
-                                <span>👤 ${visage.nom_createur || 'Non spécifié'}</span>
-                                <span class="badge">${visage.domaine}</span>
-                                ${visage.date_featured ? `<span>⭐ ${new Date(visage.date_featured).toLocaleDateString('fr-FR')}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="action-btn edit-btn" onclick="editContent('visages', ${visage.id})">✏️</button>
-                        <button class="action-btn delete-btn" onclick="deleteContent('visages', ${visage.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Charger les événements
-        async function loadEvenements() {
-            const container = document.getElementById('cultureList');
-            if (!container) return;
-            
-            const { data, error } = await supabase
-                .from('evenements')
-                .select('*')
-                .order('date_debut', { ascending: false });
-            
-            if (error) {
-                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
-                return;
-            }
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun événement planifié.</p>';
-                return;
-            }
-            
-            container.innerHTML = data.map(event => `
-                <div class="content-item" data-id="${event.id}" data-type="evenement">
-                    <div class="content-info">
-                        <div>
-                            <h3>${event.titre}</h3>
-                            <div class="content-meta">
-                                <span>📅 ${new Date(event.date_debut).toLocaleDateString('fr-FR')}</span>
-                                <span>📍 ${event.lieu || 'Lieu à préciser'}</span>
-                                <span class="badge">${event.type || 'Événement'}</span>
-                                <span class="badge" style="background: ${getStatusColor(event.statut)}">${event.statut}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="action-btn edit-btn" onclick="editContent('evenement', ${event.id})">✏️</button>
-                        <button class="action-btn delete-btn" onclick="deleteContent('evenement', ${event.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function getStatusColor(status) {
-            const colors = {
-                'à venir': '#4CAF50',
-                'en cours': '#2196F3',
-                'passé': '#9E9E9E'
-            };
-            return colors[status] || '#d4af37';
-        }
-
         // Éditer un contenu
         window.editContent = async function(type, id) {
             currentEditId = id;
             currentEditType = type;
             
-            let data = null;
+            const { data: articleData, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('id', id)
+                .single();
             
-            if (type === 'visages') {
-                const { data: visageData, error } = await supabase
-                    .from('visages')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-                
-                if (error) {
-                    alert('Erreur lors du chargement: ' + error.message);
-                    return;
-                }
-                
-                data = visageData;
-                currentEditImageUrl = data.photo_url;
-                
-                // Remplir le formulaire visages
-                document.getElementById('nom_marque-visages').value = data.nom_marque || '';
-                document.getElementById('nom_createur-visages').value = data.nom_createur || '';
-                document.getElementById('biographie-visages').value = data.biographie_fr || '';
-                document.getElementById('interview-visages').value = data.interview_fr || '';
-                document.getElementById('domaine-visages').value = data.domaine || 'Haute couture';
-                document.getElementById('instagram-visages').value = data.reseaux_instagram || '';
-                document.getElementById('siteweb-visages').value = data.site_web || '';
-                document.getElementById('date_featured-visages').value = data.date_featured || '';
-                
-                // Aperçu image
-                const preview = document.getElementById('currentImagePreview-visages');
-                const placeholder = document.querySelector('#uploadArea-visages .upload-placeholder');
-                if (data.photo_url) {
-                    preview.src = data.photo_url;
-                    preview.style.display = 'block';
-                    if (placeholder) placeholder.style.display = 'none';
-                }
-                
-                // Changer l'onglet
-                document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                document.querySelector('[data-tab="visages"]').classList.add('active');
-                document.getElementById('visages-tab').classList.add('active');
-                
-            } else if (type === 'article') {
-                // Pour les articles, besoin de savoir quelle rubrique
-                // Cette partie serait plus complète avec plus de temps
+            if (error) {
+                alert('Erreur lors du chargement: ' + error.message);
+                return;
             }
             
+            const data = articleData;
+            currentEditImageUrl = data.image_url;
+            
+            const tabId = data.rubrique; // Utiliser la rubrique de l'article
+            
+            // Remplir les champs communs
+            if (document.getElementById(`titre-${tabId}`)) {
+                document.getElementById(`titre-${tabId}`).value = data.titre_fr || '';
+            }
+            if (document.getElementById(`contenu-${tabId}`)) {
+                document.getElementById(`contenu-${tabId}`).value = data.contenu_fr || '';
+            }
+            if (document.getElementById(`date-${tabId}`)) {
+                document.getElementById(`date-${tabId}`).value = data.date_publication || '';
+            }
+            if (document.getElementById(`auteur-${tabId}`)) {
+                document.getElementById(`auteur-${tabId}`).value = data.auteur || '';
+            }
+            
+            // Remplir les champs spécifiques selon la rubrique
+            switch(tabId) {
+                case 'actualites':
+                    if (data.categorie_actualite && document.getElementById('categorie-actualites')) {
+                        document.getElementById('categorie-actualites').value = data.categorie_actualite;
+                    }
+                    break;
+                    
+                case 'visages':
+                    if (document.getElementById('nom_marque-visages')) {
+                        document.getElementById('nom_marque-visages').value = data.nom_marque || '';
+                    }
+                    if (document.getElementById('nom_createur-visages')) {
+                        document.getElementById('nom_createur-visages').value = data.nom_createur || '';
+                    }
+                    if (document.getElementById('domaine-visages')) {
+                        document.getElementById('domaine-visages').value = data.domaine || '';
+                    }
+                    if (document.getElementById('instagram-visages')) {
+                        document.getElementById('instagram-visages').value = data.reseaux_instagram || '';
+                    }
+                    if (document.getElementById('siteweb-visages')) {
+                        document.getElementById('siteweb-visages').value = data.site_web || '';
+                    }
+                    if (document.getElementById('interview-visages')) {
+                        document.getElementById('interview-visages').value = data.interview_fr || '';
+                    }
+                    if (document.getElementById('date-visages')) {
+                        document.getElementById('date-visages').value = data.date_publication || '';
+                    }
+                    if (document.getElementById('biographie-visages')) {
+                        document.getElementById('biographie-visages').value = data.contenu_fr || '';
+                    }
+                    break;
+                    
+                case 'tendances':
+                    if (data.saison && document.getElementById('saison-tendances')) {
+                        document.getElementById('saison-tendances').value = data.saison;
+                    }
+                    break;
+                    
+                case 'decouvertes':
+                    if (data.type_decouverte && document.getElementById('type-decouvertes')) {
+                        document.getElementById('type-decouvertes').value = data.type_decouverte;
+                    }
+                    break;
+                    
+                case 'culture':
+                    if (document.getElementById('titre-culture')) {
+                        document.getElementById('titre-culture').value = data.titre_fr || '';
+                    }
+                    if (document.getElementById('description-culture')) {
+                        document.getElementById('description-culture').value = data.contenu_fr || '';
+                    }
+                    if (document.getElementById('type-culture')) {
+                        document.getElementById('type-culture').value = data.type_evenement || '';
+                    }
+                    if (document.getElementById('date_debut-culture')) {
+                        document.getElementById('date_debut-culture').value = data.date_evenement || '';
+                    }
+                    if (document.getElementById('date_fin-culture')) {
+                        document.getElementById('date_fin-culture').value = data.date_fin || '';
+                    }
+                    if (document.getElementById('heure-culture')) {
+                        document.getElementById('heure-culture').value = data.heure_evenement || '';
+                    }
+                    if (document.getElementById('statut-culture')) {
+                        document.getElementById('statut-culture').value = data.statut_evenement || '';
+                    }
+                    if (document.getElementById('lieu-culture')) {
+                        document.getElementById('lieu-culture').value = data.lieu || '';
+                    }
+                    if (document.getElementById('lien-culture')) {
+                        document.getElementById('lien-culture').value = data.lien_evenement || '';
+                    }
+                    break;
+                    
+                case 'mode':
+                    if (data.theme_mode && document.getElementById('theme-mode')) {
+                        document.getElementById('theme-mode').value = data.theme_mode;
+                    }
+                    break;
+                    
+                case 'accessoires':
+                    if (data.type_accessoire && document.getElementById('type-accessoires')) {
+                        document.getElementById('type-accessoires').value = data.type_accessoire;
+                    }
+                    break;
+                    
+                case 'beaute':
+                    if (data.type_beaute && document.getElementById('type-beaute')) {
+                        document.getElementById('type-beaute').value = data.type_beaute;
+                    }
+                    break;
+            }
+            
+            // Aperçu image
+            const preview = document.getElementById(`currentImagePreview-${tabId}`);
+            const placeholder = document.querySelector(`#uploadArea-${tabId} .upload-placeholder`);
+            if (data.image_url && preview) {
+                preview.src = data.image_url;
+                preview.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+            }
+            
+            // Changer d'onglet
+            document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            const tabButton = document.querySelector(`[data-tab="${tabId}"]`);
+            if (tabButton) tabButton.classList.add('active');
+            
+            const tabContent = document.getElementById(`${tabId}-tab`);
+            if (tabContent) tabContent.classList.add('active');
+            
             // Mettre à jour l'interface
-            const tabId = type === 'visages' ? 'visages' : 'actualites';
             const formTitle = document.getElementById(`formTitle-${tabId}`);
             const btnSave = document.getElementById(`btnSave-${tabId}`);
             const btnCancel = document.getElementById(`btnCancel-${tabId}`);
             
-            if (formTitle) formTitle.textContent = `Modifier ${type === 'visages' ? 'le créateur' : 'l\'article'}`;
+            if (formTitle) formTitle.textContent = `Modifier l'article`;
             if (btnSave) btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
             if (btnSave) btnSave.style.background = "#f59e0b";
             if (btnCancel) btnCancel.style.display = "flex";
@@ -2088,35 +2132,28 @@ html, body {
             if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement ?")) return;
             
             try {
-                let error = null;
+                // Récupérer la rubrique pour savoir quel onglet recharger
+                const { data: article, error: fetchError } = await supabase
+                    .from('articles')
+                    .select('rubrique')
+                    .eq('id', id)
+                    .single();
+                    
+                if (fetchError) throw fetchError;
                 
-                if (type === 'visages') {
-                    const { error: deleteErr } = await supabase
-                        .from('visages')
-                        .delete()
-                        .eq('id', id);
-                    error = deleteErr;
-                } else if (type === 'article') {
-                    const { error: deleteErr } = await supabase
-                        .from('articles')
-                        .delete()
-                        .eq('id', id);
-                    error = deleteErr;
-                } else if (type === 'evenement') {
-                    const { error: deleteErr } = await supabase
-                        .from('evenements')
-                        .delete()
-                        .eq('id', id);
-                    error = deleteErr;
-                }
+                const tabId = article.rubrique;
                 
-                if (error) throw error;
+                // Supprimer l'article
+                const { error: deleteErr } = await supabase
+                    .from('articles')
+                    .delete()
+                    .eq('id', id);
+                
+                if (deleteErr) throw deleteErr;
                 
                 alert("Supprimé avec succès !");
                 
-                // Recharger les données
-                const tabId = type === 'visages' ? 'visages' : 
-                             type === 'evenement' ? 'culture' : 'actualites';
+                // Recharger les données de l'onglet
                 await loadTabData(tabId);
                 
                 if (currentEditId === id) {
