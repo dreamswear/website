@@ -688,6 +688,10 @@ img {
     font-size: 1.3rem;
 }
 
+.menu-btn span {
+    display: none;
+}
+
 /* Bouton Espace Créateurs - Icône personne dans un cercle */
 .creator-btn {
     background: var(--color-surface);
@@ -712,11 +716,15 @@ img {
     font-size: 1.3rem;
 }
 
-/* Menu déroulant */
+.creator-btn span {
+    display: none;
+}
+
+/* Menu déroulant - S'AFFICHE SOUS LE BOUTON MENU */
 .dropdown-menu {
     position: absolute;
-    top: 110%;
-    right: 0;
+    top: 100%;
+    left: 0;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: 8px;
@@ -764,30 +772,74 @@ img {
 }
 
 /* ============================================ */
+/* STYLE DU BOUTON S'ABONNER */
+/* ============================================ */
+
+/* Style pour le bouton S'abonner - TOUJOURS VISIBLE */
+.subscribe-button-mobile {
+    display: block !important;
+    background-color: var(--color-primary);
+    color: var(--button-text);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    text-align: center;
+    margin: 0.5rem auto;
+    width: fit-content;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.subscribe-button-mobile:hover {
+    background-color: var(--color-text);
+    color: var(--color-background);
+}
+
+/* ============================================ */
 /* AFFICHAGE MOBILE (≤ 768px) */
 /* ============================================ */
 
 @media (max-width: 768px) {
-    .main-header .container {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1rem;
+    .main-header {
+        padding: 1rem 0;
     }
     
-    /* Logo centré en haut */
+    .main-header .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0 1rem;
+        position: relative;
+    }
+    
+    /* Logo sur sa propre ligne */
     .logo {
+        font-size: 1.8rem;
         text-align: center;
         width: 100%;
         margin-bottom: 0.5rem;
         order: 1;
     }
     
-    /* Bouton S'abonner centré sous le logo */
-    #subscribe-link {
-        display: block;
+    /* Bouton S'abonner sur une ligne séparée sous le logo */
+    .subscribe-mobile-container {
+        display: block !important;
+        width: 100%;
         text-align: center;
-        margin: 0.5rem auto;
         order: 2;
+        margin: 0.5rem 0;
+    }
+    
+    #subscribe-link {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         background-color: var(--color-primary);
         color: var(--button-text);
         padding: 10px 20px;
@@ -795,17 +847,23 @@ img {
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 1px;
-        max-width: 200px;
+        font-size: 0.9rem;
+        text-align: center;
+        margin: 0 auto;
+    }
+    
+    #subscribe-link:hover {
+        background-color: var(--color-text);
+        color: var(--color-background);
     }
     
     /* Navigation principale masquée sur mobile */
     .main-nav {
-        display: none;
+        display: none !important;
     }
     
-    /* Container pour les trois boutons ronds */
+    /* Container pour les trois boutons ronds - ligne complète en dessous */
     .header-right {
-        order: 3;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -813,12 +871,13 @@ img {
         max-width: 250px;
         margin: 0.5rem auto 0;
         gap: 0;
+        order: 3;
+        position: relative;
     }
     
     /* Style des boutons ronds */
     .menu-btn,
-    .creator-btn,
-    #theme-select-button {
+    .creator-btn {
         width: 45px;
         height: 45px;
         border-radius: 50%;
@@ -827,86 +886,160 @@ img {
         justify-content: center;
         background: var(--color-surface);
         border: 1px solid var(--color-border);
+        flex-shrink: 0;
     }
     
-    /* Masquer le texte dans les boutons ronds sur mobile */
-    .menu-btn span,
-    .creator-btn span,
-    #theme-select-button span {
+    /* Thème conserve son texte et est dans un cercle/ovale */
+    #theme-select-button {
+        background: var(--color-surface);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: 25px;
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+        height: 45px;
+        min-width: 100px;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    #theme-select-button:hover {
+        background-color: var(--color-primary);
+        color: var(--button-text);
+    }
+    
+    #theme-select-button i {
         display: none;
     }
     
-    /* Icônes visibles */
-    .menu-btn i,
-    .creator-btn i,
-    #theme-select-button i {
-        display: block;
-        font-size: 1.3rem;
-    }
-    
-    /* Positionnement spécifique */
-    .menu-container {
-        margin-right: auto;
-    }
-    
-    .theme-selector {
-        margin-left: auto;
-    }
-    
-    /* Ajuster le bouton thème */
-    #theme-select-button {
-        padding: 0;
-        border: none;
-        background: var(--color-surface);
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    #theme-select-button i {
-        margin: 0;
+    #theme-select-button span {
+        display: inline;
     }
     
     .arrow-down {
         display: none;
     }
     
-    /* Thème options position */
-    #theme-options {
-        top: 110%;
-        right: 0;
+    /* Menu déroulant - S'AFFICHE SOUS LE BOUTON MENU */
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: auto;
+        margin-top: 5px;
+        width: 180px;
+        transform-origin: top left;
     }
     
-    /* Pour les très petits écrans */
+    /* Thème options position - s'affiche sous le bouton thème */
+    #theme-options {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: auto;
+        width: 140px;
+        margin-top: 5px;
+        transform-origin: top right;
+    }
+    
+    /* Positionnement spécifique */
+    .menu-container {
+        margin-right: auto;
+        position: relative;
+    }
+    
+    .theme-selector {
+        margin-left: auto;
+        position: relative;
+    }
+    
+    /* Pour les petits écrans */
     @media (max-width: 480px) {
         .logo {
             font-size: 1.5rem;
         }
         
         #subscribe-link {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             padding: 8px 16px;
-            max-width: 180px;
         }
         
         .menu-btn,
-        .creator-btn,
-        #theme-select-button {
+        .creator-btn {
             width: 40px;
             height: 40px;
         }
         
         .menu-btn i,
-        .creator-btn i,
-        #theme-select-button i {
+        .creator-btn i {
             font-size: 1.1rem;
+        }
+        
+        #theme-select-button {
+            height: 40px;
+            min-width: 90px;
+            font-size: 0.8rem;
+            padding: 6px 12px;
         }
         
         .header-right {
             max-width: 220px;
+            margin-top: 0.5rem;
+        }
+        
+        .dropdown-menu {
+            width: 160px;
+            left: -10px;
+        }
+        
+        #theme-options {
+            width: 120px;
+            right: -10px;
+        }
+    }
+    
+    /* Pour les écrans très étroits */
+    @media (max-width: 380px) {
+        .logo {
+            font-size: 1.4rem;
+        }
+        
+        #subscribe-link {
+            font-size: 0.75rem;
+            padding: 6px 12px;
+        }
+        
+        .header-right {
+            max-width: 200px;
+        }
+        
+        .dropdown-menu {
+            width: 150px;
+            left: -15px;
+        }
+        
+        #theme-options {
+            width: 110px;
+            right: -15px;
+        }
+    }
+    
+    /* Correction pour éviter que le menu ne sorte de l'écran */
+    @media (max-width: 320px) {
+        .dropdown-menu {
+            left: -20px;
+            width: 140px;
+        }
+        
+        #theme-options {
+            right: -20px;
+            width: 100px;
         }
     }
 }
@@ -916,8 +1049,14 @@ img {
 /* ============================================ */
 
 @media (min-width: 769px) {
+    .main-header {
+        padding: 2rem 0;
+    }
+    
     .main-header .container {
         flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         gap: 0;
     }
     
@@ -925,34 +1064,41 @@ img {
         text-align: left;
         width: auto;
         margin-bottom: 0;
+        font-size: 2rem;
         order: 0;
+    }
+    
+    /* Masquer le container mobile pour S'abonner */
+    .subscribe-mobile-container {
+        display: none !important;
     }
     
     /* Navigation principale visible sur desktop */
     .main-nav {
-        display: block;
+        display: block !important;
         flex: 1;
         text-align: center;
     }
     
     .main-nav ul {
         justify-content: center;
+        display: flex !important;
     }
     
     /* Header-right en ligne sur desktop */
     .header-right {
-        order: 0;
         flex-direction: row;
         justify-content: flex-end;
         width: auto;
         max-width: none;
         margin: 0;
+        gap: 15px;
+        order: 0;
     }
     
-    /* Masquer les boutons ronds sur desktop */
+    /* Masquer les boutons ronds sur desktop, afficher version normale */
     .menu-btn,
-    .creator-btn,
-    #theme-select-button {
+    .creator-btn {
         width: auto;
         height: auto;
         border-radius: 4px;
@@ -965,27 +1111,30 @@ img {
     }
     
     .menu-btn i,
-    .creator-btn i,
-    #theme-select-button i {
+    .creator-btn i {
         display: inline-block;
         font-size: 1rem;
     }
     
     .menu-btn span,
-    .creator-btn span,
-    #theme-select-button span {
+    .creator-btn span {
         display: inline;
         font-size: 0.9rem;
     }
     
     /* Bouton thème style desktop */
     #theme-select-button {
+        background: transparent;
         border: 1px solid var(--color-border);
         border-radius: 20px;
         padding: 8px 16px;
-        width: auto;
         height: auto;
-        background: transparent;
+        min-width: auto;
+        width: auto;
+    }
+    
+    #theme-select-button i {
+        display: inline-block;
     }
     
     .arrow-down {
@@ -994,12 +1143,55 @@ img {
     
     /* Afficher S'abonner dans la navigation sur desktop */
     #subscribe-link {
-        display: inline-block;
+        display: inline-block !important;
         margin: 0;
         background-color: var(--color-primary);
         color: var(--button-text);
         padding: 8px 20px;
         border-radius: 25px;
         font-size: 0.9rem;
+    }
+    
+    /* Menu déroulant desktop */
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: auto;
+    }
+    
+    #theme-options {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: auto;
+    }
+}
+
+/* ============================================ */
+/* AJUSTEMENTS GÉNÉRAUX POUR LA NAVIGATION */
+/* ============================================ */
+
+/* S'assurer que le lien S'abonner est toujours visible dans la nav */
+.main-nav ul li:has(#subscribe-link) {
+    display: block !important;
+}
+
+/* Cacher les autres éléments de navigation sur mobile */
+@media (max-width: 768px) {
+    .main-nav ul {
+        display: none !important;
+    }
+    
+    /* Forcer l'affichage du bouton S'abonner seulement */
+    #subscribe-link {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Si vous avez un élément spécifique pour S'abonner */
+    .subscribe-item {
+        display: block !important;
     }
 }
