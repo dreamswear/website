@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Beauté - DREAMSWEAR MAG</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #f5f5f5;
+            --accent: #d4af37;
+            --text-dark: #1a1a1a;
+            --text-light: #ffffff;
+            --bg-light: #ffffff;
+            --bg-dark: #121212;
+            --border-light: #e0e0e0;
+            --border-dark: #333333;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+
+        body[data-theme="night"] {
+            background: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        /* Header */
+        .simple-header {
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border-light);
+            padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        body[data-theme="night"] .simple-header {
+            background: rgba(18, 18, 18, 0.9);
+            border-bottom-color: var(--border-dark);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+
+        body[data-theme="night"] .logo {
+            color: var(--text-light);
+        }
+
+        .theme-selector {
+            position: relative;
+        }
+
+        .theme-button {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 8px 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        body[data-theme="night"] .theme-button {
+            border-color: var(--border-dark);
+            color: var(--text-light);
+        }
+
+        .theme-button:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .theme-arrow {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-options {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 5px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            box-shadow: var(--card-shadow);
+            min-width: 120px;
+            display: none;
+            z-index: 1001;
+        }
+
+        body[data-theme="night"] .theme-options {
+            background: var(--bg-dark);
+            border-color: var(--border-dark);
+        }
+
+        .theme-options.show {
+            display: block;
+        }
+
+        .theme-option {
+            display: block;
+            padding: 10px 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        body[data-theme="night"] .theme-option {
+            color: var(--text-light);
+        }
+
+        .theme-option:hover {
+            background: var(--accent);
+            color: var(--text-dark);
+        }
+
+        /* Contenu principal */
+        .main-content {
+            max-width: 1200px;
+            margin: 80px auto 40px;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .page-title h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin: 0 0 10px 0;
+        }
+
+        body[data-theme="night"] .page-title h1 {
+            color: var(--text-light);
+        }
+
+        .page-title p {
+            color: #666;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        body[data-theme="night"] .page-title p {
+            color: #aaa;
+        }
+
+        /* Articles Grid */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .article-card {
+            background: var(--bg-light);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+        }
+
+        body[data-theme="night"] .article-card {
+            background: #1e1e1e;
+            border-color: var(--border-dark);
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .article-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .article-content {
+            padding: 20px;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        body[data-theme="night"] .article-meta {
+            color: #aaa;
+        }
+
+        .article-category {
+            background: var(--accent);
+            color: var(--text-dark);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .article-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin: 0 0 10px 0;
+            color: var(--primary);
+            line-height: 1.3;
+        }
+
+        body[data-theme="night"] .article-title {
+            color: var(--text-light);
+        }
+
+        .article-excerpt {
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin: 0 0 15px 0;
+        }
+
+        body[data-theme="night"] .article-excerpt {
+            color: #aaa;
+        }
+
+        .article-read-more {
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .article-read-more:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        body[data-theme="night"] .loading {
+            color: #aaa;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: var(--radius);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        /* Footer */
+        .simple-footer {
+            background: var(--bg-light);
+            border-top: 1px solid var(--border-light);
+            padding: 40px 20px;
+        }
+
+        body[data-theme="night"] .simple-footer {
+            background: var(--bg-dark);
+            border-top-color: var(--border-dark);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        body[data-theme="night"] .footer-logo {
+            color: var(--text-light);
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--secondary);
+            border-radius: 50%;
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        body[data-theme="night"] .social-links a {
+            background: #2a2a2a;
+            color: var(--text-light);
+        }
+
+        .social-links a:hover {
+            background: var(--accent);
+            color: var(--text-dark);
+            transform: translateY(-2px);
+        }
+
+        .footer-bottom {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        body[data-theme="night"] .footer-bottom {
+            border-top-color: var(--border-dark);
+            color: #aaa;
+        }
+
+        /* Type beauté */
+        .beaute-type {
+            text-transform: capitalize;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                margin: 70px auto 30px;
+                padding: 0 15px;
+            }
+
+            .page-title h1 {
+                font-size: 2rem;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .simple-header {
+                padding: 12px 15px;
+            }
+
+            .logo {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header simple -->
+    <header class="simple-header">
+        <div class="header-content">
+            <div class="logo">DREAMSWEAR MAG</div>
+            <div class="theme-selector">
+                <button class="theme-button" id="themeButton">
+                    <span id="themeText">Thème</span>
+                    <span class="theme-arrow">▼</span>
+                </button>
+                <div class="theme-options" id="themeOptions">
+                    <a href="#" class="theme-option" data-theme="night">Sombre</a>
+                    <a href="#" class="theme-option" data-theme="day">Clair</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <div class="page-title">
+            <h1>Beauté</h1>
+            <p>L'art de prendre soin de soi</p>
+        </div>
+
+        <!-- Liste des articles -->
+        <div id="articlesContainer" class="articles-grid">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Chargement des articles...
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="simple-footer">
+        <div class="footer-content">
+            <div class="footer-logo">DREAMSWEAR MAG</div>
+            <div class="social-links">
+                    <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.tiktok.com/@dreams_wear0?is_from_webapp=1&sender_device=pc"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DREAMSWEAR MAG. Tous droits réservés.</p>
+                <p>La beauté commence par le bien-être</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Gestion du thème
+        function applyTheme() {
+            const theme = localStorage.getItem('dreamswear-theme') || 'day';
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('themeText').textContent = theme === 'night' ? 'Sombre' : 'Clair';
+        }
+
+        function initThemeSelector() {
+            const themeButton = document.getElementById('themeButton');
+            const themeOptions = document.getElementById('themeOptions');
+            const themeLinks = themeOptions.querySelectorAll('.theme-option');
+
+            themeButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                themeOptions.classList.toggle('show');
+            });
+
+            themeLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const theme = this.getAttribute('data-theme');
+                    document.body.setAttribute('data-theme', theme);
+                    localStorage.setItem('dreamswear-theme', theme);
+                    document.getElementById('themeText').textContent = theme === 'night' ? 'Sombre' : 'Clair';
+                    themeOptions.classList.remove('show');
+                });
+            });
+
+            document.addEventListener('click', function() {
+                themeOptions.classList.remove('show');
+            });
+        }
+
+        // Fonction pour obtenir l'emoji selon le type de beauté
+        function getBeauteEmoji(type) {
+            const emojis = {
+                'soin': '🌸',
+                'maquillage': '💄',
+                'coiffure': '💇‍♀️',
+                'parfum': '✨',
+                'conseils': '💡',
+                'routine': '🧴',
+                'autre': '💫'
+            };
+            return emojis[type] || '🌟';
+        }
+
+        // Charger les articles Beauté
+        async function loadBeauteArticles() {
+            const container = document.getElementById('articlesContainer');
+            
+            try {
+                const { data: articles, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('rubrique', 'beaute')
+                    .eq('statut', 'publié')
+                    .order('date_publication', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!articles || articles.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-articles">
+                            <p>Aucun article beauté publié pour le moment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = articles.map(article => `
+                    <article class="article-card">
+                        ${article.image_url ? `
+                            <img src="${article.image_url}" 
+                                 alt="${article.titre_fr}" 
+                                 class="article-image"
+                                 onerror="this.src='https://placehold.co/600x400?text=Beauté'">
+                        ` : `
+                            <div class="article-image-placeholder" style="background: #f5f5f5; height: 200px; display: flex; align-items: center; justify-content: center; color: #666;">
+                                <i class="fas fa-spa fa-2x"></i>
+                            </div>
+                        `}
+                        <div class="article-content">
+                            <div class="article-meta">
+                                <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
+                                <span class="article-category">
+                                    ${getBeauteEmoji(article.type_beaute)} ${article.type_beaute || 'Beauté'}
+                                </span>
+                            </div>
+                            <h2 class="article-title">${article.titre_fr}</h2>
+                            <p class="article-excerpt">${article.contenu_fr.substring(0, 150)}...</p>
+                            <a href="#" class="article-read-more">Découvrir →</a>
+                        </div>
+                    </article>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                container.innerHTML = `
+                    <div class="error-message">
+                        <p>Erreur lors du chargement des articles : ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            applyTheme();
+            initThemeSelector();
+            loadBeauteArticles();
+        });
+    </script>
+</body>
+</html>
