@@ -317,7 +317,7 @@
                     </button>
                     <div class="dropdown-menu" id="dropdown-menu">
                         <ul>
-                            <li><a href="index2.html">Accueil</a></li>
+                            <li><a href="index.html">Accueil</a></li>
                             <li><a href="visages.html">Visages</a></li>
                             <li><a href="coulisses.html">Coulisses</a></li>
                             <li><a href="tendances.html">Tendances</a></li>
@@ -401,77 +401,7 @@
             </div>
         </div>
     </footer>
-
-    <script src="config.js"></script>
-<script>
-    let currentDate = new Date();
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        generateCalendar(currentDate);
-        loadEvents();
-        setupCalendarNavigation();
-    });
-    
-    async function loadEvents() {
-        const container = document.getElementById('events-container');
-        
-        try {
-            // Charger les événements depuis Supabase
-            const { data, error } = await supabase
-                .from('evenements')
-                .select('*')
-                .eq('statut', 'à venir')
-                .order('date_debut', { ascending: true })
-                .limit(6);
-            
-            if (error) throw error;
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
-                        <p style="color: var(--text-secondary); font-size: 1.1rem;">
-                            Aucun événement à venir pour le moment.
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = data.map(event => {
-                const eventDate = new Date(event.date_debut);
-                const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 
-                                   'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-                
-                return `
-                    <div class="event-card">
-                        <div class="event-date">
-                            <div class="day">${eventDate.getDate()}</div>
-                            <div class="month">${monthNames[eventDate.getMonth()]}</div>
-                        </div>
-                        <div class="event-content">
-                            <span class="event-type">${event.type || 'Événement'}</span>
-                            <h3>${event.titre}</h3>
-                            <p>${event.description ? event.description.substring(0, 100) + '...' : ''}</p>
-                            <div class="event-details">
-                                <span><i class="far fa-calendar"></i> ${eventDate.toLocaleDateString('fr-FR')}</span>
-                                <span><i class="fas fa-map-marker-alt"></i> ${event.lieu || 'Lieu à préciser'}</span>
-                                <span><i class="fas fa-clock"></i> ${event.heure || 'Horaire à venir'}</span>
-                            </div>
-                            <a href="evenement.html?id=${event.id}" class="event-link">Plus d'informations</a>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-        } catch (error) {
-            console.error('Erreur chargement événements:', error);
-            container.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
-                    <p>Erreur de chargement des événements. Veuillez réessayer.</p>
-                </div>
-            `;
-        }
-    }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>
