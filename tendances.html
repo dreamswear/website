@@ -292,65 +292,7 @@
             </div>
         </div>
     </footer>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        loadTrends();
-        setupCategoryFilters();
-    });
-    
-    async function loadTrends() {
-        const container = document.getElementById('trends-container');
-        
-        try {
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('rubrique', 'tendances')
-                .eq('statut', 'publié')
-                .order('date_publication', { ascending: false })
-                .limit(6);
-            
-            if (error) throw error;
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
-                        <p style="color: var(--text-secondary); font-size: 1.1rem;">
-                            Aucun article sur les tendances pour le moment.
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = data.map(article => `
-                <div class="trend-card">
-                    <img src="${article.image_url || 'https://placehold.co/400x200?text=TRENDS'}" 
-                         alt="${article.titre_fr}"
-                         onerror="this.src='https://placehold.co/400x200?text=TRENDS'">
-                    <div class="trend-card-content">
-                        <span class="trend-tag">${article.categorie || 'TENDANCE'}</span>
-                        <h3>${article.titre_fr}</h3>
-                        <p>${article.contenu_fr ? article.contenu_fr.substring(0, 120) + '...' : ''}</p>
-                        <div class="trend-meta">
-                            <span>${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                            <a href="article.html?id=${article.id}" class="trend-link">Découvrir →</a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-            
-        } catch (error) {
-            console.error('Erreur chargement tendances:', error);
-            container.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
-                    <p>Erreur de chargement des tendances. Veuillez réessayer.</p>
-                </div>
-            `;
-        }
-    }
-</script>
 </body>
 </html>
