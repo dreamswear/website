@@ -82,7 +82,7 @@ img {
 /* ============================================ */
 
 .main-header {
-    padding: 2rem 0;
+    padding: 1.5rem 0;
     border-bottom: 1px solid var(--color-border);
     transition: border-color 0.3s ease;
 }
@@ -91,12 +91,11 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative;
 }
 
 .logo {
     font-family: var(--font-heading);
-    font-size: 2rem;
+    font-size: 1.8rem;
     font-weight: 700;
     letter-spacing: 2px;
     color: var(--color-text);
@@ -104,38 +103,11 @@ img {
 }
 
 /* ============================================ */
-/* NAVIGATION PRINCIPALE (DESKTOP) */
+/* NAVIGATION PRINCIPALE - TOUJOURS MASQUÉE */
 /* ============================================ */
 
-.main-nav ul {
-    list-style: none;
-    display: flex;
-    gap: 2rem;
-}
-
-.main-nav a {
-    color: var(--color-text);
-    font-weight: 400;
-    text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    position: relative;
-    padding-bottom: 5px;
-}
-
-.main-nav a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background-color: var(--color-primary);
-    transition: width 0.3s ease;
-}
-
-.main-nav a:hover::after {
-    width: 100%;
+.main-nav {
+    display: none; /* Navigation principale toujours masquée */
 }
 
 /* ============================================ */
@@ -146,15 +118,15 @@ img {
     display: flex;
     align-items: center;
     gap: 15px;
-    flex: 0 0 auto;
 }
 
 /* ============================================ */
-/* MENU DÉROULANT PRINCIPAL (MOBILE) */
+/* MENU DÉROULANT PRINCIPAL - TOUJOURS VISIBLE */
 /* ============================================ */
 
 .menu-container {
     position: relative;
+    display: block; /* Toujours visible sur tous les écrans */
 }
 
 .menu-btn {
@@ -174,6 +146,7 @@ img {
 
 .menu-btn:hover {
     background: var(--color-surface);
+    border-color: var(--color-primary);
 }
 
 .dropdown-menu {
@@ -185,7 +158,7 @@ img {
     border-radius: 8px;
     padding: 1rem;
     width: 200px;
-    z-index: 100;
+    z-index: 1000;
     box-shadow: 0 4px 10px var(--card-shadow);
     opacity: 0;
     visibility: hidden;
@@ -333,11 +306,6 @@ img {
 #theme-options li a:hover {
     background-color: var(--color-background);
     color: var(--color-text);
-}
-
-/* Theme Toggle Button - OLD, to be removed or replaced by dropdown styles */
-#theme-toggle {
-    display: none; /* Hide old button */
 }
 
 /* ============================================ */
@@ -749,7 +717,7 @@ img {
 }
 
 /* ============================================ */
-/* RESPONSIVE DESIGN */
+/* RESPONSIVE DESIGN - UNIFORMITÉ SUR TOUS ÉCRANS */
 /* ============================================ */
 
 @media (max-width: 900px) {
@@ -787,68 +755,105 @@ img {
     }
 }
 
+/* SUR MOBILE ET TABLETTE */
 @media (max-width: 768px) {
     .main-header .container {
-        flex-direction: column;
-        gap: 1.5rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
     }
     
-    .main-nav {
-        display: none; /* Masquer la navigation principale sur mobile */
+    .logo {
+        font-size: 1.5rem;
+        order: 1;
+        flex: 1;
     }
     
     .menu-container {
-        display: block; /* Afficher le bouton menu sur mobile */
+        order: 2;
     }
     
     .header-right {
-        flex-direction: column;
+        order: 3;
+        display: flex;
+        flex-direction: row;
         gap: 10px;
-        align-items: center;
         width: 100%;
+        justify-content: flex-end;
+        margin-top: 1rem;
     }
     
-    .menu-btn,
+    /* Adapter les boutons pour mobile */
     .creator-btn,
-    #theme-select-button {
+    #theme-select-button,
+    .menu-btn {
         padding: 6px 12px;
         font-size: 0.8rem;
-        width: auto;
+        white-space: nowrap;
+    }
+    
+    .creator-btn span,
+    .menu-btn span {
+        display: inline-block;
     }
     
     .hero-text h2 {
         font-size: 2.5rem;
     }
+    
+    /* Pour les très petits écrans */
+    @media (max-width: 480px) {
+        .header-right {
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        
+        .creator-btn,
+        #theme-select-button,
+        .menu-btn {
+            width: auto;
+            min-width: 120px;
+            justify-content: center;
+        }
+    }
 }
 
+/* SUR DESKTOP - CONSERVER LE MENU DÉROULANT */
 @media (min-width: 769px) {
-    .menu-container {
-        display: none; /* Masquer le bouton menu sur desktop */
-    }
-    
-    .main-nav {
-        display: block; /* Afficher la navigation principale sur desktop */
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+    .logo {
+        font-size: 2rem;
     }
     
     .header-right {
-        flex-direction: row;
-        gap: 15px;
+        gap: 20px;
+    }
+    
+    .creator-btn,
+    #theme-select-button,
+    .menu-btn {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+    
+    /* Menu déroulant plus large sur desktop */
+    .dropdown-menu {
+        width: 220px;
+    }
+    
+    /* Le bouton "S'abonner" dans la navigation principale n'est plus visible */
+    #subscribe-link {
+        display: none;
     }
 }
 
-@media (max-width: 480px) {
+/* POUR LES ÉCRANS TRÈS LARGES */
+@media (min-width: 1200px) {
     .container {
-        padding: 0 1rem;
+        padding: 0;
     }
     
-    .dropdown-menu {
-        width: 180px;
-    }
-    
-    .logo {
-        font-size: 1.5rem;
+    .main-header .container {
+        padding: 0 2rem;
     }
 }
