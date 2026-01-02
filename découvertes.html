@@ -283,7 +283,7 @@
                     </button>
                     <div class="dropdown-menu" id="dropdown-menu">
                         <ul>
-                            <li><a href="index2.html">Accueil</a></li>
+                            <li><a href="index.html">Accueil</a></li>
                             <li><a href="visages.html">Visages</a></li>
                             <li><a href="coulisses.html">Coulisses</a></li>
                             <li><a href="tendances.html">Tendances</a></li>
@@ -377,74 +377,7 @@
             </div>
         </div>
     </footer>
-
-<script src="config.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        loadDiscoveries();
-        setupCategoryFilters();
-    });
-    
-    async function loadDiscoveries() {
-        const container = document.getElementById('discoveries-container');
-        
-        try {
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('rubrique', 'decouvertes')
-                .eq('statut', 'publié')
-                .order('date_publication', { ascending: false })
-                .limit(6);
-            
-            if (error) throw error;
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 60px;">
-                        <p style="color: var(--text-secondary); font-size: 1.1rem;">
-                            Aucune découverte pour le moment.
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = data.map(article => {
-                // Générer une initiale pour l'avatar
-                const authorInitial = article.auteur ? article.auteur.charAt(0).toUpperCase() : 'A';
-                
-                return `
-                    <div class="discovery-card">
-                        <img src="${article.image_url || 'https://placehold.co/400x200?text=DECOUVERTE'}" 
-                             alt="${article.titre_fr}"
-                             class="discovery-image"
-                             onerror="this.src='https://placehold.co/400x200?text=DECOUVERTE'">
-                        <div class="discovery-content">
-                            <span class="discovery-tag">${article.categorie || 'DÉCOUVERTE'}</span>
-                            <h3>${article.titre_fr}</h3>
-                            <p>${article.contenu_fr ? article.contenu_fr.substring(0, 150) + '...' : ''}</p>
-                            <div class="discovery-meta">
-                                <div class="discovery-author">
-                                    <div class="author-avatar">${authorInitial}</div>
-                                    <span>${article.auteur || 'Rédaction'}</span>
-                                </div>
-                                <a href="article.html?id=${article.id}" class="discovery-link">Lire →</a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-        } catch (error) {
-            console.error('Erreur chargement découvertes:', error);
-            container.innerHTML = `
-                <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #dc3545;">
-                    <p>Erreur de chargement des découvertes. Veuillez réessayer.</p>
-                </div>
-            `;
-        }
-    }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>
