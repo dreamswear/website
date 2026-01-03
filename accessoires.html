@@ -11,7 +11,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary: #1a1a1a;
@@ -437,7 +436,7 @@
         </div>
 
         <!-- Liste des articles -->
-        <div id="articlesContainer" class="articles-grid">
+        <div id="accessoires-container" class="articles-grid">
             <div class="loading">
                 <i class="fas fa-spinner fa-spin"></i> Chargement des articles...
             </div>
@@ -462,123 +461,7 @@
         </div>
     </footer>
 
-    <script>
-        // Configuration Supabase
-        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        // Gestion du thème
-        function applyTheme() {
-            const theme = localStorage.getItem('dreamswear-theme') || 'day';
-            document.body.setAttribute('data-theme', theme);
-            document.getElementById('themeText').textContent = theme === 'night' ? 'Sombre' : 'Clair';
-        }
-
-        function initThemeSelector() {
-            const themeButton = document.getElementById('themeButton');
-            const themeOptions = document.getElementById('themeOptions');
-            const themeLinks = themeOptions.querySelectorAll('.theme-option');
-
-            themeButton.addEventListener('click', function(e) {
-                e.stopPropagation();
-                themeOptions.classList.toggle('show');
-            });
-
-            themeLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const theme = this.getAttribute('data-theme');
-                    document.body.setAttribute('data-theme', theme);
-                    localStorage.setItem('dreamswear-theme', theme);
-                    document.getElementById('themeText').textContent = theme === 'night' ? 'Sombre' : 'Clair';
-                    themeOptions.classList.remove('show');
-                });
-            });
-
-            document.addEventListener('click', function() {
-                themeOptions.classList.remove('show');
-            });
-        }
-
-        // Fonction pour obtenir l'emoji selon le type d'accessoire
-        function getAccessoireEmoji(type) {
-            const emojis = {
-                'bijoux': '💎',
-                'sacs': '👜',
-                'chaussures': '👠',
-                'ceintures': '⛓️',
-                'lunettes': '👓',
-                'autre': '✨'
-            };
-            return emojis[type] || '💫';
-        }
-
-        // Charger les articles Accessoires
-        async function loadAccessoiresArticles() {
-            const container = document.getElementById('articlesContainer');
-            
-            try {
-                const { data: articles, error } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .eq('rubrique', 'accessoires')
-                    .eq('statut', 'publié')
-                    .order('date_publication', { ascending: false });
-                
-                if (error) throw error;
-                
-                if (!articles || articles.length === 0) {
-                    container.innerHTML = `
-                        <div class="no-articles">
-                            <p>Aucun article accessoires publié pour le moment.</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                container.innerHTML = articles.map(article => `
-                    <article class="article-card">
-                        ${article.image_url ? `
-                            <img src="${article.image_url}" 
-                                 alt="${article.titre_fr}" 
-                                 class="article-image"
-                                 onerror="this.src='https://placehold.co/600x400?text=Accessoire'">
-                        ` : `
-                            <div class="article-image-placeholder" style="background: #f5f5f5; height: 200px; display: flex; align-items: center; justify-content: center; color: #666;">
-                                <i class="fas fa-gem fa-2x"></i>
-                            </div>
-                        `}
-                        <div class="article-content">
-                            <div class="article-meta">
-                                <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                                <span class="article-category">
-                                    ${getAccessoireEmoji(article.type_accessoire)} ${article.type_accessoire || 'Accessoire'}
-                                </span>
-                            </div>
-                            <h2 class="article-title">${article.titre_fr}</h2>
-                            <p class="article-excerpt">${article.contenu_fr.substring(0, 150)}...</p>
-                            <a href="#" class="article-read-more">Découvrir →</a>
-                        </div>
-                    </article>
-                `).join('');
-                
-            } catch (error) {
-                console.error('Erreur:', error);
-                container.innerHTML = `
-                    <div class="error-message">
-                        <p>Erreur lors du chargement des articles : ${error.message}</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            applyTheme();
-            initThemeSelector();
-            loadAccessoiresArticles();
-        });
-    </script>
+   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>
