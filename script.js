@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ============================================
-    // 0. NOUVELLES FONCTIONS POUR LA NOUVELLE STRUCTURE
+    // 0. FONCTIONS POUR LA NOUVELLE STRUCTURE
     // ============================================
     
     // Fonction principale pour charger les articles par rubrique
@@ -579,7 +579,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
     
-    // Fonctions utilitaires
+    // ============================================
+    // FONCTIONS UTILITAIRES
+    // ============================================
+    
     function getTypeDecouverteLabel(type) {
         const labels = {
             'marque': 'Nouvelles Marques',
@@ -688,7 +691,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return tags.map(tag => `<span class="article-tag">${tag}</span>`).join('');
     }
     
-    // Fonction pour configurer les filtres
+    // ============================================
+    // FONCTIONS POUR FILTRES ET CONFIGURATIONS
+    // ============================================
+    
+    // Fonction pour configurer les filtres génériques
     window.setupFilters = function() {
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => {
@@ -703,7 +710,84 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // Fonction d'initialisation automatique des pages
+    // Fonction pour configurer les filtres Visages (spécifique)
+    window.setupVisageFilters = function() {
+        console.log('🔄 Configuration des filtres Visages...');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        
+        if (filterBtns.length === 0) {
+            console.log('ℹ️ Aucun filtre trouvé sur cette page');
+            return;
+        }
+        
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Retirer la classe active de tous les boutons
+                filterBtns.forEach(b => b.classList.remove('active'));
+                
+                // Ajouter la classe active au bouton cliqué
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                console.log(`🎯 Filtre sélectionné: ${filter}`);
+                
+                // Filtrer les articles Visages
+                filterVisages(filter);
+            });
+        });
+    };
+    
+    // Fonction pour filtrer les Visages par domaine
+    async function filterVisages(domain) {
+        const container = document.getElementById('visages-container');
+        if (!container) return;
+        
+        try {
+            let query = supabase
+                .from('articles')
+                .select('*')
+                .eq('rubrique', 'visages')
+                .eq('statut', 'publié')
+                .order('date_publication', { ascending: false });
+            
+            // Ajouter un filtre si ce n'est pas "all"
+            if (domain !== 'all') {
+                query = query.eq('domaine', domain);
+            }
+            
+            const { data, error } = await query;
+            
+            if (error) throw error;
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="no-content">Aucun créateur trouvé dans cette catégorie.</p>';
+                return;
+            }
+            
+            // Réutiliser la fonction de rendu existante
+            renderVisages(data, container);
+            
+        } catch (error) {
+            console.error('❌ Erreur filtrage:', error);
+            container.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
+        }
+    }
+    
+    // Fonction pour configurer les catégories
+    window.setupCategoryFilters = function() {
+        const categoryElements = document.querySelectorAll('[data-category]');
+        categoryElements.forEach(el => {
+            el.addEventListener('click', function() {
+                const category = this.dataset.category;
+                alert(`Filtre: ${category} - Fonctionnalité à implémenter`);
+            });
+        });
+    };
+    
+    // ============================================
+    // FONCTION D'INITIALISATION AUTOMATIQUE DES PAGES
+    // ============================================
+    
     window.initPageData = function() {
         console.log('🔄 Initialisation des données de la page...');
         
@@ -714,39 +798,119 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Détection basée sur les conteneurs
-        const pageContainers = {
+        // Détection basée sur les conteneurs SPÉCIFIQUES
+        const pageMap = {
             'actualites-container': 'actualites',
             'visages-container': 'visages',
-            'coulisses-container': 'coulisses',
             'tendances-container': 'tendances',
-            'decouvertes-container': 'decouvertes',
-            'culture-container': 'culture',
-            'mode-container': 'mode',
             'accessoires-container': 'accessoires',
-            'beaute-container': 'beaute'
+            'beaute-container': 'beaute',
+            'coulisses-container': 'coulisses',
+            'culture-container': 'culture',
+            'decouvertes-container': 'decouvertes',
+            'mode-container': 'mode'
         };
         
-        // Détecter quel conteneur est présent et charger les données
-        for (const [containerId, rubrique] of Object.entries(pageContainers)) {
+        // Chercher quel conteneur est présent
+        for (const [containerId, rubrique] of Object.entries(pageMap)) {
             if (document.getElementById(containerId)) {
-                console.log(`📄 Page ${rubrique} détectée`);
+                console.log(`📄 Page ${rubrique} détectée (via ${containerId})`);
                 loadArticlesByRubrique(rubrique, containerId);
+                
+                // Configurations spécifiques
+                if (rubrique === 'visages') {
+                    setupVisageFilters();
+                }
+                if (rubrique === 'coulisses') {
+                    // Vous pouvez ajouter un traitement spécial si nécessaire
+                    console.log('✨ Page Coulisses détectée');
+                }
                 break;
             }
         }
         
-        // Configurer les filtres si présents
-        if (document.querySelectorAll('.filter-btn').length > 0) {
-            setupFilters();
+        // Configurer les catégories si présentes
+        if (document.querySelectorAll('[data-category]').length > 0) {
+            setupCategoryFilters();
         }
     };
     
-    // Exécuter l'initialisation automatiquement
-    setTimeout(() => {
-        initPageData();
-    }, 100);
-
+    // ============================================
+    // FONCTION SPÉCIALE POUR COULISSES (ARTICLE À LA UNE)
+    // ============================================
+    
+    async function loadCoulissesFeatured() {
+        try {
+            const container = document.getElementById('coulisses-container');
+            const featuredContainer = document.getElementById('coulisses-featured');
+            
+            if (!container) return;
+            
+            // Si vous avez un conteneur "featured" séparé
+            if (featuredContainer) {
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('rubrique', 'coulisses')
+                    .eq('statut', 'publié')
+                    .order('date_publication', { ascending: false })
+                    .limit(7);
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="no-content">Aucun article coulisses pour le moment.</p>';
+                    featuredContainer.innerHTML = '';
+                    return;
+                }
+                
+                // Premier article = à la une
+                const featured = data[0];
+                featuredContainer.innerHTML = `
+                    <article class="featured-article-content">
+                        ${featured.image_url ? `
+                        <img src="${featured.image_url}" alt="${featured.titre_fr}" 
+                             onerror="this.src='https://placehold.co/800x400?text=COULISSES'">
+                        ` : ''}
+                        <div class="featured-info">
+                            <span class="category">COULISSES</span>
+                            <h2>${featured.titre_fr}</h2>
+                            <p>${featured.contenu_fr ? featured.contenu_fr.substring(0, 200) + '...' : ''}</p>
+                            <a href="article.html?id=${featured.id}" class="read-more">Lire l'article →</a>
+                        </div>
+                    </article>
+                `;
+                
+                // Les 6 articles suivants = liste
+                const otherArticles = data.slice(1);
+                if (otherArticles.length > 0) {
+                    container.innerHTML = otherArticles.map(article => `
+                        <article class="article-item">
+                            ${article.image_url ? `
+                            <img src="${article.image_url}" alt="${article.titre_fr}" 
+                                 onerror="this.src='https://placehold.co/300x200?text=ARTICLE'">
+                            ` : ''}
+                            <div class="article-item-info">
+                                <h3>${article.titre_fr}</h3>
+                                <p>${article.contenu_fr ? article.contenu_fr.substring(0, 100) + '...' : ''}</p>
+                                <a href="article.html?id=${article.id}" class="read-link">Lire →</a>
+                            </div>
+                        </article>
+                    `).join('');
+                } else {
+                    container.innerHTML = '';
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Erreur chargement coulisses:', error);
+            const container = document.getElementById('coulisses-container');
+            if (container) {
+                container.innerHTML = '<p class="error">Erreur de chargement des articles.</p>';
+            }
+        }
+    }
+    
     // ============================================
     // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
     // ============================================
@@ -767,7 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hiddenElements.forEach(el => observer.observe(el));
 
     // ============================================
-    // 2. SELECTEUR DE THÈME (CODE D'ORIGINE PRÉSERVÉ)
+    // 2. SELECTEUR DE THÈME
     // ============================================
     const themeSelectButton = document.getElementById('theme-select-button');
     const themeOptions = document.getElementById('theme-options');
@@ -827,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 3. MODAL D'ABONNEMENT (CODE D'ORIGINE PRÉSERVÉ)
+    // 3. MODAL D'ABONNEMENT
     // ============================================
     const subscribeLink = document.getElementById('subscribe-link');
     const modal = document.getElementById('subscribe-modal');
@@ -884,7 +1048,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 4. FORMULAIRES D'INSCRIPTION (CODE D'ORIGINE PRÉSERVÉ)
+    // 4. FORMULAIRES D'INSCRIPTION
     // ============================================
     
     // Gestion de l'inscription abonné
@@ -981,7 +1145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 5. MENU DÉROULANT PRINCIPAL (CODE D'ORIGINE PRÉSERVÉ)
+    // 5. MENU DÉROULANT PRINCIPAL
     // ============================================
     const menuBtn = document.getElementById('menu-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
@@ -1006,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 6. FENÊTRE D'AUTHENTIFICATION (CODE D'ORIGINE PRÉSERVÉ)
+    // 6. FENÊTRE D'AUTHENTIFICATION
     // ============================================
     const authBtn = document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
@@ -1076,7 +1240,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 7. CONNEXION ADMINISTRATEUR (CODE D'ORIGINE PRÉSERVÉ)
+    // 7. CONNEXION ADMINISTRATEUR
     // ============================================
     if (adminForm) {
         adminForm.addEventListener('submit', async function(e) {
@@ -1138,7 +1302,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 8. CONNEXION CRÉATEUR (CODE D'ORIGINE PRÉSERVÉ)
+    // 8. CONNEXION CRÉATEUR
     // ============================================
     if (creatorForm) {
         creatorForm.addEventListener('submit', async function(e) {
@@ -1200,7 +1364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 9. GESTION DES ÉVÉNEMENTS CLAVIER (CODE D'ORIGINE PRÉSERVÉ)
+    // 9. GESTION DES ÉVÉNEMENTS CLAVIER
     // ============================================
     document.addEventListener('keydown', function(e) {
         // Échap pour fermer la fenêtre d'authentification
@@ -1232,7 +1396,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION (CODE D'ORIGINE PRÉSERVÉ)
+    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION
     // ============================================
     const pendingCreatorsDiv = document.getElementById('pendingCreators');
     const approvedCreatorsDiv = document.getElementById('approvedCreators');
@@ -1415,14 +1579,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loadArticlesByRubrique('culture', 'events-container');
     };
     
-    // Fonction pour configurer les catégories
-    window.setupCategoryFilters = function() {
-        const categoryElements = document.querySelectorAll('[data-category]');
-        categoryElements.forEach(el => {
-            el.addEventListener('click', function() {
-                const category = this.dataset.category;
-                alert(`Filtre: ${category} - Fonctionnalité à implémenter`);
-            });
-        });
-    };
+    // ============================================
+    // EXÉCUTION AUTOMATIQUE DE L'INITIALISATION
+    // ============================================
+    setTimeout(() => {
+        initPageData();
+    }, 100);
 });
