@@ -1353,10 +1353,824 @@
             </div>
         </div>
     </footer>
-
  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
-<script src="script.js"></script>
+       <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Variables globales
+        let currentEditId = null;
+        let currentEditType = null;
+        let currentEditImageUrl = "";
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Appliquer le thème
+            applyTheme();
+            initThemeSelector();
+            
+            // Initialiser les dates
+            initDates();
+            
+            // Gestion des onglets
+            initTabs();
+            
+            // Gestion des formulaires
+            initForms();
+            
+            // Charger les données initiales
+            loadTabData('actualites');
+        });
+
+        // Gestion du thème
+        function applyTheme() {
+            const theme = localStorage.getItem('dreamswear-theme') || 'day';
+            document.body.setAttribute('data-theme', theme);
+            
+            if (theme === 'night') {
+                document.getElementById('theme-button-text').textContent = 'Sombre';
+            } else {
+                document.getElementById('theme-button-text').textContent = 'Clair';
+            }
+        }
+
+        function initThemeSelector() {
+            const themeButton = document.getElementById('theme-select-button');
+            const themeOptions = document.getElementById('theme-options');
+            const themeLinks = themeOptions.querySelectorAll('a');
+
+            themeButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                themeOptions.classList.toggle('hidden-options');
+            });
+
+            themeLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const theme = this.getAttribute('data-theme');
+                    document.body.setAttribute('data-theme', theme);
+                    localStorage.setItem('dreamswear-theme', theme);
+                    
+                    document.getElementById('theme-button-text').textContent = theme === 'night' ? 'Sombre' : 'Clair';
+                    themeOptions.classList.add('hidden-options');
+                });
+            });
+
+            document.addEventListener('click', function() {
+                themeOptions.classList.add('hidden-options');
+            });
+        }
+
+        // Initialiser les dates
+        function initDates() {
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (!input.value) input.value = today;
+            });
+        }
+
+        // Gestion des onglets
+        function initTabs() {
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Désactiver tous les onglets
+                    document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Activer l'onglet cliqué
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Charger les données de l'onglet
+                    loadTabData(tabId);
+                    
+                    // Réinitialiser le formulaire
+                    resetForm(tabId);
+                });
+            });
+        }
+
+        // Charger les données d'un onglet
+        async function loadTabData(tabId) {
+            console.log(`Chargement des données pour: ${tabId}`);
+            
+            const container = document.getElementById(`${tabId}List`);
+            if (!container) return;
+            
+            const { data, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('rubrique', tabId)
+                .eq('statut', 'publié')
+                .order('date_publication', { ascending: false });
+            
+            if (error) {
+                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu publié.</p>';
+                return;
+            }
+            
+            // Générer le HTML pour chaque article
+            container.innerHTML = data.map(item => {
+                // Déterminer le texte à afficher selon la rubrique
+                let metaText = '';
+                switch(tabId) {
+                    case 'visages':
+                        metaText = `${item.nom_createur || ''} • ${item.domaine || ''}`;
+                        break;
+                    case 'culture':
+                        metaText = `${item.type_evenement || 'Événement'} • ${item.lieu || ''}`;
+                        break;
+                    case 'decouvertes':
+                        metaText = `Découverte: ${item.type_decouverte || ''}`;
+                        break;
+                    case 'tendances':
+                        metaText = `Saison: ${item.saison || ''}`;
+                        break;
+                    case 'mode':
+                        metaText = `Thème: ${item.theme_mode || ''}`;
+                        break;
+                    case 'accessoires':
+                        metaText = `Type: ${item.type_accessoire || ''}`;
+                        break;
+                    case 'beaute':
+                        metaText = `Catégorie: ${item.type_beaute || ''}`;
+                        break;
+                    case 'actualites':
+                        metaText = `${item.categorie_actualite || 'Actualité'}`;
+                        break;
+                    default:
+                        metaText = `${item.auteur || 'Rédaction'}`;
+                }
+                
+                return `
+                    <div class="content-item" data-id="${item.id}" data-type="article">
+                        <div class="content-info">
+                            ${item.image_url ? `<img src="${item.image_url}" alt="${item.titre_fr}" onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
+                            <div>
+                                <h3>${item.titre_fr}</h3>
+                                <div class="content-meta">
+                                    <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
+                                    <span>${metaText}</span>
+                                    <span class="badge">${tabId}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="actions">
+                            <button class="action-btn edit-btn" onclick="editContent('article', ${item.id})">✏️</button>
+                            <button class="action-btn delete-btn" onclick="deleteContent('article', ${item.id})">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialiser les formulaires
+        function initForms() {
+            // Configuration des uploads d'images
+            document.querySelectorAll('.imageFile').forEach(input => {
+                const tabId = input.id.split('-')[1];
+                input.addEventListener('change', function() {
+                    handleImageUpload(this, tabId);
+                });
+            });
+            
+            // Boutons d'annulation
+            document.querySelectorAll('.btn-cancel').forEach(btn => {
+                const tabId = btn.id.split('-')[1];
+                btn.addEventListener('click', () => resetForm(tabId));
+            });
+            
+            // Boutons de sauvegarde
+            document.querySelectorAll('.btn-save').forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const tabId = this.id.split('-')[1];
+                    await saveForm(tabId);
+                });
+            });
+        }
+
+        // Gestion de l'upload d'image
+        function handleImageUpload(input, tabId) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert("L'image ne doit pas dépasser 2MB");
+                input.value = "";
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById(`currentImagePreview-${tabId}`);
+                const placeholder = document.querySelector(`#uploadArea-${tabId} .upload-placeholder`);
+                
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Sauvegarder un formulaire
+        async function saveForm(tabId) {
+            const btn = document.getElementById(`btnSave-${tabId}`);
+            const status = document.getElementById(`status-${tabId}`);
+            const fileInput = document.getElementById(`imageFile-${tabId}`);
+            const file = fileInput.files[0];
+            
+            btn.disabled = true;
+            btn.innerHTML = currentEditId ? "<span>💾 Enregistrement...</span>" : "<span>⏳ Publication...</span>";
+            
+            try {
+                let imageUrl = currentEditImageUrl;
+                
+                // Upload de nouvelle image
+                if (file) {
+                    const fileExt = file.name.split('.').pop();
+                    const cleanName = Date.now() + Math.random().toString(36).substring(7);
+                    const fileName = `${tabId}_${cleanName}.${fileExt}`;
+                    
+                    const { error: upErr } = await supabase.storage
+                        .from('magazine-images')
+                        .upload(fileName, file);
+                    
+                    if (upErr) throw upErr;
+                    
+                    const { data: urlData } = supabase.storage
+                        .from('magazine-images')
+                        .getPublicUrl(fileName);
+                    
+                    imageUrl = urlData.publicUrl;
+                }
+                
+                let payload = {};
+                let error = null;
+                
+                switch(tabId) {
+                    case 'actualites':
+                        payload = {
+                            rubrique: document.getElementById('rubrique-actualites').value,
+                            titre_fr: document.getElementById('titre-actualites').value.trim(),
+                            contenu_fr: document.getElementById('contenu-actualites').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-actualites').value,
+                            auteur: document.getElementById('auteur-actualites').value.trim() || 'Rédaction',
+                            statut: 'publié',
+                            categorie_actualite: document.getElementById('categorie-actualites').value
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'visages':
+                        payload = {
+                            rubrique: 'visages',
+                            titre_fr: document.getElementById('nom_marque-visages').value.trim(),
+                            contenu_fr: document.getElementById('biographie-visages').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-visages').value || new Date().toISOString().split('T')[0],
+                            auteur: 'Rédaction',
+                            statut: 'publié',
+                            // Champs spécifiques visages
+                            nom_marque: document.getElementById('nom_marque-visages').value.trim(),
+                            nom_createur: document.getElementById('nom_createur-visages').value.trim(),
+                            domaine: document.getElementById('domaine-visages').value,
+                            reseaux_instagram: document.getElementById('instagram-visages').value.trim(),
+                            site_web: document.getElementById('siteweb-visages').value.trim(),
+                            interview_fr: document.getElementById('interview-visages').value.trim()
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'coulisses':
+                        payload = {
+                            rubrique: 'coulisses',
+                            titre_fr: document.getElementById('titre-coulisses').value.trim(),
+                            contenu_fr: document.getElementById('contenu-coulisses').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-coulisses').value,
+                            auteur: document.getElementById('auteur-coulisses').value.trim(),
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'tendances':
+                        payload = {
+                            rubrique: 'tendances',
+                            titre_fr: document.getElementById('titre-tendances').value.trim(),
+                            contenu_fr: document.getElementById('contenu-tendances').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-tendances').value,
+                            auteur: document.getElementById('auteur-tendances').value.trim() || 'Rédaction',
+                            saison: document.getElementById('saison-tendances').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'decouvertes':
+                        payload = {
+                            rubrique: 'decouvertes',
+                            titre_fr: document.getElementById('titre-decouvertes').value.trim(),
+                            contenu_fr: document.getElementById('contenu-decouvertes').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-decouvertes').value,
+                            auteur: document.getElementById('auteur-decouvertes').value.trim() || 'Rédaction',
+                            type_decouverte: document.getElementById('type-decouvertes').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'culture':
+                        payload = {
+                            rubrique: 'culture',
+                            titre_fr: document.getElementById('titre-culture').value.trim(),
+                            contenu_fr: document.getElementById('description-culture').value.trim(),
+                            image_url: '', // Pas d'image dans votre formulaire culture
+                            date_publication: document.getElementById('date_debut-culture').value || new Date().toISOString().split('T')[0],
+                            auteur: 'Rédaction',
+                            statut: 'publié',
+                            // Champs spécifiques culture
+                            type_evenement: document.getElementById('type-culture').value,
+                            date_evenement: document.getElementById('date_debut-culture').value,
+                            date_fin: document.getElementById('date_fin-culture').value,
+                            heure_evenement: document.getElementById('heure-culture').value,
+                            statut_evenement: document.getElementById('statut-culture').value,
+                            lieu: document.getElementById('lieu-culture').value.trim(),
+                            lien_evenement: document.getElementById('lien-culture').value.trim()
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'mode':
+                        payload = {
+                            rubrique: 'mode',
+                            titre_fr: document.getElementById('titre-mode').value.trim(),
+                            contenu_fr: document.getElementById('contenu-mode').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-mode').value,
+                            auteur: document.getElementById('auteur-mode').value.trim() || 'Rédaction',
+                            theme_mode: document.getElementById('theme-mode').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'accessoires':
+                        payload = {
+                            rubrique: 'accessoires',
+                            titre_fr: document.getElementById('titre-accessoires').value.trim(),
+                            contenu_fr: document.getElementById('contenu-accessoires').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-accessoires').value,
+                            auteur: document.getElementById('auteur-accessoires').value.trim() || 'Rédaction',
+                            type_accessoire: document.getElementById('type-accessoires').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                        
+                    case 'beaute':
+                        payload = {
+                            rubrique: 'beaute',
+                            titre_fr: document.getElementById('titre-beaute').value.trim(),
+                            contenu_fr: document.getElementById('contenu-beaute').value.trim(),
+                            image_url: imageUrl,
+                            date_publication: document.getElementById('date-beaute').value,
+                            auteur: document.getElementById('auteur-beaute').value.trim() || 'Rédaction',
+                            type_beaute: document.getElementById('type-beaute').value,
+                            statut: 'publié'
+                        };
+                        
+                        if (currentEditId) {
+                            const { error: updateErr } = await supabase
+                                .from('articles')
+                                .update(payload)
+                                .eq('id', currentEditId);
+                            error = updateErr;
+                        } else {
+                            const { error: insertErr } = await supabase
+                                .from('articles')
+                                .insert([payload]);
+                            error = insertErr;
+                        }
+                        break;
+                }
+                
+                if (error) throw error;
+                
+                status.textContent = currentEditId ? "✅ Modifié avec succès !" : "✅ Publié avec succès !";
+                status.className = "status-message status-success";
+                status.style.display = 'block';
+                
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 3000);
+                
+                resetForm(tabId);
+                await loadTabData(tabId);
+                
+            } catch (e) {
+                console.error(e);
+                status.textContent = "❌ Erreur: " + e.message;
+                status.className = "status-message status-error";
+                status.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = currentEditId ? 
+                    `<span>💾 Mettre à jour</span>` : 
+                    getDefaultButtonText(tabId);
+            }
+        }
+
+        // Réinitialiser un formulaire
+        function resetForm(tabId) {
+            currentEditId = null;
+            currentEditType = null;
+            currentEditImageUrl = "";
+            
+            // Réinitialiser le formulaire
+            const formTitle = document.getElementById(`formTitle-${tabId}`);
+            const btnSave = document.getElementById(`btnSave-${tabId}`);
+            const btnCancel = document.getElementById(`btnCancel-${tabId}`);
+            const preview = document.getElementById(`currentImagePreview-${tabId}`);
+            const placeholder = document.querySelector(`#uploadArea-${tabId} .upload-placeholder`);
+            
+            if (formTitle) formTitle.textContent = getDefaultTitle(tabId);
+            if (btnSave) btnSave.innerHTML = getDefaultButtonText(tabId);
+            if (btnSave) btnSave.style.background = "";
+            if (btnCancel) btnCancel.style.display = "none";
+            if (preview) {
+                preview.style.display = 'none';
+                preview.src = "";
+            }
+            if (placeholder) placeholder.style.display = 'block';
+            
+            // Vider les champs
+            document.querySelectorAll(`#${tabId}-tab input, #${tabId}-tab textarea, #${tabId}-tab select`).forEach(el => {
+                if (el.type !== 'file' && el.type !== 'button' && el.type !== 'submit') {
+                    if (el.id.includes('date') && !el.id.includes('date_fin')) {
+                        el.value = new Date().toISOString().split('T')[0];
+                    } else if (el.tagName === 'SELECT') {
+                        el.selectedIndex = 0;
+                    } else {
+                        el.value = "";
+                    }
+                }
+            });
+            
+            // Réinitialiser les valeurs par défaut des auteurs
+            const auteurFields = document.querySelectorAll(`#${tabId}-tab input[id*="auteur-"]`);
+            auteurFields.forEach(field => {
+                if (field) field.value = "Rédaction";
+            });
+        }
+
+        function getDefaultTitle(tabId) {
+            const titles = {
+                'actualites': 'Publier une actualité',
+                'visages': 'Ajouter un créateur',
+                'coulisses': 'Article Coulisses',
+                'tendances': 'Article Tendances',
+                'decouvertes': 'Nouvelle découverte',
+                'culture': 'Ajouter un événement',
+                'mode': 'Article Mode',
+                'accessoires': 'Article Accessoires',
+                'beaute': 'Article Beauté'
+            };
+            return titles[tabId] || 'Nouveau contenu';
+        }
+
+        function getDefaultButtonText(tabId) {
+            const texts = {
+                'actualites': '<span>🚀 Publier</span>',
+                'visages': '<span>👑 Ajouter le créateur</span>',
+                'coulisses': '<span>📝 Publier</span>',
+                'tendances': '<span>📈 Publier</span>',
+                'decouvertes': '<span>🔍 Publier</span>',
+                'culture': '<span>📅 Ajouter</span>',
+                'mode': '<span>👗 Publier</span>',
+                'accessoires': '<span>💎 Publier</span>',
+                'beaute': '<span>💄 Publier</span>'
+            };
+            return texts[tabId] || '<span>📝 Publier</span>';
+        }
+
+        // Éditer un contenu
+        window.editContent = async function(type, id) {
+            currentEditId = id;
+            currentEditType = type;
+            
+            const { data: articleData, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('id', id)
+                .single();
+            
+            if (error) {
+                alert('Erreur lors du chargement: ' + error.message);
+                return;
+            }
+            
+            const data = articleData;
+            currentEditImageUrl = data.image_url;
+            
+            const tabId = data.rubrique; // Utiliser la rubrique de l'article
+            
+            // Remplir les champs communs
+            if (document.getElementById(`titre-${tabId}`)) {
+                document.getElementById(`titre-${tabId}`).value = data.titre_fr || '';
+            }
+            if (document.getElementById(`contenu-${tabId}`)) {
+                document.getElementById(`contenu-${tabId}`).value = data.contenu_fr || '';
+            }
+            if (document.getElementById(`date-${tabId}`)) {
+                document.getElementById(`date-${tabId}`).value = data.date_publication || '';
+            }
+            if (document.getElementById(`auteur-${tabId}`)) {
+                document.getElementById(`auteur-${tabId}`).value = data.auteur || '';
+            }
+            
+            // Remplir les champs spécifiques selon la rubrique
+            switch(tabId) {
+                case 'actualites':
+                    if (data.categorie_actualite && document.getElementById('categorie-actualites')) {
+                        document.getElementById('categorie-actualites').value = data.categorie_actualite;
+                    }
+                    break;
+                    
+                case 'visages':
+                    if (document.getElementById('nom_marque-visages')) {
+                        document.getElementById('nom_marque-visages').value = data.nom_marque || '';
+                    }
+                    if (document.getElementById('nom_createur-visages')) {
+                        document.getElementById('nom_createur-visages').value = data.nom_createur || '';
+                    }
+                    if (document.getElementById('domaine-visages')) {
+                        document.getElementById('domaine-visages').value = data.domaine || '';
+                    }
+                    if (document.getElementById('instagram-visages')) {
+                        document.getElementById('instagram-visages').value = data.reseaux_instagram || '';
+                    }
+                    if (document.getElementById('siteweb-visages')) {
+                        document.getElementById('siteweb-visages').value = data.site_web || '';
+                    }
+                    if (document.getElementById('interview-visages')) {
+                        document.getElementById('interview-visages').value = data.interview_fr || '';
+                    }
+                    if (document.getElementById('date-visages')) {
+                        document.getElementById('date-visages').value = data.date_publication || '';
+                    }
+                    if (document.getElementById('biographie-visages')) {
+                        document.getElementById('biographie-visages').value = data.contenu_fr || '';
+                    }
+                    break;
+                    
+                case 'tendances':
+                    if (data.saison && document.getElementById('saison-tendances')) {
+                        document.getElementById('saison-tendances').value = data.saison;
+                    }
+                    break;
+                    
+                case 'decouvertes':
+                    if (data.type_decouverte && document.getElementById('type-decouvertes')) {
+                        document.getElementById('type-decouvertes').value = data.type_decouverte;
+                    }
+                    break;
+                    
+                case 'culture':
+                    if (document.getElementById('titre-culture')) {
+                        document.getElementById('titre-culture').value = data.titre_fr || '';
+                    }
+                    if (document.getElementById('description-culture')) {
+                        document.getElementById('description-culture').value = data.contenu_fr || '';
+                    }
+                    if (document.getElementById('type-culture')) {
+                        document.getElementById('type-culture').value = data.type_evenement || '';
+                    }
+                    if (document.getElementById('date_debut-culture')) {
+                        document.getElementById('date_debut-culture').value = data.date_evenement || '';
+                    }
+                    if (document.getElementById('date_fin-culture')) {
+                        document.getElementById('date_fin-culture').value = data.date_fin || '';
+                    }
+                    if (document.getElementById('heure-culture')) {
+                        document.getElementById('heure-culture').value = data.heure_evenement || '';
+                    }
+                    if (document.getElementById('statut-culture')) {
+                        document.getElementById('statut-culture').value = data.statut_evenement || '';
+                    }
+                    if (document.getElementById('lieu-culture')) {
+                        document.getElementById('lieu-culture').value = data.lieu || '';
+                    }
+                    if (document.getElementById('lien-culture')) {
+                        document.getElementById('lien-culture').value = data.lien_evenement || '';
+                    }
+                    break;
+                    
+                case 'mode':
+                    if (data.theme_mode && document.getElementById('theme-mode')) {
+                        document.getElementById('theme-mode').value = data.theme_mode;
+                    }
+                    break;
+                    
+                case 'accessoires':
+                    if (data.type_accessoire && document.getElementById('type-accessoires')) {
+                        document.getElementById('type-accessoires').value = data.type_accessoire;
+                    }
+                    break;
+                    
+                case 'beaute':
+                    if (data.type_beaute && document.getElementById('type-beaute')) {
+                        document.getElementById('type-beaute').value = data.type_beaute;
+                    }
+                    break;
+            }
+            
+            // Aperçu image
+            const preview = document.getElementById(`currentImagePreview-${tabId}`);
+            const placeholder = document.querySelector(`#uploadArea-${tabId} .upload-placeholder`);
+            if (data.image_url && preview) {
+                preview.src = data.image_url;
+                preview.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+            }
+            
+            // Changer d'onglet
+            document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            const tabButton = document.querySelector(`[data-tab="${tabId}"]`);
+            if (tabButton) tabButton.classList.add('active');
+            
+            const tabContent = document.getElementById(`${tabId}-tab`);
+            if (tabContent) tabContent.classList.add('active');
+            
+            // Mettre à jour l'interface
+            const formTitle = document.getElementById(`formTitle-${tabId}`);
+            const btnSave = document.getElementById(`btnSave-${tabId}`);
+            const btnCancel = document.getElementById(`btnCancel-${tabId}`);
+            
+            if (formTitle) formTitle.textContent = `Modifier l'article`;
+            if (btnSave) btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
+            if (btnSave) btnSave.style.background = "#f59e0b";
+            if (btnCancel) btnCancel.style.display = "flex";
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // Supprimer un contenu
+        window.deleteContent = async function(type, id) {
+            if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement ?")) return;
+            
+            try {
+                // Récupérer la rubrique pour savoir quel onglet recharger
+                const { data: article, error: fetchError } = await supabase
+                    .from('articles')
+                    .select('rubrique')
+                    .eq('id', id)
+                    .single();
+                    
+                if (fetchError) throw fetchError;
+                
+                const tabId = article.rubrique;
+                
+                // Supprimer l'article
+                const { error: deleteErr } = await supabase
+                    .from('articles')
+                    .delete()
+                    .eq('id', id);
+                
+                if (deleteErr) throw deleteErr;
+                
+                alert("Supprimé avec succès !");
+                
+                // Recharger les données de l'onglet
+                await loadTabData(tabId);
+                
+                if (currentEditId === id) {
+                    resetForm(tabId);
+                }
+                
+            } catch (error) {
+                alert("Erreur lors de la suppression: " + error.message);
+            }
+        };
+
+        // Redirection vers l'accueil
+        document.querySelector('a[href="index.html"]').addEventListener('click', function(e) {
+            if (!confirm("Les modifications non sauvegardées seront perdues. Continuer ?")) {
+                e.preventDefault();
+            }
+        });
+    </script>
     <script>
     // Gestion simple des onglets
     document.querySelectorAll('.tab-link').forEach(button => {
