@@ -11,6 +11,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ============================================
+    // DÉTECTION AUTOMATIQUE DE LA PAGE (NOUVEAU)
+    // ============================================
+    function detectPageAndLoad() {
+        console.log('🔍 Détection automatique de la page...');
+        
+        // 1. Si on est sur article.html
+        if (document.getElementById('article-content')) {
+            console.log('📄 Page Article détectée');
+            loadSingleArticle();
+            return;
+        }
+        
+        // 2. Liste des conteneurs et leurs rubriques associées
+        const containerMap = {
+            'actualites-container': 'actualites',
+            'visages-container': 'visages',
+            'tendances-container': 'tendances',
+            'accessoires-container': 'accessoires',
+            'beaute-container': 'beaute',
+            'coulisses-container': 'coulisses',
+            'culture-container': 'culture',
+            'decouvertes-container': 'decouvertes',
+            'mode-container': 'mode',
+            // Anciens noms pour compatibilité
+            'articles-list': 'coulisses',
+            'trends-container': 'tendances',
+            'discoveries-container': 'decouvertes',
+            'events-container': 'culture'
+        };
+        
+        // 3. Chercher quel conteneur est présent sur la page
+        for (const [containerId, rubrique] of Object.entries(containerMap)) {
+            if (document.getElementById(containerId)) {
+                console.log(`📄 Page ${rubrique} détectée (${containerId})`);
+                loadArticlesByRubrique(rubrique, containerId);
+                
+                // Configurations spécifiques
+                if (rubrique === 'visages' && document.querySelectorAll('.filter-btn').length > 0) {
+                    setupVisageFilters();
+                }
+                return;
+            }
+        }
+        
+        // 4. Si aucun conteneur trouvé, essayer par nom de fichier
+        const path = window.location.pathname;
+        const pageName = path.split('/').pop().replace('.html', '').toLowerCase();
+        
+        const pageToRubrique = {
+            'accessoires': ['accessoires-container', 'accessoires'],
+            'beaute': ['beaute-container', 'beaute'],
+            'mode': ['mode-container', 'mode'],
+            'coulisses': ['coulisses-container', 'coulisses'],
+            'tendances': ['tendances-container', 'tendances'],
+            'decouvertes': ['decouvertes-container', 'decouvertes'],
+            'culture': ['culture-container', 'culture'],
+            'visages': ['visages-container', 'visages'],
+            'actualites': ['actualites-container', 'actualites']
+        };
+        
+        if (pageToRubrique[pageName]) {
+            const [containerId, rubrique] = pageToRubrique[pageName];
+            console.log(`📄 Page ${rubrique} détectée par nom de fichier`);
+            loadArticlesByRubrique(rubrique, containerId);
+            return;
+        }
+        
+        console.log('ℹ️ Aucune page spécifique détectée');
+    }
+    
+    // ============================================
     // 0. FONCTIONS POUR LA NOUVELLE STRUCTURE
     // ============================================
     
@@ -25,6 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log(`🔄 Chargement des articles ${rubrique}...`);
             
+            // Afficher un message de chargement
+            container.innerHTML = '<div class="loading" style="padding: 40px; text-align: center; color: #666;">Chargement des articles...</div>';
+            
             const { data, error } = await supabase
                 .from('articles')
                 .select('*')
@@ -32,19 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 .eq('statut', 'publié')
                 .order('date_publication', { ascending: false });
             
+            console.log('📊 Données reçues pour', rubrique, ':', data); // <-- DÉBOGAGE AJOUTÉ
+            
             if (error) {
                 console.error(`❌ Erreur chargement ${rubrique}:`, error);
-                container.innerHTML = `<p class="error">Erreur de chargement: ${error.message}</p>`;
+                container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Erreur de chargement: ${error.message}</p>`;
                 return;
             }
             
             if (!data || data.length === 0) {
-                console.log(`ℹ️ Aucun article ${rubrique} trouvé`);
-                container.innerHTML = `<p class="no-content">Aucun contenu pour le moment.</p>`;
+                console.log(`ℹ️ Aucun article ${rubrique} trouvé (statut = publié)`);
+                container.innerHTML = `<p class="no-content" style="padding: 40px; text-align: center; color: #666;">Aucun contenu publié pour le moment.<br><small>Utilisez Actualisation.html pour publier du contenu</small></p>`;
                 return;
             }
             
-            console.log(`✅ ${data.length} articles ${rubrique} chargés`);
+            console.log(`✅ ${data.length} articles ${rubrique} chargés (publiés)`);
             
             // Appeler la fonction de rendu appropriée
             switch(rubrique) {
@@ -81,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         } catch (error) {
             console.error('💥 Erreur générale:', error);
-            container.innerHTML = `<p class="error">Une erreur est survenue lors du chargement.</p>`;
+            container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Une erreur est survenue lors du chargement: ${error.message}</p>`;
         }
     };
     
@@ -497,6 +573,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('article-content');
         
         try {
+            console.log(`🔄 Chargement de l'article ${articleId}...`);
+            
             const { data: article, error } = await supabase
                 .from('articles')
                 .select('*')
@@ -506,15 +584,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (error) throw error;
             
             if (!article || article.statut !== 'publié') {
-                throw new Error('Article non disponible');
+                throw new Error('Article non disponible (statut non publié)');
             }
             
+            console.log('✅ Article chargé:', article);
             renderSingleArticle(article);
             
         } catch (error) {
             console.error('Erreur:', error);
             container.innerHTML = `
-                <div class="error-message">
+                <div class="error-message" style="padding: 40px; text-align: center;">
                     <h2>Erreur de chargement</h2>
                     <p>${error.message}</p>
                     <a href="index.html" class="btn-home">Retour à l'accueil</a>
@@ -785,54 +864,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // ============================================
-    // FONCTION D'INITIALISATION AUTOMATIQUE DES PAGES
+    // FONCTION D'INITIALISATION AUTOMATIQUE DES PAGES (CONSERVÉE POUR COMPATIBILITÉ)
     // ============================================
     
     window.initPageData = function() {
         console.log('🔄 Initialisation des données de la page...');
-        
-        // Charger un article unique si on est sur article.html
-        if (document.getElementById('article-content')) {
-            console.log('📄 Page Article détectée');
-            loadSingleArticle();
-            return;
-        }
-        
-        // Détection basée sur les conteneurs SPÉCIFIQUES
-        const pageMap = {
-            'actualites-container': 'actualites',
-            'visages-container': 'visages',
-            'tendances-container': 'tendances',
-            'accessoires-container': 'accessoires',
-            'beaute-container': 'beaute',
-            'coulisses-container': 'coulisses',
-            'culture-container': 'culture',
-            'decouvertes-container': 'decouvertes',
-            'mode-container': 'mode'
-        };
-        
-        // Chercher quel conteneur est présent
-        for (const [containerId, rubrique] of Object.entries(pageMap)) {
-            if (document.getElementById(containerId)) {
-                console.log(`📄 Page ${rubrique} détectée (via ${containerId})`);
-                loadArticlesByRubrique(rubrique, containerId);
-                
-                // Configurations spécifiques
-                if (rubrique === 'visages') {
-                    setupVisageFilters();
-                }
-                if (rubrique === 'coulisses') {
-                    // Vous pouvez ajouter un traitement spécial si nécessaire
-                    console.log('✨ Page Coulisses détectée');
-                }
-                break;
-            }
-        }
-        
-        // Configurer les catégories si présentes
-        if (document.querySelectorAll('[data-category]').length > 0) {
-            setupCategoryFilters();
-        }
+        detectPageAndLoad(); // Utilise la nouvelle fonction de détection
     };
     
     // ============================================
@@ -911,6 +948,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // ============================================
+    // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION (NOUVEAU)
+    // ============================================
+    setTimeout(() => {
+        detectPageAndLoad(); // Détection automatique au chargement
+    }, 100);
+
     // ============================================
     // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
     // ============================================
@@ -1578,11 +1622,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadEvents');
         loadArticlesByRubrique('culture', 'events-container');
     };
-    
-    // ============================================
-    // EXÉCUTION AUTOMATIQUE DE L'INITIALISATION
-    // ============================================
-    setTimeout(() => {
-        initPageData();
-    }, 100);
 });
