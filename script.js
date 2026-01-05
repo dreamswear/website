@@ -16,6 +16,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function detectPageAndLoad() {
         console.log('🔍 Détection automatique de la page...');
         
+        // Vérifier si on est sur la page d'administration
+        if (window.location.pathname.includes('Actualisation.html')) {
+            console.log('📄 Page Admin détectée');
+            initAdminPage();
+            return;
+        }
+        
         // 1. Si on est sur article.html
         if (document.getElementById('article-content')) {
             console.log('📄 Page Article détectée');
@@ -79,6 +86,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         console.log('ℹ️ Aucune page spécifique détectée');
+    }
+    
+    // ============================================
+    // FONCTION POUR LA PAGE ADMINISTRATION
+    // ============================================
+    
+    async function initAdminPage() {
+        console.log('🔄 Initialisation de la page admin...');
+        
+        // Initialiser les onglets
+        document.querySelectorAll('.tab-link').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + '-tab').classList.add('active');
+            });
+        });
+        
+        // Initialiser les boutons de sauvegarde
+        document.querySelectorAll('.btn-save').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const tabId = this.id.split('-')[1];
+                console.log('Enregistrement pour:', tabId);
+                // Votre logique d'enregistrement ici
+            });
+        });
+        
+        // Charger les données initiales
+        await loadAdminData('actualites');
+    }
+    
+    async function loadAdminData(tabId) {
+        console.log(`🔄 Chargement des données admin pour: ${tabId}`);
+        // Implémentez ici le chargement des données pour l'admin
     }
     
     // ============================================
