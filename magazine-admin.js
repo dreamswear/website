@@ -1,5 +1,5 @@
 // ============================================
-// MAGAZINE ADMIN SCRIPT - VERSION CORRIGÉE
+// MAGAZINE UNIFIED SCRIPT - TOUT EN UN
 // ============================================
 
 // Configuration Supabase
@@ -9,8 +9,13 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // Initialisation Supabase
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Variables globales
+let currentEditId = null;
+let currentEditRubrique = null;
+let currentEditImageUrl = "";
+
 // ============================================
-// FONCTIONS UTILITAIRES COMMUNES
+// FONCTIONS UTILITAIRES
 // ============================================
 
 function getRubriqueName(rubrique) {
@@ -42,177 +47,185 @@ function getTypeDecouverteLabel(type) {
     return labels[type] || 'Découvertes';
 }
 
-function formatArticleContent(content) {
-    if (!content) return '<p>Contenu non disponible.</p>';
-    return content
-        .replace(/\n/g, '<br>')
-        .replace(/### (.*?)\n/g, '<h3>$1</h3>')
-        .replace(/## (.*?)\n/g, '<h2>$1</h2>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>');
-}
-
 // ============================================
-// FONCTIONS POUR LA NAVIGATION (COMMUNES À TOUTES LES PAGES)
+// GESTION DU THÈME (FONCTIONNE SUR TOUTES LES PAGES)
 // ============================================
 
-function setupNavigation() {
-    // ============================================
-    // 1. MENU DÉROULANT PRINCIPAL
-    // ============================================
-    const menuBtn = document.getElementById('menu-btn');
-    const dropdownMenu = document.getElementById('dropdown-menu');
-
-    if (menuBtn && dropdownMenu) {
-        menuBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            dropdownMenu.classList.toggle('active');
-        });
-        
-        // Fermer le menu si on clique ailleurs
-        document.addEventListener('click', function(e) {
-            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                dropdownMenu.classList.remove('active');
-            }
-        });
-        
-        // Empêcher la fermeture quand on clique dans le menu
-        dropdownMenu.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
-    }
-
-    // ============================================
-    // 2. SELECTEUR DE THÈME
-    // ============================================
+function setupTheme() {
     const themeSelectButton = document.getElementById('theme-select-button');
     const themeOptions = document.getElementById('theme-options');
     const themeButtonText = document.getElementById('theme-button-text');
     const body = document.body;
-
-    if (themeSelectButton && themeOptions) {
-        // Fonction pour définir le thème
-        const setTheme = (theme) => {
-            if (theme === 'day') {
-                body.classList.add('day-mode');
-                localStorage.setItem('theme', 'day');
-                if (themeButtonText) themeButtonText.textContent = 'Clair';
-            } else {
-                body.classList.remove('day-mode');
-                localStorage.setItem('theme', 'night');
-                if (themeButtonText) themeButtonText.textContent = 'Sombre';
-            }
-        };
-
-        // Basculer le menu déroulant du thème
-        themeSelectButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            themeOptions.classList.toggle('hidden-options');
-            themeSelectButton.parentElement.classList.toggle('open');
-        });
-
-        // Définir le thème depuis le menu déroulant
-        themeOptions.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (e.target.tagName === 'A') {
-                const selectedTheme = e.target.dataset.theme;
-                setTheme(selectedTheme);
-                themeOptions.classList.add('hidden-options');
-                themeSelectButton.parentElement.classList.remove('open');
-            }
-        });
-        
-        // Fermer le menu déroulant en cliquant à l'extérieur
-        document.addEventListener('click', () => {
-            if (themeOptions && !themeOptions.classList.contains('hidden-options')) {
-                themeOptions.classList.add('hidden-options');
-                themeSelectButton.parentElement.classList.remove('open');
-            }
-        });
-
-        // Vérifier le thème sauvegardé dans localStorage au chargement
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setTheme(savedTheme);
+    
+    if (!themeSelectButton || !themeOptions) {
+        console.log("⚠️ Éléments du thème non trouvés");
+        return;
+    }
+    
+    console.log("✅ Configuration du thème...");
+    
+    // Fonction pour définir le thème
+    function setTheme(theme) {
+        if (theme === 'day') {
+            body.classList.add('day-mode');
+            localStorage.setItem('theme', 'day');
+            if (themeButtonText) themeButtonText.textContent = 'Clair';
         } else {
-            // Thème par défaut si aucun n'est sauvegardé
-            setTheme('night');
+            body.classList.remove('day-mode');
+            localStorage.setItem('theme', 'night');
+            if (themeButtonText) themeButtonText.textContent = 'Sombre';
         }
     }
+    
+    // Basculer le menu déroulant du thème
+    themeSelectButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log("🎨 Bouton thème cliqué");
+        themeOptions.classList.toggle('hidden-options');
+        themeSelectButton.parentElement.classList.toggle('open');
+    });
+    
+    // Définir le thème depuis le menu déroulant
+    themeOptions.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log("🎨 Option thème cliquée");
+        if (e.target.tagName === 'A') {
+            const selectedTheme = e.target.dataset.theme;
+            console.log("🎨 Thème sélectionné:", selectedTheme);
+            setTheme(selectedTheme);
+            themeOptions.classList.add('hidden-options');
+            themeSelectButton.parentElement.classList.remove('open');
+        }
+    });
+    
+    // Fermer le menu déroulant en cliquant à l'extérieur
+    document.addEventListener('click', (e) => {
+        if (!themeSelectButton.contains(e.target) && !themeOptions.contains(e.target)) {
+            themeOptions.classList.add('hidden-options');
+            themeSelectButton.parentElement.classList.remove('open');
+        }
+    });
+    
+    // Appliquer le thème sauvegardé
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        setTheme(savedTheme);
+    } else {
+        setTheme('night');
+    }
+    
+    console.log("✅ Thème configuré");
+}
 
-    // ============================================
-    // 3. MODAL D'ABONNEMENT
-    // ============================================
+// ============================================
+// GESTION DU MENU (FONCTIONNE SUR TOUTES LES PAGES)
+// ============================================
+
+function setupMenu() {
+    const menuBtn = document.getElementById('menu-btn');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    if (!menuBtn || !dropdownMenu) {
+        console.log("⚠️ Éléments du menu non trouvés");
+        return;
+    }
+    
+    console.log("✅ Configuration du menu...");
+    
+    menuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        console.log("🍔 Menu cliqué");
+        dropdownMenu.classList.toggle('active');
+    });
+    
+    // Fermer le menu si on clique ailleurs
+    document.addEventListener('click', function(e) {
+        if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+            dropdownMenu.classList.remove('active');
+        }
+    });
+    
+    // Empêcher la fermeture quand on clique dans le menu
+    dropdownMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+    
+    console.log("✅ Menu configuré");
+}
+
+// ============================================
+// GESTION DU MODAL D'ABONNEMENT
+// ============================================
+
+function setupSubscriptionModal() {
     const subscribeLink = document.getElementById('subscribe-link');
     const modal = document.getElementById('subscribe-modal');
-    const closeModalButton = modal ? modal.querySelector('.close-modal') : null;
-    const tabLinks = modal ? modal.querySelectorAll('.tab-link') : [];
-    const tabContents = modal ? modal.querySelectorAll('.tab-content') : [];
-
+    
+    if (!subscribeLink || !modal) {
+        console.log("⚠️ Éléments d'abonnement non trouvés");
+        return;
+    }
+    
+    console.log("✅ Configuration du modal d'abonnement...");
+    
+    const closeModalButton = modal.querySelector('.close-modal');
+    const tabLinks = modal.querySelectorAll('.tab-link');
+    const tabContents = modal.querySelectorAll('.tab-content');
+    
     const openModal = () => {
-        if (modal) {
-            modal.classList.remove('hidden-modal');
-            document.body.style.overflow = 'hidden';
-        }
+        modal.classList.remove('hidden-modal');
+        document.body.style.overflow = 'hidden';
     };
     
     const closeModal = () => {
-        if (modal) {
-            modal.classList.add('hidden-modal');
-            document.body.style.overflow = '';
-        }
+        modal.classList.add('hidden-modal');
+        document.body.style.overflow = '';
     };
-
-    if (subscribeLink) {
-        subscribeLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal();
-        });
-    }
-
+    
+    // Ouvrir le modal
+    subscribeLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log("📧 Abonnement cliqué");
+        openModal();
+    });
+    
+    // Fermer le modal
     if (closeModalButton) {
         closeModalButton.addEventListener('click', closeModal);
     }
-
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
     
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden-modal')) {
+    // Fermer en cliquant à l'extérieur
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
             closeModal();
         }
     });
-
+    
+    // Fermer avec Échap
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden-modal')) {
+            closeModal();
+        }
+    });
+    
+    // Gestion des onglets
     tabLinks.forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', (e) => {
+            e.preventDefault();
             const targetId = tab.dataset.tab;
             const target = document.getElementById(targetId);
-
-            tabLinks.forEach(link => {
-                link.classList.remove('active');
-                link.setAttribute('aria-selected', 'false');
-            });
             
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-
+            tabLinks.forEach(link => link.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
             tab.classList.add('active');
-            tab.setAttribute('aria-selected', 'true');
             if (target) target.classList.add('active');
         });
     });
-
-    // ============================================
-    // 4. FORMULAIRES D'INSCRIPTION
-    // ============================================
     
-    // Gestion de l'inscription abonné
+    // Gestion du formulaire d'abonnement
     const subscriberForm = document.getElementById('subscriber-form-element');
     if (subscriberForm) {
         subscriberForm.addEventListener('submit', async function(e) {
@@ -223,136 +236,82 @@ function setupNavigation() {
             const email = document.getElementById('sub-email').value.trim();
             const telephone = document.getElementById('sub-tel').value.trim();
             
-            console.log('📝 Tentative inscription abonné:', email);
+            console.log('📝 Inscription abonné:', email);
             
             try {
                 const { data, error } = await supabase
                     .from('Abonnés')
-                    .insert([
-                        {
-                            nom: nom,
-                            prenom: prenom,
-                            email: email,
-                            telephone: telephone
-                        }
-                    ]);
+                    .insert([{ nom, prenom, email, telephone }]);
                 
-                if (error) {
-                    console.error('❌ Erreur inscription:', error);
-                    alert('Erreur: ' + error.message);
-                    return;
-                }
+                if (error) throw error;
                 
-                console.log('✅ Inscription réussie!', data);
-                alert('Inscription réussie ! Vous recevrez nos actualités par email.');
+                alert('✅ Inscription réussie !');
                 closeModal();
                 subscriberForm.reset();
                 
             } catch (error) {
-                console.error('💥 Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
+                console.error('❌ Erreur:', error);
+                alert('❌ Erreur: ' + error.message);
             }
         });
     }
+    
+    console.log("✅ Modal d'abonnement configuré");
+}
 
-    // Gestion de l'inscription créateur
-    const creatorRegisterForm = document.getElementById('creator-register-form');
-    if (creatorRegisterForm) {
-        creatorRegisterForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const nom = document.getElementById('cre-nom').value.trim();
-            const prenom = document.getElementById('cre-prenom').value.trim();
-            const password = document.getElementById('cre-password').value;
-            const email = document.getElementById('cre-email').value.trim();
-            const telephone = document.getElementById('cre-tel').value.trim();
-            const marque = document.getElementById('cre-marque').value.trim();
-            const domaine = document.getElementById('cre-domaine').value;
-            
-            console.log('🎨 Tentative inscription créateur:', marque);
-            
-            try {
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .insert([
-                        {
-                            nom: nom,
-                            prenom: prenom,
-                            nom_marque: marque,
-                            domaine: domaine,
-                            email: email,
-                            telephone: telephone,
-                            mot_de_passe: password,
-                            statut: 'pending'
-                        }
-                    ]);
-                
-                if (error) {
-                    console.error('❌ Erreur inscription:', error);
-                    alert('Erreur: ' + error.message);
-                    return;
-                }
-                
-                console.log('✅ Inscription créateur réussie!', data);
-                alert('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
-                closeModal();
-                creatorRegisterForm.reset();
-                
-            } catch (error) {
-                console.error('💥 Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
-            }
-        });
-    }
+// ============================================
+// GESTION DE L'AUTHENTIFICATION
+// ============================================
 
-    // ============================================
-    // 5. FENÊTRE D'AUTHENTIFICATION
-    // ============================================
+function setupAuthentication() {
     const authBtn = document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
-    const closeAuthModal = authModal ? authModal.querySelector('.close-auth-modal') : null;
-    const authTabs = authModal ? authModal.querySelectorAll('.auth-tab') : [];
+    
+    if (!authBtn || !authModal) {
+        console.log("⚠️ Éléments d'authentification non trouvés");
+        return;
+    }
+    
+    console.log("✅ Configuration de l'authentification...");
+    
+    const closeAuthModal = authModal.querySelector('.close-auth-modal');
+    const authTabs = authModal.querySelectorAll('.auth-tab');
     const adminForm = document.getElementById('admin-form');
     const creatorForm = document.getElementById('creator-form');
-    const adminError = document.getElementById('admin-error');
-    const creatorError = document.getElementById('creator-error');
-
-    // Ouvrir la fenêtre d'authentification
-    if (authBtn && authModal) {
-        authBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            authModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        });
-    }
-
-    // Fermer la fenêtre d'authentification
+    
+    // Ouvrir le modal
+    authBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log("🔑 Authentification cliquée");
+        authModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Fermer le modal
     if (closeAuthModal) {
-        closeAuthModal.addEventListener('click', function() {
+        closeAuthModal.addEventListener('click', () => {
             authModal.classList.remove('active');
             document.body.style.overflow = '';
-            if (adminError) adminError.style.display = 'none';
-            if (creatorError) creatorError.style.display = 'none';
-            if (adminForm) adminForm.reset();
-            if (creatorForm) creatorForm.reset();
         });
     }
-
+    
     // Fermer en cliquant à l'extérieur
-    if (authModal) {
-        authModal.addEventListener('click', function(e) {
-            if (e.target === authModal) {
-                authModal.classList.remove('active');
-                document.body.style.overflow = '';
-                if (adminError) adminError.style.display = 'none';
-                if (creatorError) creatorError.style.display = 'none';
-                if (adminForm) adminForm.reset();
-                if (creatorForm) creatorForm.reset();
-            }
-        });
-    }
-
-    // Gestion des onglets d'authentification
+    authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) {
+            authModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Fermer avec Échap
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && authModal.classList.contains('active')) {
+            authModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+    
+    // Gestion des onglets
     authTabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const authType = this.getAttribute('data-auth-type');
@@ -364,20 +323,15 @@ function setupNavigation() {
                 form.classList.remove('active');
             });
             
-            if (authType === 'admin') {
-                if (adminForm) adminForm.classList.add('active');
-            } else {
-                if (creatorForm) creatorForm.classList.add('active');
+            if (authType === 'admin' && adminForm) {
+                adminForm.classList.add('active');
+            } else if (creatorForm) {
+                creatorForm.classList.add('active');
             }
-            
-            if (adminError) adminError.style.display = 'none';
-            if (creatorError) creatorError.style.display = 'none';
         });
     });
-
-    // ============================================
-    // 6. CONNEXION ADMINISTRATEUR
-    // ============================================
+    
+    // Connexion admin
     if (adminForm) {
         adminForm.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -385,10 +339,9 @@ function setupNavigation() {
             const nom = document.getElementById('admin-nom').value.trim();
             const password = document.getElementById('admin-password').value;
             
-            console.log('🔐 Tentative connexion admin:', nom);
+            console.log('🔐 Connexion admin:', nom);
             
             try {
-                // Vérification dans la table administrateurs
                 const { data, error } = await supabase
                     .from('administrateurs')
                     .select('*')
@@ -396,50 +349,28 @@ function setupNavigation() {
                     .eq('mot_de_passe', password)
                     .single();
                 
-                console.log('📊 Résultat:', { data: !!data, error: error?.message });
-                
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error.message);
-                    if (adminError) {
-                        adminError.textContent = 'Erreur technique: ' + error.message;
-                        adminError.style.display = 'block';
-                    }
-                    return;
-                }
+                if (error) throw error;
                 
                 if (!data) {
-                    console.log('⚠️ Aucun admin trouvé');
-                    if (adminError) {
-                        adminError.textContent = 'Nom d\'administrateur ou mot de passe incorrect';
-                        adminError.style.display = 'block';
-                    }
+                    alert('❌ Identifiants incorrects');
                     return;
                 }
-                
-                console.log('✅ Connexion réussie! Admin:', data);
                 
                 // Connexion réussie
                 sessionStorage.setItem('adminLoggedIn', 'true');
-                sessionStorage.setItem('adminId', data.id);
                 sessionStorage.setItem('adminName', data.nom);
-                sessionStorage.setItem('adminEmail', data.email);
                 
-                // Redirection vers la page d'administration
+                alert('✅ Connexion réussie !');
                 window.location.href = 'admin.html';
                 
             } catch (error) {
-                console.error('💥 Erreur de connexion:', error);
-                if (adminError) {
-                    adminError.textContent = 'Une erreur est survenue lors de la connexion';
-                    adminError.style.display = 'block';
-                }
+                console.error('❌ Erreur:', error);
+                alert('❌ Erreur de connexion');
             }
         });
     }
-
-    // ============================================
-    // 7. CONNEXION CRÉATEUR
-    // ============================================
+    
+    // Connexion créateur
     if (creatorForm) {
         creatorForm.addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -447,10 +378,9 @@ function setupNavigation() {
             const brand = document.getElementById('creator-brand').value.trim();
             const password = document.getElementById('creator-password').value;
             
-            console.log('🎨 Tentative connexion créateur:', brand);
+            console.log('🎨 Connexion créateur:', brand);
             
             try {
-                // Vérification dans la table créateurs
                 const { data, error } = await supabase
                     .from('créateurs')
                     .select('*')
@@ -459,741 +389,629 @@ function setupNavigation() {
                     .eq('statut', 'actif')
                     .single();
                 
-                console.log('📊 Résultat:', { data: !!data, error: error?.message });
-                
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error.message);
-                    if (creatorError) {
-                        creatorError.textContent = 'Erreur technique: ' + error.message;
-                        creatorError.style.display = 'block';
-                    }
-                    return;
-                }
+                if (error) throw error;
                 
                 if (!data) {
-                    console.log('⚠️ Aucun créateur trouvé');
-                    if (creatorError) {
-                        creatorError.textContent = 'Marque ou mot de passe incorrect';
-                        creatorError.style.display = 'block';
-                    }
+                    alert('❌ Identifiants incorrects ou compte non activé');
                     return;
                 }
-                
-                console.log('✅ Connexion créateur réussie!', data);
                 
                 // Connexion réussie
                 sessionStorage.setItem('creatorLoggedIn', 'true');
-                sessionStorage.setItem('creatorId', data.id);
                 sessionStorage.setItem('creatorBrand', data.nom_marque);
                 
-                // Redirection vers le dashboard créateur
+                alert('✅ Connexion réussie !');
                 window.location.href = 'dashboard-home.html';
                 
             } catch (error) {
-                console.error('💥 Erreur de connexion:', error);
-                if (creatorError) {
-                    creatorError.textContent = 'Une erreur est survenue lors de la connexion';
-                    creatorError.style.display = 'block';
-                }
+                console.error('❌ Erreur:', error);
+                alert('❌ Erreur de connexion');
             }
         });
     }
-
-    // ============================================
-    // 8. GESTION DES ÉVÉNEMENTS CLAVIER
-    // ============================================
-    document.addEventListener('keydown', function(e) {
-        // Échap pour fermer la fenêtre d'authentification
-        if (e.key === 'Escape' && authModal && authModal.classList.contains('active')) {
-            authModal.classList.remove('active');
-            document.body.style.overflow = '';
-            if (adminError) adminError.style.display = 'none';
-            if (creatorError) creatorError.style.display = 'none';
-            if (adminForm) adminForm.reset();
-            if (creatorForm) creatorForm.reset();
-        }
-        
-        // Échap pour fermer le modal d'abonnement
-        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden-modal')) {
-            closeModal();
-        }
-    });
+    
+    console.log("✅ Authentification configurée");
 }
 
 // ============================================
-// FONCTIONS SPÉCIFIQUES POUR L'ADMINISTRATION
+// FONCTIONS POUR LA PAGE D'ADMINISTRATION
 // ============================================
 
 function setupAdminPage() {
-    console.log('🔄 Initialisation de la page d\'administration...');
-    
-    // Variables globales pour l'édition
-    let currentEditId = null;
-    let currentEditRubrique = null;
-    let currentEditImageUrl = "";
+    console.log("🔄 Initialisation de la page d'administration...");
     
     // Initialiser les dates
-    initDates();
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('input[type="date"]').forEach(input => {
+        if (!input.value) input.value = today;
+    });
     
     // Gestion des onglets
-    initAdminTabs();
-    
-    // Gestion des formulaires et uploads
-    initAdminForms();
-    
-    // Charger les données initiales (onglet Actualités par défaut)
-    setTimeout(() => loadAdminTabData('actualites'), 100);
-    
-    // ============================================
-    // FONCTIONS ADMIN
-    // ============================================
-    
-    function initDates() {
-        const today = new Date().toISOString().split('T')[0];
-        document.querySelectorAll('input[type="date"]').forEach(input => {
-            if (!input.value) input.value = today;
-        });
-    }
-    
-    function initAdminTabs() {
-        document.querySelectorAll('.tab-link').forEach(tab => {
-            tab.addEventListener('click', async function() {
-                const tabId = this.dataset.tab;
-                
-                // Désactiver tous les onglets
-                document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Activer l'onglet cliqué
-                this.classList.add('active');
-                const tabContent = document.getElementById(`${tabId}-tab`);
-                if (tabContent) tabContent.classList.add('active');
-                
-                // Charger les données de l'onglet
-                await loadAdminTabData(tabId);
-                
-                // Réinitialiser le formulaire
-                resetAdminForm(tabId);
-            });
-        });
-    }
-    
-    async function loadAdminTabData(rubrique) {
-        console.log(`🔄 Chargement des données pour: ${rubrique}`);
-        
-        const container = document.getElementById(`${rubrique}List`);
-        if (!container) {
-            console.log(`❌ Conteneur ${rubrique}List non trouvé`);
-            return;
-        }
-        
-        container.innerHTML = '<p style="text-align: center; color: #666;">Chargement...</p>';
-        
-        try {
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('rubrique', rubrique)
-                .eq('statut', 'publié')
-                .order('date_publication', { ascending: false });
+    document.querySelectorAll('.tab-link').forEach(tab => {
+        tab.addEventListener('click', async function() {
+            const tabId = this.dataset.tab;
             
-            if (error) {
-                container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
-                console.error(`❌ Erreur chargement ${rubrique}:`, error);
-                return;
-            }
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu publié.</p>';
-                return;
-            }
-            
-            // Afficher les articles
-            displayAdminArticles(data, rubrique, container);
-            
-        } catch (error) {
-            container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
-            console.error('💥 Erreur:', error);
-        }
-    }
-    
-    function displayAdminArticles(articles, rubrique, container) {
-        container.innerHTML = articles.map(article => {
-            // Texte de métadonnées selon la rubrique
-            let metaText = getArticleMetaText(article, rubrique);
-            
-            return `
-                <div class="content-item" data-id="${article.id}" data-rubrique="${rubrique}">
-                    <div class="content-info">
-                        ${article.image_url ? `
-                        <img src="${article.image_url}" alt="${article.titre_fr}" 
-                             onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
-                        <div>
-                            <h3>${article.titre_fr}</h3>
-                            <div class="content-meta">
-                                <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                                <span>${metaText}</span>
-                                <span class="badge">${getRubriqueName(rubrique)}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <button class="action-btn edit-btn" onclick="editArticle(${article.id}, '${rubrique}')">
-                            ✏️ Modifier
-                        </button>
-                        <button class="action-btn delete-btn" onclick="deleteArticle(${article.id}, '${rubrique}')">
-                            🗑️ Supprimer
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-    function getArticleMetaText(article, rubrique) {
-        switch(rubrique) {
-            case 'visages':
-                return `${article.nom_createur || ''} • ${article.domaine || ''}`;
-            case 'culture':
-                return `${article.type_evenement || 'Événement'} • ${article.lieu || ''}`;
-            case 'decouvertes':
-                return `Type: ${article.type_decouverte || ''}`;
-            case 'tendances':
-                return `Saison: ${article.saison || ''}`;
-            case 'mode':
-                return `Thème: ${article.theme_mode || ''}`;
-            case 'accessoires':
-                return `Type: ${article.type_accessoire || ''}`;
-            case 'beaute':
-                return `Catégorie: ${article.type_beaute || ''}`;
-            case 'actualites':
-                return `${article.categorie_actualite || 'Actualité'}`;
-            default:
-                return `${article.auteur || 'Rédaction'}`;
-        }
-    }
-    
-    function initAdminForms() {
-        // Initialiser les uploads d'images
-        document.querySelectorAll('.imageFile').forEach(input => {
-            const rubrique = input.id.split('-')[1];
-            input.addEventListener('change', function() {
-                handleImageUpload(this, rubrique);
-            });
-        });
-        
-        // Boutons d'annulation
-        document.querySelectorAll('.btn-cancel').forEach(btn => {
-            const rubrique = btn.id.split('-')[1];
-            btn.addEventListener('click', () => resetAdminForm(rubrique));
-        });
-        
-        // Boutons de sauvegarde
-        document.querySelectorAll('.btn-save').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const rubrique = this.id.split('-')[1];
-                await saveAdminArticle(rubrique);
-            });
-        });
-        
-        // Initialiser les champs de date pour la culture
-        const dateDebutCulture = document.getElementById('date_debut-culture');
-        const dateFinCulture = document.getElementById('date_fin-culture');
-        if (dateDebutCulture && dateFinCulture) {
-            dateDebutCulture.addEventListener('change', function() {
-                if (!dateFinCulture.value || dateFinCulture.value < this.value) {
-                    dateFinCulture.value = this.value;
-                }
-                dateFinCulture.min = this.value;
-            });
-        }
-    }
-    
-    function handleImageUpload(input, rubrique) {
-        const file = input.files[0];
-        if (!file) return;
-        
-        // Validation de la taille
-        if (file.size > 2 * 1024 * 1024) {
-            alert("L'image ne doit pas dépasser 2MB");
-            input.value = "";
-            return;
-        }
-        
-        // Validation du type
-        if (!file.type.match('image.*')) {
-            alert("Veuillez sélectionner une image valide (JPG, PNG, GIF)");
-            input.value = "";
-            return;
-        }
-        
-        // Aperçu de l'image
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-            const placeholder = document.querySelector(`#uploadArea-${rubrique} .upload-placeholder`);
-            
-            if (preview) {
-                preview.src = e.target.result;
-                preview.style.display = 'block';
-            }
-            if (placeholder) {
-                placeholder.style.display = 'none';
-            }
-        };
-        reader.readAsDataURL(file);
-    }
-    
-    async function saveAdminArticle(rubrique) {
-        const btn = document.getElementById(`btnSave-${rubrique}`);
-        const status = document.getElementById(`status-${rubrique}`);
-        const fileInput = document.getElementById(`imageFile-${rubrique}`);
-        const file = fileInput.files[0];
-        
-        // Validation des champs requis
-        const titreInput = document.getElementById(`titre-${rubrique}`);
-        if (titreInput && !titreInput.value.trim()) {
-            showStatus(status, '❌ Veuillez saisir un titre', 'error');
-            titreInput.focus();
-            return;
-        }
-        
-        btn.disabled = true;
-        btn.innerHTML = currentEditId ? 
-            '<span>💾 Enregistrement...</span>' : 
-            '<span>⏳ Publication...</span>';
-        
-        try {
-            let imageUrl = currentEditImageUrl;
-            
-            // Upload d'une nouvelle image
-            if (file) {
-                const uploadResult = await uploadImage(file, rubrique);
-                if (uploadResult.error) throw uploadResult.error;
-                imageUrl = uploadResult.url;
-            }
-            
-            // Préparation des données selon la rubrique
-            const articleData = prepareArticleData(rubrique, imageUrl);
-            
-            // Sauvegarde dans Supabase
-            let result;
-            if (currentEditId) {
-                // Mise à jour
-                result = await supabase
-                    .from('articles')
-                    .update(articleData)
-                    .eq('id', currentEditId);
-            } else {
-                // Insertion
-                result = await supabase
-                    .from('articles')
-                    .insert([articleData]);
-            }
-            
-            if (result.error) throw result.error;
-            
-            // Succès
-            showStatus(status, 
-                currentEditId ? '✅ Modifié avec succès !' : '✅ Publié avec succès !', 
-                'success');
-            
-            // Recharger les données et réinitialiser le formulaire
-            await loadAdminTabData(rubrique);
-            resetAdminForm(rubrique);
-            
-            // Défilement vers le haut
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-        } catch (error) {
-            console.error('❌ Erreur:', error);
-            showStatus(status, `❌ Erreur: ${error.message}`, 'error');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = currentEditId ? 
-                '<span>💾 Mettre à jour</span>' : 
-                getDefaultButtonText(rubrique);
-        }
-    }
-    
-    async function uploadImage(file, rubrique) {
-        const fileExt = file.name.split('.').pop();
-        const timestamp = Date.now();
-        const randomStr = Math.random().toString(36).substring(7);
-        const fileName = `${rubrique}_${timestamp}_${randomStr}.${fileExt}`;
-        
-        // Upload vers Supabase Storage
-        const { error: uploadError } = await supabase.storage
-            .from('magazine-images')
-            .upload(fileName, file);
-        
-        if (uploadError) throw uploadError;
-        
-        // Récupérer l'URL publique
-        const { data: urlData } = supabase.storage
-            .from('magazine-images')
-            .getPublicUrl(fileName);
-        
-        return { url: urlData.publicUrl };
-    }
-    
-    function prepareArticleData(rubrique, imageUrl) {
-        // Données communes
-        const baseData = {
-            rubrique: rubrique,
-            titre_fr: getInputValue(`titre-${rubrique}`),
-            contenu_fr: getTextareaValue(`contenu-${rubrique}`) || 
-                       getTextareaValue(`description-${rubrique}`) ||
-                       getTextareaValue(`biographie-${rubrique}`),
-            image_url: imageUrl,
-            date_publication: getInputValue(`date-${rubrique}`) || 
-                            getInputValue(`date_debut-${rubrique}`) ||
-                            new Date().toISOString().split('T')[0],
-            auteur: getInputValue(`auteur-${rubrique}`) || 'Rédaction',
-            statut: 'publié'
-        };
-        
-        // Données spécifiques par rubrique
-        switch(rubrique) {
-            case 'actualites':
-                baseData.categorie_actualite = getSelectValue(`categorie-${rubrique}`);
-                break;
-                
-            case 'visages':
-                baseData.nom_marque = getInputValue(`nom_marque-${rubrique}`);
-                baseData.nom_createur = getInputValue(`nom_createur-${rubrique}`);
-                baseData.domaine = getSelectValue(`domaine-${rubrique}`);
-                baseData.reseaux_instagram = getInputValue(`instagram-${rubrique}`);
-                baseData.site_web = getInputValue(`siteweb-${rubrique}`);
-                baseData.interview_fr = getTextareaValue(`interview-${rubrique}`);
-                break;
-                
-            case 'tendances':
-                baseData.saison = getSelectValue(`saison-${rubrique}`);
-                break;
-                
-            case 'decouvertes':
-                baseData.type_decouverte = getSelectValue(`type-${rubrique}`);
-                break;
-                
-            case 'culture':
-                baseData.type_evenement = getSelectValue(`type-${rubrique}`);
-                baseData.date_evenement = getInputValue(`date_debut-${rubrique}`);
-                baseData.date_fin = getInputValue(`date_fin-${rubrique}`);
-                baseData.heure_evenement = getInputValue(`heure-${rubrique}`);
-                baseData.statut_evenement = getSelectValue(`statut-${rubrique}`);
-                baseData.lieu = getInputValue(`lieu-${rubrique}`);
-                baseData.lien_evenement = getInputValue(`lien-${rubrique}`);
-                break;
-                
-            case 'mode':
-                baseData.theme_mode = getSelectValue(`theme-${rubrique}`);
-                break;
-                
-            case 'accessoires':
-                baseData.type_accessoire = getSelectValue(`type-${rubrique}`);
-                break;
-                
-            case 'beaute':
-                baseData.type_beaute = getSelectValue(`type-${rubrique}`);
-                break;
-        }
-        
-        return baseData;
-    }
-    
-    function getInputValue(id) {
-        const element = document.getElementById(id);
-        return element ? element.value.trim() : '';
-    }
-    
-    function getTextareaValue(id) {
-        const element = document.getElementById(id);
-        return element ? element.value.trim() : '';
-    }
-    
-    function getSelectValue(id) {
-        const element = document.getElementById(id);
-        return element ? element.value : '';
-    }
-    
-    function showStatus(element, message, type) {
-        if (!element) return;
-        
-        element.textContent = message;
-        element.className = `status-message status-${type}`;
-        element.style.display = 'block';
-        
-        setTimeout(() => {
-            element.style.display = 'none';
-        }, 5000);
-    }
-    
-    function resetAdminForm(rubrique) {
-        currentEditId = null;
-        currentEditRubrique = null;
-        currentEditImageUrl = "";
-        
-        // Réinitialiser le titre du formulaire
-        const formTitle = document.getElementById(`formTitle-${rubrique}`);
-        if (formTitle) {
-            formTitle.textContent = getDefaultFormTitle(rubrique);
-        }
-        
-        // Réinitialiser le bouton
-        const btnSave = document.getElementById(`btnSave-${rubrique}`);
-        const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
-        if (btnSave) {
-            btnSave.innerHTML = getDefaultButtonText(rubrique);
-            btnSave.style.background = "";
-        }
-        if (btnCancel) {
-            btnCancel.style.display = "none";
-        }
-        
-        // Réinitialiser l'aperçu de l'image
-        const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-        const placeholder = document.querySelector(`#uploadArea-${rubrique} .upload-placeholder`);
-        if (preview) {
-            preview.style.display = 'none';
-            preview.src = "";
-        }
-        if (placeholder) {
-            placeholder.style.display = 'block';
-        }
-        
-        // Réinitialiser les champs du formulaire
-        const tabElement = document.getElementById(`${rubrique}-tab`);
-        if (tabElement) {
-            tabElement.querySelectorAll('input, textarea, select').forEach(el => {
-                if (el.type !== 'file' && el.type !== 'button' && el.type !== 'submit') {
-                    if (el.id.includes('date') && !el.id.includes('date_fin')) {
-                        el.value = new Date().toISOString().split('T')[0];
-                    } else if (el.tagName === 'SELECT') {
-                        el.selectedIndex = 0;
-                    } else if (el.id.includes('auteur')) {
-                        el.value = "Rédaction";
-                    } else {
-                        el.value = "";
-                    }
-                }
-            });
-        }
-        
-        // Réinitialiser l'upload de fichier
-        const fileInput = document.getElementById(`imageFile-${rubrique}`);
-        if (fileInput) {
-            fileInput.value = "";
-        }
-    }
-    
-    function getDefaultFormTitle(rubrique) {
-        const titles = {
-            'actualites': 'Publier une actualité',
-            'visages': 'Ajouter un créateur',
-            'coulisses': 'Article Coulisses',
-            'tendances': 'Article Tendances',
-            'decouvertes': 'Nouvelle découverte',
-            'culture': 'Événement Culture/Agenda',
-            'mode': 'Article Mode',
-            'accessoires': 'Article Accessoires',
-            'beaute': 'Article Beauté'
-        };
-        return titles[rubrique] || 'Nouveau contenu';
-    }
-    
-    function getDefaultButtonText(rubrique) {
-        const texts = {
-            'actualites': '<span>🚀 Publier l\'actualité</span>',
-            'visages': '<span>👑 Ajouter le créateur</span>',
-            'coulisses': '<span>📝 Publier l\'article</span>',
-            'tendances': '<span>📈 Publier la tendance</span>',
-            'decouvertes': '<span>🔍 Publier la découverte</span>',
-            'culture': '<span>📅 Ajouter l\'événement</span>',
-            'mode': '<span>👗 Publier l\'article</span>',
-            'accessoires': '<span>💎 Publier l\'article</span>',
-            'beaute': '<span>💄 Publier l\'article</span>'
-        };
-        return texts[rubrique] || '<span>📝 Publier</span>';
-    }
-    
-    // ============================================
-    // FONCTIONS GLOBALES POUR L'ADMIN
-    // ============================================
-    
-    window.editArticle = async function(id, rubrique) {
-        try {
-            const { data: article, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('id', id)
-                .single();
-            
-            if (error) throw error;
-            
-            // Sauvegarder les informations d'édition
-            currentEditId = id;
-            currentEditRubrique = rubrique;
-            currentEditImageUrl = article.image_url || "";
-            
-            // Remplir le formulaire
-            fillAdminForm(article, rubrique);
-            
-            // Basculer vers l'onglet approprié
+            // Désactiver tous les onglets
             document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             
-            const tabButton = document.querySelector(`[data-tab="${rubrique}"]`);
-            if (tabButton) tabButton.classList.add('active');
-            
-            const tabContent = document.getElementById(`${rubrique}-tab`);
+            // Activer l'onglet cliqué
+            this.classList.add('active');
+            const tabContent = document.getElementById(`${tabId}-tab`);
             if (tabContent) tabContent.classList.add('active');
             
-            // Mettre à jour l'interface
-            const formTitle = document.getElementById(`formTitle-${rubrique}`);
-            const btnSave = document.getElementById(`btnSave-${rubrique}`);
-            const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
+            // Charger les données de l'onglet
+            await loadAdminTabData(tabId);
             
-            if (formTitle) formTitle.textContent = `Modifier l'article`;
-            if (btnSave) {
-                btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
-                btnSave.style.background = "#f59e0b";
-            }
-            if (btnCancel) btnCancel.style.display = "flex";
-            
-            // Aperçu de l'image existante
-            const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-            const placeholder = document.querySelector(`#uploadArea-${rubrique} .upload-placeholder`);
-            if (article.image_url && preview) {
-                preview.src = article.image_url;
-                preview.style.display = 'block';
-                if (placeholder) placeholder.style.display = 'none';
-            }
-            
-            // Défilement vers le formulaire
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-        } catch (error) {
-            alert('Erreur lors du chargement: ' + error.message);
-            console.error('❌ Erreur édition:', error);
-        }
-    };
+            // Réinitialiser le formulaire
+            resetAdminForm(tabId);
+        });
+    });
     
-    function fillAdminForm(article, rubrique) {
-        // Remplir les champs communs
-        setInputValue(`titre-${rubrique}`, article.titre_fr);
-        setTextareaValue(`contenu-${rubrique}`, article.contenu_fr);
-        setInputValue(`date-${rubrique}`, article.date_publication);
-        setInputValue(`auteur-${rubrique}`, article.auteur);
+    // Initialiser les uploads d'images
+    document.querySelectorAll('.imageFile').forEach(input => {
+        const rubrique = input.id.split('-')[1];
+        input.addEventListener('change', function() {
+            handleImageUpload(this, rubrique);
+        });
+    });
+    
+    // Boutons de sauvegarde
+    document.querySelectorAll('.btn-save').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const rubrique = this.id.split('-')[1];
+            await saveAdminArticle(rubrique);
+        });
+    });
+    
+    // Boutons d'annulation
+    document.querySelectorAll('.btn-cancel').forEach(btn => {
+        const rubrique = btn.id.split('-')[1];
+        btn.addEventListener('click', () => resetAdminForm(rubrique));
+    });
+    
+    // Charger les données initiales
+    setTimeout(() => {
+        const activeTab = document.querySelector('.tab-link.active');
+        if (activeTab) {
+            loadAdminTabData(activeTab.dataset.tab);
+        } else {
+            loadAdminTabData('actualites');
+        }
+    }, 100);
+    
+    console.log("✅ Page admin configurée");
+}
+
+async function loadAdminTabData(rubrique) {
+    console.log(`🔄 Chargement des données pour: ${rubrique}`);
+    
+    const container = document.getElementById(`${rubrique}List`);
+    if (!container) {
+        console.log(`❌ Conteneur ${rubrique}List non trouvé`);
+        return;
+    }
+    
+    container.innerHTML = '<p style="text-align: center; color: #666;">Chargement...</p>';
+    
+    try {
+        const { data, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('rubrique', rubrique)
+            .eq('statut', 'publié')
+            .order('date_publication', { ascending: false });
         
-        // Remplir les champs spécifiques
-        switch(rubrique) {
-            case 'actualites':
-                setSelectValue(`categorie-${rubrique}`, article.categorie_actualite);
-                break;
-                
-            case 'visages':
-                setInputValue(`nom_marque-${rubrique}`, article.nom_marque);
-                setInputValue(`nom_createur-${rubrique}`, article.nom_createur);
-                setSelectValue(`domaine-${rubrique}`, article.domaine);
-                setInputValue(`instagram-${rubrique}`, article.reseaux_instagram);
-                setInputValue(`siteweb-${rubrique}`, article.site_web);
-                setTextareaValue(`interview-${rubrique}`, article.interview_fr);
-                setTextareaValue(`biographie-${rubrique}`, article.contenu_fr);
-                break;
-                
-            case 'tendances':
-                setSelectValue(`saison-${rubrique}`, article.saison);
-                break;
-                
-            case 'decouvertes':
-                setSelectValue(`type-${rubrique}`, article.type_decouverte);
-                break;
-                
-            case 'culture':
-                setInputValue(`titre-${rubrique}`, article.titre_fr);
-                setTextareaValue(`description-${rubrique}`, article.contenu_fr);
-                setSelectValue(`type-${rubrique}`, article.type_evenement);
-                setInputValue(`date_debut-${rubrique}`, article.date_evenement);
-                setInputValue(`date_fin-${rubrique}`, article.date_fin);
-                setInputValue(`heure-${rubrique}`, article.heure_evenement);
-                setSelectValue(`statut-${rubrique}`, article.statut_evenement);
-                setInputValue(`lieu-${rubrique}`, article.lieu);
-                setInputValue(`lien-${rubrique}`, article.lien_evenement);
-                break;
-                
-            case 'mode':
-                setSelectValue(`theme-${rubrique}`, article.theme_mode);
-                    break;
-                    
-                case 'accessoires':
-                    setSelectValue(`type-${rubrique}`, article.type_accessoire);
-                    break;
-                    
-                case 'beaute':
-                    setSelectValue(`type-${rubrique}`, article.type_beaute);
-                    break;
-        }
-    }
-    
-    function setInputValue(id, value) {
-        const element = document.getElementById(id);
-        if (element && value) element.value = value;
-    }
-    
-    function setTextareaValue(id, value) {
-        const element = document.getElementById(id);
-        if (element && value) element.value = value;
-    }
-    
-    function setSelectValue(id, value) {
-        const element = document.getElementById(id);
-        if (element && value) {
-            for (let option of element.options) {
-                if (option.value === value) {
-                    option.selected = true;
-                    break;
-                }
-            }
-        }
-    }
-    
-    window.deleteArticle = async function(id, rubrique) {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement cet article ?")) {
+        if (error) throw error;
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #666;">Aucun contenu publié.</p>';
             return;
         }
         
-        try {
-            const { error } = await supabase
-                .from('articles')
-                .delete()
-                .eq('id', id);
-            
-            if (error) throw error;
-            
-            alert("Article supprimé avec succès !");
-            
-            // Recharger les données
-            await loadAdminTabData(rubrique);
-            
-            // Si on était en train d'éditer cet article, réinitialiser le formulaire
-            if (currentEditId === id) {
-                resetAdminForm(rubrique);
-            }
-            
-        } catch (error) {
-            alert("Erreur lors de la suppression: " + error.message);
-            console.error('❌ Erreur suppression:', error);
+        displayAdminArticles(data, rubrique, container);
+        
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        container.innerHTML = `<p style="color: #dc3545;">Erreur: ${error.message}</p>`;
+    }
+}
+
+function displayAdminArticles(articles, rubrique, container) {
+    container.innerHTML = articles.map(article => `
+        <div class="content-item" data-id="${article.id}" data-rubrique="${rubrique}">
+            <div class="content-info">
+                ${article.image_url ? `
+                <img src="${article.image_url}" alt="${article.titre_fr}" 
+                     onerror="this.src='https://placehold.co/80?text=IMG'">` : ''}
+                <div>
+                    <h3>${article.titre_fr}</h3>
+                    <div class="content-meta">
+                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
+                        <span>${getArticleMetaText(article, rubrique)}</span>
+                        <span class="badge">${getRubriqueName(rubrique)}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="action-btn edit-btn" onclick="window.editArticle(${article.id}, '${rubrique}')">
+                    ✏️ Modifier
+                </button>
+                <button class="action-btn delete-btn" onclick="window.deleteArticle(${article.id}, '${rubrique}')">
+                    🗑️ Supprimer
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getArticleMetaText(article, rubrique) {
+    switch(rubrique) {
+        case 'visages':
+            return `${article.nom_createur || ''} • ${article.domaine || ''}`;
+        case 'culture':
+            return `${article.type_evenement || 'Événement'} • ${article.lieu || ''}`;
+        case 'decouvertes':
+            return `Type: ${article.type_decouverte || ''}`;
+        case 'tendances':
+            return `Saison: ${article.saison || ''}`;
+        case 'mode':
+            return `Thème: ${article.theme_mode || ''}`;
+        case 'accessoires':
+            return `Type: ${article.type_accessoire || ''}`;
+        case 'beaute':
+            return `Catégorie: ${article.type_beaute || ''}`;
+        case 'actualites':
+            return `${article.categorie_actualite || 'Actualité'}`;
+        default:
+            return `${article.auteur || 'Rédaction'}`;
+    }
+}
+
+function handleImageUpload(input, rubrique) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    if (file.size > 2 * 1024 * 1024) {
+        alert("❌ L'image ne doit pas dépasser 2MB");
+        input.value = "";
+        return;
+    }
+    
+    if (!file.type.match('image.*')) {
+        alert("❌ Veuillez sélectionner une image valide (JPG, PNG, GIF)");
+        input.value = "";
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+        const placeholder = document.querySelector(`#uploadArea-${rubrique} .upload-placeholder`);
+        
+        if (preview) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        if (placeholder) {
+            placeholder.style.display = 'none';
         }
     };
+    reader.readAsDataURL(file);
 }
+
+async function saveAdminArticle(rubrique) {
+    const btn = document.getElementById(`btnSave-${rubrique}`);
+    const status = document.getElementById(`status-${rubrique}`);
+    const fileInput = document.getElementById(`imageFile-${rubrique}`);
+    const file = fileInput.files[0];
+    
+    // Validation
+    const titreInput = document.getElementById(`titre-${rubrique}`);
+    if (titreInput && !titreInput.value.trim()) {
+        showStatus(status, '❌ Veuillez saisir un titre', 'error');
+        titreInput.focus();
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = currentEditId ? 
+        '<span>💾 Enregistrement...</span>' : 
+        '<span>⏳ Publication...</span>';
+    
+    try {
+        let imageUrl = currentEditImageUrl;
+        
+        // Upload d'une nouvelle image
+        if (file) {
+            const uploadResult = await uploadImage(file, rubrique);
+            if (uploadResult.error) throw uploadResult.error;
+            imageUrl = uploadResult.url;
+        }
+        
+        // Préparation des données
+        const articleData = prepareArticleData(rubrique, imageUrl);
+        
+        // Sauvegarde
+        let result;
+        if (currentEditId) {
+            result = await supabase
+                .from('articles')
+                .update(articleData)
+                .eq('id', currentEditId);
+        } else {
+            result = await supabase
+                .from('articles')
+                .insert([articleData]);
+        }
+        
+        if (result.error) throw result.error;
+        
+        // Succès
+        showStatus(status, 
+            currentEditId ? '✅ Modifié avec succès !' : '✅ Publié avec succès !', 
+            'success');
+        
+        // Recharger et réinitialiser
+        await loadAdminTabData(rubrique);
+        resetAdminForm(rubrique);
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+    } catch (error) {
+        console.error('❌ Erreur:', error);
+        showStatus(status, `❌ Erreur: ${error.message}`, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = currentEditId ? 
+            '<span>💾 Mettre à jour</span>' : 
+            getDefaultButtonText(rubrique);
+    }
+}
+
+async function uploadImage(file, rubrique) {
+    const fileExt = file.name.split('.').pop();
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(7);
+    const fileName = `${rubrique}_${timestamp}_${randomStr}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+        .from('magazine-images')
+        .upload(fileName, file);
+    
+    if (uploadError) throw uploadError;
+    
+    const { data: urlData } = supabase.storage
+        .from('magazine-images')
+        .getPublicUrl(fileName);
+    
+    return { url: urlData.publicUrl };
+}
+
+function prepareArticleData(rubrique, imageUrl) {
+    const baseData = {
+        rubrique: rubrique,
+        titre_fr: getInputValue(`titre-${rubrique}`),
+        contenu_fr: getTextareaValue(`contenu-${rubrique}`) || 
+                   getTextareaValue(`description-${rubrique}`) ||
+                   getTextareaValue(`biographie-${rubrique}`),
+        image_url: imageUrl,
+        date_publication: getInputValue(`date-${rubrique}`) || 
+                        getInputValue(`date_debut-${rubrique}`) ||
+                        new Date().toISOString().split('T')[0],
+        auteur: getInputValue(`auteur-${rubrique}`) || 'Rédaction',
+        statut: 'publié'
+    };
+    
+    switch(rubrique) {
+        case 'actualites':
+            baseData.categorie_actualite = getSelectValue(`categorie-${rubrique}`);
+            break;
+        case 'visages':
+            baseData.nom_marque = getInputValue(`nom_marque-${rubrique}`);
+            baseData.nom_createur = getInputValue(`nom_createur-${rubrique}`);
+            baseData.domaine = getSelectValue(`domaine-${rubrique}`);
+            baseData.reseaux_instagram = getInputValue(`instagram-${rubrique}`);
+            baseData.site_web = getInputValue(`siteweb-${rubrique}`);
+            baseData.interview_fr = getTextareaValue(`interview-${rubrique}`);
+            break;
+        case 'tendances':
+            baseData.saison = getSelectValue(`saison-${rubrique}`);
+            break;
+        case 'decouvertes':
+            baseData.type_decouverte = getSelectValue(`type-${rubrique}`);
+            break;
+        case 'culture':
+            baseData.type_evenement = getSelectValue(`type-${rubrique}`);
+            baseData.date_evenement = getInputValue(`date_debut-${rubrique}`);
+            baseData.date_fin = getInputValue(`date_fin-${rubrique}`);
+            baseData.heure_evenement = getInputValue(`heure-${rubrique}`);
+            baseData.statut_evenement = getSelectValue(`statut-${rubrique}`);
+            baseData.lieu = getInputValue(`lieu-${rubrique}`);
+            baseData.lien_evenement = getInputValue(`lien-${rubrique}`);
+            break;
+        case 'mode':
+            baseData.theme_mode = getSelectValue(`theme-${rubrique}`);
+            break;
+        case 'accessoires':
+            baseData.type_accessoire = getSelectValue(`type-${rubrique}`);
+            break;
+        case 'beaute':
+            baseData.type_beaute = getSelectValue(`type-${rubrique}`);
+            break;
+    }
+    
+    return baseData;
+}
+
+function getInputValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : '';
+}
+
+function getTextareaValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : '';
+}
+
+function getSelectValue(id) {
+    const element = document.getElementById(id);
+    return element ? element.value : '';
+}
+
+function showStatus(element, message, type) {
+    if (!element) return;
+    
+    element.textContent = message;
+    element.className = `status-message status-${type}`;
+    element.style.display = 'block';
+    
+    setTimeout(() => {
+        element.style.display = 'none';
+    }, 5000);
+}
+
+function resetAdminForm(rubrique) {
+    currentEditId = null;
+    currentEditRubrique = null;
+    currentEditImageUrl = "";
+    
+    const formTitle = document.getElementById(`formTitle-${rubrique}`);
+    if (formTitle) {
+        formTitle.textContent = getDefaultFormTitle(rubrique);
+    }
+    
+    const btnSave = document.getElementById(`btnSave-${rubrique}`);
+    const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
+    if (btnSave) {
+        btnSave.innerHTML = getDefaultButtonText(rubrique);
+        btnSave.style.background = "";
+    }
+    if (btnCancel) {
+        btnCancel.style.display = "none";
+    }
+    
+    const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+    const placeholder = document.querySelector(`#uploadArea-${rubrique} .upload-placeholder`);
+    if (preview) {
+        preview.style.display = 'none';
+        preview.src = "";
+    }
+    if (placeholder) {
+        placeholder.style.display = 'block';
+    }
+    
+    const tabElement = document.getElementById(`${rubrique}-tab`);
+    if (tabElement) {
+        tabElement.querySelectorAll('input, textarea, select').forEach(el => {
+            if (el.type !== 'file' && el.type !== 'button' && el.type !== 'submit') {
+                if (el.id.includes('date') && !el.id.includes('date_fin')) {
+                    el.value = new Date().toISOString().split('T')[0];
+                } else if (el.tagName === 'SELECT') {
+                    el.selectedIndex = 0;
+                } else if (el.id.includes('auteur')) {
+                    el.value = "Rédaction";
+                } else {
+                    el.value = "";
+                }
+            }
+        });
+    }
+    
+    const fileInput = document.getElementById(`imageFile-${rubrique}`);
+    if (fileInput) {
+        fileInput.value = "";
+    }
+}
+
+function getDefaultFormTitle(rubrique) {
+    const titles = {
+        'actualites': 'Publier une actualité',
+        'visages': 'Ajouter un créateur',
+        'coulisses': 'Article Coulisses',
+        'tendances': 'Article Tendances',
+        'decouvertes': 'Nouvelle découverte',
+        'culture': 'Événement Culture/Agenda',
+        'mode': 'Article Mode',
+        'accessoires': 'Article Accessoires',
+        'beaute': 'Article Beauté'
+    };
+    return titles[rubrique] || 'Nouveau contenu';
+}
+
+function getDefaultButtonText(rubrique) {
+    const texts = {
+        'actualites': '<span>🚀 Publier l\'actualité</span>',
+        'visages': '<span>👑 Ajouter le créateur</span>',
+        'coulisses': '<span>📝 Publier l\'article</span>',
+        'tendances': '<span>📈 Publier la tendance</span>',
+        'decouvertes': '<span>🔍 Publier la découverte</span>',
+        'culture': '<span>📅 Ajouter l\'événement</span>',
+        'mode': '<span>👗 Publier l\'article</span>',
+        'accessoires': '<span>💎 Publier l\'article</span>',
+        'beaute': '<span>💄 Publier l\'article</span>'
+    };
+    return texts[rubrique] || '<span>📝 Publier</span>';
+}
+
+// Fonctions globales pour l'admin
+window.editArticle = async function(id, rubrique) {
+    try {
+        const { data: article, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        currentEditId = id;
+        currentEditRubrique = rubrique;
+        currentEditImageUrl = article.image_url || "";
+        
+        // Basculer vers l'onglet
+        document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        const tabButton = document.querySelector(`[data-tab="${rubrique}"]`);
+        if (tabButton) tabButton.classList.add('active');
+        
+        const tabContent = document.getElementById(`${rubrique}-tab`);
+        if (tabContent) tabContent.classList.add('active');
+        
+        // Remplir le formulaire
+        fillAdminForm(article, rubrique);
+        
+        // Mettre à jour l'interface
+        const formTitle = document.getElementById(`formTitle-${rubrique}`);
+        const btnSave = document.getElementById(`btnSave-${rubrique}`);
+        const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
+        
+        if (formTitle) formTitle.textContent = `Modifier l'article`;
+        if (btnSave) {
+            btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
+            btnSave.style.background = "#f59e0b";
+        }
+        if (btnCancel) btnCancel.style.display = "flex";
+        
+        // Aperçu de l'image
+        const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+        const placeholder = document.querySelector(`#uploadArea-${rubrique} .upload-placeholder`);
+        if (article.image_url && preview) {
+            preview.src = article.image_url;
+            preview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        }
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+    } catch (error) {
+        alert('❌ Erreur lors du chargement: ' + error.message);
+        console.error('❌ Erreur édition:', error);
+    }
+};
+
+function fillAdminForm(article, rubrique) {
+    setInputValue(`titre-${rubrique}`, article.titre_fr);
+    setTextareaValue(`contenu-${rubrique}`, article.contenu_fr);
+    setInputValue(`date-${rubrique}`, article.date_publication);
+    setInputValue(`auteur-${rubrique}`, article.auteur);
+    
+    switch(rubrique) {
+        case 'actualites':
+            setSelectValue(`categorie-${rubrique}`, article.categorie_actualite);
+            break;
+        case 'visages':
+            setInputValue(`nom_marque-${rubrique}`, article.nom_marque);
+            setInputValue(`nom_createur-${rubrique}`, article.nom_createur);
+            setSelectValue(`domaine-${rubrique}`, article.domaine);
+            setInputValue(`instagram-${rubrique}`, article.reseaux_instagram);
+            setInputValue(`siteweb-${rubrique}`, article.site_web);
+            setTextareaValue(`interview-${rubrique}`, article.interview_fr);
+            setTextareaValue(`biographie-${rubrique}`, article.contenu_fr);
+            break;
+        case 'tendances':
+            setSelectValue(`saison-${rubrique}`, article.saison);
+            break;
+        case 'decouvertes':
+            setSelectValue(`type-${rubrique}`, article.type_decouverte);
+            break;
+        case 'culture':
+            setInputValue(`titre-${rubrique}`, article.titre_fr);
+            setTextareaValue(`description-${rubrique}`, article.contenu_fr);
+            setSelectValue(`type-${rubrique}`, article.type_evenement);
+            setInputValue(`date_debut-${rubrique}`, article.date_evenement);
+            setInputValue(`date_fin-${rubrique}`, article.date_fin);
+            setInputValue(`heure-${rubrique}`, article.heure_evenement);
+            setSelectValue(`statut-${rubrique}`, article.statut_evenement);
+            setInputValue(`lieu-${rubrique}`, article.lieu);
+            setInputValue(`lien-${rubrique}`, article.lien_evenement);
+            break;
+        case 'mode':
+            setSelectValue(`theme-${rubrique}`, article.theme_mode);
+            break;
+        case 'accessoires':
+            setSelectValue(`type-${rubrique}`, article.type_accessoire);
+            break;
+        case 'beaute':
+            setSelectValue(`type-${rubrique}`, article.type_beaute);
+            break;
+    }
+}
+
+function setInputValue(id, value) {
+    const element = document.getElementById(id);
+    if (element && value) element.value = value;
+}
+
+function setTextareaValue(id, value) {
+    const element = document.getElementById(id);
+    if (element && value) element.value = value;
+}
+
+function setSelectValue(id, value) {
+    const element = document.getElementById(id);
+    if (element && value) {
+        for (let option of element.options) {
+            if (option.value === value) {
+                option.selected = true;
+                break;
+            }
+        }
+    }
+}
+
+window.deleteArticle = async function(id, rubrique) {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer définitivement cet article ?")) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('articles')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        alert("✅ Article supprimé avec succès !");
+        await loadAdminTabData(rubrique);
+        
+        if (currentEditId === id) {
+            resetAdminForm(rubrique);
+        }
+        
+    } catch (error) {
+        alert("❌ Erreur lors de la suppression: " + error.message);
+        console.error('❌ Erreur suppression:', error);
+    }
+};
 
 // ============================================
 // FONCTIONS POUR LES PAGES DE CONTENU
 // ============================================
 
 async function loadContentPage() {
-    // Détection par ID de conteneur
     const containerMap = {
         'actualites-container': 'actualites',
         'visages-container': 'visages',
@@ -1209,7 +1027,7 @@ async function loadContentPage() {
     for (const [containerId, rubrique] of Object.entries(containerMap)) {
         const container = document.getElementById(containerId);
         if (container) {
-            console.log(`📄 Page détectée: ${rubrique} (${containerId})`);
+            console.log(`📄 Chargement de la page: ${rubrique}`);
             
             container.innerHTML = '<div class="loading">Chargement des articles...</div>';
             
@@ -1227,13 +1045,11 @@ async function loadContentPage() {
                     container.innerHTML = `
                         <div class="no-content">
                             <p>Aucun contenu publié pour le moment.</p>
-                            <small>Les articles seront bientôt disponibles</small>
                         </div>
                     `;
                     return;
                 }
                 
-                // Afficher les articles selon la rubrique
                 renderContentPage(rubrique, data, container);
                 
             } catch (error) {
@@ -1241,7 +1057,6 @@ async function loadContentPage() {
                 container.innerHTML = `
                     <div class="error">
                         <p>Erreur de chargement des articles.</p>
-                        <small>Veuillez réessayer plus tard</small>
                     </div>
                 `;
             }
@@ -1251,7 +1066,6 @@ async function loadContentPage() {
 }
 
 function renderContentPage(rubrique, articles, container) {
-    // Utiliser des templates différents selon la rubrique
     switch(rubrique) {
         case 'visages':
             renderVisagesPage(articles, container);
@@ -1329,7 +1143,6 @@ function renderCulturePage(events, container) {
     
     let html = '';
     
-    // Événements à venir
     if (evenementsFuturs.length > 0) {
         html += `
             <section class="upcoming-events">
@@ -1363,7 +1176,6 @@ function renderCulturePage(events, container) {
         `;
     }
     
-    // Événements passés
     if (evenementsPasses.length > 0) {
         html += `
             <section class="past-events">
@@ -1390,7 +1202,6 @@ function renderCulturePage(events, container) {
 }
 
 function renderDecouvertesPage(decouvertes, container) {
-    // Grouper par type
     const groupedByType = {};
     decouvertes.forEach(decouverte => {
         const type = decouverte.type_decouverte || 'autre';
@@ -1437,22 +1248,18 @@ function renderDecouvertesPage(decouvertes, container) {
 }
 
 function renderGenericPage(articles, container, rubrique) {
-    const rubriqueLabel = getRubriqueName(rubrique);
-    
     container.innerHTML = articles.map(article => `
-        <article class="article-card ${rubrique}-card">
+        <article class="article-card">
             ${article.image_url ? `
             <div class="article-image">
                 <img src="${article.image_url}" alt="${article.titre_fr}" 
-                     loading="lazy" onerror="this.src='https://placehold.co/600x400?text=${rubriqueLabel.toUpperCase()}'">
-                ${getArticleBadge(article, rubrique)}
+                     loading="lazy" onerror="this.src='https://placehold.co/600x400?text=ARTICLE'">
             </div>
             ` : ''}
             
             <div class="article-content">
                 <div class="article-meta">
                     <span class="article-date">📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                    ${getArticleCategory(article, rubrique)}
                 </div>
                 
                 <h2 class="article-title">${article.titre_fr}</h2>
@@ -1475,57 +1282,25 @@ function renderGenericPage(articles, container, rubrique) {
     `).join('');
 }
 
-function getArticleBadge(article, rubrique) {
-    switch(rubrique) {
-        case 'tendances':
-            return article.saison ? `<span class="badge season-badge">${article.saison}</span>` : '';
-        case 'mode':
-            return article.theme_mode ? `<span class="badge theme-badge">${article.theme_mode}</span>` : '';
-        case 'accessoires':
-            return article.type_accessoire ? `<span class="badge type-badge">${article.type_accessoire}</span>` : '';
-        case 'beaute':
-            return article.type_beaute ? `<span class="badge beauty-badge">${article.type_beaute}</span>` : '';
-        case 'actualites':
-            return article.categorie_actualite ? `<span class="badge category-badge">${article.categorie_actualite}</span>` : '';
-        default:
-            return '';
-    }
-}
-
-function getArticleCategory(article, rubrique) {
-    switch(rubrique) {
-        case 'tendances':
-            return article.saison ? `<span class="article-category">🌤️ ${article.saison}</span>` : '';
-        case 'mode':
-            return article.theme_mode ? `<span class="article-category">👗 ${article.theme_mode}</span>` : '';
-        case 'accessoires':
-            return article.type_accessoire ? `<span class="article-category">💎 ${article.type_accessoire}</span>` : '';
-        case 'beaute':
-            return article.type_beaute ? `<span class="article-category">💄 ${article.type_beaute}</span>` : '';
-        case 'actualites':
-            return article.categorie_actualite ? `<span class="article-category">📢 ${article.categorie_actualite}</span>` : '';
-        default:
-            return '';
-    }
-}
-
 // ============================================
-// INITIALISATION
+// INITIALISATION PRINCIPALE
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Script magazine-admin chargé avec succès');
+    console.log("🚀 Initialisation du magazine...");
     
-    // TOUJOURS initialiser la navigation (boutons communs)
-    setupNavigation();
+    // TOUJOURS configurer ces éléments (ils existent sur toutes les pages)
+    setupTheme();
+    setupMenu();
+    setupSubscriptionModal();
+    setupAuthentication();
     
-    // Vérifier si on est sur la page d'administration
+    // Détecter le type de page
     if (window.location.pathname.includes('Actualisation.html') || 
         document.querySelector('.admin-page')) {
-        console.log('🔄 Page d\'administration détectée');
+        console.log("🖥️ Page d'administration détectée");
         setupAdminPage();
     } 
-    // Vérifier si on est sur une page de contenu
     else if (window.location.pathname.includes('visages.html') ||
              window.location.pathname.includes('coulisses.html') ||
              window.location.pathname.includes('tendances.html') ||
@@ -1536,35 +1311,36 @@ document.addEventListener('DOMContentLoaded', function() {
              window.location.pathname.includes('culture.html') ||
              window.location.pathname.includes('decouvertes.html')) {
         
-        console.log('🔄 Page de contenu détectée');
-        // Charger les articles de la page
+        console.log("📄 Page de contenu détectée");
         loadContentPage();
+    }
+    
+    console.log("✅ Magazine initialisé avec succès");
+});
+
+// ============================================
+// GESTION DES FILTRES POUR VISAGES
+// ============================================
+
+document.addEventListener('click', function(e) {
+    // Gestion des filtres Visages
+    if (e.target.classList.contains('filter-btn')) {
+        const filter = e.target.dataset.filter;
+        const container = document.getElementById('visages-container');
         
-        // Initialiser les filtres si nécessaire
-        if (document.querySelectorAll('.filter-btn').length > 0) {
-            setupContentFilters();
+        if (container) {
+            filterVisages(filter, container);
         }
+        
+        // Activer le bouton sélectionné
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        e.target.classList.add('active');
     }
 });
 
-// Fonction pour les filtres de contenu
-function setupContentFilters() {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    if (filterBtns.length === 0) return;
-    
-    filterBtns.forEach(btn => {
-        btn.addEventListener('click', async function() {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
-            
-            const filter = this.dataset.filter;
-            await filterVisages(filter);
-        });
-    });
-}
-
-async function filterVisages(domain) {
-    const container = document.getElementById('visages-container');
+async function filterVisages(filter, container) {
     if (!container) return;
     
     try {
@@ -1575,15 +1351,15 @@ async function filterVisages(domain) {
             .eq('statut', 'publié')
             .order('date_publication', { ascending: false });
         
-        if (domain !== 'all') {
-            query = query.eq('domaine', domain);
+        if (filter !== 'all') {
+            query = query.eq('domaine', filter);
         }
         
         const { data, error } = await query;
         if (error) throw error;
         
         if (!data || data.length === 0) {
-            container.innerHTML = '<p class="no-content">Aucun créateur trouvé dans cette catégorie.</p>';
+            container.innerHTML = '<p class="no-content">Aucun créateur trouvé.</p>';
             return;
         }
         
@@ -1591,6 +1367,6 @@ async function filterVisages(domain) {
         
     } catch (error) {
         console.error('❌ Erreur filtrage:', error);
-        container.innerHTML = '<p class="error">Erreur lors du filtrage des créateurs.</p>';
+        container.innerHTML = '<p class="error">Erreur lors du filtrage.</p>';
     }
 }
