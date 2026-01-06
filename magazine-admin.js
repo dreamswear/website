@@ -1,13 +1,58 @@
 // ============================================
-// ADMIN SCRIPT - Gestion complète du magazine
+// MAGAZINE ADMIN SCRIPT
+// Gestion des pages : Actualisation.html, visages.html, coulisses.html, tendances.html,
+// actualites.html, mode.html, accessoires.html, beaute.html, culture.html, decouvertes.html
 // ============================================
 
-// Configuration Supabase (identique pour toutes les pages)
+// Configuration Supabase
 const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
 // Initialisation Supabase
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================
+// FONCTIONS UTILITAIRES COMMUNES
+// ============================================
+
+function getRubriqueName(rubrique) {
+    const names = {
+        'actualites': 'Actualités',
+        'visages': 'Visages',
+        'coulisses': 'Coulisses',
+        'tendances': 'Tendances',
+        'decouvertes': 'Découvertes',
+        'culture': 'Culture/Agenda',
+        'mode': 'Mode',
+        'accessoires': 'Accessoires',
+        'beaute': 'Beauté'
+    };
+    return names[rubrique] || rubrique;
+}
+
+function getTypeDecouverteLabel(type) {
+    const labels = {
+        'marque': 'Nouvelles Marques',
+        'designer': 'Designers',
+        'produit': 'Produits Innovants',
+        'lieu': 'Lieux Inspirants',
+        'technique': 'Techniques',
+        'matiere': 'Nouvelles Matières',
+        'artisan': 'Artisans',
+        'autre': 'Autres Découvertes'
+    };
+    return labels[type] || 'Découvertes';
+}
+
+function formatArticleContent(content) {
+    if (!content) return '<p>Contenu non disponible.</p>';
+    return content
+        .replace(/\n/g, '<br>')
+        .replace(/### (.*?)\n/g, '<h3>$1</h3>')
+        .replace(/## (.*?)\n/g, '<h2>$1</h2>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+}
 
 // ============================================
 // 1. SCRIPT POUR LA PAGE D'ADMINISTRATION (Actualisation.html)
@@ -42,7 +87,7 @@ if (window.location.pathname.includes('Actualisation.html')) {
         // ============================================
         
         function applyTheme() {
-            const theme = localStorage.getItem('dreamswear-theme') || 'day';
+            const theme = localStorage.getItem('theme') || 'night';
             document.body.setAttribute('data-theme', theme);
             
             const themeText = document.getElementById('theme-button-text');
@@ -52,34 +97,59 @@ if (window.location.pathname.includes('Actualisation.html')) {
         }
         
         function initThemeSelector() {
-            const themeButton = document.getElementById('theme-select-button');
+            const themeSelectButton = document.getElementById('theme-select-button');
             const themeOptions = document.getElementById('theme-options');
+            const themeButtonText = document.getElementById('theme-button-text');
             
-            if (!themeButton || !themeOptions) return;
+            if (!themeSelectButton || !themeOptions) return;
             
-            themeButton.addEventListener('click', function(e) {
+            // Fonction pour définir le thème
+            const setTheme = (theme) => {
+                if (theme === 'day') {
+                    document.body.classList.add('day-mode');
+                    localStorage.setItem('theme', 'day');
+                    if (themeButtonText) themeButtonText.textContent = 'Clair';
+                } else {
+                    document.body.classList.remove('day-mode');
+                    localStorage.setItem('theme', 'night');
+                    if (themeButtonText) themeButtonText.textContent = 'Sombre';
+                }
+            };
+            
+            // Basculer le menu déroulant du thème
+            themeSelectButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 themeOptions.classList.toggle('hidden-options');
+                themeSelectButton.parentElement.classList.toggle('open');
             });
             
-            themeOptions.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const theme = this.getAttribute('data-theme');
-                    document.body.setAttribute('data-theme', theme);
-                    localStorage.setItem('dreamswear-theme', theme);
-                    
-                    const themeText = document.getElementById('theme-button-text');
-                    if (themeText) {
-                        themeText.textContent = theme === 'night' ? 'Sombre' : 'Clair';
-                    }
+            // Définir le thème depuis le menu déroulant
+            themeOptions.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (e.target.tagName === 'A') {
+                    const selectedTheme = e.target.dataset.theme;
+                    setTheme(selectedTheme);
                     themeOptions.classList.add('hidden-options');
-                });
+                    themeSelectButton.parentElement.classList.remove('open');
+                }
             });
             
-            document.addEventListener('click', function() {
-                themeOptions.classList.add('hidden-options');
+            // Fermer le menu déroulant en cliquant à l'extérieur
+            document.addEventListener('click', () => {
+                if (themeOptions && !themeOptions.classList.contains('hidden-options')) {
+                    themeOptions.classList.add('hidden-options');
+                    themeSelectButton.parentElement.classList.remove('open');
+                }
             });
+            
+            // Vérifier le thème sauvegardé dans localStorage au chargement
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                // Thème par défaut si aucun n'est sauvegardé
+                setTheme('night');
+            }
         }
         
         function initDates() {
@@ -166,7 +236,7 @@ if (window.location.pathname.includes('Actualisation.html')) {
                                 <div class="content-meta">
                                     <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
                                     <span>${metaText}</span>
-                                    <span class="badge">${getRubriqueLabel(rubrique)}</span>
+                                    <span class="badge">${getRubriqueName(rubrique)}</span>
                                 </div>
                             </div>
                         </div>
@@ -204,21 +274,6 @@ if (window.location.pathname.includes('Actualisation.html')) {
                 default:
                     return `${article.auteur || 'Rédaction'}`;
             }
-        }
-        
-        function getRubriqueLabel(rubrique) {
-            const labels = {
-                'actualites': 'Actualités',
-                'visages': 'Visages',
-                'coulisses': 'Coulisses',
-                'tendances': 'Tendances',
-                'decouvertes': 'Découvertes',
-                'culture': 'Culture',
-                'mode': 'Mode',
-                'accessoires': 'Accessoires',
-                'beaute': 'Beauté'
-            };
-            return labels[rubrique] || rubrique;
         }
         
         function initAdminForms() {
@@ -739,27 +794,31 @@ if (window.location.pathname.includes('Actualisation.html')) {
 
 // ============================================
 // 2. SCRIPT POUR LES PAGES DE CONTENU
+// (visages.html, coulisses.html, tendances.html, actualites.html,
+//  mode.html, accessoires.html, beaute.html, culture.html, decouvertes.html)
 // ============================================
-else if (document.querySelector('.admin-page') === null) {
-    // Ce script ne s'exécute pas sur les pages d'administration
+else if (document.querySelector('.admin-page') === null && 
+         (window.location.pathname.includes('visages.html') ||
+          window.location.pathname.includes('coulisses.html') ||
+          window.location.pathname.includes('tendances.html') ||
+          window.location.pathname.includes('actualites.html') ||
+          window.location.pathname.includes('mode.html') ||
+          window.location.pathname.includes('accessoires.html') ||
+          window.location.pathname.includes('beaute.html') ||
+          window.location.pathname.includes('culture.html') ||
+          window.location.pathname.includes('decouvertes.html'))) {
+    
     document.addEventListener('DOMContentLoaded', async function() {
         console.log('🔄 Initialisation des pages de contenu...');
         
-        // Détecter la page actuelle
-        const pageInfo = detectContentPage();
-        if (!pageInfo) {
-            console.log('ℹ️ Page non reconnue');
-            return;
-        }
+        // Détecter la page actuelle et charger les articles
+        await loadContentPage();
         
-        const { rubrique, containerId } = pageInfo;
-        console.log(`📄 Page détectée: ${rubrique} (${containerId})`);
-        
-        // Charger les articles
-        await loadContentPage(rubrique, containerId);
+        // Initialiser le sélecteur de thème
+        initContentThemeSelector();
         
         // Initialiser les filtres si nécessaire
-        if (rubrique === 'visages' && document.querySelectorAll('.filter-btn').length > 0) {
+        if (document.querySelectorAll('.filter-btn').length > 0) {
             setupContentFilters();
         }
         
@@ -767,7 +826,7 @@ else if (document.querySelector('.admin-page') === null) {
         // FONCTIONS POUR LES PAGES DE CONTENU
         // ============================================
         
-        function detectContentPage() {
+        async function loadContentPage() {
             // Détection par ID de conteneur
             const containerMap = {
                 'actualites-container': 'actualites',
@@ -782,75 +841,46 @@ else if (document.querySelector('.admin-page') === null) {
             };
             
             for (const [containerId, rubrique] of Object.entries(containerMap)) {
-                if (document.getElementById(containerId)) {
-                    return { rubrique, containerId };
-                }
-            }
-            
-            // Détection par nom de fichier
-            const path = window.location.pathname;
-            const pageName = path.split('/').pop().replace('.html', '').toLowerCase();
-            
-            const pageMap = {
-                'actualites': ['actualites-container', 'actualites'],
-                'visages': ['visages-container', 'visages'],
-                'tendances': ['tendances-container', 'tendances'],
-                'accessoires': ['accessoires-container', 'accessoires'],
-                'beaute': ['beaute-container', 'beaute'],
-                'coulisses': ['coulisses-container', 'coulisses'],
-                'culture': ['culture-container', 'culture'],
-                'decouvertes': ['decouvertes-container', 'decouvertes'],
-                'mode': ['mode-container', 'mode']
-            };
-            
-            if (pageMap[pageName]) {
-                const [containerId, rubrique] = pageMap[pageName];
-                return { rubrique, containerId };
-            }
-            
-            return null;
-        }
-        
-        async function loadContentPage(rubrique, containerId) {
-            const container = document.getElementById(containerId);
-            if (!container) {
-                console.log(`❌ Conteneur ${containerId} non trouvé`);
-                return;
-            }
-            
-            container.innerHTML = '<div class="loading">Chargement des articles...</div>';
-            
-            try {
-                const { data, error } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .eq('rubrique', rubrique)
-                    .eq('statut', 'publié')
-                    .order('date_publication', { ascending: false });
-                
-                if (error) throw error;
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = `
-                        <div class="no-content">
-                            <p>Aucun contenu publié pour le moment.</p>
-                            <small>Les articles seront bientôt disponibles</small>
-                        </div>
-                    `;
+                const container = document.getElementById(containerId);
+                if (container) {
+                    console.log(`📄 Page détectée: ${rubrique} (${containerId})`);
+                    
+                    container.innerHTML = '<div class="loading">Chargement des articles...</div>';
+                    
+                    try {
+                        const { data, error } = await supabase
+                            .from('articles')
+                            .select('*')
+                            .eq('rubrique', rubrique)
+                            .eq('statut', 'publié')
+                            .order('date_publication', { ascending: false });
+                        
+                        if (error) throw error;
+                        
+                        if (!data || data.length === 0) {
+                            container.innerHTML = `
+                                <div class="no-content">
+                                    <p>Aucun contenu publié pour le moment.</p>
+                                    <small>Les articles seront bientôt disponibles</small>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // Afficher les articles selon la rubrique
+                        renderContentPage(rubrique, data, container);
+                        
+                    } catch (error) {
+                        console.error(`❌ Erreur chargement ${rubrique}:`, error);
+                        container.innerHTML = `
+                            <div class="error">
+                                <p>Erreur de chargement des articles.</p>
+                                <small>Veuillez réessayer plus tard</small>
+                            </div>
+                        `;
+                    }
                     return;
                 }
-                
-                // Afficher les articles selon la rubrique
-                renderContentPage(rubrique, data, container);
-                
-            } catch (error) {
-                console.error(`❌ Erreur chargement ${rubrique}:`, error);
-                container.innerHTML = `
-                    <div class="error">
-                        <p>Erreur de chargement des articles.</p>
-                        <small>Veuillez réessayer plus tard</small>
-                    </div>
-                `;
             }
         }
         
@@ -1006,7 +1036,7 @@ else if (document.querySelector('.admin-page') === null) {
             
             container.innerHTML = Object.entries(groupedByType).map(([type, items]) => `
                 <section class="discovery-section">
-                    <h2>${getDiscoveryTypeLabel(type)}</h2>
+                    <h2>${getTypeDecouverteLabel(type)}</h2>
                     <div class="discoveries-grid">
                         ${items.map(item => `
                             <article class="discovery-card">
@@ -1027,7 +1057,7 @@ else if (document.querySelector('.admin-page') === null) {
                                     </p>
                                     <div class="discovery-meta">
                                         <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
-                                        <span>🔍 ${getDiscoveryTypeLabel(item.type_decouverte)}</span>
+                                        <span>🔍 ${getTypeDecouverteLabel(item.type_decouverte)}</span>
                                     </div>
                                     <a href="article.html?id=${item.id}" class="btn-discovery">
                                         Découvrir →
@@ -1040,22 +1070,8 @@ else if (document.querySelector('.admin-page') === null) {
             `).join('');
         }
         
-        function getDiscoveryTypeLabel(type) {
-            const labels = {
-                'marque': 'Nouvelles Marques',
-                'designer': 'Designers',
-                'produit': 'Produits Innovants',
-                'lieu': 'Lieux Inspirants',
-                'technique': 'Techniques',
-                'matiere': 'Nouvelles Matières',
-                'artisan': 'Artisans',
-                'autre': 'Autres Découvertes'
-            };
-            return labels[type] || 'Découvertes';
-        }
-        
         function renderGenericPage(articles, container, rubrique) {
-            const rubriqueLabel = getRubriqueLabel(rubrique);
+            const rubriqueLabel = getRubriqueName(rubrique);
             
             container.innerHTML = articles.map(article => `
                 <article class="article-card ${rubrique}-card">
@@ -1093,18 +1109,6 @@ else if (document.querySelector('.admin-page') === null) {
             `).join('');
         }
         
-        function getRubriqueLabel(rubrique) {
-            const labels = {
-                'actualites': 'Actualités',
-                'coulisses': 'Coulisses',
-                'tendances': 'Tendances',
-                'mode': 'Mode',
-                'accessoires': 'Accessoires',
-                'beaute': 'Beauté'
-            };
-            return labels[rubrique] || rubrique;
-        }
-        
         function getArticleBadge(article, rubrique) {
             switch(rubrique) {
                 case 'tendances':
@@ -1136,6 +1140,62 @@ else if (document.querySelector('.admin-page') === null) {
                     return article.categorie_actualite ? `<span class="article-category">📢 ${article.categorie_actualite}</span>` : '';
                 default:
                     return '';
+            }
+        }
+        
+        function initContentThemeSelector() {
+            const themeSelectButton = document.getElementById('theme-select-button');
+            const themeOptions = document.getElementById('theme-options');
+            const themeButtonText = document.getElementById('theme-button-text');
+            
+            if (!themeSelectButton || !themeOptions) return;
+            
+            // Fonction pour définir le thème
+            const setTheme = (theme) => {
+                if (theme === 'day') {
+                    document.body.classList.add('day-mode');
+                    localStorage.setItem('theme', 'day');
+                    if (themeButtonText) themeButtonText.textContent = 'Clair';
+                } else {
+                    document.body.classList.remove('day-mode');
+                    localStorage.setItem('theme', 'night');
+                    if (themeButtonText) themeButtonText.textContent = 'Sombre';
+                }
+            };
+            
+            // Basculer le menu déroulant du thème
+            themeSelectButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                themeOptions.classList.toggle('hidden-options');
+                themeSelectButton.parentElement.classList.toggle('open');
+            });
+            
+            // Définir le thème depuis le menu déroulant
+            themeOptions.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (e.target.tagName === 'A') {
+                    const selectedTheme = e.target.dataset.theme;
+                    setTheme(selectedTheme);
+                    themeOptions.classList.add('hidden-options');
+                    themeSelectButton.parentElement.classList.remove('open');
+                }
+            });
+            
+            // Fermer le menu déroulant en cliquant à l'extérieur
+            document.addEventListener('click', () => {
+                if (themeOptions && !themeOptions.classList.contains('hidden-options')) {
+                    themeOptions.classList.add('hidden-options');
+                    themeSelectButton.parentElement.classList.remove('open');
+                }
+            });
+            
+            // Vérifier le thème sauvegardé dans localStorage au chargement
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                // Thème par défaut si aucun n'est sauvegardé
+                setTheme('night');
             }
         }
         
@@ -1188,241 +1248,4 @@ else if (document.querySelector('.admin-page') === null) {
     });
 }
 
-// ============================================
-// 3. SCRIPT POUR LA PAGE ARTICLE INDIVIDUEL (article.html)
-// ============================================
-if (document.getElementById('article-content')) {
-    document.addEventListener('DOMContentLoaded', async function() {
-        console.log('🔄 Chargement de l\'article individuel...');
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const articleId = urlParams.get('id');
-        
-        if (!articleId) {
-            document.getElementById('article-content').innerHTML = `
-                <div class="error-message">
-                    <h2>Article non trouvé</h2>
-                    <p>Aucun ID d'article spécifié dans l'URL.</p>
-                    <a href="index.html" class="btn-home">Retour à l'accueil</a>
-                </div>
-            `;
-            return;
-        }
-        
-        await loadSingleArticle(articleId);
-    });
-    
-    async function loadSingleArticle(id) {
-        const container = document.getElementById('article-content');
-        container.innerHTML = '<div class="loading">Chargement de l\'article...</div>';
-        
-        try {
-            const { data: article, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('id', id)
-                .single();
-            
-            if (error) throw error;
-            
-            if (!article || article.statut !== 'publié') {
-                throw new Error('Cet article n\'est pas disponible ou n\'existe pas.');
-            }
-            
-            renderSingleArticle(article);
-            
-        } catch (error) {
-            console.error('❌ Erreur chargement article:', error);
-            container.innerHTML = `
-                <div class="error-message">
-                    <h2>Erreur de chargement</h2>
-                    <p>${error.message}</p>
-                    <a href="index.html" class="btn-home">Retour à l'accueil</a>
-                </div>
-            `;
-        }
-    }
-    
-    function renderSingleArticle(article) {
-        const container = document.getElementById('article-content');
-        const rubriqueLabel = getRubriqueLabel(article.rubrique);
-        
-        container.innerHTML = `
-            <article class="full-article">
-                <nav class="article-breadcrumb">
-                    <a href="index.html">Accueil</a> > 
-                    <a href="${article.rubrique}.html">${rubriqueLabel}</a>
-                </nav>
-                
-                <header class="article-header">
-                    <h1 class="article-title">${article.titre_fr}</h1>
-                    
-                    <div class="article-meta">
-                        <div class="meta-left">
-                            <span class="article-date">📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                            <span class="article-author">👤 ${article.auteur || 'Rédaction'}</span>
-                        </div>
-                        <div class="meta-right">
-                            <span class="article-rubrique">${rubriqueLabel}</span>
-                            ${getArticleCategoryBadge(article)}
-                        </div>
-                    </div>
-                    
-                    ${article.image_url ? `
-                    <div class="article-hero-image">
-                        <img src="${article.image_url}" alt="${article.titre_fr}" 
-                             onerror="this.src='https://placehold.co/800x400?text=ARTICLE'">
-                    </div>
-                    ` : ''}
-                </header>
-                
-                <div class="article-body">
-                    <div class="article-content-text">
-                        ${formatArticleContent(article.contenu_fr)}
-                    </div>
-                    
-                    ${renderArticleSpecificContent(article)}
-                </div>
-                
-                ${renderArticleTags(article)}
-                
-                <footer class="article-footer">
-                    <a href="${article.rubrique}.html" class="btn-back">
-                        ← Retour à ${rubriqueLabel}
-                    </a>
-                    
-                    <div class="article-share">
-                        <span>Partager :</span>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}" 
-                           target="_blank" class="share-btn facebook">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.titre_fr)}" 
-                           target="_blank" class="share-btn twitter">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(window.location.href)}&title=${encodeURIComponent(article.titre_fr)}" 
-                           target="_blank" class="share-btn linkedin">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                    </div>
-                </footer>
-            </article>
-        `;
-    }
-    
-    function formatArticleContent(content) {
-        if (!content) return '<p>Contenu non disponible.</p>';
-        
-        // Convertir les sauts de ligne
-        let formatted = content.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
-        
-        // Convertir les titres
-        formatted = formatted.replace(/### (.*?)(\n|$)/g, '<h3>$1</h3>');
-        formatted = formatted.replace(/## (.*?)(\n|$)/g, '<h2>$1</h2>');
-        formatted = formatted.replace(/# (.*?)(\n|$)/g, '<h1>$1</h1>');
-        
-        // Convertir le formatage
-        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
-        // Convertir les listes
-        formatted = formatted.replace(/^- (.*?)(\n|$)/gm, '<li>$1</li>');
-        formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-        
-        return `<p>${formatted}</p>`;
-    }
-    
-    function getArticleCategoryBadge(article) {
-        if (article.type_decouverte) return `<span class="article-category-badge">🔍 ${article.type_decouverte}</span>`;
-        if (article.type_accessoire) return `<span class="article-category-badge">💎 ${article.type_accessoire}</span>`;
-        if (article.type_beaute) return `<span class="article-category-badge">💄 ${article.type_beaute}</span>`;
-        if (article.saison) return `<span class="article-category-badge">📈 ${article.saison}</span>`;
-        if (article.theme_mode) return `<span class="article-category-badge">👗 ${article.theme_mode}</span>`;
-        if (article.type_evenement) return `<span class="article-category-badge">🎫 ${article.type_evenement}</span>`;
-        if (article.categorie_actualite) return `<span class="article-category-badge">📢 ${article.categorie_actualite}</span>`;
-        if (article.domaine) return `<span class="article-category-badge">🏷️ ${article.domaine}</span>`;
-        return '';
-    }
-    
-    function renderArticleSpecificContent(article) {
-        if (article.rubrique === 'visages') {
-            return `
-                <div class="article-specific creator-details">
-                    <h3>À propos du créateur</h3>
-                    <div class="creator-info-grid">
-                        ${article.nom_marque ? `<div><strong>Marque :</strong> ${article.nom_marque}</div>` : ''}
-                        ${article.nom_createur ? `<div><strong>Créateur :</strong> ${article.nom_createur}</div>` : ''}
-                        ${article.domaine ? `<div><strong>Domaine :</strong> ${article.domaine}</div>` : ''}
-                        ${article.reseaux_instagram ? `
-                        <div>
-                            <strong>Instagram :</strong> 
-                            <a href="https://instagram.com/${article.reseaux_instagram.replace('@', '')}" 
-                               target="_blank">${article.reseaux_instagram}</a>
-                        </div>
-                        ` : ''}
-                        ${article.site_web ? `
-                        <div>
-                            <strong>Site web :</strong> 
-                            <a href="${article.site_web}" target="_blank">${article.site_web}</a>
-                        </div>
-                        ` : ''}
-                    </div>
-                    
-                    ${article.interview_fr ? `
-                    <div class="interview-section">
-                        <h4>Interview</h4>
-                        <div class="interview-content">${formatArticleContent(article.interview_fr)}</div>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-        }
-        
-        if (article.rubrique === 'culture' && article.type_evenement) {
-            return `
-                <div class="article-specific event-details">
-                    <h3>Informations pratiques</h3>
-                    <div class="event-info-grid">
-                        ${article.type_evenement ? `<div><strong>Type :</strong> ${article.type_evenement}</div>` : ''}
-                        ${article.date_evenement ? `<div><strong>Date :</strong> ${new Date(article.date_evenement).toLocaleDateString('fr-FR')}</div>` : ''}
-                        ${article.heure_evenement ? `<div><strong>Heure :</strong> ${article.heure_evenement}</div>` : ''}
-                        ${article.lieu ? `<div><strong>Lieu :</strong> ${article.lieu}</div>` : ''}
-                        ${article.statut_evenement ? `<div><strong>Statut :</strong> ${article.statut_evenement}</div>` : ''}
-                        ${article.lien_evenement ? `
-                        <div>
-                            <strong>Site web :</strong> 
-                            <a href="${article.lien_evenement}" target="_blank">${article.lien_evenement}</a>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-        }
-        
-        return '';
-    }
-    
-    function renderArticleTags(article) {
-        const tags = [];
-        
-        if (article.type_decouverte) tags.push(`🔍 ${article.type_decouverte}`);
-        if (article.type_accessoire) tags.push(`💎 ${article.type_accessoire}`);
-        if (article.type_beaute) tags.push(`💄 ${article.type_beaute}`);
-        if (article.saison) tags.push(`📈 ${article.saison}`);
-        if (article.theme_mode) tags.push(`👗 ${article.theme_mode}`);
-        if (article.domaine) tags.push(`🏷️ ${article.domaine}`);
-        if (article.categorie_actualite) tags.push(`📢 ${article.categorie_actualite}`);
-        if (article.type_evenement) tags.push(`🎫 ${article.type_evenement}`);
-        
-        if (tags.length === 0) return '';
-        
-        return `
-            <div class="article-tags">
-                ${tags.map(tag => `<span class="article-tag">${tag}</span>`).join('')}
-            </div>
-        `;
-    }
-}
-
-console.log('✅ Script magazine chargé avec succès');
+console.log('✅ Script magazine-admin chargé avec succès');
