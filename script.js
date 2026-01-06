@@ -129,32 +129,24 @@ function confirmAction(message) {
         const notification = showNotification({
             title: 'Confirmation',
             message: message + '<br><br><div style="display: flex; gap: 10px; margin-top: 10px;">' +
-                '<button onclick="window.confirmActionResult = true; this.closest(\'.notification\').classList.add(\'hide\'); setTimeout(() => this.closest(\'.notification\').remove(), 300)" ' +
-                'style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Oui</button>' +
-                '<button onclick="window.confirmActionResult = false; this.closest(\'.notification\').classList.add(\'hide\'); setTimeout(() => this.closest(\'.notification\').remove(), 300)" ' +
-                'style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Non</button>' +
+                '<button onclick="window.confirmNotificationYes()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Oui</button>' +
+                '<button onclick="window.confirmNotificationNo()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Non</button>' +
                 '</div>',
             type: 'warning',
             duration: 0 // Pas de fermeture auto
         });
         
-        // Écouter la suppression de la notification
-        const observer = new MutationObserver((mutations) => {
-            for (let mutation of mutations) {
-                if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
-                    for (let node of mutation.removedNodes) {
-                        if (node === notification) {
-                            observer.disconnect();
-                            resolve(window.confirmActionResult || false);
-                            delete window.confirmActionResult;
-                            return;
-                        }
-                    }
-                }
-            }
-        });
+        window.confirmNotificationYes = () => {
+            notification.classList.add('hide');
+            setTimeout(() => notification.remove(), 300);
+            resolve(true);
+        };
         
-        observer.observe(container, { childList: true });
+        window.confirmNotificationNo = () => {
+            notification.classList.add('hide');
+            setTimeout(() => notification.remove(), 300);
+            resolve(false);
+        };
     });
 }
 
@@ -263,16 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initAdminPage() {
         console.log('🔄 Initialisation de la page admin...');
         
-        // Vérifier la connexion admin
-        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            showWarning('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-            return;
-        }
-        
         // Initialiser les onglets
         document.querySelectorAll('.tab-link').forEach(button => {
             button.addEventListener('click', function() {
@@ -285,49 +267,29 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // Gestion des liens de retour avec confirmation
-        const backLinks = document.querySelectorAll('a[href="index.html"]');
-        backLinks.forEach(link => {
-            link.addEventListener('click', async function(e) {
-                e.preventDefault();
-                const confirmed = await confirmAction("Les modifications non sauvegardées seront perdues. Continuer ?");
-                if (confirmed) {
-                    window.location.href = this.href;
-                }
-            });
-        });
-        
         // Initialiser les boutons de sauvegarde
         document.querySelectorAll('.btn-save').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const tabId = this.id.split('-')[1];
                 console.log('Enregistrement pour:', tabId);
                 // Votre logique d'enregistrement ici
-                showSuccess('Modifications enregistrées avec succès !');
             });
         });
         
         // Charger les données initiales
         await loadAdminData('actualites');
         
-        // Gestion des boutons de suppression
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const itemId = this.dataset.id;
-                const itemName = this.dataset.name;
-                
-                const confirmed = await confirmAction(`Voulez-vous vraiment supprimer "${itemName}" ?`);
-                if (confirmed) {
-                    try {
-                        // Logique de suppression
-                        showSuccess('Supprimé avec succès !');
-                        // Recharger les données
-                        await loadAdminData('actualites');
-                    } catch (error) {
-                        showError("Erreur lors de la suppression: " + error.message);
+        // Gestion de la navigation avec confirmation
+        document.querySelectorAll('a[href*=".html"]').forEach(link => {
+            if (link.getAttribute('href') !== 'Actualisation.html') {
+                link.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const confirmed = await confirmAction("Les modifications non sauvegardées seront perdues. Continuer ?");
+                    if (confirmed) {
+                        window.location.href = this.href;
                     }
-                }
-            });
+                });
+            }
         });
     }
     
@@ -366,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (error) {
                 console.error(`❌ Erreur chargement ${rubrique}:`, error);
                 container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Erreur de chargement: ${error.message}</p>`;
-                showError(`Erreur de chargement: ${error.message}`);
+                showError(`Erreur de chargement: ${error.message}`, 'Erreur');
                 return;
             }
             
@@ -414,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('💥 Erreur générale:', error);
             container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Une erreur est survenue lors du chargement: ${error.message}</p>`;
-            showError('Une erreur est survenue lors du chargement: ' + error.message);
+            showError(`Une erreur est survenue lors du chargement: ${error.message}`, 'Erreur');
         }
     };
     
@@ -883,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="index.html" class="btn-home">Retour à l'accueil</a>
                 </div>
             `;
-            showError('Erreur de chargement: ' + error.message);
+            showError(`Erreur de chargement: ${error.message}`, 'Erreur');
         }
     };
     
@@ -1134,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ Erreur filtrage:', error);
             container.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
-            showError('Erreur de filtrage: ' + error.message);
+            showError(`Erreur lors du filtrage: ${error.message}`, 'Erreur');
         }
     }
     
@@ -1150,96 +1112,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // ============================================
-    // FONCTION D'INITIALISATION AUTOMATIQUE DES PAGES (CONSERVÉE POUR COMPATIBILITÉ)
+    // FONCTION D'INITIALISATION AUTOMATIQUE DES PAGES
     // ============================================
     
     window.initPageData = function() {
         console.log('🔄 Initialisation des données de la page...');
-        detectPageAndLoad(); // Utilise la nouvelle fonction de détection
+        detectPageAndLoad();
     };
-    
-    // ============================================
-    // FONCTION SPÉCIALE POUR COULISSES (ARTICLE À LA UNE)
-    // ============================================
-    
-    async function loadCoulissesFeatured() {
-        try {
-            const container = document.getElementById('coulisses-container');
-            const featuredContainer = document.getElementById('coulisses-featured');
-            
-            if (!container) return;
-            
-            // Si vous avez un conteneur "featured" séparé
-            if (featuredContainer) {
-                const { data, error } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .eq('rubrique', 'coulisses')
-                    .eq('statut', 'publié')
-                    .order('date_publication', { ascending: false })
-                    .limit(7);
-                
-                if (error) throw error;
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p class="no-content">Aucun article coulisses pour le moment.</p>';
-                    featuredContainer.innerHTML = '';
-                    return;
-                }
-                
-                // Premier article = à la une
-                const featured = data[0];
-                featuredContainer.innerHTML = `
-                    <article class="featured-article-content">
-                        ${featured.image_url ? `
-                        <img src="${featured.image_url}" alt="${featured.titre_fr}" 
-                             onerror="this.src='https://placehold.co/800x400?text=COULISSES'">
-                        ` : ''}
-                        <div class="featured-info">
-                            <span class="category">COULISSES</span>
-                            <h2>${featured.titre_fr}</h2>
-                            <p>${featured.contenu_fr ? featured.contenu_fr.substring(0, 200) + '...' : ''}</p>
-                            <a href="article.html?id=${featured.id}" class="read-more">Lire l'article →</a>
-                        </div>
-                    </article>
-                `;
-                
-                // Les 6 articles suivants = liste
-                const otherArticles = data.slice(1);
-                if (otherArticles.length > 0) {
-                    container.innerHTML = otherArticles.map(article => `
-                        <article class="article-item">
-                            ${article.image_url ? `
-                            <img src="${article.image_url}" alt="${article.titre_fr}" 
-                                 onerror="this.src='https://placehold.co/300x200?text=ARTICLE'">
-                            ` : ''}
-                            <div class="article-item-info">
-                                <h3>${article.titre_fr}</h3>
-                                <p>${article.contenu_fr ? article.contenu_fr.substring(0, 100) + '...' : ''}</p>
-                                <a href="article.html?id=${article.id}" class="read-link">Lire →</a>
-                            </div>
-                        </article>
-                    `).join('');
-                } else {
-                    container.innerHTML = '';
-                }
-            }
-            
-        } catch (error) {
-            console.error('❌ Erreur chargement coulisses:', error);
-            const container = document.getElementById('coulisses-container');
-            if (container) {
-                container.innerHTML = '<p class="error">Erreur de chargement des articles.</p>';
-            }
-            showError('Erreur de chargement coulisses: ' + error.message);
-        }
-    }
     
     // ============================================
     // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION
     // ============================================
     setTimeout(() => {
-        detectPageAndLoad(); // Détection automatique au chargement
+        detectPageAndLoad();
     }, 100);
 
     // ============================================
@@ -1275,12 +1160,10 @@ document.addEventListener('DOMContentLoaded', () => {
             body.classList.add('day-mode');
             localStorage.setItem('theme', 'day');
             themeButtonText.textContent = 'Clair';
-            showSuccess('Thème clair activé');
         } else {
             body.classList.remove('day-mode');
             localStorage.setItem('theme', 'night');
             themeButtonText.textContent = 'Sombre';
-            showSuccess('Thème sombre activé');
         }
     };
 
@@ -1411,18 +1294,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur inscription:', error);
-                    showError('Erreur: ' + error.message);
+                    showError('Erreur: ' + error.message, 'Erreur d\'inscription');
                     return;
                 }
                 
                 console.log('✅ Inscription réussie!', data);
-                showSuccess('Inscription réussie ! Vous recevrez nos actualités par email.');
+                showSuccess('Inscription réussie ! Vous recevrez nos actualités par email.', 'Félicitations');
                 modal.classList.add('hidden-modal');
                 subscriberForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                showError('Une erreur est survenue lors de l\'inscription.');
+                showError('Une erreur est survenue lors de l\'inscription.', 'Erreur');
             }
         });
     }
@@ -1461,18 +1344,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur inscription:', error);
-                    showError('Erreur: ' + error.message);
+                    showError('Erreur: ' + error.message, 'Erreur d\'inscription');
                     return;
                 }
                 
                 console.log('✅ Inscription créateur réussie!', data);
-                showSuccess('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
+                showSuccess('Inscription réussie ! Votre compte sera activé après validation par un administrateur.', 'Félicitations');
                 modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                showError('Une erreur est survenue lors de l\'inscription.');
+                showError('Une erreur est survenue lors de l\'inscription.', 'Erreur');
             }
         });
     }
@@ -1601,7 +1484,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminError.textContent = 'Erreur technique: ' + error.message;
                         adminError.style.display = 'block';
                     }
-                    showError('Erreur technique: ' + error.message);
+                    showError('Erreur technique: ' + error.message, 'Erreur de connexion');
                     return;
                 }
                 
@@ -1611,7 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminError.textContent = 'Nom d\'administrateur ou mot de passe incorrect';
                         adminError.style.display = 'block';
                     }
-                    showError('Nom d\'administrateur ou mot de passe incorrect');
+                    showError('Nom d\'administrateur ou mot de passe incorrect', 'Échec de connexion');
                     return;
                 }
                 
@@ -1623,12 +1506,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('adminName', data.nom);
                 sessionStorage.setItem('adminEmail', data.email);
                 
-                showSuccess('Connexion réussie ! Redirection vers l\'administration...');
-                
                 // Redirection vers la page d'administration
-                setTimeout(() => {
-                    window.location.href = 'Actualisation.html';
-                }, 1500);
+                window.location.href = 'admin.html';
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
@@ -1636,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     adminError.textContent = 'Une erreur est survenue lors de la connexion';
                     adminError.style.display = 'block';
                 }
-                showError('Une erreur est survenue lors de la connexion');
+                showError('Une erreur est survenue lors de la connexion', 'Erreur');
             }
         });
     }
@@ -1671,7 +1550,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         creatorError.textContent = 'Erreur technique: ' + error.message;
                         creatorError.style.display = 'block';
                     }
-                    showError('Erreur technique: ' + error.message);
+                    showError('Erreur technique: ' + error.message, 'Erreur de connexion');
                     return;
                 }
                 
@@ -1681,7 +1560,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         creatorError.textContent = 'Marque ou mot de passe incorrect';
                         creatorError.style.display = 'block';
                     }
-                    showError('Marque ou mot de passe incorrect');
+                    showError('Marque ou mot de passe incorrect', 'Échec de connexion');
                     return;
                 }
                 
@@ -1692,12 +1571,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('creatorId', data.id);
                 sessionStorage.setItem('creatorBrand', data.nom_marque);
                 
-                showSuccess('Connexion réussie ! Redirection vers votre dashboard...');
-                
                 // Redirection vers le dashboard créateur
-                setTimeout(() => {
-                    window.location.href = 'dashboard-home.html';
-                }, 1500);
+                window.location.href = 'dashboard-home.html';
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
@@ -1705,7 +1580,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     creatorError.textContent = 'Une erreur est survenue lors de la connexion';
                     creatorError.style.display = 'block';
                 }
-                showError('Une erreur est survenue lors de la connexion');
+                showError('Une erreur est survenue lors de la connexion', 'Erreur');
             }
         });
     }
@@ -1737,7 +1612,7 @@ document.addEventListener('DOMContentLoaded', () => {
     otherForms.forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            showSuccess('Formulaire soumis avec succès !');
+            showSuccess('Formulaire soumis avec succès ! (démonstration)', 'Succès');
             form.reset();
         });
     });
@@ -1754,7 +1629,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Vérifier la connexion admin
         const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
         if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            showWarning('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+            showWarning('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.', 'Accès refusé');
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 2000);
@@ -1782,7 +1657,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pendingError) {
                     console.error('❌ Erreur pending:', pendingError);
                     pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${pendingError.message}</div>`;
-                    showError('Erreur de chargement: ' + pendingError.message);
+                    showError(`Erreur lors du chargement: ${pendingError.message}`, 'Erreur');
                 } else if (!pendingData || pendingData.length === 0) {
                     pendingCreatorsDiv.innerHTML = '<div class="empty-message">Aucune demande en attente</div>';
                 } else {
@@ -1800,7 +1675,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (approvedError) {
                     console.error('❌ Erreur approved:', approvedError);
                     approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${approvedError.message}</div>`;
-                    showError('Erreur de chargement: ' + approvedError.message);
+                    showError(`Erreur lors du chargement: ${approvedError.message}`, 'Erreur');
                 } else if (!approvedData || approvedData.length === 0) {
                     approvedCreatorsDiv.innerHTML = '<div class="empty-message">Aucun créateur approuvé</div>';
                 } else {
@@ -1812,7 +1687,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('💥 Erreur générale:', error);
                 pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
                 approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
-                showError('Erreur générale: ' + error.message);
+                showError(`Erreur générale: ${error.message}`, 'Erreur');
             }
         }
         
@@ -1856,10 +1731,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Fonctions globales
         window.approveCreator = async function(id, brandName) {
-            const confirmed = await confirmAction(`Approuver "${brandName}" ?`);
-            if (!confirmed) return;
-            
             try {
+                const confirmed = await confirmAction(`Approuver "${brandName}" ?`);
+                if (!confirmed) return;
+                
                 const { error } = await supabase
                     .from('créateurs')
                     .update({ 
@@ -1870,19 +1745,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
                 
-                showSuccess(`"${brandName}" a été approuvé avec succès`);
+                showSuccess(`"${brandName}" a été approuvé avec succès`, 'Créateur approuvé');
                 loadAllCreators();
                 
             } catch (error) {
-                showError('Erreur : ' + error.message);
+                showError('Erreur : ' + error.message, 'Erreur');
             }
         };
         
         window.rejectCreator = async function(id, brandName) {
-            const confirmed = await confirmAction(`Refuser "${brandName}" ?`);
-            if (!confirmed) return;
-            
             try {
+                const confirmed = await confirmAction(`Refuser "${brandName}" ?`);
+                if (!confirmed) return;
+                
                 const { error } = await supabase
                     .from('créateurs')
                     .delete()
@@ -1890,11 +1765,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
                 
-                showWarning(`"${brandName}" a été refusé`);
+                showWarning(`"${brandName}" a été refusé`, 'Créateur refusé');
                 loadAllCreators();
                 
             } catch (error) {
-                showError('Erreur : ' + error.message);
+                showError('Erreur : ' + error.message, 'Erreur');
             }
         };
     }
@@ -1932,18 +1807,4 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadEvents');
         loadArticlesByRubrique('culture', 'events-container');
     };
-    
-    // ============================================
-    // 13. TEST DES NOTIFICATIONS (OPTIONNEL)
-    // ============================================
-    
-    // Ajoutez ce code pour tester les notifications si nécessaire
-    if (window.location.search.includes('test=notifications')) {
-        setTimeout(() => {
-            showSuccess('Test de notification de succès');
-            showError('Test de notification d\'erreur');
-            showWarning('Test de notification d\'avertissement');
-            showInfo('Test de notification d\'information');
-        }, 1000);
-    }
 });
