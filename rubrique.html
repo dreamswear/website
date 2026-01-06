@@ -9,41 +9,6 @@
   <div class="articles-list" id="articles-container">
     <!-- Liste des articles -->
   </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
-  <script>
-  const rubrique = new URLSearchParams(window.location.search).get('rubrique');
-  
-  async function loadArticles() {
-    document.getElementById('rubrique-title').textContent = 
-      rubrique.charAt(0).toUpperCase() + rubrique.slice(1);
-    
-    const { data, error } = await supabase
-      .from('articles')
-      .select('*')
-      .eq('rubrique', rubrique)
-      .eq('statut', 'publié')
-      .order('date_publication', { ascending: false });
-    
-    if (error) {
-      console.error(error);
-      return;
-    }
-    
-    const container = document.getElementById('articles-container');
-    container.innerHTML = data.map(article => `
-      <article class="article-preview">
-        <img src="${article.image_url}" alt="${article.titre_fr}">
-        <div>
-          <h3>${article.titre_fr}</h3>
-          <p>${article.contenu_fr.substring(0, 200)}...</p>
-          <a href="article.html?id=${article.id}">Lire l'article complet</a>
-        </div>
-      </article>
-    `).join('');
-  }
-  
-  loadArticles();
-  </script>
+<script src="magazine-admin.js"></script>
 </body>
 </html>
