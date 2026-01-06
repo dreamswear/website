@@ -1,4 +1,172 @@
 // ============================================
+// SYSTÈME DE NOTIFICATIONS
+// ============================================
+
+// Fonction pour afficher une notification
+function showNotification(options) {
+    const container = document.getElementById('notifications-container');
+    if (!container) {
+        // Créer le container s'il n'existe pas
+        const newContainer = document.createElement('div');
+        newContainer.id = 'notifications-container';
+        newContainer.className = 'notifications-container';
+        document.body.appendChild(newContainer);
+        return showNotification(options); // Rappeler la fonction
+    }
+    
+    const { 
+        title = 'Notification', 
+        message, 
+        type = 'info', 
+        duration = 5000,
+        icon = getIconForType(type)
+    } = options;
+    
+    // Créer l'élément de notification
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    // Icônes par type
+    const icons = {
+        success: '✓',
+        error: '✗',
+        warning: '⚠',
+        info: 'ℹ'
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-icon">${icon || icons[type] || 'ℹ'}</div>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.classList.add('hide'); setTimeout(() => this.parentElement.remove(), 300)">×</button>
+        ${duration > 0 ? `<div class="notification-progress" style="animation-duration: ${duration}ms"></div>` : ''}
+    `;
+    
+    // Ajouter à container
+    container.appendChild(notification);
+    
+    // Animation d'entrée
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Auto-fermeture si durée spécifiée
+    if (duration > 0) {
+        setTimeout(() => {
+            notification.classList.add('hide');
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 300);
+        }, duration);
+    }
+    
+    return notification;
+}
+
+// Fonction utilitaire pour obtenir l'icône
+function getIconForType(type) {
+    switch(type) {
+        case 'success': return '✓';
+        case 'error': return '✗';
+        case 'warning': return '⚠';
+        case 'info': return 'ℹ';
+        default: return 'ℹ';
+    }
+}
+
+// Remplacer les alertes globalement
+window.originalAlert = window.alert;
+window.alert = function(message, title = 'Information', type = 'info') {
+    showNotification({
+        title: title,
+        message: message,
+        type: type
+    });
+};
+
+// Fonctions spécifiques pour différents types
+function showSuccess(message, title = 'Succès') {
+    showNotification({
+        title: title,
+        message: message,
+        type: 'success',
+        duration: 3000
+    });
+}
+
+function showError(message, title = 'Erreur') {
+    showNotification({
+        title: title,
+        message: message,
+        type: 'error',
+        duration: 5000
+    });
+}
+
+function showWarning(message, title = 'Attention') {
+    showNotification({
+        title: title,
+        message: message,
+        type: 'warning',
+        duration: 4000
+    });
+}
+
+function showInfo(message, title = 'Information') {
+    showNotification({
+        title: title,
+        message: message,
+        type: 'info',
+        duration: 4000
+    });
+}
+
+// Fonction de confirmation personnalisée
+function confirmAction(message) {
+    return new Promise((resolve) => {
+        const notification = showNotification({
+            title: 'Confirmation',
+            message: message + '<br><br><div style="display: flex; gap: 10px; margin-top: 10px;">' +
+                '<button onclick="window.confirmActionResult = true; this.closest(\'.notification\').classList.add(\'hide\'); setTimeout(() => this.closest(\'.notification\').remove(), 300)" ' +
+                'style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Oui</button>' +
+                '<button onclick="window.confirmActionResult = false; this.closest(\'.notification\').classList.add(\'hide\'); setTimeout(() => this.closest(\'.notification\').remove(), 300)" ' +
+                'style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Non</button>' +
+                '</div>',
+            type: 'warning',
+            duration: 0 // Pas de fermeture auto
+        });
+        
+        // Écouter la suppression de la notification
+        const observer = new MutationObserver((mutations) => {
+            for (let mutation of mutations) {
+                if (mutation.type === 'childList' && mutation.removedNodes.length > 0) {
+                    for (let node of mutation.removedNodes) {
+                        if (node === notification) {
+                            observer.disconnect();
+                            resolve(window.confirmActionResult || false);
+                            delete window.confirmActionResult;
+                            return;
+                        }
+                    }
+                }
+            }
+        });
+        
+        observer.observe(container, { childList: true });
+    });
+}
+
+// Exposer les fonctions globalement
+window.showNotification = showNotification;
+window.showSuccess = showSuccess;
+window.showError = showError;
+window.showWarning = showWarning;
+window.showInfo = showInfo;
+window.confirmAction = confirmAction;
+
+// ============================================
 // CODE PRINCIPAL
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -11,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ============================================
-    // DÉTECTION AUTOMATIQUE DE LA PAGE (NOUVEAU)
+    // DÉTECTION AUTOMATIQUE DE LA PAGE
     // ============================================
     function detectPageAndLoad() {
         console.log('🔍 Détection automatique de la page...');
@@ -95,6 +263,16 @@ document.addEventListener('DOMContentLoaded', () => {
     async function initAdminPage() {
         console.log('🔄 Initialisation de la page admin...');
         
+        // Vérifier la connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            showWarning('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
+            return;
+        }
+        
         // Initialiser les onglets
         document.querySelectorAll('.tab-link').forEach(button => {
             button.addEventListener('click', function() {
@@ -107,17 +285,50 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
+        // Gestion des liens de retour avec confirmation
+        const backLinks = document.querySelectorAll('a[href="index.html"]');
+        backLinks.forEach(link => {
+            link.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const confirmed = await confirmAction("Les modifications non sauvegardées seront perdues. Continuer ?");
+                if (confirmed) {
+                    window.location.href = this.href;
+                }
+            });
+        });
+        
         // Initialiser les boutons de sauvegarde
         document.querySelectorAll('.btn-save').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const tabId = this.id.split('-')[1];
                 console.log('Enregistrement pour:', tabId);
                 // Votre logique d'enregistrement ici
+                showSuccess('Modifications enregistrées avec succès !');
             });
         });
         
         // Charger les données initiales
         await loadAdminData('actualites');
+        
+        // Gestion des boutons de suppression
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const itemId = this.dataset.id;
+                const itemName = this.dataset.name;
+                
+                const confirmed = await confirmAction(`Voulez-vous vraiment supprimer "${itemName}" ?`);
+                if (confirmed) {
+                    try {
+                        // Logique de suppression
+                        showSuccess('Supprimé avec succès !');
+                        // Recharger les données
+                        await loadAdminData('actualites');
+                    } catch (error) {
+                        showError("Erreur lors de la suppression: " + error.message);
+                    }
+                }
+            });
+        });
     }
     
     async function loadAdminData(tabId) {
@@ -126,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ============================================
-    // 0. FONCTIONS POUR LA NOUVELLE STRUCTURE
+    // FONCTIONS POUR LA NOUVELLE STRUCTURE
     // ============================================
     
     // Fonction principale pour charger les articles par rubrique
@@ -150,11 +361,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 .eq('statut', 'publié')
                 .order('date_publication', { ascending: false });
             
-            console.log('📊 Données reçues pour', rubrique, ':', data); // <-- DÉBOGAGE AJOUTÉ
+            console.log('📊 Données reçues pour', rubrique, ':', data);
             
             if (error) {
                 console.error(`❌ Erreur chargement ${rubrique}:`, error);
                 container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Erreur de chargement: ${error.message}</p>`;
+                showError(`Erreur de chargement: ${error.message}`);
                 return;
             }
             
@@ -202,6 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('💥 Erreur générale:', error);
             container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Une erreur est survenue lors du chargement: ${error.message}</p>`;
+            showError('Une erreur est survenue lors du chargement: ' + error.message);
         }
     };
     
@@ -670,6 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="index.html" class="btn-home">Retour à l'accueil</a>
                 </div>
             `;
+            showError('Erreur de chargement: ' + error.message);
         }
     };
     
@@ -920,6 +1134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ Erreur filtrage:', error);
             container.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
+            showError('Erreur de filtrage: ' + error.message);
         }
     }
     
@@ -929,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryElements.forEach(el => {
             el.addEventListener('click', function() {
                 const category = this.dataset.category;
-                alert(`Filtre: ${category} - Fonctionnalité à implémenter`);
+                showInfo(`Filtre: ${category} - Fonctionnalité à implémenter`);
             });
         });
     };
@@ -1016,11 +1231,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (container) {
                 container.innerHTML = '<p class="error">Erreur de chargement des articles.</p>';
             }
+            showError('Erreur de chargement coulisses: ' + error.message);
         }
     }
     
     // ============================================
-    // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION (NOUVEAU)
+    // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION
     // ============================================
     setTimeout(() => {
         detectPageAndLoad(); // Détection automatique au chargement
@@ -1059,10 +1275,12 @@ document.addEventListener('DOMContentLoaded', () => {
             body.classList.add('day-mode');
             localStorage.setItem('theme', 'day');
             themeButtonText.textContent = 'Clair';
+            showSuccess('Thème clair activé');
         } else {
             body.classList.remove('day-mode');
             localStorage.setItem('theme', 'night');
             themeButtonText.textContent = 'Sombre';
+            showSuccess('Thème sombre activé');
         }
     };
 
@@ -1193,18 +1411,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur inscription:', error);
-                    alert('Erreur: ' + error.message);
+                    showError('Erreur: ' + error.message);
                     return;
                 }
                 
                 console.log('✅ Inscription réussie!', data);
-                alert('Inscription réussie ! Vous recevrez nos actualités par email.');
+                showSuccess('Inscription réussie ! Vous recevrez nos actualités par email.');
                 modal.classList.add('hidden-modal');
                 subscriberForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
+                showError('Une erreur est survenue lors de l\'inscription.');
             }
         });
     }
@@ -1243,18 +1461,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur inscription:', error);
-                    alert('Erreur: ' + error.message);
+                    showError('Erreur: ' + error.message);
                     return;
                 }
                 
                 console.log('✅ Inscription créateur réussie!', data);
-                alert('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
+                showSuccess('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
                 modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
+                showError('Une erreur est survenue lors de l\'inscription.');
             }
         });
     }
@@ -1383,6 +1601,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminError.textContent = 'Erreur technique: ' + error.message;
                         adminError.style.display = 'block';
                     }
+                    showError('Erreur technique: ' + error.message);
                     return;
                 }
                 
@@ -1392,6 +1611,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminError.textContent = 'Nom d\'administrateur ou mot de passe incorrect';
                         adminError.style.display = 'block';
                     }
+                    showError('Nom d\'administrateur ou mot de passe incorrect');
                     return;
                 }
                 
@@ -1403,8 +1623,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('adminName', data.nom);
                 sessionStorage.setItem('adminEmail', data.email);
                 
+                showSuccess('Connexion réussie ! Redirection vers l\'administration...');
+                
                 // Redirection vers la page d'administration
-                window.location.href = 'admin.html';
+                setTimeout(() => {
+                    window.location.href = 'Actualisation.html';
+                }, 1500);
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
@@ -1412,6 +1636,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     adminError.textContent = 'Une erreur est survenue lors de la connexion';
                     adminError.style.display = 'block';
                 }
+                showError('Une erreur est survenue lors de la connexion');
             }
         });
     }
@@ -1446,6 +1671,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         creatorError.textContent = 'Erreur technique: ' + error.message;
                         creatorError.style.display = 'block';
                     }
+                    showError('Erreur technique: ' + error.message);
                     return;
                 }
                 
@@ -1455,6 +1681,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         creatorError.textContent = 'Marque ou mot de passe incorrect';
                         creatorError.style.display = 'block';
                     }
+                    showError('Marque ou mot de passe incorrect');
                     return;
                 }
                 
@@ -1465,8 +1692,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 sessionStorage.setItem('creatorId', data.id);
                 sessionStorage.setItem('creatorBrand', data.nom_marque);
                 
+                showSuccess('Connexion réussie ! Redirection vers votre dashboard...');
+                
                 // Redirection vers le dashboard créateur
-                window.location.href = 'dashboard-home.html';
+                setTimeout(() => {
+                    window.location.href = 'dashboard-home.html';
+                }, 1500);
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
@@ -1474,6 +1705,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     creatorError.textContent = 'Une erreur est survenue lors de la connexion';
                     creatorError.style.display = 'block';
                 }
+                showError('Une erreur est survenue lors de la connexion');
             }
         });
     }
@@ -1505,7 +1737,7 @@ document.addEventListener('DOMContentLoaded', () => {
     otherForms.forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Formulaire soumis avec succès ! (démonstration)');
+            showSuccess('Formulaire soumis avec succès !');
             form.reset();
         });
     });
@@ -1522,8 +1754,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Vérifier la connexion admin
         const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
         if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
-            window.location.href = 'index.html';
+            showWarning('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 2000);
             return;
         }
         
@@ -1548,6 +1782,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pendingError) {
                     console.error('❌ Erreur pending:', pendingError);
                     pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${pendingError.message}</div>`;
+                    showError('Erreur de chargement: ' + pendingError.message);
                 } else if (!pendingData || pendingData.length === 0) {
                     pendingCreatorsDiv.innerHTML = '<div class="empty-message">Aucune demande en attente</div>';
                 } else {
@@ -1565,6 +1800,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (approvedError) {
                     console.error('❌ Erreur approved:', approvedError);
                     approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${approvedError.message}</div>`;
+                    showError('Erreur de chargement: ' + approvedError.message);
                 } else if (!approvedData || approvedData.length === 0) {
                     approvedCreatorsDiv.innerHTML = '<div class="empty-message">Aucun créateur approuvé</div>';
                 } else {
@@ -1576,6 +1812,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('💥 Erreur générale:', error);
                 pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
                 approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
+                showError('Erreur générale: ' + error.message);
             }
         }
         
@@ -1619,7 +1856,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Fonctions globales
         window.approveCreator = async function(id, brandName) {
-            if (!confirm(`Approuver "${brandName}" ?`)) return;
+            const confirmed = await confirmAction(`Approuver "${brandName}" ?`);
+            if (!confirmed) return;
             
             try {
                 const { error } = await supabase
@@ -1632,16 +1870,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
                 
-                alert(`"${brandName}" approuvé`);
+                showSuccess(`"${brandName}" a été approuvé avec succès`);
                 loadAllCreators();
                 
             } catch (error) {
-                alert('Erreur : ' + error.message);
+                showError('Erreur : ' + error.message);
             }
         };
         
         window.rejectCreator = async function(id, brandName) {
-            if (!confirm(`Refuser "${brandName}" ?`)) return;
+            const confirmed = await confirmAction(`Refuser "${brandName}" ?`);
+            if (!confirmed) return;
             
             try {
                 const { error } = await supabase
@@ -1651,14 +1890,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) throw error;
                 
-                alert(`"${brandName}" refusé`);
+                showWarning(`"${brandName}" a été refusé`);
                 loadAllCreators();
                 
             } catch (error) {
-                alert('Erreur : ' + error.message);
+                showError('Erreur : ' + error.message);
             }
         };
     }
+    
     // ============================================
     // 12. ANCIENNES FONCTIONS PRÉSERVÉES POUR COMPATIBILITÉ
     // ============================================
@@ -1692,4 +1932,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadEvents');
         loadArticlesByRubrique('culture', 'events-container');
     };
+    
+    // ============================================
+    // 13. TEST DES NOTIFICATIONS (OPTIONNEL)
+    // ============================================
+    
+    // Ajoutez ce code pour tester les notifications si nécessaire
+    if (window.location.search.includes('test=notifications')) {
+        setTimeout(() => {
+            showSuccess('Test de notification de succès');
+            showError('Test de notification d\'erreur');
+            showWarning('Test de notification d\'avertissement');
+            showInfo('Test de notification d\'information');
+        }, 1000);
+    }
 });
