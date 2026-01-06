@@ -8,7 +8,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
     <style>
+        /* CSS existant inchangé... */
         body {
             font-family: 'Montserrat', sans-serif;
             background: #0a0a0a;
@@ -267,7 +269,6 @@
         }
     </style>
 </head>
-    <div id="notifications-container" class="notifications-container"></div>
 <body>
     <div class="admin-header">
         <h1>Administration DREAMSWEAR</h1>
@@ -298,9 +299,14 @@
         </div>
     </div>
     
+    <!-- Container des notifications -->
+    <div id="notifications-container" class="notifications-container"></div>
+    
     <!-- Script Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Notre script admin -->
+    <!-- Config pour les notifications -->
+    <script src="config.js"></script>
+    <!-- Notre script admin modifié -->
     <script src="admin-script.js"></script>
 </body>
 </html>
