@@ -152,60 +152,6 @@
         </div>
     </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadArticle();
-        });
-        
-        async function loadArticle() {
-            const container = document.getElementById('article-container');
-            const urlParams = new URLSearchParams(window.location.search);
-            const articleId = urlParams.get('id');
-            
-            if (!articleId) {
-                container.innerHTML = '<p>Article non trouvé.</p>';
-                return;
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .eq('id', articleId)
-                    .single();
-                
-                if (error) throw error;
-                
-                if (!data) {
-                    container.innerHTML = '<p>Article non trouvé.</p>';
-                    return;
-                }
-                
-                container.innerHTML = `
-                    <div class="article-header">
-                        ${data.image_url ? `<img src="${data.image_url}" alt="${data.titre_fr}" onerror="this.src='https://placehold.co/800x400?text=ARTICLE'">` : ''}
-                        <h1>${data.titre_fr}</h1>
-                        <div class="article-meta">
-                            <span><i class="far fa-calendar"></i> ${new Date(data.date_publication).toLocaleDateString('fr-FR')}</span>
-                            <span><i class="fas fa-user"></i> ${data.auteur || 'Rédaction'}</span>
-                            <span><i class="fas fa-tag"></i> ${data.rubrique || 'Article'}</span>
-                        </div>
-                    </div>
-                    <div class="article-content">
-                        ${data.contenu_fr || '<p>Contenu non disponible.</p>'}
-                    </div>
-                `;
-                
-                // Mettre à jour le titre de la page
-                document.title = `${data.titre_fr} - DREAMSWEAR MAG`;
-                
-            } catch (error) {
-                console.error('Erreur chargement article:', error);
-                container.innerHTML = '<p>Erreur de chargement de l\'article. Veuillez réessayer.</p>';
-            }
-        }
-    </script>
+<script src="magazine-admin.js"></script>
 </body>
 </html>
