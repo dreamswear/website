@@ -1,174 +1,57 @@
 // ============================================
-// SYSTÈME DE NOTIFICATIONS
-// ============================================
-
-// Fonction pour afficher une notification
-function showNotification(options) {
-    const container = document.getElementById('notifications-container');
-    if (!container) {
-        // Créer le container s'il n'existe pas
-        const newContainer = document.createElement('div');
-        newContainer.id = 'notifications-container';
-        newContainer.className = 'notifications-container';
-        document.body.appendChild(newContainer);
-        return showNotification(options); // Rappeler la fonction
-    }
-    
-    const { 
-        title = 'Notification', 
-        message, 
-        type = 'info', 
-        duration = 5000,
-        icon = getIconForType(type)
-    } = options;
-    
-    // Créer l'élément de notification
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    // Icônes par type
-    const icons = {
-        success: '✓',
-        error: '✗',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-    
-    notification.innerHTML = `
-        <div class="notification-icon">${icon || icons[type] || 'ℹ'}</div>
-        <div class="notification-content">
-            <div class="notification-title">${title}</div>
-            <div class="notification-message">${message}</div>
-        </div>
-        <button class="notification-close" onclick="this.parentElement.classList.add('hide'); setTimeout(() => this.parentElement.remove(), 300)">×</button>
-        ${duration > 0 ? `<div class="notification-progress" style="animation-duration: ${duration}ms"></div>` : ''}
-    `;
-    
-    // Ajouter à container
-    container.appendChild(notification);
-    
-    // Animation d'entrée
-    setTimeout(() => notification.classList.add('show'), 10);
-    
-    // Auto-fermeture si durée spécifiée
-    if (duration > 0) {
-        setTimeout(() => {
-            notification.classList.add('hide');
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.remove();
-                }
-            }, 300);
-        }, duration);
-    }
-    
-    return notification;
-}
-
-// Fonction utilitaire pour obtenir l'icône
-function getIconForType(type) {
-    switch(type) {
-        case 'success': return '✓';
-        case 'error': return '✗';
-        case 'warning': return '⚠';
-        case 'info': return 'ℹ';
-        default: return 'ℹ';
-    }
-}
-
-// Remplacer les alertes globalement
-window.originalAlert = window.alert;
-window.alert = function(message, title = 'Information', type = 'info') {
-    showNotification({
-        title: title,
-        message: message,
-        type: type
-    });
-};
-
-// Fonctions spécifiques pour différents types
-function showSuccess(message, title = 'Succès') {
-    showNotification({
-        title: title,
-        message: message,
-        type: 'success',
-        duration: 3000
-    });
-}
-
-function showError(message, title = 'Erreur') {
-    showNotification({
-        title: title,
-        message: message,
-        type: 'error',
-        duration: 5000
-    });
-}
-
-function showWarning(message, title = 'Attention') {
-    showNotification({
-        title: title,
-        message: message,
-        type: 'warning',
-        duration: 4000
-    });
-}
-
-function showInfo(message, title = 'Information') {
-    showNotification({
-        title: title,
-        message: message,
-        type: 'info',
-        duration: 4000
-    });
-}
-
-// Fonction de confirmation personnalisée
-function confirmAction(message) {
-    return new Promise((resolve) => {
-        const notification = showNotification({
-            title: 'Confirmation',
-            message: message + '<br><br><div style="display: flex; gap: 10px; margin-top: 10px;">' +
-                '<button onclick="window.confirmNotificationYes()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Oui</button>' +
-                '<button onclick="window.confirmNotificationNo()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Non</button>' +
-                '</div>',
-            type: 'warning',
-            duration: 0 // Pas de fermeture auto
-        });
-        
-        window.confirmNotificationYes = () => {
-            notification.classList.add('hide');
-            setTimeout(() => notification.remove(), 300);
-            resolve(true);
-        };
-        
-        window.confirmNotificationNo = () => {
-            notification.classList.add('hide');
-            setTimeout(() => notification.remove(), 300);
-            resolve(false);
-        };
-    });
-}
-
-// Exposer les fonctions globalement
-window.showNotification = showNotification;
-window.showSuccess = showSuccess;
-window.showError = showError;
-window.showWarning = showWarning;
-window.showInfo = showInfo;
-window.confirmAction = confirmAction;
-
-// ============================================
-// CODE PRINCIPAL
+// CODE PRINCIPAL - CENTRALISÉ
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================
-    // CONFIGURATION SUPABASE
+    // CONFIGURATION SUPABASE (COMMUNE À TOUTES LES PAGES)
     // ============================================
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // Initialisation globale de Supabase
+    let supabase;
+    
+    if (typeof window.supabase !== 'undefined' && window.supabase.from) {
+        // Si supabase est déjà initialisé (depuis un autre script)
+        console.log('✅ Utilisation de Supabase existant');
+        supabase = window.supabase;
+    } else {
+        // Initialiser Supabase depuis zéro
+        console.log('🔄 Initialisation de Supabase...');
+        
+        // Vérifier que la bibliothèque Supabase est chargée
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            window.supabase = supabase; // Stocker pour une utilisation ultérieure
+        } else {
+            console.error('❌ Bibliothèque Supabase non chargée');
+            alert('Erreur: Bibliothèque Supabase non chargée. Vérifiez votre connexion internet.');
+            return;
+        }
+    }
+
+    // ============================================
+    // TEST DE CONNEXION SUPABASE
+    // ============================================
+    async function testerConnexionSupabase() {
+        console.log('🔍 Test de connexion Supabase...');
+        try {
+            const { data, error } = await supabase
+                .from('créateurs')
+                .select('count', { count: 'exact', head: true });
+            
+            if (error) {
+                console.error('❌ Erreur de connexion:', error);
+                return false;
+            }
+            
+            console.log('✅ Connexion Supabase réussie!');
+            return true;
+        } catch (error) {
+            console.error('💥 Erreur inattendue:', error);
+            return false;
+        }
+    }
 
     // ============================================
     // DÉTECTION AUTOMATIQUE DE LA PAGE
@@ -176,21 +59,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function detectPageAndLoad() {
         console.log('🔍 Détection automatique de la page...');
         
-        // Vérifier si on est sur la page d'administration
-        if (window.location.pathname.includes('Actualisation.html')) {
+        // 1. Vérifier si on est sur la page d'administration admin.html
+        if (window.location.pathname.includes('admin.html')) {
             console.log('📄 Page Admin détectée');
             initAdminPage();
             return;
         }
         
-        // 1. Si on est sur article.html
+        // 2. Vérifier si on est sur la page d'actualisation
+        if (window.location.pathname.includes('Actualisation.html')) {
+            console.log('📄 Page Actualisation détectée');
+            initActualisationPage();
+            return;
+        }
+        
+        // 3. Si on est sur article.html
         if (document.getElementById('article-content')) {
             console.log('📄 Page Article détectée');
             loadSingleArticle();
             return;
         }
         
-        // 2. Liste des conteneurs et leurs rubriques associées
+        // 4. Liste des conteneurs et leurs rubriques associées
         const containerMap = {
             'actualites-container': 'actualites',
             'visages-container': 'visages',
@@ -208,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'events-container': 'culture'
         };
         
-        // 3. Chercher quel conteneur est présent sur la page
+        // 5. Chercher quel conteneur est présent sur la page
         for (const [containerId, rubrique] of Object.entries(containerMap)) {
             if (document.getElementById(containerId)) {
                 console.log(`📄 Page ${rubrique} détectée (${containerId})`);
@@ -222,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 4. Si aucun conteneur trouvé, essayer par nom de fichier
+        // 6. Si aucun conteneur trouvé, essayer par nom de fichier
         const path = window.location.pathname;
         const pageName = path.split('/').pop().replace('.html', '').toLowerCase();
         
@@ -249,11 +139,326 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ============================================
-    // FONCTION POUR LA PAGE ADMINISTRATION
+    // FONCTIONS POUR LA PAGE ADMINISTRATION (admin.html)
     // ============================================
     
     async function initAdminPage() {
         console.log('🔄 Initialisation de la page admin...');
+        
+        // Vérification de connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            alert('⚠️ Accès non autorisé. Connectez-vous en tant qu\'administrateur.');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        console.log('✅ Admin connecté');
+        
+        // Tester la connexion avant de continuer
+        const connected = await testerConnexionSupabase();
+        if (!connected) {
+            const pendingDiv = document.getElementById('pendingCreators');
+            if (pendingDiv) {
+                pendingDiv.innerHTML = 
+                    `<div style="color: red; padding: 30px; text-align: center;">
+                        <h3>❌ Erreur de connexion à la base de données</h3>
+                        <p>Impossible de se connecter à Supabase. Vérifiez:</p>
+                        <ul style="text-align: left; display: inline-block;">
+                            <li>Votre connexion internet</li>
+                            <li>Les politiques RLS dans Supabase</li>
+                            <li>Que la clé API est correcte</li>
+                        </ul>
+                    </div>`;
+            }
+            return;
+        }
+        
+        // Éléments de la page
+        const pendingDiv = document.getElementById('pendingCreators');
+        const approvedDiv = document.getElementById('approvedCreators');
+        const pendingCount = document.getElementById('pendingCount');
+        const approvedCount = document.getElementById('approvedCount');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        if (!pendingDiv || !approvedDiv) {
+            console.error('❌ Éléments manquants dans la page');
+            return;
+        }
+        
+        // Charger les créateurs
+        chargerTousLesCreateurs();
+        
+        // Gestion déconnexion
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                if (confirm('Déconnexion ?')) {
+                    sessionStorage.clear();
+                    window.location.href = 'index.html';
+                }
+            });
+        }
+        
+        // Actualisation automatique
+        setInterval(chargerTousLesCreateurs, 30000);
+        
+        console.log('🎯 Script admin prêt');
+    }
+    
+    // REQUÊTE : Charger tous les créateurs
+    async function chargerTousLesCreateurs() {
+        console.log('📡 Chargement des créateurs...');
+        
+        const pendingDiv = document.getElementById('pendingCreators');
+        const approvedDiv = document.getElementById('approvedCreators');
+        const pendingCount = document.getElementById('pendingCount');
+        const approvedCount = document.getElementById('approvedCount');
+        
+        try {
+            // Test de connexion d'abord
+            const { count, error: testError } = await supabase
+                .from('créateurs')
+                .select('*', { count: 'exact', head: true });
+            
+            if (testError) {
+                console.error('❌ Erreur connexion:', testError);
+                if (pendingDiv) {
+                    pendingDiv.innerHTML = `
+                        <div style="color: red; padding: 20px; text-align: center;">
+                            Erreur connexion: ${testError.message}<br>
+                            <small>Code: ${testError.code}</small>
+                        </div>
+                    `;
+                }
+                return;
+            }
+            
+            console.log(`✅ ${count} créateurs dans la base`);
+            
+            // Charger les créateurs en attente
+            const { data: pendingData, error: pendingError } = await supabase
+                .from('créateurs')
+                .select('*')
+                .eq('statut', 'pending');
+            
+            if (pendingError) {
+                console.error('❌ Erreur pending:', pendingError);
+                if (pendingDiv) {
+                    pendingDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
+                        Erreur: ${pendingError.message}
+                    </div>`;
+                }
+            } else {
+                console.log(`📊 ${pendingData?.length || 0} créateurs pending`);
+                afficherCreateurs(pendingData, pendingDiv, 'pending');
+                if (pendingCount) pendingCount.textContent = pendingData?.length || 0;
+            }
+            
+            // Charger les créateurs approuvés
+            const { data: approvedData, error: approvedError } = await supabase
+                .from('créateurs')
+                .select('*')
+                .eq('statut', 'actif');
+            
+            if (approvedError) {
+                console.error('❌ Erreur approved:', approvedError);
+                if (approvedDiv) {
+                    approvedDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
+                        Erreur: ${approvedError.message}
+                    </div>`;
+                }
+            } else {
+                console.log(`✅ ${approvedData?.length || 0} créateurs approuvés`);
+                afficherCreateurs(approvedData, approvedDiv, 'approved');
+                if (approvedCount) approvedCount.textContent = approvedData?.length || 0;
+            }
+            
+        } catch (error) {
+            console.error('💥 Erreur générale:', error);
+            if (pendingDiv) {
+                pendingDiv.innerHTML = `<div style="color: red; padding: 20px; text-align: center;">
+                    Erreur: ${error.message}
+                </div>`;
+            }
+        }
+    }
+    
+    // REQUÊTE : Approuver un créateur
+    async function approuverCreateur(id, nomMarque) {
+        console.log(`🔄 Tentative d'approbation: ${id} - "${nomMarque}"`);
+        
+        if (!confirm(`Approuver le créateur "${nomMarque}" ?\n\nIl pourra se connecter à son espace.`)) {
+            return;
+        }
+        
+        try {
+            const { data, error } = await supabase
+                .from('créateurs')
+                .update({ 
+                    statut: 'actif',
+                    date_validation: new Date().toISOString()
+                })
+                .eq('id', id);
+            
+            console.log('📊 Résultat mise à jour:', { data, error: error?.message });
+            
+            if (error) {
+                throw new Error(`Erreur Supabase: ${error.message}`);
+            }
+            
+            if (data && data.length === 0) {
+                throw new Error('Créateur non trouvé ou déjà approuvé');
+            }
+            
+            alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
+            console.log(`✅ Créateur ${id} approuvé`);
+            
+            setTimeout(() => {
+                chargerTousLesCreateurs();
+            }, 500);
+            
+        } catch (error) {
+            console.error('❌ Erreur approbation:', error);
+            alert(`❌ Échec de l'approbation: ${error.message}`);
+        }
+    }
+    
+    // REQUÊTE : Refuser un créateur
+    async function refuserCreateur(id, nomMarque) {
+        console.log(`🗑️ Tentative de refus: ${id} - "${nomMarque}"`);
+        
+        if (!confirm(`Refuser définitivement "${nomMarque}" ?\n\nCette action supprimera complètement la demande.`)) {
+            return;
+        }
+        
+        try {
+            const { data, error } = await supabase
+                .from('créateurs')
+                .delete()
+                .eq('id', id);
+            
+            console.log('📊 Résultat suppression:', { data, error: error?.message });
+            
+            if (error) {
+                throw new Error(`Erreur Supabase: ${error.message}`);
+            }
+            
+            if (data && data.length === 0) {
+                throw new Error('Créateur non trouvé ou déjà traité');
+            }
+            
+            alert(`❌ "${nomMarque}" a été refusé et supprimé.`);
+            console.log(`🗑️ Créateur ${id} supprimé`);
+            
+            setTimeout(() => {
+                chargerTousLesCreateurs();
+            }, 500);
+            
+        } catch (error) {
+            console.error('❌ Erreur refus:', error);
+            alert(`❌ Échec du refus: ${error.message}`);
+        }
+    }
+    
+    // Fonction pour afficher les créateurs (VERSION CORRIGÉE)
+    function afficherCreateurs(creators, container, status) {
+        if (!creators || creators.length === 0) {
+            const message = status === 'pending' 
+                ? 'Aucune demande en attente'
+                : 'Aucun créateur approuvé';
+            container.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">${message}</div>`;
+            return;
+        }
+        
+        let html = '';
+        
+        creators.forEach(creator => {
+            const safeNom = escapeHtml(creator.nom_marque || 'Sans nom');
+            const safePrenom = escapeHtml(creator.prenom || '');
+            const safeNomComplet = escapeHtml(creator.nom || '');
+            const safeEmail = escapeHtml(creator.email || 'Non fourni');
+            const safeTel = escapeHtml(creator.telephone || 'Non fourni');
+            const safeDomaine = escapeHtml(creator.domaine || 'Non spécifié');
+            
+            html += `
+                <div class="creator-card" id="creator-${creator.id}">
+                    <h3>${safeNom}</h3>
+                    <p><strong>Contact:</strong> ${safePrenom} ${safeNomComplet}</p>
+                    <p><strong>Email:</strong> ${safeEmail}</p>
+                    <p><strong>Téléphone:</strong> ${safeTel}</p>
+                    <p><strong>Domaine:</strong> ${safeDomaine}</p>
+                    <p><strong>ID:</strong> <code>${creator.id}</code></p>
+                    <p><strong>Statut:</strong> ${creator.statut}</p>
+            `;
+            
+            if (status === 'pending') {
+                html += `
+                    <div class="card-actions">
+                        <button class="action-btn approve-btn" data-id="${creator.id}" data-brand="${safeNom}">
+                            ✅ Approuver
+                        </button>
+                        <button class="action-btn reject-btn" data-id="${creator.id}" data-brand="${safeNom}">
+                            ❌ Refuser
+                        </button>
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+        });
+        
+        container.innerHTML = html;
+        
+        // AJOUTER LES ÉVÉNEMENTS APRÈS L'INSERTION DU HTML
+        if (status === 'pending') {
+            // Boutons Approuver
+            container.querySelectorAll('.approve-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const brand = this.getAttribute('data-brand');
+                    approuverCreateur(id, brand);
+                });
+            });
+            
+            // Boutons Refuser
+            container.querySelectorAll('.reject-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const brand = this.getAttribute('data-brand');
+                    refuserCreateur(id, brand);
+                });
+            });
+        }
+    }
+    
+    // Fonction utilitaire pour échapper le HTML
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Rendre les fonctions globales pour admin
+    window.approuverCreateur = approuverCreateur;
+    window.refuserCreateur = refuserCreateur;
+    
+    // ============================================
+    // FONCTIONS POUR LA PAGE ACTUALISATION (Actualisation.html)
+    // ============================================
+    
+    async function initActualisationPage() {
+        console.log('🔄 Initialisation de la page actualisation...');
+        
+        // Vérification de connexion admin
+        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+            alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        console.log('✅ Admin connecté pour actualisation');
         
         // Initialiser les onglets
         document.querySelectorAll('.tab-link').forEach(button => {
@@ -278,19 +483,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Charger les données initiales
         await loadAdminData('actualites');
-        
-        // Gestion de la navigation avec confirmation
-        document.querySelectorAll('a[href*=".html"]').forEach(link => {
-            if (link.getAttribute('href') !== 'Actualisation.html') {
-                link.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    const confirmed = await confirmAction("Les modifications non sauvegardées seront perdues. Continuer ?");
-                    if (confirmed) {
-                        window.location.href = this.href;
-                    }
-                });
-            }
-        });
     }
     
     async function loadAdminData(tabId) {
@@ -328,7 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (error) {
                 console.error(`❌ Erreur chargement ${rubrique}:`, error);
                 container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Erreur de chargement: ${error.message}</p>`;
-                showError(`Erreur de chargement: ${error.message}`, 'Erreur');
                 return;
             }
             
@@ -376,11 +567,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('💥 Erreur générale:', error);
             container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Une erreur est survenue lors du chargement: ${error.message}</p>`;
-            showError(`Une erreur est survenue lors du chargement: ${error.message}`, 'Erreur');
         }
     };
     
-    // Fonctions de rendu pour chaque rubrique
+    // Fonctions de rendu pour chaque rubrique (conservées telles quelles)
     function renderActualites(articles, container) {
         container.innerHTML = articles.map(article => `
             <article class="article-card">
@@ -845,7 +1035,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <a href="index.html" class="btn-home">Retour à l'accueil</a>
                 </div>
             `;
-            showError(`Erreur de chargement: ${error.message}`, 'Erreur');
         }
     };
     
@@ -1096,7 +1285,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ Erreur filtrage:', error);
             container.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
-            showError(`Erreur lors du filtrage: ${error.message}`, 'Erreur');
         }
     }
     
@@ -1106,7 +1294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryElements.forEach(el => {
             el.addEventListener('click', function() {
                 const category = this.dataset.category;
-                showInfo(`Filtre: ${category} - Fonctionnalité à implémenter`);
+                alert(`Filtre: ${category} - Fonctionnalité à implémenter`);
             });
         });
     };
@@ -1119,6 +1307,82 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🔄 Initialisation des données de la page...');
         detectPageAndLoad();
     };
+    
+    // ============================================
+    // FONCTION SPÉCIALE POUR COULISSES (ARTICLE À LA UNE)
+    // ============================================
+    
+    async function loadCoulissesFeatured() {
+        try {
+            const container = document.getElementById('coulisses-container');
+            const featuredContainer = document.getElementById('coulisses-featured');
+            
+            if (!container) return;
+            
+            // Si vous avez un conteneur "featured" séparé
+            if (featuredContainer) {
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('rubrique', 'coulisses')
+                    .eq('statut', 'publié')
+                    .order('date_publication', { ascending: false })
+                    .limit(7);
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="no-content">Aucun article coulisses pour le moment.</p>';
+                    featuredContainer.innerHTML = '';
+                    return;
+                }
+                
+                // Premier article = à la une
+                const featured = data[0];
+                featuredContainer.innerHTML = `
+                    <article class="featured-article-content">
+                        ${featured.image_url ? `
+                        <img src="${featured.image_url}" alt="${featured.titre_fr}" 
+                             onerror="this.src='https://placehold.co/800x400?text=COULISSES'">
+                        ` : ''}
+                        <div class="featured-info">
+                            <span class="category">COULISSES</span>
+                            <h2>${featured.titre_fr}</h2>
+                            <p>${featured.contenu_fr ? featured.contenu_fr.substring(0, 200) + '...' : ''}</p>
+                            <a href="article.html?id=${featured.id}" class="read-more">Lire l'article →</a>
+                        </div>
+                    </article>
+                `;
+                
+                // Les 6 articles suivants = liste
+                const otherArticles = data.slice(1);
+                if (otherArticles.length > 0) {
+                    container.innerHTML = otherArticles.map(article => `
+                        <article class="article-item">
+                            ${article.image_url ? `
+                            <img src="${article.image_url}" alt="${article.titre_fr}" 
+                                 onerror="this.src='https://placehold.co/300x200?text=ARTICLE'">
+                            ` : ''}
+                            <div class="article-item-info">
+                                <h3>${article.titre_fr}</h3>
+                                <p>${article.contenu_fr ? article.contenu_fr.substring(0, 100) + '...' : ''}</p>
+                                <a href="article.html?id=${article.id}" class="read-link">Lire →</a>
+                            </div>
+                        </article>
+                    `).join('');
+                } else {
+                    container.innerHTML = '';
+                }
+            }
+            
+        } catch (error) {
+            console.error('❌ Erreur chargement coulisses:', error);
+            const container = document.getElementById('coulisses-container');
+            if (container) {
+                container.innerHTML = '<p class="error">Erreur de chargement des articles.</p>';
+            }
+        }
+    }
     
     // ============================================
     // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION
@@ -1294,18 +1558,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur inscription:', error);
-                    showError('Erreur: ' + error.message, 'Erreur d\'inscription');
+                    alert('Erreur: ' + error.message);
                     return;
                 }
                 
                 console.log('✅ Inscription réussie!', data);
-                showSuccess('Inscription réussie ! Vous recevrez nos actualités par email.', 'Félicitations');
+                alert('Inscription réussie ! Vous recevrez nos actualités par email.');
                 modal.classList.add('hidden-modal');
                 subscriberForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                showError('Une erreur est survenue lors de l\'inscription.', 'Erreur');
+                alert('Une erreur est survenue lors de l\'inscription.');
             }
         });
     }
@@ -1344,18 +1608,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (error) {
                     console.error('❌ Erreur inscription:', error);
-                    showError('Erreur: ' + error.message, 'Erreur d\'inscription');
+                    alert('Erreur: ' + error.message);
                     return;
                 }
                 
                 console.log('✅ Inscription créateur réussie!', data);
-                showSuccess('Inscription réussie ! Votre compte sera activé après validation par un administrateur.', 'Félicitations');
+                alert('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
                 modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                showError('Une erreur est survenue lors de l\'inscription.', 'Erreur');
+                alert('Une erreur est survenue lors de l\'inscription.');
             }
         });
     }
@@ -1484,7 +1748,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminError.textContent = 'Erreur technique: ' + error.message;
                         adminError.style.display = 'block';
                     }
-                    showError('Erreur technique: ' + error.message, 'Erreur de connexion');
                     return;
                 }
                 
@@ -1494,7 +1757,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         adminError.textContent = 'Nom d\'administrateur ou mot de passe incorrect';
                         adminError.style.display = 'block';
                     }
-                    showError('Nom d\'administrateur ou mot de passe incorrect', 'Échec de connexion');
                     return;
                 }
                 
@@ -1515,7 +1777,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     adminError.textContent = 'Une erreur est survenue lors de la connexion';
                     adminError.style.display = 'block';
                 }
-                showError('Une erreur est survenue lors de la connexion', 'Erreur');
             }
         });
     }
@@ -1550,7 +1811,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         creatorError.textContent = 'Erreur technique: ' + error.message;
                         creatorError.style.display = 'block';
                     }
-                    showError('Erreur technique: ' + error.message, 'Erreur de connexion');
                     return;
                 }
                 
@@ -1560,7 +1820,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         creatorError.textContent = 'Marque ou mot de passe incorrect';
                         creatorError.style.display = 'block';
                     }
-                    showError('Marque ou mot de passe incorrect', 'Échec de connexion');
                     return;
                 }
                 
@@ -1580,7 +1839,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     creatorError.textContent = 'Une erreur est survenue lors de la connexion';
                     creatorError.style.display = 'block';
                 }
-                showError('Une erreur est survenue lors de la connexion', 'Erreur');
             }
         });
     }
@@ -1612,170 +1870,13 @@ document.addEventListener('DOMContentLoaded', () => {
     otherForms.forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            showSuccess('Formulaire soumis avec succès ! (démonstration)', 'Succès');
+            alert('Formulaire soumis avec succès ! (démonstration)');
             form.reset();
         });
     });
 
     // ============================================
-    // 11. GESTION DES CRÉATEURS POUR L'ADMINISTRATION
-    // ============================================
-    const pendingCreatorsDiv = document.getElementById('pendingCreators');
-    const approvedCreatorsDiv = document.getElementById('approvedCreators');
-    
-    if (pendingCreatorsDiv && approvedCreatorsDiv) {
-        console.log('🔄 Page admin détectée');
-        
-        // Vérifier la connexion admin
-        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            showWarning('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.', 'Accès refusé');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-            return;
-        }
-        
-        // Charger les données
-        loadAllCreators();
-        
-        async function loadAllCreators() {
-            console.log('🔄 Chargement créateurs...');
-            
-            // Afficher message temporaire
-            pendingCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
-            approvedCreatorsDiv.innerHTML = '<div class="empty-message">Chargement en cours...</div>';
-            
-            try {
-                // Charger les créateurs en attente
-                const { data: pendingData, error: pendingError } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('statut', 'pending')
-                    .order('created_at', { ascending: false });
-                
-                if (pendingError) {
-                    console.error('❌ Erreur pending:', pendingError);
-                    pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${pendingError.message}</div>`;
-                    showError(`Erreur lors du chargement: ${pendingError.message}`, 'Erreur');
-                } else if (!pendingData || pendingData.length === 0) {
-                    pendingCreatorsDiv.innerHTML = '<div class="empty-message">Aucune demande en attente</div>';
-                } else {
-                    displayCreators(pendingData, pendingCreatorsDiv, 'pending');
-                    document.getElementById('pendingCount').textContent = pendingData.length;
-                }
-                
-                // Charger les créateurs approuvés
-                const { data: approvedData, error: approvedError } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('statut', 'actif')
-                    .order('created_at', { ascending: false });
-                
-                if (approvedError) {
-                    console.error('❌ Erreur approved:', approvedError);
-                    approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${approvedError.message}</div>`;
-                    showError(`Erreur lors du chargement: ${approvedError.message}`, 'Erreur');
-                } else if (!approvedData || approvedData.length === 0) {
-                    approvedCreatorsDiv.innerHTML = '<div class="empty-message">Aucun créateur approuvé</div>';
-                } else {
-                    displayCreators(approvedData, approvedCreatorsDiv, 'approved');
-                    document.getElementById('approvedCount').textContent = approvedData.length;
-                }
-                
-            } catch (error) {
-                console.error('💥 Erreur générale:', error);
-                pendingCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
-                approvedCreatorsDiv.innerHTML = `<div class="empty-message">Erreur: ${error.message}</div>`;
-                showError(`Erreur générale: ${error.message}`, 'Erreur');
-            }
-        }
-        
-        function displayCreators(creators, container, status) {
-            let html = '';
-            
-            creators.forEach(creator => {
-                const date = creator.created_at 
-                    ? new Date(creator.created_at).toLocaleDateString('fr-FR')
-                    : 'Date inconnue';
-                
-                html += `
-                    <div class="creator-card">
-                        <h3>${creator.nom_marque || 'Sans nom'}</h3>
-                        <p><strong>Contact :</strong> ${creator.prenom || ''} ${creator.nom || ''}</p>
-                        <p><strong>Email :</strong> ${creator.email || 'Non fourni'}</p>
-                        <p><strong>Téléphone :</strong> ${creator.telephone || 'Non fourni'}</p>
-                        <p><strong>Domaine :</strong> ${creator.domaine || 'Non spécifié'}</p>
-                        <p><strong>Date :</strong> ${date}</p>
-                        <p><strong>Statut :</strong> ${creator.statut}</p>
-                `;
-                
-                if (status === 'pending') {
-                    html += `
-                        <div class="card-actions">
-                            <button class="action-btn approve-btn" onclick="approveCreator(${creator.id}, '${(creator.nom_marque || '').replace(/'/g, "\\'")}')">
-                                Approuver
-                            </button>
-                            <button class="action-btn reject-btn" onclick="rejectCreator(${creator.id}, '${(creator.nom_marque || '').replace(/'/g, "\\'")}')">
-                                Refuser
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                html += `</div>`;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Fonctions globales
-        window.approveCreator = async function(id, brandName) {
-            try {
-                const confirmed = await confirmAction(`Approuver "${brandName}" ?`);
-                if (!confirmed) return;
-                
-                const { error } = await supabase
-                    .from('créateurs')
-                    .update({ 
-                        statut: 'actif',
-                        approved_at: new Date().toISOString()
-                    })
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
-                showSuccess(`"${brandName}" a été approuvé avec succès`, 'Créateur approuvé');
-                loadAllCreators();
-                
-            } catch (error) {
-                showError('Erreur : ' + error.message, 'Erreur');
-            }
-        };
-        
-        window.rejectCreator = async function(id, brandName) {
-            try {
-                const confirmed = await confirmAction(`Refuser "${brandName}" ?`);
-                if (!confirmed) return;
-                
-                const { error } = await supabase
-                    .from('créateurs')
-                    .delete()
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
-                showWarning(`"${brandName}" a été refusé`, 'Créateur refusé');
-                loadAllCreators();
-                
-            } catch (error) {
-                showError('Erreur : ' + error.message, 'Erreur');
-            }
-        };
-    }
-    
-    // ============================================
-    // 12. ANCIENNES FONCTIONS PRÉSERVÉES POUR COMPATIBILITÉ
+    // 11. ANCIENNES FONCTIONS PRÉSERVÉES POUR COMPATIBILITÉ
     // ============================================
     
     // Fonction pour charger les articles de Coulisses (ancienne version)
@@ -1807,4 +1908,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadEvents');
         loadArticlesByRubrique('culture', 'events-container');
     };
+    
+    console.log('🚀 Script principal centralisé chargé avec succès !');
 });
