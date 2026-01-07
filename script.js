@@ -1,55 +1,130 @@
-
 // ============================================
-// CODE PRINCIPAL - CENTRALISÉ ET SIMPLIFIÉ
+// CODE PRINCIPAL - CENTRALISÉ ET CORRIGÉ
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 Script principal démarré');
     
     // ============================================
-    // CONFIGURATION SUPABASE (COMMUNE À TOUTES LES PAGES)
+    // INITIALISATION SUPABASE - VERSION CORRIGÉE
     // ============================================
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
 
-    // Initialisation globale de Supabase - VERSION SIMPLIFIÉE
+    // Initialisation sûre de Supabase
     let supabase;
     
-    if (typeof window.supabaseClient !== 'undefined') {
-        // Si supabase est déjà initialisé
-        supabase = window.supabaseClient;
-        console.log('✅ Utilisation de Supabase existant');
-    } else {
-        // Initialiser Supabase
-        if (typeof supabase !== 'undefined' && supabase.createClient) {
-            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            window.supabaseClient = supabase; // Stocker pour une utilisation ultérieure
-            console.log('🔄 Supabase initialisé');
-        } else {
-            console.error('❌ Bibliothèque Supabase non chargée');
-            // Ne pas bloquer l'exécution, mais signaler l'erreur
+    try {
+        // Vérifier si la bibliothèque Supabase est chargée
+        if (typeof supabase === 'undefined' || !supabase.createClient) {
+            // Si supabase n'est pas disponible globalement, on le charge
+            console.error('❌ Supabase non chargé. Vérifiez que le script est inclus avant celui-ci.');
+            
+            // Créer un objet fallback pour éviter les crashs
             supabase = {
-                from: () => ({ 
+                from: () => ({
                     select: () => ({ 
-                        then: (callback) => callback({ data: [], error: new Error('Supabase non chargé') })
-                    })
+                        eq: () => ({ 
+                            order: () => ({ 
+                                single: () => Promise.resolve({ data: null, error: new Error('Supabase non initialisé') })
+                            })
+                        })
+                    }),
+                    insert: () => Promise.resolve({ error: new Error('Supabase non initialisé') }),
+                    update: () => Promise.resolve({ error: new Error('Supabase non initialisé') }),
+                    delete: () => Promise.resolve({ error: new Error('Supabase non initialisé') })
                 })
             };
+            
+            // Afficher un message d'erreur clair
+            setTimeout(() => {
+                if (window.location.pathname.includes('admin.html') || 
+                    window.location.pathname.includes('actualisation.html')) {
+                    alert('❌ ERREUR: Supabase non chargé. Le site ne peut pas fonctionner correctement.\n\nVérifiez que le script Supabase est inclus dans le HTML avant script.js');
+                }
+            }, 1000);
+        } else {
+            // Initialiser normalement
+            supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('✅ Supabase initialisé avec succès');
+            
+            // Stocker pour une utilisation globale
+            window.supabaseClient = supabase;
+        }
+    } catch (error) {
+        console.error('💥 Erreur d\'initialisation Supabase:', error);
+        supabase = createFallbackSupabase();
+    }
+
+    // Fonction fallback
+    function createFallbackSupabase() {
+        return {
+            from: () => ({
+                select: () => ({ 
+                    eq: () => ({ 
+                        order: () => ({ 
+                            single: () => Promise.resolve({ data: null, error: new Error('Supabase non initialisé') })
+                        })
+                    })
+                }),
+                insert: () => Promise.resolve({ error: new Error('Supabase non initialisé') }),
+                update: () => Promise.resolve({ error: new Error('Supabase non initialisé') }),
+                delete: () => Promise.resolve({ error: new Error('Supabase non initialisé') })
+            })
+        };
+    }
+
+    // ============================================
+    // TEST DE CONNEXION SUPABASE
+    // ============================================
+    async function testSupabaseConnection() {
+        console.log('🔍 Test de connexion Supabase...');
+        try {
+            const { data, error } = await supabase
+                .from('articles')
+                .select('id')
+                .limit(1);
+            
+            if (error) {
+                console.error('❌ Erreur connexion Supabase:', error);
+                return false;
+            }
+            
+            console.log('✅ Connexion Supabase OK');
+            return true;
+        } catch (error) {
+            console.error('💥 Erreur test connexion:', error);
+            return false;
         }
     }
 
     // ============================================
-    // DÉTECTION ET INITIALISATION AUTOMATIQUE
+    // INITIALISATION PRINCIPALE
     // ============================================
-    function initPage() {
-        console.log('🔍 Initialisation de la page...');
+    async function initialize() {
+        console.log('🔧 Initialisation en cours...');
         
-        // Détecter la page actuelle
+        // Tester la connexion
+        const isConnected = await testSupabaseConnection();
+        if (!isConnected) {
+            console.warn('⚠️ Connexion Supabase limitée, certaines fonctionnalités peuvent être désactivées');
+        }
+        
+        // Détecter la page et charger le contenu approprié
+        detectAndLoadPage();
+        
+        // Initialiser les fonctionnalités communes
+        initCommonFeatures();
+        
+        console.log('✅ Initialisation terminée');
+    }
+
+    function detectAndLoadPage() {
         const path = window.location.pathname;
         const pageName = path.split('/').pop().toLowerCase();
         
         console.log(`📄 Page détectée: ${pageName}`);
         
-        // Vérifier si nous sommes sur une page admin
+        // Pages d'administration
         if (pageName === 'admin.html') {
             console.log('👑 Page admin détectée');
             checkAdminAuth();
@@ -62,69 +137,62 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Vérifier si nous sommes sur une page d'article
+        // Page d'article unique
         if (pageName === 'article.html' || document.getElementById('article-content')) {
             console.log('📰 Page article détectée');
             loadSingleArticle();
             return;
         }
         
-        // Détecter les pages de contenu par leur conteneur
-        detectAndLoadContent();
-        
-        // Initialiser les fonctionnalités communes
-        initCommonFeatures();
+        // Pages de contenu
+        loadPageContent();
     }
-    
-    function detectAndLoadContent() {
-        console.log('🔍 Détection du contenu...');
-        
-        // Mapping des conteneurs vers les rubriques
-        const containerMapping = [
-            { id: 'actualites-container', rubrique: 'actualites', render: renderActualites },
-            { id: 'visages-container', rubrique: 'visages', render: renderVisages },
-            { id: 'coulisses-container', rubrique: 'coulisses', render: renderCoulisses },
-            { id: 'tendances-container', rubrique: 'tendances', render: renderTendances },
-            { id: 'decouvertes-container', rubrique: 'decouvertes', render: renderDecouvertes },
-            { id: 'culture-container', rubrique: 'culture', render: renderCulture },
-            { id: 'mode-container', rubrique: 'mode', render: renderMode },
-            { id: 'accessoires-container', rubrique: 'accessoires', render: renderAccessoires },
-            { id: 'beaute-container', rubrique: 'beaute', render: renderBeaute },
-            { id: 'articles-list', rubrique: 'coulisses', render: renderCoulisses },
-            { id: 'trends-container', rubrique: 'tendances', render: renderTendances },
-            { id: 'discoveries-container', rubrique: 'decouvertes', render: renderDecouvertes },
-            { id: 'events-container', rubrique: 'culture', render: renderCulture }
+
+    // ============================================
+    // PAGES DE CONTENU (Rubriques)
+    // ============================================
+    function loadPageContent() {
+        // Mapping des conteneurs
+        const containers = [
+            { id: 'actualites-container', rubrique: 'actualites', render: renderArticles },
+            { id: 'visages-container', rubrique: 'visages', render: renderArticles },
+            { id: 'coulisses-container', rubrique: 'coulisses', render: renderArticles },
+            { id: 'tendances-container', rubrique: 'tendances', render: renderArticles },
+            { id: 'decouvertes-container', rubrique: 'decouvertes', render: renderArticles },
+            { id: 'culture-container', rubrique: 'culture', render: renderArticles },
+            { id: 'mode-container', rubrique: 'mode', render: renderArticles },
+            { id: 'accessoires-container', rubrique: 'accessoires', render: renderArticles },
+            { id: 'beaute-container', rubrique: 'beaute', render: renderArticles },
+            { id: 'articles-list', rubrique: 'coulisses', render: renderArticles },
+            { id: 'trends-container', rubrique: 'tendances', render: renderArticles },
+            { id: 'discoveries-container', rubrique: 'decouvertes', render: renderArticles },
+            { id: 'events-container', rubrique: 'culture', render: renderArticles }
         ];
         
-        // Chercher le premier conteneur présent
-        for (const mapping of containerMapping) {
-            const container = document.getElementById(mapping.id);
-            if (container) {
-                console.log(`✅ Conteneur trouvé: ${mapping.id} pour ${mapping.rubrique}`);
-                loadContent(mapping.rubrique, mapping.id, mapping.render);
-                
-                // Configurations spécifiques
-                if (mapping.rubrique === 'visages') {
-                    setTimeout(() => setupVisageFilters(), 100);
-                }
+        // Trouver le premier conteneur présent
+        for (const container of containers) {
+            const element = document.getElementById(container.id);
+            if (element) {
+                console.log(`✅ Chargement ${container.rubrique} dans ${container.id}`);
+                loadArticles(container.rubrique, container.id);
                 return;
             }
         }
         
-        console.log('ℹ️ Aucun conteneur spécifique trouvé');
+        console.log('ℹ️ Aucun conteneur de contenu trouvé');
     }
-    
-    async function loadContent(rubrique, containerId, renderFunction) {
-        console.log(`🔄 Chargement ${rubrique}...`);
+
+    async function loadArticles(rubrique, containerId) {
         const container = document.getElementById(containerId);
-        
         if (!container) {
             console.error(`❌ Conteneur ${containerId} non trouvé`);
             return;
         }
         
-        // Afficher le chargement
-        container.innerHTML = '<div class="loading">Chargement...</div>';
+        console.log(`🔄 Chargement articles: ${rubrique}`);
+        
+        // Message de chargement
+        container.innerHTML = '<div class="loading">Chargement en cours...</div>';
         
         try {
             const { data, error } = await supabase
@@ -135,56 +203,195 @@ document.addEventListener('DOMContentLoaded', () => {
                 .order('date_publication', { ascending: false });
             
             if (error) {
-                console.error(`❌ Erreur ${rubrique}:`, error);
-                container.innerHTML = `<div class="error">Erreur: ${error.message}</div>`;
-                return;
+                throw error;
             }
             
             if (!data || data.length === 0) {
-                console.log(`ℹ️ Aucun ${rubrique} publié`);
-                container.innerHTML = `<div class="empty">Aucun contenu disponible</div>`;
+                container.innerHTML = `<div class="empty-message">Aucun contenu disponible pour ${getRubriqueName(rubrique)}</div>`;
                 return;
             }
             
-            console.log(`✅ ${data.length} ${rubrique} chargés`);
-            renderFunction(data, container);
+            console.log(`✅ ${data.length} articles chargés pour ${rubrique}`);
+            renderArticles(data, container, rubrique);
             
         } catch (error) {
-            console.error(`💥 Erreur générale ${rubrique}:`, error);
-            container.innerHTML = `<div class="error">Erreur de chargement</div>`;
+            console.error(`❌ Erreur chargement ${rubrique}:`, error);
+            container.innerHTML = `
+                <div class="error-message">
+                    <h3>Erreur de chargement</h3>
+                    <p>${error.message}</p>
+                    <small>Vérifiez votre connexion internet</small>
+                </div>
+            `;
         }
     }
-    
+
+    function renderArticles(articles, container, rubrique) {
+        if (!articles || articles.length === 0) {
+            container.innerHTML = '<div class="empty-message">Aucun contenu disponible</div>';
+            return;
+        }
+        
+        let html = '';
+        
+        articles.forEach(article => {
+            const safeTitle = escapeHtml(article.titre_fr || 'Sans titre');
+            const safeContent = escapeHtml(article.contenu_fr || '');
+            const safeAuthor = escapeHtml(article.auteur || 'Rédaction');
+            const date = article.date_publication ? new Date(article.date_publication).toLocaleDateString('fr-FR') : 'Date inconnue';
+            
+            html += `
+                <article class="article-card">
+                    ${article.image_url ? `
+                    <div class="article-image">
+                        <img src="${article.image_url}" alt="${safeTitle}" 
+                             onerror="this.src='https://placehold.co/600x400?text=${rubrique.toUpperCase()}'">
+                    </div>` : ''}
+                    
+                    <div class="article-content">
+                        <div class="article-meta">
+                            <span class="article-date">📅 ${date}</span>
+                            <span class="article-author">👤 ${safeAuthor}</span>
+                        </div>
+                        
+                        <h3 class="article-title">${safeTitle}</h3>
+                        
+                        <div class="article-excerpt">
+                            ${truncateText(safeContent, 150)}
+                        </div>
+                        
+                        <a href="article.html?id=${article.id}" class="read-more">
+                            Lire la suite →
+                        </a>
+                    </div>
+                </article>
+            `;
+        });
+        
+        container.innerHTML = html;
+    }
+
     // ============================================
-    // FONCTIONS D'ADMINISTRATION
+    // ARTICLE INDIVIDUEL
     // ============================================
-    
+    async function loadSingleArticle() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+        
+        if (!articleId) {
+            console.log('ℹ️ Aucun ID article dans l\'URL');
+            return;
+        }
+        
+        console.log(`📰 Chargement article: ${articleId}`);
+        
+        const container = document.getElementById('article-content');
+        if (!container) return;
+        
+        container.innerHTML = '<div class="loading">Chargement de l\'article...</div>';
+        
+        try {
+            const { data: article, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('id', articleId)
+                .single();
+            
+            if (error) throw error;
+            
+            if (article.statut !== 'publié') {
+                throw new Error('Cet article n\'est pas encore publié');
+            }
+            
+            renderSingleArticle(article);
+            
+        } catch (error) {
+            console.error('❌ Erreur chargement article:', error);
+            container.innerHTML = `
+                <div class="error-message">
+                    <h2>Article non disponible</h2>
+                    <p>${error.message}</p>
+                    <a href="index.html" class="btn-home">Retour à l'accueil</a>
+                </div>
+            `;
+        }
+    }
+
+    function renderSingleArticle(article) {
+        const container = document.getElementById('article-content');
+        if (!container) return;
+        
+        const safeTitle = escapeHtml(article.titre_fr || 'Sans titre');
+        const safeContent = escapeHtml(article.contenu_fr || '');
+        const safeAuthor = escapeHtml(article.auteur || 'Rédaction');
+        const date = article.date_publication ? new Date(article.date_publication).toLocaleDateString('fr-FR') : 'Date inconnue';
+        const rubriqueName = getRubriqueName(article.rubrique);
+        
+        container.innerHTML = `
+            <article class="full-article">
+                <header class="article-header">
+                    <h1 class="article-title">${safeTitle}</h1>
+                    
+                    <div class="article-meta">
+                        <div class="meta-left">
+                            <span class="article-date">📅 ${date}</span>
+                            <span class="article-author">👤 ${safeAuthor}</span>
+                        </div>
+                        <div class="meta-right">
+                            <span class="article-category">${rubriqueName}</span>
+                        </div>
+                    </div>
+                    
+                    ${article.image_url ? `
+                    <div class="article-hero-image">
+                        <img src="${article.image_url}" alt="${safeTitle}" 
+                             onerror="this.src='https://placehold.co/800x400?text=ARTICLE'">
+                    </div>` : ''}
+                </header>
+                
+                <div class="article-body">
+                    <div class="article-content">
+                        ${formatContent(safeContent)}
+                    </div>
+                </div>
+                
+                <footer class="article-footer">
+                    <a href="${article.rubrique}.html" class="back-to-category">
+                        ← Retour à ${rubriqueName}
+                    </a>
+                </footer>
+            </article>
+        `;
+    }
+
+    // ============================================
+    // ADMINISTRATION
+    // ============================================
     function checkAdminAuth() {
         const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
         
         if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
-            alert('⚠️ Accès administrateur requis');
+            alert('⚠️ Accès administrateur requis. Veuillez vous connecter.');
             window.location.href = 'index.html';
-            return;
+            return false;
         }
         
         console.log('✅ Admin authentifié');
         
-        // Initialiser la page admin spécifique
         if (window.location.pathname.includes('admin.html')) {
             initAdminPage();
         } else if (window.location.pathname.includes('actualisation.html')) {
             initActualisationPage();
         }
+        
+        return true;
     }
-    
+
     async function initAdminPage() {
-        console.log('🔄 Initialisation admin page...');
+        console.log('👑 Initialisation page admin...');
         
-        // Charger les créateurs
-        await loadAllCreators();
+        await loadAdminCreators();
         
-        // Configurer le bouton de déconnexion
         const logoutBtn = document.getElementById('logoutBtn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
@@ -197,8 +404,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('✅ Page admin initialisée');
     }
-    
-    async function loadAllCreators() {
+
+    async function loadAdminCreators() {
         console.log('📡 Chargement des créateurs...');
         
         try {
@@ -210,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (pendingError) throw pendingError;
             
-            displayCreators(pending, 'pendingCreators', 'pending');
+            updateCreatorList(pending, 'pendingCreators', 'pending');
             updateCounter('pendingCount', pending?.length || 0);
             
             // Créateurs approuvés
@@ -221,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (approvedError) throw approvedError;
             
-            displayCreators(approved, 'approvedCreators', 'approved');
+            updateCreatorList(approved, 'approvedCreators', 'approved');
             updateCounter('approvedCount', approved?.length || 0);
             
         } catch (error) {
@@ -230,8 +437,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showError('approvedCreators', error.message);
         }
     }
-    
-    function displayCreators(creators, containerId, status) {
+
+    function updateCreatorList(creators, containerId, status) {
         const container = document.getElementById(containerId);
         if (!container) return;
         
@@ -244,37 +451,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         let html = '';
+        
         creators.forEach(creator => {
+            const safeBrand = escapeHtml(creator.nom_marque || 'Sans nom');
+            const safeName = escapeHtml(`${creator.prenom || ''} ${creator.nom || ''}`.trim() || 'Non spécifié');
+            const safeEmail = escapeHtml(creator.email || 'Non fourni');
+            const safePhone = escapeHtml(creator.telephone || 'Non fourni');
+            const safeDomain = escapeHtml(creator.domaine || 'Non spécifié');
+            
             html += `
                 <div class="creator-card">
-                    <h3>${escapeHtml(creator.nom_marque || 'Sans nom')}</h3>
-                    <p><strong>Contact:</strong> ${escapeHtml(creator.prenom || '')} ${escapeHtml(creator.nom || '')}</p>
-                    <p><strong>Email:</strong> ${escapeHtml(creator.email || 'Non fourni')}</p>
-                    <p><strong>Tél:</strong> ${escapeHtml(creator.telephone || 'Non fourni')}</p>
-                    <p><strong>Domaine:</strong> ${escapeHtml(creator.domaine || 'Non spécifié')}</p>
+                    <h3>${safeBrand}</h3>
+                    <p><strong>Contact:</strong> ${safeName}</p>
+                    <p><strong>Email:</strong> ${safeEmail}</p>
+                    <p><strong>Téléphone:</strong> ${safePhone}</p>
+                    <p><strong>Domaine:</strong> ${safeDomain}</p>
                     <p><strong>Statut:</strong> ${creator.statut}</p>
             `;
             
             if (status === 'pending') {
                 html += `
                     <div class="card-actions">
-                        <button onclick="approveCreator(${creator.id}, '${escapeHtml(creator.nom_marque || '').replace(/'/g, "\\'")}')" 
-                                class="action-btn approve-btn">✅ Approuver</button>
-                        <button onclick="rejectCreator(${creator.id}, '${escapeHtml(creator.nom_marque || '').replace(/'/g, "\\'")}')" 
-                                class="action-btn reject-btn">❌ Refuser</button>
+                        <button onclick="adminApproveCreator(${creator.id}, '${safeBrand.replace(/'/g, "\\'")}')" 
+                                class="btn-approve">✅ Approuver</button>
+                        <button onclick="adminRejectCreator(${creator.id}, '${safeBrand.replace(/'/g, "\\'")}')" 
+                                class="btn-reject">❌ Refuser</button>
                     </div>
                 `;
             }
             
-            html += `</div>`;
+            html += '</div>';
         });
         
         container.innerHTML = html;
     }
-    
-    // Fonctions globales pour les boutons admin
-    window.approveCreator = async function(id, brandName) {
-        if (!confirm(`Approuver "${brandName}" ?`)) return;
+
+    // Fonctions globales pour l'admin
+    window.adminApproveCreator = async function(id, brandName) {
+        if (!confirm(`Approuver le créateur "${brandName}" ?`)) return;
         
         try {
             const { error } = await supabase
@@ -287,17 +501,17 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (error) throw error;
             
-            alert(`✅ "${brandName}" approuvé !`);
-            loadAllCreators();
+            alert(`✅ "${brandName}" a été approuvé !`);
+            loadAdminCreators();
             
         } catch (error) {
             console.error('❌ Erreur approbation:', error);
             alert(`❌ Erreur: ${error.message}`);
         }
     };
-    
-    window.rejectCreator = async function(id, brandName) {
-        if (!confirm(`Refuser "${brandName}" ?`)) return;
+
+    window.adminRejectCreator = async function(id, brandName) {
+        if (!confirm(`Refuser le créateur "${brandName}" ?`)) return;
         
         try {
             const { error } = await supabase
@@ -307,475 +521,195 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (error) throw error;
             
-            alert(`❌ "${brandName}" refusé !`);
-            loadAllCreators();
+            alert(`❌ "${brandName}" a été refusé.`);
+            loadAdminCreators();
             
         } catch (error) {
             console.error('❌ Erreur refus:', error);
             alert(`❌ Erreur: ${error.message}`);
         }
     };
-    
+
     function initActualisationPage() {
         console.log('📝 Initialisation page actualisation...');
         
-        // Initialiser les onglets
-        const tabLinks = document.querySelectorAll('.tab-link');
-        tabLinks.forEach(tab => {
+        // Onglets
+        document.querySelectorAll('.tab-link').forEach(tab => {
             tab.addEventListener('click', function() {
                 const tabId = this.dataset.tab;
                 
-                // Mettre à jour les onglets actifs
-                tabLinks.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
+                // Désactiver tous les onglets
+                document.querySelectorAll('.tab-link').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 
-                // Afficher le contenu correspondant
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
+                // Activer l'onglet cliqué
+                this.classList.add('active');
                 document.getElementById(`${tabId}-tab`)?.classList.add('active');
             });
         });
         
         console.log('✅ Page actualisation initialisée');
     }
-    
+
     // ============================================
-    // FONCTIONS DE RENDU D'ARTICLES
+    // AUTHENTIFICATION
     // ============================================
-    
-    function renderActualites(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <article class="article-card">
-                ${article.image_url ? `
-                <div class="article-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/600x400?text=ACTUALITE'">
-                </div>` : ''}
-                
-                <div class="article-content">
-                    <div class="article-meta">
-                        <span class="article-date">📅 ${formatDate(article.date_publication)}</span>
-                        ${article.categorie_actualite ? 
-                            `<span class="article-category">${article.categorie_actualite}</span>` : ''}
-                    </div>
-                    
-                    <h2 class="article-title">${article.titre_fr}</h2>
-                    
-                    <div class="article-excerpt">
-                        ${truncateText(article.contenu_fr, 200)}
-                    </div>
-                    
-                    <div class="article-author">Par ${article.auteur || 'Rédaction'}</div>
-                    
-                    <a href="article.html?id=${article.id}" class="read-more">Lire la suite →</a>
-                </div>
-            </article>
-        `).join('');
-    }
-    
-    function renderVisages(visages, container) {
-        container.innerHTML = visages.map(visage => `
-            <div class="visage-card">
-                ${visage.image_url ? `
-                <img src="${visage.image_url}" alt="${visage.nom_marque || visage.titre_fr}" 
-                     onerror="this.src='https://placehold.co/400x250?text=CREATEUR'">` : ''}
-                
-                <div class="visage-content">
-                    <h3>${visage.nom_marque || visage.titre_fr}</h3>
-                    
-                    ${visage.domaine ? `<span class="visage-domain">${visage.domaine}</span>` : ''}
-                    
-                    <p>${truncateText(visage.contenu_fr, 120)}</p>
-                    
-                    <a href="article.html?id=${visage.id}" class="visage-link">Voir le profil →</a>
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    function renderCoulisses(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <article class="backstage-article">
-                ${article.image_url ? `
-                <div class="backstage-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/400x250?text=COULISSES'">
-                </div>` : ''}
-                
-                <div class="backstage-content">
-                    <h2>${article.titre_fr}</h2>
-                    
-                    <div class="backstage-meta">
-                        <span>📅 ${formatDate(article.date_publication)}</span>
-                        <span>🎬 ${article.auteur || 'Rédaction'}</span>
-                    </div>
-                    
-                    <div class="backstage-excerpt">
-                        ${truncateText(article.contenu_fr, 180)}
-                    </div>
-                    
-                    <a href="article.html?id=${article.id}" class="read-backstage">Voir les coulisses →</a>
-                </div>
-            </article>
-        `).join('');
-    }
-    
-    function renderTendances(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <article class="trend-article">
-                ${article.image_url ? `
-                <div class="trend-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/400x250?text=TENDANCE'">
-                    ${article.saison ? `<span class="season-badge">${article.saison}</span>` : ''}
-                </div>` : ''}
-                
-                <div class="trend-content">
-                    <h2>${article.titre_fr}</h2>
-                    
-                    <div class="trend-meta">
-                        <span>📅 ${formatDate(article.date_publication)}</span>
-                        ${article.saison ? `<span>🌤️ ${article.saison}</span>` : ''}
-                    </div>
-                    
-                    <div class="trend-excerpt">
-                        ${truncateText(article.contenu_fr, 220)}
-                    </div>
-                    
-                    <a href="article.html?id=${article.id}" class="read-trend">Découvrir →</a>
-                </div>
-            </article>
-        `).join('');
-    }
-    
-    function renderDecouvertes(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <div class="discovery-card">
-                ${article.image_url ? `
-                <div class="discovery-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/400x250?text=DECOUVERTE'">
-                </div>` : ''}
-                
-                <div class="discovery-content">
-                    <h3>${article.titre_fr}</h3>
-                    
-                    <div class="discovery-excerpt">
-                        ${truncateText(article.contenu_fr, 120)}
-                    </div>
-                    
-                    <div class="discovery-meta">
-                        <span>📅 ${formatDate(article.date_publication)}</span>
-                        <span>🔍 ${article.type_decouverte || 'Découverte'}</span>
-                    </div>
-                    
-                    <a href="article.html?id=${article.id}" class="discovery-link">Découvrir →</a>
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    function renderCulture(events, container) {
-        container.innerHTML = events.map(event => `
-            <div class="event-card">
-                <h3>${event.titre_fr}</h3>
-                
-                <div class="event-meta">
-                    <span>📅 ${formatDate(event.date_evenement || event.date_publication)}</span>
-                    <span>${event.type_evenement || 'Événement'}</span>
-                </div>
-                
-                <div class="event-description">
-                    ${truncateText(event.contenu_fr, 150)}
-                </div>
-                
-                <a href="article.html?id=${event.id}" class="event-link">Voir détails →</a>
-            </div>
-        `).join('');
-    }
-    
-    function renderMode(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <article class="fashion-article">
-                ${article.image_url ? `
-                <div class="fashion-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/400x250?text=MODE'">
-                    ${article.theme_mode ? `<span class="theme-badge">${article.theme_mode}</span>` : ''}
-                </div>` : ''}
-                
-                <div class="fashion-content">
-                    <h2>${article.titre_fr}</h2>
-                    
-                    <div class="article-meta">
-                        <span>📅 ${formatDate(article.date_publication)}</span>
-                        <span>👤 ${article.auteur || 'Rédaction'}</span>
-                        ${article.theme_mode ? `<span>🏷️ ${article.theme_mode}</span>` : ''}
-                    </div>
-                    
-                    <div class="article-excerpt">
-                        ${truncateText(article.contenu_fr, 250)}
-                    </div>
-                    
-                    <a href="article.html?id=${article.id}" class="read-article">Lire →</a>
-                </div>
-            </article>
-        `).join('');
-    }
-    
-    function renderAccessoires(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <div class="accessory-article">
-                ${article.image_url ? `
-                <div class="accessory-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/400x250?text=ACCESSOIRE'">
-                    ${article.type_accessoire ? `<span class="type-tag">${article.type_accessoire}</span>` : ''}
-                </div>` : ''}
-                
-                <div class="accessory-content">
-                    <h3>${article.titre_fr}</h3>
-                    
-                    <div class="article-info">
-                        <span class="date">${formatDate(article.date_publication)}</span>
-                        ${article.type_accessoire ? `<span class="type">${article.type_accessoire}</span>` : ''}
-                    </div>
-                    
-                    <p class="excerpt">${truncateText(article.contenu_fr, 180)}</p>
-                    
-                    <a href="article.html?id=${article.id}" class="view-details">Voir →</a>
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    function renderBeaute(articles, container) {
-        container.innerHTML = articles.map(article => `
-            <article class="beauty-card">
-                ${article.image_url ? `
-                <div class="beauty-image">
-                    <img src="${article.image_url}" alt="${article.titre_fr}" 
-                         onerror="this.src='https://placehold.co/400x250?text=BEAUTE'">
-                    ${article.type_beaute ? `<div class="beauty-category">${article.type_beaute}</div>` : ''}
-                </div>` : ''}
-                
-                <div class="beauty-content">
-                    <h3>${article.titre_fr}</h3>
-                    
-                    <div class="beauty-meta">
-                        <span>📅 ${formatDate(article.date_publication)}</span>
-                        <span>👩‍⚕️ ${article.auteur || 'Rédaction'}</span>
-                    </div>
-                    
-                    <div class="beauty-excerpt">${truncateText(article.contenu_fr, 200)}</div>
-                    
-                    ${article.type_beaute ? `<span class="tip-tag">💡 ${article.type_beaute}</span>` : ''}
-                    
-                    <a href="article.html?id=${article.id}" class="read-beauty">Conseils →</a>
-                </div>
-            </article>
-        `).join('');
-    }
-    
-    // ============================================
-    // ARTICLE INDIVIDUEL
-    // ============================================
-    
-    async function loadSingleArticle() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const articleId = urlParams.get('id');
+    function initAuth() {
+        const authBtn = document.getElementById('auth-btn');
+        const authModal = document.getElementById('auth-modal');
         
-        if (!articleId) {
-            console.log('ℹ️ Aucun ID article spécifié');
-            return;
-        }
+        if (!authBtn || !authModal) return;
         
-        console.log(`📰 Chargement article ${articleId}...`);
+        // Ouvrir modal
+        authBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            authModal.classList.add('active');
+        });
         
-        try {
-            const { data: article, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('id', articleId)
-                .single();
-            
-            if (error) throw error;
-            
-            if (article.statut !== 'publié') {
-                throw new Error('Article non publié');
+        // Fermer modal
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal || e.target.classList.contains('close-auth-modal')) {
+                authModal.classList.remove('active');
+                resetAuthForms();
             }
-            
-            renderArticle(article);
-            
-        } catch (error) {
-            console.error('❌ Erreur chargement article:', error);
-            document.getElementById('article-content').innerHTML = `
-                <div class="error-message">
-                    <h2>Article non disponible</h2>
-                    <p>${error.message}</p>
-                    <a href="index.html" class="btn-home">Retour à l'accueil</a>
-                </div>
-            `;
-        }
-    }
-    
-    function renderArticle(article) {
-        const container = document.getElementById('article-content');
-        if (!container) return;
+        });
         
-        container.innerHTML = `
-            <article class="full-article">
-                <header class="article-header">
-                    <h1 class="article-title">${article.titre_fr}</h1>
-                    
-                    <div class="article-meta">
-                        <div class="meta-left">
-                            <span class="article-date">📅 ${formatDate(article.date_publication)}</span>
-                            <span class="article-author">👤 ${article.auteur || 'Rédaction'}</span>
-                        </div>
-                        
-                        <div class="meta-right">
-                            <span class="article-rubrique">${getRubriqueName(article.rubrique)}</span>
-                        </div>
-                    </div>
-                    
-                    ${article.image_url ? `
-                    <div class="article-hero-image">
-                        <img src="${article.image_url}" alt="${article.titre_fr}" 
-                             onerror="this.src='https://placehold.co/800x400?text=ARTICLE'">
-                    </div>` : ''}
-                </header>
-                
-                <div class="article-body">
-                    <div class="article-content-text">
-                        ${formatContent(article.contenu_fr)}
-                    </div>
-                </div>
-                
-                <footer class="article-footer">
-                    <a href="${article.rubrique}.html" class="back-to-list">
-                        ← Retour à ${getRubriqueName(article.rubrique)}
-                    </a>
-                </footer>
-            </article>
-        `;
-    }
-    
-    // ============================================
-    // FONCTIONS UTILITAIRES
-    // ============================================
-    
-    function formatDate(dateString) {
-        if (!dateString) return 'Date inconnue';
-        const date = new Date(dateString);
-        return date.toLocaleDateString('fr-FR');
-    }
-    
-    function truncateText(text, maxLength) {
-        if (!text) return 'Lire la suite...';
-        if (text.length <= maxLength) return text;
-        return text.substring(0, maxLength) + '...';
-    }
-    
-    function formatContent(content) {
-        if (!content) return '<p>Contenu non disponible.</p>';
-        return content.replace(/\n/g, '<br>');
-    }
-    
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    function getRubriqueName(rubrique) {
-        const names = {
-            'actualites': 'Actualités',
-            'visages': 'Visages',
-            'coulisses': 'Coulisses',
-            'tendances': 'Tendances',
-            'decouvertes': 'Découvertes',
-            'culture': 'Culture',
-            'mode': 'Mode',
-            'accessoires': 'Accessoires',
-            'beaute': 'Beauté'
-        };
-        return names[rubrique] || rubrique;
-    }
-    
-    function updateCounter(elementId, count) {
-        const element = document.getElementById(elementId);
-        if (element) element.textContent = count;
-    }
-    
-    function showError(containerId, message) {
-        const container = document.getElementById(containerId);
-        if (container) {
-            container.innerHTML = `<div class="error">${message}</div>`;
-        }
-    }
-    
-    // ============================================
-    // FILTRES VISAGES
-    // ============================================
-    
-    function setupVisageFilters() {
-        console.log('🎯 Configuration filtres visages...');
+        // Échap
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && authModal.classList.contains('active')) {
+                authModal.classList.remove('active');
+                resetAuthForms();
+            }
+        });
         
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Mettre à jour les boutons actifs
-                filterBtns.forEach(b => b.classList.remove('active'));
+        // Onglets auth
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const authType = this.dataset.authType;
+                
+                // Onglets
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Filtrer
-                const filter = this.dataset.filter;
-                filterVisages(filter);
+                // Formulaires
+                document.querySelectorAll('.auth-form').forEach(form => {
+                    form.classList.remove('active');
+                });
+                
+                if (authType === 'admin') {
+                    document.getElementById('admin-form')?.classList.add('active');
+                } else {
+                    document.getElementById('creator-form')?.classList.add('active');
+                }
             });
         });
-    }
-    
-    async function filterVisages(domain) {
-        console.log(`🎯 Filtrage par domaine: ${domain}`);
         
-        const container = document.getElementById('visages-container');
-        if (!container) return;
+        // Connexion admin
+        const adminForm = document.getElementById('admin-form');
+        if (adminForm) {
+            adminForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const nom = document.getElementById('admin-nom').value.trim();
+                const password = document.getElementById('admin-password').value;
+                const errorElement = document.getElementById('admin-error');
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('administrateurs')
+                        .select('*')
+                        .eq('nom', nom)
+                        .eq('mot_de_passe', password)
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    if (!data) {
+                        throw new Error('Identifiants incorrects');
+                    }
+                    
+                    // Connexion réussie
+                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    sessionStorage.setItem('adminName', data.nom);
+                    
+                    authModal.classList.remove('active');
+                    adminForm.reset();
+                    
+                    window.location.href = 'admin.html';
+                    
+                } catch (error) {
+                    console.error('❌ Erreur connexion admin:', error);
+                    if (errorElement) {
+                        errorElement.textContent = error.message;
+                        errorElement.style.display = 'block';
+                    }
+                }
+            });
+        }
         
-        try {
-            let query = supabase
-                .from('articles')
-                .select('*')
-                .eq('rubrique', 'visages')
-                .eq('statut', 'publié');
-            
-            if (domain !== 'all') {
-                query = query.eq('domaine', domain);
-            }
-            
-            const { data, error } = await query;
-            
-            if (error) throw error;
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = '<div class="empty">Aucun créateur dans cette catégorie</div>';
-                return;
-            }
-            
-            renderVisages(data, container);
-            
-        } catch (error) {
-            console.error('❌ Erreur filtrage:', error);
-            container.innerHTML = `<div class="error">Erreur: ${error.message}</div>`;
+        // Connexion créateur
+        const creatorForm = document.getElementById('creator-form');
+        if (creatorForm) {
+            creatorForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const brand = document.getElementById('creator-brand').value.trim();
+                const password = document.getElementById('creator-password').value;
+                const errorElement = document.getElementById('creator-error');
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('créateurs')
+                        .select('*')
+                        .eq('nom_marque', brand)
+                        .eq('mot_de_passe', password)
+                        .eq('statut', 'actif')
+                        .single();
+                    
+                    if (error) throw error;
+                    
+                    if (!data) {
+                        throw new Error('Marque ou mot de passe incorrect');
+                    }
+                    
+                    // Connexion réussie
+                    sessionStorage.setItem('creatorLoggedIn', 'true');
+                    sessionStorage.setItem('creatorBrand', data.nom_marque);
+                    
+                    authModal.classList.remove('active');
+                    creatorForm.reset();
+                    
+                    window.location.href = 'dashboard-home.html';
+                    
+                } catch (error) {
+                    console.error('❌ Erreur connexion créateur:', error);
+                    if (errorElement) {
+                        errorElement.textContent = error.message;
+                        errorElement.style.display = 'block';
+                    }
+                }
+            });
         }
     }
-    
+
+    function resetAuthForms() {
+        const adminForm = document.getElementById('admin-form');
+        const creatorForm = document.getElementById('creator-form');
+        
+        if (adminForm) adminForm.reset();
+        if (creatorForm) creatorForm.reset();
+        
+        // Cacher les erreurs
+        const adminError = document.getElementById('admin-error');
+        const creatorError = document.getElementById('creator-error');
+        
+        if (adminError) adminError.style.display = 'none';
+        if (creatorError) creatorError.style.display = 'none';
+    }
+
     // ============================================
     // FONCTIONNALITÉS COMMUNES
     // ============================================
-    
     function initCommonFeatures() {
         console.log('🔧 Initialisation fonctionnalités communes...');
         
@@ -794,28 +728,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Formulaires
         initForms();
         
-        // Animations
-        initAnimations();
+        console.log('✅ Fonctionnalités communes initialisées');
     }
-    
+
     function initTheme() {
         const themeButton = document.getElementById('theme-select-button');
         const themeOptions = document.getElementById('theme-options');
-        const themeText = document.getElementById('theme-button-text');
-        const body = document.body;
         
         if (!themeButton || !themeOptions) return;
         
-        // Fonction pour définir le thème
+        // Définir le thème
         const setTheme = (theme) => {
             if (theme === 'day') {
-                body.classList.add('day-mode');
+                document.body.classList.add('day-mode');
                 localStorage.setItem('theme', 'day');
-                if (themeText) themeText.textContent = 'Clair';
             } else {
-                body.classList.remove('day-mode');
+                document.body.classList.remove('day-mode');
                 localStorage.setItem('theme', 'night');
-                if (themeText) themeText.textContent = 'Sombre';
             }
         };
         
@@ -823,7 +752,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeButton.addEventListener('click', (e) => {
             e.stopPropagation();
             themeOptions.classList.toggle('hidden-options');
-            themeButton.parentElement.classList.toggle('open');
         });
         
         // Options thème
@@ -831,230 +759,44 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target.tagName === 'A') {
                 setTheme(e.target.dataset.theme);
                 themeOptions.classList.add('hidden-options');
-                themeButton.parentElement.classList.remove('open');
             }
         });
         
         // Fermer en cliquant ailleurs
         document.addEventListener('click', () => {
             themeOptions.classList.add('hidden-options');
-            themeButton.parentElement.classList.remove('open');
         });
         
         // Charger thème sauvegardé
         const savedTheme = localStorage.getItem('theme') || 'night';
         setTheme(savedTheme);
     }
-    
+
     function initSubscriptionModal() {
         const subscribeLink = document.getElementById('subscribe-link');
         const modal = document.getElementById('subscribe-modal');
         
         if (!subscribeLink || !modal) return;
         
-        // Ouvrir modal
         subscribeLink.addEventListener('click', (e) => {
             e.preventDefault();
             modal.classList.remove('hidden-modal');
         });
         
-        // Fermer modal
         modal.addEventListener('click', (e) => {
             if (e.target === modal || e.target.classList.contains('close-modal')) {
                 modal.classList.add('hidden-modal');
             }
         });
         
-        // Échap pour fermer
+        // Échap
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !modal.classList.contains('hidden-modal')) {
                 modal.classList.add('hidden-modal');
             }
         });
-        
-        // Onglets
-        const tabLinks = modal.querySelectorAll('.tab-link');
-        tabLinks.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const targetId = this.dataset.tab;
-                
-                // Onglets
-                tabLinks.forEach(t => {
-                    t.classList.remove('active');
-                    t.setAttribute('aria-selected', 'false');
-                });
-                this.classList.add('active');
-                this.setAttribute('aria-selected', 'true');
-                
-                // Contenu
-                modal.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(targetId)?.classList.add('active');
-            });
-        });
     }
-    
-    function initAuth() {
-        const authBtn = document.getElementById('auth-btn');
-        const authModal = document.getElementById('auth-modal');
-        
-        if (!authBtn || !authModal) return;
-        
-        // Ouvrir modal auth
-        authBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            authModal.classList.add('active');
-        });
-        
-        // Fermer modal auth
-        authModal.addEventListener('click', (e) => {
-            if (e.target === authModal || e.target.classList.contains('close-auth-modal')) {
-                authModal.classList.remove('active');
-                resetAuthForms();
-            }
-        });
-        
-        // Échap pour fermer
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && authModal.classList.contains('active')) {
-                authModal.classList.remove('active');
-                resetAuthForms();
-            }
-        });
-        
-        // Onglets auth
-        const authTabs = authModal.querySelectorAll('.auth-tab');
-        authTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const authType = this.dataset.authType;
-                
-                // Onglets
-                authTabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Formulaires
-                document.querySelectorAll('.auth-form').forEach(form => {
-                    form.classList.remove('active');
-                });
-                
-                if (authType === 'admin') {
-                    document.getElementById('admin-form')?.classList.add('active');
-                } else {
-                    document.getElementById('creator-form')?.classList.add('active');
-                }
-                
-                // Cacher les erreurs
-                hideAuthErrors();
-            });
-        });
-        
-        // Soumission formulaire admin
-        const adminForm = document.getElementById('admin-form');
-        if (adminForm) {
-            adminForm.addEventListener('submit', handleAdminLogin);
-        }
-        
-        // Soumission formulaire créateur
-        const creatorForm = document.getElementById('creator-form');
-        if (creatorForm) {
-            creatorForm.addEventListener('submit', handleCreatorLogin);
-        }
-    }
-    
-    async function handleAdminLogin(e) {
-        e.preventDefault();
-        
-        const nom = document.getElementById('admin-nom').value.trim();
-        const password = document.getElementById('admin-password').value;
-        const errorElement = document.getElementById('admin-error');
-        
-        try {
-            const { data, error } = await supabase
-                .from('administrateurs')
-                .select('*')
-                .eq('nom', nom)
-                .eq('mot_de_passe', password)
-                .single();
-            
-            if (error) throw error;
-            
-            if (!data) {
-                throw new Error('Identifiants incorrects');
-            }
-            
-            // Connexion réussie
-            sessionStorage.setItem('adminLoggedIn', 'true');
-            sessionStorage.setItem('adminName', data.nom);
-            
-            document.getElementById('auth-modal').classList.remove('active');
-            window.location.href = 'admin.html';
-            
-        } catch (error) {
-            console.error('❌ Erreur connexion admin:', error);
-            if (errorElement) {
-                errorElement.textContent = error.message;
-                errorElement.style.display = 'block';
-            }
-        }
-    }
-    
-    async function handleCreatorLogin(e) {
-        e.preventDefault();
-        
-        const brand = document.getElementById('creator-brand').value.trim();
-        const password = document.getElementById('creator-password').value;
-        const errorElement = document.getElementById('creator-error');
-        
-        try {
-            const { data, error } = await supabase
-                .from('créateurs')
-                .select('*')
-                .eq('nom_marque', brand)
-                .eq('mot_de_passe', password)
-                .eq('statut', 'actif')
-                .single();
-            
-            if (error) throw error;
-            
-            if (!data) {
-                throw new Error('Marque ou mot de passe incorrect');
-            }
-            
-            // Connexion réussie
-            sessionStorage.setItem('creatorLoggedIn', 'true');
-            sessionStorage.setItem('creatorBrand', data.nom_marque);
-            
-            document.getElementById('auth-modal').classList.remove('active');
-            window.location.href = 'dashboard-home.html';
-            
-        } catch (error) {
-            console.error('❌ Erreur connexion créateur:', error);
-            if (errorElement) {
-                errorElement.textContent = error.message;
-                errorElement.style.display = 'block';
-            }
-        }
-    }
-    
-    function resetAuthForms() {
-        const adminForm = document.getElementById('admin-form');
-        const creatorForm = document.getElementById('creator-form');
-        
-        if (adminForm) adminForm.reset();
-        if (creatorForm) creatorForm.reset();
-        
-        hideAuthErrors();
-    }
-    
-    function hideAuthErrors() {
-        const adminError = document.getElementById('admin-error');
-        const creatorError = document.getElementById('creator-error');
-        
-        if (adminError) adminError.style.display = 'none';
-        if (creatorError) creatorError.style.display = 'none';
-    }
-    
+
     function initMenu() {
         const menuBtn = document.getElementById('menu-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
@@ -1069,17 +811,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('click', () => {
             dropdownMenu.classList.remove('active');
         });
-        
-        dropdownMenu.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
     }
-    
+
     function initForms() {
-        // Formulaire inscription abonné
+        // Inscription abonné
         const subscriberForm = document.getElementById('subscriber-form-element');
         if (subscriberForm) {
-            subscriberForm.addEventListener('submit', async function(e) {
+            subscriberForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const nom = document.getElementById('sub-nom').value.trim();
@@ -1094,21 +832,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (error) throw error;
                     
-                    alert('Inscription réussie !');
+                    alert('✅ Inscription réussie !');
                     subscriberForm.reset();
                     document.getElementById('subscribe-modal').classList.add('hidden-modal');
                     
                 } catch (error) {
                     console.error('❌ Erreur inscription:', error);
-                    alert('Erreur: ' + error.message);
+                    alert('❌ Erreur: ' + error.message);
                 }
             });
         }
         
-        // Formulaire inscription créateur
+        // Inscription créateur
         const creatorRegisterForm = document.getElementById('creator-register-form');
         if (creatorRegisterForm) {
-            creatorRegisterForm.addEventListener('submit', async function(e) {
+            creatorRegisterForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
                 const nom = document.getElementById('cre-nom').value.trim();
@@ -1132,53 +870,81 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (error) throw error;
                     
-                    alert('Inscription envoyée ! Attente de validation.');
+                    alert('✅ Inscription envoyée ! Attente de validation.');
                     creatorRegisterForm.reset();
                     document.getElementById('subscribe-modal').classList.add('hidden-modal');
                     
                 } catch (error) {
                     console.error('❌ Erreur inscription créateur:', error);
-                    alert('Erreur: ' + error.message);
+                    alert('❌ Erreur: ' + error.message);
                 }
             });
         }
     }
-    
-    function initAnimations() {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('show');
-                }
-            });
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.hidden').forEach(el => observer.observe(el));
+
+    // ============================================
+    // FONCTIONS UTILITAIRES
+    // ============================================
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
-    
+
+    function truncateText(text, maxLength) {
+        if (!text) return 'Lire la suite...';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    }
+
+    function formatContent(text) {
+        if (!text) return '<p>Contenu non disponible.</p>';
+        return text.replace(/\n/g, '<br>');
+    }
+
+    function getRubriqueName(rubrique) {
+        const names = {
+            'actualites': 'Actualités',
+            'visages': 'Visages',
+            'coulisses': 'Coulisses',
+            'tendances': 'Tendances',
+            'decouvertes': 'Découvertes',
+            'culture': 'Culture',
+            'mode': 'Mode',
+            'accessoires': 'Accessoires',
+            'beaute': 'Beauté'
+        };
+        return names[rubrique] || rubrique;
+    }
+
+    function updateCounter(elementId, count) {
+        const element = document.getElementById(elementId);
+        if (element) element.textContent = count;
+    }
+
+    function showError(containerId, message) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = `<div class="error">${message}</div>`;
+        }
+    }
+
     // ============================================
     // FONCTIONS GLOBALES POUR COMPATIBILITÉ
     // ============================================
-    
-    window.loadArticlesByRubrique = loadContent;
+    window.loadArticlesByRubrique = loadArticles;
     window.loadSingleArticle = loadSingleArticle;
-    window.setupVisageFilters = setupVisageFilters;
-    window.loadCoulissesArticles = () => loadContent('coulisses', 'articles-list', renderCoulisses);
-    window.loadTrends = () => loadContent('tendances', 'trends-container', renderTendances);
-    window.loadVisages = (filter = 'all') => {
-        loadContent('visages', 'visages-container', renderVisages);
-        if (filter !== 'all') setTimeout(() => filterVisages(filter), 100);
-    };
-    window.loadDiscoveries = () => loadContent('decouvertes', 'discoveries-container', renderDecouvertes);
-    window.loadEvents = () => loadContent('culture', 'events-container', renderCulture);
-    window.initPageData = initPage;
-    
+    window.setupVisageFilters = () => console.log('Filtres visages - à implémenter');
+    window.loadCoulissesArticles = () => loadArticles('coulisses', 'articles-list');
+    window.loadTrends = () => loadArticles('tendances', 'trends-container');
+    window.loadVisages = (filter) => loadArticles('visages', 'visages-container');
+    window.loadDiscoveries = () => loadArticles('decouvertes', 'discoveries-container');
+    window.loadEvents = () => loadArticles('culture', 'events-container');
+    window.initPageData = initialize;
+
     // ============================================
     // DÉMARRAGE
     // ============================================
-    
     // Démarrer l'initialisation
-    setTimeout(initPage, 50);
-    
-    console.log('✅ Script principal prêt');
-});
+    setTimeout(initialize, 100);
