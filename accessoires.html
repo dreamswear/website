@@ -416,14 +416,14 @@
     <header class="simple-header">
         <div class="header-content">
             <div class="logo">DREAMSWEAR MAG</div>
-            <div class="theme-selector">
-                <button class="theme-button" id="themeButton">
-                    <span id="themeText">Thème</span>
-                    <span class="theme-arrow">▼</span>
-                </button>
-                <div class="theme-options" id="themeOptions">
-                    <a href="#" class="theme-option" data-theme="night">Sombre</a>
-                    <a href="#" class="theme-option" data-theme="day">Clair</a>
+             <div class="theme-selector">
+                     <button id="theme-select-button" aria-label="Choisir un thème">
+                        <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
+                    </button>
+                    <ul id="theme-options" class="hidden-options">
+                        <li><a href="#" data-theme="night">Sombre</a></li>
+                        <li><a href="#" data-theme="day">Clair</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
