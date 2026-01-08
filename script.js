@@ -1471,9 +1471,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 3. MODAL D'ABONNEMENT
+    // 3. MODAL D'ABONNEMENT - MODIFICATION POUR DEUX BOUTONS
     // ============================================
-    const subscribeLink = document.getElementById('subscribe-link');
+    // MODIFICATION : Remplacer l'ancien sélecteur par ces deux lignes
+    const subscribeDesktop = document.getElementById('subscribe-desktop');
+    const subscribeMobile = document.getElementById('subscribe-mobile');
+    
     const modal = document.getElementById('subscribe-modal');
     const closeModalButton = modal ? modal.querySelector('.close-modal') : null;
     const tabLinks = modal ? modal.querySelectorAll('.tab-link') : [];
@@ -1482,8 +1485,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const openModal = () => modal.classList.remove('hidden-modal');
     const closeModal = () => modal.classList.add('hidden-modal');
 
-    if (subscribeLink) {
-        subscribeLink.addEventListener('click', (e) => {
+    // MODIFICATION : Gestion du bouton desktop
+    if (subscribeDesktop) {
+        subscribeDesktop.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+        });
+    }
+
+    // MODIFICATION : Gestion du bouton mobile
+    if (subscribeMobile) {
+        subscribeMobile.addEventListener('click', (e) => {
             e.preventDefault();
             openModal();
         });
