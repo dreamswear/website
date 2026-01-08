@@ -3,32 +3,34 @@
     --black: #0a0a0a;
     --white: #f5f5f5;
     --gray: #1a1a1a;
+    --beige: #f5f0e1;
+    --bordeaux: #280003;
 
     --font-heading: 'Playfair Display', serif;
     --font-body: 'Montserrat', sans-serif;
 
-    /* Theme variables */
+    /* Theme variables - Mode sombre */
     --color-background: var(--black);
-    --color-text: var(--white);
+    --color-text: var(--beige);          /* Texte beige en mode sombre */
     --color-surface: var(--gray);
-    --color-primary: var(--gold);
+    --color-primary: var(--bordeaux);    /* Bordeaux pour les éléments principaux */
     --color-border: var(--gray);
     --color-hero-title: var(--gray);
-    --color-card-heading: var(--white);
+    --color-card-heading: var(--beige);  /* Titres beige en mode sombre */
     --card-shadow: rgba(0,0,0,0.5);
-    --button-text: var(--black);
+    --button-text: var(--beige);         /* Texte beige sur boutons en mode sombre */
 }
 
 body.day-mode {
     --color-background: #f5f0e1; /* beige */
-    --color-text: #2c2c2c; /* dark gray */
+    --color-text: var(--bordeaux);       /* Texte bordeaux en mode clair */
     --color-surface: #ffffff;
-    --color-primary: #a88540; /* slightly darker gold for contrast */
+    --color-primary: var(--bordeaux);    /* Bordeaux pour les éléments principaux */
     --color-border: #e0d9c7;
     --color-hero-title: #e0d9c7;
-    --color-card-heading: #2c2c2c;
+    --color-card-heading: var(--bordeaux); /* Titres bordeaux en mode clair */
     --card-shadow: rgba(0,0,0,0.1);
-    --button-text: var(--white);
+    --button-text: var(--beige);         /* Texte noir sur boutons en mode clair */
 }
 
 *, *::before, *::after {
@@ -59,17 +61,17 @@ body {
 h1, h2, h3, h4 {
     font-family: var(--font-heading);
     font-weight: 700;
-    color: var(--color-primary);
+    color: var(--color-text); /* Utilise la couleur de texte du thème */
 }
 
 a {
-    color: var(--color-primary);
+    color: var(--color-text); /* Utilise la couleur de texte du thème */
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 a:hover {
-    color: var(--color-text);
+    color: var(--color-primary);
 }
 
 img {
@@ -257,17 +259,19 @@ img {
     font-size: 3.5rem;
     margin: 0.5rem 0;
     line-height: 1.1;
+    color: var(--color-text);
 }
 
 .hero-text p {
     font-weight: 300;
     margin-bottom: 2rem;
+    color: var(--color-text);
 }
 
 .cta-button {
     display: inline-block;
     background-color: var(--color-primary);
-    color: var(--button-text);
+    color: var(--button-text); /* Utilise la couleur de texte des boutons */
     padding: 12px 30px;
     font-weight: 600;
     text-transform: uppercase;
@@ -349,6 +353,7 @@ img {
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
+    color: var(--color-text);
 }
 
 .card-content h3 {
@@ -360,6 +365,7 @@ img {
 
 .card-content a {
     font-weight: 600;
+    color: var(--color-text);
 }
 
 /* Footer */
@@ -383,6 +389,7 @@ img {
     font-size: 1.8rem;
     letter-spacing: 1px;
     margin-bottom: 1rem;
+    color: var(--color-text);
 }
 
 .social-links {
@@ -391,7 +398,7 @@ img {
 
 .social-links a {
    margin: 0 1rem;
-    color: hsl(43, 64%, 67%);
+    color: var(--color-primary);
     text-transform: uppercase;
     font-size: 1.8rem;
     letter-spacing: 1px;
@@ -406,7 +413,8 @@ img {
 
 .footer-nav a {
     font-size: 0.8rem;
-    color: #888;
+    color: var(--color-text);
+    opacity: 0.7;
 }
 
 .footer-bottom {
@@ -415,7 +423,8 @@ img {
     padding-top: 2rem;
     border-top: 1px solid var(--color-background);
     font-size: 0.9rem;
-    color: #aaa;
+    color: var(--color-text);
+    opacity: 0.7;
     transition: border-color 0.3s ease;
 }
 
@@ -490,12 +499,14 @@ img {
     font-size: 2.2rem;
     margin-bottom: 0.5rem;
     text-align: center;
+    color: var(--color-text);
 }
 
 .modal-content p {
     text-align: center;
     margin-bottom: 2rem;
     font-size: 0.9rem;
+    color: var(--color-text);
 }
 
 .modal-tabs {
@@ -563,6 +574,7 @@ img {
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
     font-weight: 600;
+    color: var(--color-text);
 }
 
 .form-group input {
@@ -582,6 +594,7 @@ img {
     border: none;
     cursor: pointer;
     margin-top: 1rem;
+    color: var(--button-text);
 }
 
 /* Animations & Responsive */
@@ -1085,6 +1098,33 @@ img {
         display: flex !important;
     }
     
+    /* BOUTON S'ABONNER VISIBLE SUR DESKTOP */
+    .main-nav ul li.subscribe-item {
+        display: block !important;
+    }
+    
+    /* CORRECTION : Style spécifique pour le bouton S'abonner dans la navigation desktop */
+    .main-nav #subscribe-link {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: var(--color-primary);
+        color: var(--button-text) !important;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        margin: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .main-nav #subscribe-link:hover {
+        background-color: var(--color-text);
+        color: var(--color-background) !important;
+    }
+    
     /* Header-right en ligne sur desktop */
     .header-right {
         flex-direction: row;
@@ -1139,17 +1179,6 @@ img {
     
     .arrow-down {
         display: inline-block;
-    }
-    
-    /* Afficher S'abonner dans la navigation sur desktop */
-    #subscribe-link {
-        display: inline-block !important;
-        margin: 0;
-        background-color: var(--color-primary);
-        color: var(--button-text);
-        padding: 8px 20px;
-        border-radius: 25px;
-        font-size: 0.9rem;
     }
     
     /* Menu déroulant desktop */
@@ -1345,7 +1374,7 @@ img {
 .event-card h3,
 .trend-content h2 {
     font-family: var(--font-heading);
-    color: var(--color-text);
+    color: var(--color-card-heading);
     margin: 0.5rem 0;
     font-size: 1.3rem;
     line-height: 1.4;
@@ -1387,7 +1416,7 @@ img {
 .event-link,
 .read-trend {
     display: inline-block;
-    color: var(--color-primary);
+    color: var(--color-text);
     font-weight: 600;
     text-decoration: none;
     transition: color 0.3s ease;
@@ -1401,7 +1430,7 @@ img {
 .read-beauty:hover,
 .event-link:hover,
 .read-trend:hover {
-    color: var(--color-text);
+    color: var(--color-primary);
 }
 
 /* ============================================ */
@@ -1513,7 +1542,7 @@ img {
 }
 
 .tip-tag {
-    background: rgba(192, 159, 88, 0.1);
+    background: rgba(40, 0, 3, 0.1);
     color: var(--color-primary);
     padding: 3px 10px;
     border-radius: 4px;
@@ -1591,7 +1620,7 @@ img {
 }
 
 .specific-badge {
-    background: rgba(192, 159, 88, 0.1);
+    background: rgba(40, 0, 3, 0.1);
     color: var(--color-primary);
     padding: 3px 10px;
     border-radius: 4px;
@@ -1615,6 +1644,7 @@ img {
 .article-body {
     line-height: 1.8;
     font-size: 1.1rem;
+    color: var(--color-text);
 }
 
 .article-content-text {
@@ -1698,12 +1728,12 @@ img {
 }
 
 .article-tag {
-    background: rgba(192, 159, 88, 0.1);
+    background: rgba(40, 0, 3, 0.1);
     color: var(--color-primary);
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
-    border: 1px solid rgba(192, 159, 88, 0.3);
+    border: 1px solid rgba(40, 0, 3, 0.3);
 }
 
 .article-navigation {
@@ -1887,4 +1917,87 @@ img {
 .event-card,
 .trend-article {
     animation: fadeIn 0.6s ease-out;
+}
+/* ============================================ */
+/* BOUTON S'ABONNER - VERSION DESKTOP */
+/* ============================================ */
+
+/* Navigation desktop visible */
+@media (min-width: 769px) {
+    .main-nav {
+        display: flex !important;
+        flex: 1;
+        justify-content: center;
+    }
+    
+    .main-nav ul {
+        display: flex !important;
+        align-items: center;
+        gap: 2rem;
+        list-style: none;
+    }
+    
+    .main-nav #subscribe-desktop {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: var(--color-primary);
+        color: var(--button-text) !important;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .main-nav #subscribe-desktop:hover {
+        background-color: var(--color-text);
+        color: var(--color-background) !important;
+    }
+    
+    /* Cache le bouton mobile sur desktop */
+    .subscribe-mobile-container {
+        display: none !important;
+    }
+}
+
+/* ============================================ */
+/* BOUTON S'ABONNER - VERSION MOBILE */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    /* Cache la navigation desktop */
+    .main-nav {
+        display: none !important;
+    }
+    
+    /* Affiche le bouton mobile */
+    .subscribe-mobile-container {
+        display: block !important;
+        width: 100%;
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+    
+    #subscribe-mobile {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background-color: var(--color-primary);
+        color: var(--button-text) !important;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    #subscribe-mobile:hover {
+        background-color: var(--color-text);
+        color: var(--color-background) !important;
+    }
 }
