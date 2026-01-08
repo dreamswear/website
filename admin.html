@@ -270,17 +270,20 @@
 <body>
     <div class="admin-header">
         <h1>Administration DREAMSWEAR</h1>
-        <div class="admin-buttons">
-            <a href="Actualisation.html" class="admin-btn btn-poster" title="Poster un article">
-                <i class="fas fa-newspaper"></i> <span class="btn-text">Poster</span>
-            </a>
-            <button id="logoutBtn" class="admin-btn btn-logout" title="Déconnexion">
-                <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnexion</span>
-            </button>
-            <a href="index.html" class="admin-btn btn-return" title="Retour à l'accueil">
-                <i class="fas fa-arrow-left"></i> <span class="btn-text">Retour</span>
-            </a>
-        </div>
+       <div class="admin-buttons">
+    <a href="Actualisation.html" class="admin-btn btn-poster" title="Poster un article">
+        <i class="fas fa-newspaper"></i> <span class="btn-text">Poster</span>
+    </a>
+   <a href="./dashboard-management.html" class="admin-btn" style="background: #17a2b8; color: white;" title="Gérer les dashboards">
+    <i class="fas fa-columns"></i> <span class="btn-text">Dashboards</span>
+</a>
+    <button id="logoutBtn" class="admin-btn btn-logout" title="Déconnexion">
+        <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnexion</span>
+    </button>
+    <a href="index.html" class="admin-btn btn-return" title="Retour à l'accueil">
+        <i class="fas fa-arrow-left"></i> <span class="btn-text">Retour</span>
+    </a>
+</div>
     </div>
     
     <div class="admin-section">
@@ -301,5 +304,51 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Notre script admin -->
     <script src="admin-script.js"></script>
+    
+    <!-- SCRIPT DE COMPATIBILITÉ SESSION - IMPORTANT -->
+    <script>
+        // Script de compatibilité pour assurer que les deux clés de session sont définies
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 Script de compatibilité session chargé');
+            
+            // Vérifier et corriger la session si nécessaire
+            const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            const isAdmin = sessionStorage.getItem('isAdmin');
+            
+            console.log('🔍 État session:', { adminLoggedIn, isAdmin });
+            
+            // Si adminLoggedIn est vrai mais pas isAdmin, définir isAdmin
+            if (adminLoggedIn === 'true' && (!isAdmin || isAdmin !== 'true')) {
+                console.log('🔧 Correction: définition de isAdmin = true');
+                sessionStorage.setItem('isAdmin', 'true');
+            }
+            
+            // Si isAdmin est vrai mais pas adminLoggedIn, définir adminLoggedIn
+            if (isAdmin === 'true' && (!adminLoggedIn || adminLoggedIn !== 'true')) {
+                console.log('🔧 Correction: définition de adminLoggedIn = true');
+                sessionStorage.setItem('adminLoggedIn', 'true');
+            }
+            
+            // Fonction utilitaire pour vérifier l'accès
+            window.checkAdminAccess = function() {
+                const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+                const isAdmin = sessionStorage.getItem('isAdmin');
+                
+                return (adminLoggedIn === 'true') || (isAdmin === 'true');
+            };
+            
+            // Fonction pour définir la session admin
+            window.setAdminSession = function() {
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                sessionStorage.setItem('isAdmin', 'true');
+                console.log('✅ Session admin configurée (double clé)');
+            };
+            
+            // Vérifier si on est sur la page admin (pour éviter les redirections infinies)
+            if (window.location.pathname.includes('admin.html')) {
+                console.log('📄 Page admin détectée, pas de vérification de session');
+            }
+        });
+    </script>
 </body>
 </html>
