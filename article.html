@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Article - DREAMSWEAR MAG</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -10,20 +10,64 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* Styles responsive pour la page article */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f9f9f9;
+        }
+        
+        /* Header responsive */
+        .main-header {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .main-header .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-decoration: none;
+        }
+        
+        /* Contenu principal responsive */
         .article-page {
-            padding: 40px 0;
+            padding: 100px 20px 40px;
             max-width: 800px;
             margin: 0 auto;
+            width: 100%;
         }
         
         .article-header {
             margin-bottom: 40px;
-            text-align: center;
         }
         
         .article-header img {
             width: 100%;
-            height: 400px;
+            height: auto;
+            max-height: 500px;
             object-fit: cover;
             border-radius: 10px;
             margin-bottom: 30px;
@@ -31,28 +75,35 @@
         
         .article-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
             margin-bottom: 20px;
-            color: var(--text-primary);
+            color: #1a1a1a;
+            line-height: 1.3;
         }
         
         .article-meta {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
             flex-wrap: wrap;
+            gap: 15px;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .article-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         .article-content {
             font-size: 1.1rem;
             line-height: 1.8;
-            color: var(--text-primary);
+            color: #333;
         }
         
         .article-content p {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
         
         .article-content img {
@@ -60,24 +111,192 @@
             height: auto;
             border-radius: 10px;
             margin: 30px 0;
+            display: block;
         }
         
+        .article-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin: 40px 0 20px;
+            color: #1a1a1a;
+        }
+        
+        .article-content h3 {
+            font-size: 1.4rem;
+            margin: 30px 0 15px;
+            color: #1a1a1a;
+        }
+        
+        /* Bouton retour */
         .back-button {
             display: inline-block;
             margin-top: 40px;
-            padding: 10px 25px;
-            background: var(--accent);
-            color: var(--text-dark);
+            padding: 12px 30px;
+            background: #d4af37;
+            color: #1a1a1a;
             border-radius: 25px;
             text-decoration: none;
             font-family: 'Montserrat', sans-serif;
             font-weight: 600;
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
         
         .back-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+        
+        /* Footer responsive */
+        .main-footer {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 40px 20px;
+            margin-top: 60px;
+        }
+        
+        .main-footer .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-content {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .footer-content h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: #333;
+            border-radius: 50%;
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background: #d4af37;
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        /* Media Queries pour le responsive */
+        @media (max-width: 768px) {
+            .article-page {
+                padding: 80px 15px 30px;
+            }
+            
+            .article-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .article-content {
+                font-size: 1rem;
+            }
+            
+            .article-content h2 {
+                font-size: 1.5rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.2rem;
+            }
+            
+            .main-header .container {
+                padding: 10px 15px;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-page {
+                padding: 70px 10px 20px;
+            }
+            
+            .article-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .article-header img {
+                max-height: 300px;
+            }
+            
+            .article-content {
+                font-size: 0.95rem;
+            }
+            
+            .back-button {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .social-links {
+                flex-wrap: wrap;
+            }
+        }
+        
+        /* Styles pour le thème sombre */
+        [data-theme="night"] {
+            background: #121212;
+            color: #ffffff;
+        }
+        
+        [data-theme="night"] .main-header {
+            background: #1a1a1a;
+        }
+        
+        [data-theme="night"] .logo {
+            color: #ffffff;
+        }
+        
+        [data-theme="night"] .article-header h1 {
+            color: #ffffff;
+        }
+        
+        [data-theme="night"] .article-content {
+            color: #f0f0f0;
+        }
+        
+        [data-theme="night"] .article-content h2,
+        [data-theme="night"] .article-content h3 {
+            color: #ffffff;
+        }
+        
+        [data-theme="night"] .main-footer {
+            background: #0a0a0a;
         }
     </style>
 </head>
@@ -87,47 +306,16 @@
             <div class="logo">DREAMSWEAR</div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#" id="subscribe-link">S'abonner</a></li>
+                    <li><a href="index.html">Accueil</a></li>
                 </ul>
             </nav>
-            <div class="header-right">
-                <div class="menu-container">
-                    <button class="menu-btn" id="menu-btn">
-                        <i class="fas fa-bars"></i>
-                        <span>Menu</span>
-                    </button>
-                    <div class="dropdown-menu" id="dropdown-menu">
-                        <ul>
-                            <li><a href="index.html">Accueil</a></li>
-                            <li><a href="visages.html">Visages</a></li>
-                            <li><a href="coulisses.html">Coulisses</a></li>
-                            <li><a href="tendances.html">Tendances</a></li>
-                            <li><a href="decouvertes.html">Découvertes</a></li>
-                            <li><a href="culture.html">Culture/Agenda</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <button class="creator-btn" id="auth-btn">
-    <i class="fas fa-user-edit"></i>
-    <span>Espace Créateurs</span>
-</button>
-                <div class="theme-selector">
-                    <button id="theme-select-button" aria-label="Choisir un thème">
-                        <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
-                    </button>
-                    <ul id="theme-options" class="hidden-options">
-                        <li><a href="#" data-theme="night">Sombre</a></li>
-                        <li><a href="#" data-theme="day">Clair</a></li>
-                    </ul>
-                </div>
-            </div>
         </div>
     </header>
 
     <main class="article-page">
         <div class="container">
             <div id="article-container">
-                <p>Chargement de l'article...</p>
+                <p style="text-align: center; padding: 40px;">Chargement de l'article...</p>
             </div>
             <a href="javascript:history.back()" class="back-button">← Retour</a>
         </div>
@@ -136,13 +324,13 @@
     <footer class="main-footer">
         <div class="container">
             <div class="footer-content">
-                <h4>DREAMWEAR MAG</h4>
+                <h4>DREAMSWEAR MAG</h4>
                 <p>Le style est une façon de dire qui vous êtes sans parler.</p>
                 <div class="social-links">
-                    <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.instagram.com/dreamswear_mag" target="_blank"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-linkedin-in"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>
-                    <a href="https://www.tiktok.com/@dreams_wear0?is_from_webapp=1&sender_device=pc"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.tiktok.com/@dreams_wear0" target="_blank"><i class="fab fa-tiktok"></i></a>
                     <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
@@ -151,7 +339,155 @@
             </div>
         </div>
     </footer>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArticle();
+        });
+        
+        async function loadArticle() {
+            const container = document.getElementById('article-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+            
+            if (!articleId) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Article non trouvé.</p><a href="index.html" class="back-button">Retour à l\'accueil</a></div>';
+                return;
+            }
+            
+            try {
+                container.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Chargement...</p></div>';
+                
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('id', articleId)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (!data || data.statut !== 'publié') {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Article non disponible.</p><a href="index.html" class="back-button">Retour à l\'accueil</a></div>';
+                    return;
+                }
+                
+                // Formater la date
+                const date = new Date(data.date_publication);
+                const formattedDate = date.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                
+                // Construire le contenu HTML
+                let html = `
+                    <article class="article-header">
+                        ${data.image_url ? `
+                        <img src="${data.image_url}" 
+                             alt="${data.titre_fr}" 
+                             onerror="this.src='https://placehold.co/800x400?text=ARTICLE'"
+                             loading="lazy">
+                        ` : ''}
+                        
+                        <h1>${data.titre_fr}</h1>
+                        
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                            <span><i class="fas fa-user"></i> ${data.auteur || 'Rédaction'}</span>
+                            ${data.rubrique ? `<span><i class="fas fa-tag"></i> ${data.rubrique}</span>` : ''}
+                        </div>
+                    </article>
+                    
+                    <div class="article-content">
+                `;
+                
+                // Ajouter le contenu avec formatage basique
+                if (data.contenu_fr) {
+                    html += formatContent(data.contenu_fr);
+                } else {
+                    html += '<p>Contenu non disponible.</p>';
+                }
+                
+                // Ajouter les informations spécifiques selon la rubrique
+                if (data.rubrique === 'visages') {
+                    html += `
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 30px 0;">
+                            <h3>À propos du créateur</h3>
+                            ${data.nom_marque ? `<p><strong>Marque :</strong> ${data.nom_marque}</p>` : ''}
+                            ${data.domaine ? `<p><strong>Domaine :</strong> ${data.domaine}</p>` : ''}
+                            ${data.reseaux_instagram ? `<p><strong>Instagram :</strong> <a href="https://instagram.com/${data.reseaux_instagram.replace('@', '')}" target="_blank">${data.reseaux_instagram}</a></p>` : ''}
+                            ${data.site_web ? `<p><strong>Site web :</strong> <a href="${data.site_web}" target="_blank">${data.site_web}</a></p>` : ''}
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+                
+                container.innerHTML = html;
+                
+                // Mettre à jour le titre de la page
+                document.title = `${data.titre_fr} - DREAMSWEAR MAG`;
+                
+            } catch (error) {
+                console.error('Erreur chargement article:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <p>Erreur de chargement de l'article. Veuillez réessayer.</p>
+                        <a href="index.html" class="back-button">Retour à l'accueil</a>
+                    </div>
+                `;
+            }
+        }
+        
+        function formatContent(content) {
+            if (!content) return '';
+            
+            // Convertir les retours à la ligne en paragraphes
+            let formatted = content
+                .split('\n\n')  // Séparer par paragraphes
+                .map(paragraph => {
+                    if (paragraph.trim() === '') return '';
+                    
+                    // Détecter les titres (commençant par #, ##, ###)
+                    if (paragraph.startsWith('# ')) {
+                        return `<h2>${paragraph.substring(2)}</h2>`;
+                    } else if (paragraph.startsWith('## ')) {
+                        return `<h3>${paragraph.substring(3)}</h3>`;
+                    } else if (paragraph.startsWith('### ')) {
+                        return `<h4>${paragraph.substring(4)}</h4>`;
+                    }
+                    
+                    // Formater le texte en gras (**texte**)
+                    paragraph = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    
+                    // Formater le texte en italique (*texte*)
+                    paragraph = paragraph.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    
+                    // Créer des listes
+                    if (paragraph.includes('- ') || paragraph.includes('* ')) {
+                        const lines = paragraph.split('\n');
+                        if (lines.some(line => line.trim().startsWith('- ') || line.trim().startsWith('* '))) {
+                            const listItems = lines
+                                .filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '))
+                                .map(line => `<li>${line.substring(2)}</li>`)
+                                .join('');
+                            return `<ul>${listItems}</ul>`;
+                        }
+                    }
+                    
+                    return `<p>${paragraph}</p>`;
+                })
+                .join('');
+            
+            return formatted;
+        }
+    </script>
 </body>
 </html>
