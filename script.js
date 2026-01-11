@@ -1,5 +1,3 @@
-[file name]: script.js
-[file content begin]
 // ============================================
 // CODE PRINCIPAL - CENTRALISÉ
 // ============================================
@@ -2517,4 +2515,3 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('🚀 Script principal centralisé chargé avec succès !');
 });
-[file content end]
