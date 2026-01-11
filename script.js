@@ -1,3 +1,5 @@
+[file name]: script.js
+[file content begin]
 // ============================================
 // CODE PRINCIPAL - CENTRALISÉ
 // ============================================
@@ -661,14 +663,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('📁 Chemin de fichier:', filePath);
             
-            // Option 1: Si vous avez configuré le bucket "images" dans Supabase Storage
-            // const { data, error } = await supabase.storage
-            //     .from('images')
-            //     .upload(filePath, file);
-            
-            // Option 2: Utiliser un service d'upload externe ou stocker l'image en base64
-            // Pour le moment, on va stocker l'image en base64 directement dans la base de données
-            
             const reader = new FileReader();
             
             return new Promise((resolve, reject) => {
@@ -1196,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ============================================
-    // FONCTIONS DE RENDU POUR CHAQUE RUBRIQUE
+    // FONCTIONS DE RENDU POUR CHAQUE RUBRIQUE (SIMPLIFIÉES)
     // ============================================
     
     function renderActualites(articles, container) {
@@ -1216,10 +1210,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     <h2 class="article-title">${article.titre_fr}</h2>
-                    
-                    <div class="article-excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 200) + (article.contenu_fr.length > 200 ? '...' : '') : 'Lire la suite...'}
-                    </div>
                     
                     <div class="article-author">
                         Par ${article.auteur || 'Rédaction'}
@@ -1248,10 +1238,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         ${visage.domaine ? `<span class="visage-domain">${visage.domaine}</span>` : ''}
                         
-                        <p>
-                            ${visage.contenu_fr ? visage.contenu_fr.substring(0, 120) + (visage.contenu_fr.length > 120 ? '...' : '') : 'Découvrez ce créateur...'}
-                        </p>
-                        
                         <a href="article.html?id=${visage.id}" class="visage-link">
                             Voir le profil complet →
                         </a>
@@ -1274,10 +1260,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         ${visage.nom_createur ? `<p class="creator-person">👤 ${visage.nom_createur}</p>` : ''}
                         ${visage.domaine ? `<p class="creator-domain">🏷️ ${visage.domaine}</p>` : ''}
-                        
-                        <div class="creator-bio">
-                            ${visage.contenu_fr ? visage.contenu_fr.substring(0, 150) + (visage.contenu_fr.length > 150 ? '...' : '') : 'Découvrez ce créateur...'}
-                        </div>
                         
                         <div class="creator-links">
                             ${visage.reseaux_instagram ? `
@@ -1321,10 +1303,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span>🎬 ${article.auteur || 'Rédaction'}</span>
                     </div>
                     
-                    <div class="backstage-excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 180) + (article.contenu_fr.length > 180 ? '...' : '') : 'Découvrez les coulisses...'}
-                    </div>
-                    
                     <a href="article.html?id=${article.id}" class="read-backstage">
                         Voir les coulisses →
                     </a>
@@ -1350,10 +1328,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="trend-meta">
                         <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
                         ${article.saison ? `<span>🌤️ ${article.saison}</span>` : ''}
-                    </div>
-                    
-                    <div class="trend-excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 220) + (article.contenu_fr.length > 220 ? '...' : '') : 'Découvrez les tendances...'}
                     </div>
                     
                     <a href="article.html?id=${article.id}" class="read-trend">
@@ -1389,9 +1363,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             <div class="discovery-content">
                                 <h3>${item.titre_fr}</h3>
-                                <div class="discovery-excerpt">
-                                    ${item.contenu_fr ? item.contenu_fr.substring(0, 120) + (item.contenu_fr.length > 120 ? '...' : '') : 'Découvrez...'}
-                                </div>
                                 <div class="discovery-meta">
                                     <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
                                     <span>🔍 ${getTypeDecouverteLabel(item.type_decouverte)}</span>
@@ -1449,10 +1420,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                         ${event.lieu}
                                     </div>
                                     ` : ''}
-                                    
-                                    <div class="event-description">
-                                        ${event.contenu_fr ? event.contenu_fr.substring(0, 150) + (event.contenu_fr.length > 150 ? '...' : '') : 'Plus d\'informations...'}
-                                    </div>
                                     
                                     ${event.lien_evenement ? `
                                     <a href="${event.lien_evenement}" target="_blank" class="event-link">
@@ -1517,10 +1484,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${article.theme_mode ? `<span>🏷️ ${article.theme_mode}</span>` : ''}
                     </div>
                     
-                    <div class="article-excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 250) + (article.contenu_fr.length > 250 ? '...' : '') : 'Découvrez l\'article...'}
-                    </div>
-                    
                     <a href="article.html?id=${article.id}" class="read-article">
                         Lire l'article complet →
                     </a>
@@ -1548,10 +1511,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${article.type_accessoire ? `<span class="type">${article.type_accessoire}</span>` : ''}
                     </div>
                     
-                    <p class="excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 180) + (article.contenu_fr.length > 180 ? '...' : '') : 'Découvrez...'}
-                    </p>
-                    
                     <a href="article.html?id=${article.id}" class="view-details">
                         Voir les détails →
                     </a>
@@ -1577,10 +1536,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="beauty-meta">
                         <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
                         <span>👩‍⚕️ ${article.auteur || 'Rédaction'}</span>
-                    </div>
-                    
-                    <div class="beauty-excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 200) + (article.contenu_fr.length > 200 ? '...' : '') : 'Découvrez...'}
                     </div>
                     
                     <div class="beauty-tips">
@@ -1612,10 +1567,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
                         <span>${article.auteur || 'Rédaction'}</span>
                     </div>
-                    
-                    <p class="generic-excerpt">
-                        ${article.contenu_fr ? article.contenu_fr.substring(0, 150) + (article.contenu_fr.length > 150 ? '...' : '') : 'Lire la suite...'}
-                    </p>
                     
                     <a href="article.html?id=${article.id}" class="read-generic">
                         Lire l'article →
@@ -1976,7 +1927,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="featured-info">
                             <span class="category">COULISSES</span>
                             <h2>${featured.titre_fr}</h2>
-                            <p>${featured.contenu_fr ? featured.contenu_fr.substring(0, 200) + '...' : ''}</p>
                             <a href="article.html?id=${featured.id}" class="read-more">Lire l'article →</a>
                         </div>
                     </article>
@@ -1993,7 +1943,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             ` : ''}
                             <div class="article-item-info">
                                 <h3>${article.titre_fr}</h3>
-                                <p>${article.contenu_fr ? article.contenu_fr.substring(0, 100) + '...' : ''}</p>
                                 <a href="article.html?id=${article.id}" class="read-link">Lire →</a>
                             </div>
                         </article>
@@ -2568,3 +2517,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     console.log('🚀 Script principal centralisé chargé avec succès !');
 });
+[file content end]
