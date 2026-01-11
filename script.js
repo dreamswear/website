@@ -639,34 +639,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // ============================================
+    // FONCTION UPLOAD D'IMAGE MODIFIÉE
+    // ============================================
     async function uploadImage(file, rubrique) {
         if (!file) return null;
         
         try {
+            console.log('📤 Début upload image:', file.name, file.size);
+            
+            // Vérifier la taille du fichier (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                console.error('❌ Fichier trop volumineux:', file.size);
+                alert('Le fichier est trop volumineux (max 2MB)');
+                return null;
+            }
+            
             const fileExt = file.name.split('.').pop();
             const fileName = `${rubrique}_${Date.now()}.${fileExt}`;
             const filePath = `${rubrique}/${fileName}`;
             
-            // Upload vers Supabase Storage
-            const { data, error } = await supabase.storage
-                .from('images')
-                .upload(filePath, file);
+            console.log('📁 Chemin de fichier:', filePath);
             
-            if (error) {
-                console.error('❌ Erreur upload image:', error);
-                return null;
-            }
+            // Option 1: Si vous avez configuré le bucket "images" dans Supabase Storage
+            // const { data, error } = await supabase.storage
+            //     .from('images')
+            //     .upload(filePath, file);
             
-            // Récupérer l'URL publique
-            const { data: { publicUrl } } = supabase.storage
-                .from('images')
-                .getPublicUrl(filePath);
+            // Option 2: Utiliser un service d'upload externe ou stocker l'image en base64
+            // Pour le moment, on va stocker l'image en base64 directement dans la base de données
             
-            console.log('✅ Image uploadée:', publicUrl);
-            return publicUrl;
+            const reader = new FileReader();
+            
+            return new Promise((resolve, reject) => {
+                reader.onload = function(e) {
+                    const base64Image = e.target.result;
+                    console.log('✅ Image convertie en base64:', base64Image.length);
+                    resolve(base64Image); // Stocker l'image en base64
+                };
+                
+                reader.onerror = function(error) {
+                    console.error('❌ Erreur conversion base64:', error);
+                    reject(error);
+                };
+                
+                reader.readAsDataURL(file);
+            });
             
         } catch (error) {
-            console.error('💥 Erreur upload:', error);
+            console.error('💥 Erreur upload image:', error);
             return null;
         }
     }
@@ -1140,7 +1161,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Fonctions de rendu pour chaque rubrique (conservées telles quelles)
+    // ============================================
+    // FONCTION DE DÉBOGAGE POUR VÉRIFIER LES ARTICLES
+    // ============================================
+    async function debugArticles(rubrique) {
+        console.log(`🔍 Debug ${rubrique}...`);
+        
+        try {
+            const { data, error, count } = await supabase
+                .from('articles')
+                .select('*', { count: 'exact' })
+                .eq('rubrique', rubrique)
+                .eq('statut', 'publié');
+            
+            if (error) {
+                console.error(`❌ Erreur query ${rubrique}:`, error);
+                return;
+            }
+            
+            console.log(`📊 ${rubrique}: ${count} articles trouvés`);
+            
+            if (data && data.length > 0) {
+                data.forEach((article, index) => {
+                    console.log(`  ${index + 1}. ${article.titre_fr} (ID: ${article.id})`);
+                    console.log(`     Image: ${article.image_url ? '✓' : '✗'}`);
+                    console.log(`     Statut: ${article.statut}`);
+                    console.log(`     Date: ${article.date_publication}`);
+                });
+            }
+            
+        } catch (error) {
+            console.error(`💥 Exception debug ${rubrique}:`, error);
+        }
+    }
+    
+    // ============================================
+    // FONCTIONS DE RENDU POUR CHAQUE RUBRIQUE
+    // ============================================
+    
     function renderActualites(articles, container) {
         container.innerHTML = articles.map(article => `
             <article class="article-card">
@@ -2490,6 +2548,23 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadEvents');
         loadArticlesByRubrique('culture', 'events-container');
     };
+    
+    // ============================================
+    // 12. FONCTION DE DÉBOGAGE GLOBALE
+    // ============================================
+    
+    // Fonction de débogage pour vérifier les articles (globale)
+    window.debugArticles = debugArticles;
+    
+    // Testez chaque rubrique au chargement
+    setTimeout(() => {
+        console.log('🔍 Lancement du débogage des articles...');
+        debugArticles('actualites');
+        debugArticles('visages');
+        debugArticles('mode');
+        debugArticles('tendances');
+        debugArticles('coulisses');
+    }, 2000);
     
     console.log('🚀 Script principal centralisé chargé avec succès !');
 });
