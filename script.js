@@ -661,6 +661,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('📁 Chemin de fichier:', filePath);
             
+            // Option 1: Si vous avez configuré le bucket "images" dans Supabase Storage
+            // const { data, error } = await supabase.storage
+            //     .from('images')
+            //     .upload(filePath, file);
+            
+            // Option 2: Utiliser un service d'upload externe ou stocker l'image en base64
+            // Pour le moment, on va stocker l'image en base64 directement dans la base de données
+            
             const reader = new FileReader();
             
             return new Promise((resolve, reject) => {
@@ -1188,30 +1196,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // ============================================
-    // FONCTIONS DE RENDU POUR CHAQUE RUBRIQUE (SIMPLIFIÉES)
+    // FONCTIONS DE RENDU MODIFIÉES (TITRE + IMAGE SEULEMENT)
     // ============================================
     
     function renderActualites(articles, container) {
         container.innerHTML = articles.map(article => `
-            <article class="article-card">
+            <article class="article-card rounded-article">
                 ${article.image_url ? `
-                <div class="article-image">
+                <div class="article-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy" 
                          onerror="this.src='https://placehold.co/600x400?text=ACTUALITE'">
                 </div>
                 ` : ''}
                 
                 <div class="article-content">
-                    <div class="article-meta">
-                        <span class="article-date">📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        ${article.categorie_actualite ? `<span class="article-category">${article.categorie_actualite}</span>` : ''}
-                    </div>
-                    
                     <h2 class="article-title">${article.titre_fr}</h2>
-                    
-                    <div class="article-author">
-                        Par ${article.auteur || 'Rédaction'}
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="read-more">
                         Lire la suite →
@@ -1225,16 +1224,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Si le conteneur est dans la page Visages avec son design spécifique
         if (container.closest('.visages-page')) {
             container.innerHTML = visages.map(visage => `
-                <div class="visage-card">
+                <div class="visage-card rounded-article">
                     ${visage.image_url ? `
-                    <img src="${visage.image_url}" alt="${visage.nom_marque || visage.titre_fr}" loading="lazy" class="visage-image"
+                    <img src="${visage.image_url}" alt="${visage.nom_marque || visage.titre_fr}" loading="lazy" class="visage-image rounded-image"
                          onerror="this.src='https://placehold.co/400x250?text=CREATEUR'">
                     ` : ''}
                     
                     <div class="visage-content">
                         <h3>${visage.nom_marque || visage.titre_fr}</h3>
-                        
-                        ${visage.domaine ? `<span class="visage-domain">${visage.domaine}</span>` : ''}
                         
                         <a href="article.html?id=${visage.id}" class="visage-link">
                             Voir le profil complet →
@@ -1243,11 +1240,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `).join('');
         } else {
-            // Version générique pour d'autres pages
+            // Version simplifiée (titre + image seulement)
             container.innerHTML = visages.map(visage => `
-                <div class="creator-card">
+                <div class="creator-card rounded-article">
                     ${visage.image_url ? `
-                    <div class="creator-photo">
+                    <div class="creator-photo rounded-image">
                         <img src="${visage.image_url}" alt="${visage.nom_marque || visage.titre_fr}" loading="lazy"
                              onerror="this.src='https://placehold.co/400x250?text=CREATEUR'">
                     </div>
@@ -1255,24 +1252,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <div class="creator-info">
                         <h3 class="creator-name">${visage.nom_marque || visage.titre_fr}</h3>
-                        
-                        ${visage.nom_createur ? `<p class="creator-person">👤 ${visage.nom_createur}</p>` : ''}
-                        ${visage.domaine ? `<p class="creator-domain">🏷️ ${visage.domaine}</p>` : ''}
-                        
-                        <div class="creator-links">
-                            ${visage.reseaux_instagram ? `
-                            <a href="https://instagram.com/${visage.reseaux_instagram.replace('@', '')}" 
-                               target="_blank" class="social-link instagram">
-                                <i class="fab fa-instagram"></i> ${visage.reseaux_instagram}
-                            </a>
-                            ` : ''}
-                            
-                            ${visage.site_web ? `
-                            <a href="${visage.site_web}" target="_blank" class="social-link website">
-                                <i class="fas fa-globe"></i> Site web
-                            </a>
-                            ` : ''}
-                        </div>
                         
                         <a href="article.html?id=${visage.id}" class="view-profile">
                             Voir le profil complet →
@@ -1285,9 +1264,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderCoulisses(articles, container) {
         container.innerHTML = articles.map(article => `
-            <article class="backstage-article">
+            <article class="backstage-article rounded-article">
                 ${article.image_url ? `
-                <div class="backstage-image">
+                <div class="backstage-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                          onerror="this.src='https://placehold.co/400x250?text=COULISSES'">
                 </div>
@@ -1295,11 +1274,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="backstage-content">
                     <h2>${article.titre_fr}</h2>
-                    
-                    <div class="backstage-meta">
-                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        <span>🎬 ${article.auteur || 'Rédaction'}</span>
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="read-backstage">
                         Voir les coulisses →
@@ -1311,9 +1285,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderTendances(articles, container) {
         container.innerHTML = articles.map(article => `
-            <article class="trend-article">
+            <article class="trend-article rounded-article">
                 ${article.image_url ? `
-                <div class="trend-image">
+                <div class="trend-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                          onerror="this.src='https://placehold.co/400x250?text=TENDANCE'">
                     ${article.saison ? `<span class="season-badge">${article.saison}</span>` : ''}
@@ -1322,11 +1296,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="trend-content">
                     <h2>${article.titre_fr}</h2>
-                    
-                    <div class="trend-meta">
-                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        ${article.saison ? `<span>🌤️ ${article.saison}</span>` : ''}
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="read-trend">
                         Découvrir les tendances →
@@ -1351,9 +1320,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h2 class="section-title">${getTypeDecouverteLabel(type)}</h2>
                 <div class="discoveries-grid">
                     ${items.map(item => `
-                        <div class="discovery-card">
+                        <div class="discovery-card rounded-article">
                             ${item.image_url ? `
-                            <div class="discovery-image">
+                            <div class="discovery-image rounded-image">
                                 <img src="${item.image_url}" alt="${item.titre_fr}" loading="lazy"
                                      onerror="this.src='https://placehold.co/400x250?text=DECOUVERTE'">
                             </div>
@@ -1361,10 +1330,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             <div class="discovery-content">
                                 <h3>${item.titre_fr}</h3>
-                                <div class="discovery-meta">
-                                    <span>📅 ${new Date(item.date_publication).toLocaleDateString('fr-FR')}</span>
-                                    <span>🔍 ${getTypeDecouverteLabel(item.type_decouverte)}</span>
-                                </div>
                                 <a href="article.html?id=${item.id}" class="discovery-link">
                                     Découvrir →
                                 </a>
@@ -1399,35 +1364,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2 class="section-title">📅 Événements à venir</h2>
                     <div class="events-grid">
                         ${evenementsFuturs.map(event => `
-                            <div class="event-card upcoming">
+                            <div class="event-card upcoming rounded-article">
                                 <div class="event-header">
                                     <h3>${event.titre_fr}</h3>
+                                    ${event.image_url ? `
+                                    <div class="event-image rounded-image">
+                                        <img src="${event.image_url}" alt="${event.titre_fr}" loading="lazy"
+                                             onerror="this.src='https://placehold.co/400x250?text=EVENEMENT'">
+                                    </div>
+                                    ` : ''}
                                     <span class="event-type">${event.type_evenement || 'Événement'}</span>
                                 </div>
                                 
                                 <div class="event-details">
-                                    <div class="event-date">
-                                        <i class="fas fa-calendar"></i>
-                                        ${event.date_evenement ? new Date(event.date_evenement).toLocaleDateString('fr-FR') : new Date(event.date_publication).toLocaleDateString('fr-FR')}
-                                        ${event.heure_evenement ? ` • ${event.heure_evenement}` : ''}
-                                    </div>
-                                    
-                                    ${event.lieu ? `
-                                    <div class="event-location">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        ${event.lieu}
-                                    </div>
-                                    ` : ''}
-                                    
-                                    ${event.lien_evenement ? `
-                                    <a href="${event.lien_evenement}" target="_blank" class="event-link">
-                                        <i class="fas fa-external-link-alt"></i> Plus d'infos
-                                    </a>
-                                    ` : `
                                     <a href="article.html?id=${event.id}" class="event-link">
                                         <i class="fas fa-info-circle"></i> Voir détails
                                     </a>
-                                    `}
                                 </div>
                             </div>
                         `).join('')}
@@ -1443,12 +1395,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2 class="section-title">📚 Archives des événements</h2>
                     <div class="events-grid past">
                         ${evenementsPasses.map(event => `
-                            <div class="event-card past">
-                                <h4>${event.titre_fr}</h4>
-                                <div class="event-meta">
-                                    <span>${new Date(event.date_evenement || event.date_publication).toLocaleDateString('fr-FR')}</span>
-                                    <span>${event.type_evenement || 'Événement'}</span>
+                            <div class="event-card past rounded-article">
+                                ${event.image_url ? `
+                                <div class="event-image rounded-image">
+                                    <img src="${event.image_url}" alt="${event.titre_fr}" loading="lazy"
+                                         onerror="this.src='https://placehold.co/400x250?text=EVENEMENT'">
                                 </div>
+                                ` : ''}
+                                <h4>${event.titre_fr}</h4>
                                 <a href="article.html?id=${event.id}" class="event-link">
                                     Revivre l'événement →
                                 </a>
@@ -1464,9 +1418,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderMode(articles, container) {
         container.innerHTML = articles.map(article => `
-            <article class="fashion-article">
+            <article class="fashion-article rounded-article">
                 ${article.image_url ? `
-                <div class="fashion-image">
+                <div class="fashion-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                          onerror="this.src='https://placehold.co/400x250?text=MODE'">
                     ${article.theme_mode ? `<span class="theme-badge">${article.theme_mode}</span>` : ''}
@@ -1475,12 +1429,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="fashion-content">
                     <h2>${article.titre_fr}</h2>
-                    
-                    <div class="article-meta">
-                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        <span>👤 ${article.auteur || 'Rédaction'}</span>
-                        ${article.theme_mode ? `<span>🏷️ ${article.theme_mode}</span>` : ''}
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="read-article">
                         Lire l'article complet →
@@ -1492,9 +1440,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderAccessoires(articles, container) {
         container.innerHTML = articles.map(article => `
-            <div class="accessory-article">
+            <div class="accessory-article rounded-article">
                 ${article.image_url ? `
-                <div class="accessory-image">
+                <div class="accessory-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                          onerror="this.src='https://placehold.co/400x250?text=ACCESSOIRE'">
                     ${article.type_accessoire ? `<span class="type-tag">${article.type_accessoire}</span>` : ''}
@@ -1503,11 +1451,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="accessory-content">
                     <h3>${article.titre_fr}</h3>
-                    
-                    <div class="article-info">
-                        <span class="date">${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        ${article.type_accessoire ? `<span class="type">${article.type_accessoire}</span>` : ''}
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="view-details">
                         Voir les détails →
@@ -1519,9 +1462,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderBeaute(articles, container) {
         container.innerHTML = articles.map(article => `
-            <article class="beauty-card">
+            <article class="beauty-card rounded-article">
                 ${article.image_url ? `
-                <div class="beauty-image">
+                <div class="beauty-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                          onerror="this.src='https://placehold.co/400x250?text=BEAUTE'">
                     ${article.type_beaute ? `<div class="beauty-category">${article.type_beaute}</div>` : ''}
@@ -1530,15 +1473,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="beauty-content">
                     <h3>${article.titre_fr}</h3>
-                    
-                    <div class="beauty-meta">
-                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        <span>👩‍⚕️ ${article.auteur || 'Rédaction'}</span>
-                    </div>
-                    
-                    <div class="beauty-tips">
-                        ${article.type_beaute ? `<span class="tip-tag">💡 ${article.type_beaute}</span>` : ''}
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="read-beauty">
                         Lire les conseils →
@@ -1550,9 +1484,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderGenericArticles(articles, container, rubrique) {
         container.innerHTML = articles.map(article => `
-            <article class="generic-article">
+            <article class="generic-article rounded-article">
                 ${article.image_url ? `
-                <div class="generic-image">
+                <div class="generic-image rounded-image">
                     <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                          onerror="this.src='https://placehold.co/400x250?text=ARTICLE'">
                 </div>
@@ -1560,11 +1494,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="generic-content">
                     <h3>${article.titre_fr}</h3>
-                    
-                    <div class="generic-meta">
-                        <span>📅 ${new Date(article.date_publication).toLocaleDateString('fr-FR')}</span>
-                        <span>${article.auteur || 'Rédaction'}</span>
-                    </div>
                     
                     <a href="article.html?id=${article.id}" class="read-generic">
                         Lire l'article →
@@ -1574,16 +1503,43 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     }
     
-    // Fonction pour charger un article unique
+    // ============================================
+    // FONCTION POUR CHARGER UN ARTICLE UNIQUE (CORRIGÉE)
+    // ============================================
     window.loadSingleArticle = async function() {
         const urlParams = new URLSearchParams(window.location.search);
         const articleId = urlParams.get('id');
         
-        if (!articleId || !document.getElementById('article-content')) {
+        if (!articleId) {
+            console.error('❌ Aucun ID d\'article dans l\'URL');
+            const container = document.getElementById('article-content');
+            if (container) {
+                container.innerHTML = `
+                    <div class="error-message" style="padding: 40px; text-align: center;">
+                        <h2>Erreur</h2>
+                        <p>Aucun article spécifié. Retournez à la page précédente.</p>
+                        <a href="javascript:history.back()" class="btn-home">Retour</a>
+                    </div>
+                `;
+            }
             return;
         }
         
         const container = document.getElementById('article-content');
+        if (!container) {
+            console.error('❌ Conteneur article-content non trouvé');
+            return;
+        }
+        
+        // Afficher un message de chargement avec le style arrondi
+        container.innerHTML = `
+            <article class="full-article rounded-article">
+                <div class="loading" style="padding: 40px; text-align: center; color: #666;">
+                    <div class="spinner" style="margin: 20px auto; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                    <p>Chargement de l'article...</p>
+                </div>
+            </article>
+        `;
         
         try {
             console.log(`🔄 Chargement de l'article ${articleId}...`);
@@ -1594,9 +1550,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 .eq('id', articleId)
                 .single();
             
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Erreur Supabase:', error);
+                throw new Error(`Erreur de chargement: ${error.message}`);
+            }
             
-            if (!article || article.statut !== 'publié') {
+            if (!article) {
+                throw new Error('Article non trouvé');
+            }
+            
+            if (article.statut !== 'publié') {
                 throw new Error('Article non disponible (statut non publié)');
             }
             
@@ -1604,13 +1567,15 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSingleArticle(article);
             
         } catch (error) {
-            console.error('Erreur:', error);
+            console.error('💥 Erreur:', error);
             container.innerHTML = `
-                <div class="error-message" style="padding: 40px; text-align: center;">
-                    <h2>Erreur de chargement</h2>
-                    <p>${error.message}</p>
-                    <a href="index.html" class="btn-home">Retour à l'accueil</a>
-                </div>
+                <article class="full-article rounded-article">
+                    <div class="error-message" style="padding: 40px; text-align: center;">
+                        <h2>Erreur de chargement</h2>
+                        <p>${error.message}</p>
+                        <a href="index.html" class="btn-home">Retour à l'accueil</a>
+                    </div>
+                </article>
             `;
         }
     };
@@ -1619,7 +1584,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('article-content');
         
         container.innerHTML = `
-            <article class="full-article">
+            <article class="full-article rounded-article">
                 <header class="article-header">
                     <nav class="article-breadcrumb">
                         <a href="index.html">Accueil</a> > 
@@ -1641,7 +1606,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     ${article.image_url ? `
-                    <div class="article-hero-image">
+                    <div class="article-hero-image rounded-image">
                         <img src="${article.image_url}" alt="${article.titre_fr}" loading="lazy"
                              onerror="this.src='https://placehold.co/800x400?text=ARTICLE'">
                     </div>
@@ -1650,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 <div class="article-body">
                     <div class="article-content-text">
-                        ${formatArticleContent(article.contenu_fr)}
+                        ${article.contenu_fr ? formatArticleContent(article.contenu_fr) : '<p>Contenu non disponible.</p>'}
                     </div>
                     
                     ${renderArticleSpecificInfo(article)}
@@ -1668,6 +1633,215 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </footer>
             </article>
+            
+            <style>
+                /* Styles pour les bordures arrondies comme mode/accessoires/beauté */
+                .rounded-article {
+                    border-radius: 15px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                    background: var(--card-bg, #ffffff);
+                    border: 1px solid rgba(212, 175, 55, 0.1);
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .rounded-article:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+                }
+                
+                .rounded-image {
+                    border-radius: 15px 15px 0 0;
+                    overflow: hidden;
+                }
+                
+                .rounded-image img {
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                }
+                
+                /* Style spécifique pour la page article */
+                .full-article.rounded-article {
+                    max-width: 900px;
+                    margin: 0 auto;
+                    padding: 0;
+                }
+                
+                .article-header {
+                    padding: 30px;
+                    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+                }
+                
+                .article-body {
+                    padding: 30px;
+                }
+                
+                .article-footer {
+                    padding: 30px;
+                    border-top: 1px solid rgba(212, 175, 55, 0.1);
+                    background: rgba(0, 0, 0, 0.02);
+                }
+                
+                .article-breadcrumb {
+                    font-size: 0.9em;
+                    color: var(--text-secondary);
+                    margin-bottom: 20px;
+                }
+                
+                .article-breadcrumb a {
+                    color: var(--accent);
+                    text-decoration: none;
+                }
+                
+                .article-breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+                
+                .article-title {
+                    font-size: 2.2em;
+                    margin: 0 0 20px 0;
+                    color: var(--text-primary);
+                    line-height: 1.3;
+                }
+                
+                .article-meta {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                    padding: 15px;
+                    background: rgba(212, 175, 55, 0.05);
+                    border-radius: 10px;
+                }
+                
+                .meta-left, .meta-right {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                    align-items: center;
+                }
+                
+                .article-date, .article-author, .article-rubrique {
+                    font-size: 0.9em;
+                    color: var(--text-secondary);
+                }
+                
+                .specific-badge {
+                    background: var(--accent);
+                    color: white;
+                    padding: 5px 12px;
+                    border-radius: 20px;
+                    font-size: 0.85em;
+                    font-weight: 500;
+                }
+                
+                .article-hero-image {
+                    margin: 20px 0;
+                }
+                
+                .article-hero-image img {
+                    width: 100%;
+                    height: auto;
+                    border-radius: 10px;
+                }
+                
+                .article-content-text {
+                    font-size: 1.1em;
+                    line-height: 1.8;
+                    color: var(--text-primary);
+                }
+                
+                .article-content-text h2 {
+                    font-size: 1.5em;
+                    margin: 30px 0 15px 0;
+                    color: var(--text-primary);
+                    padding-bottom: 10px;
+                    border-bottom: 2px solid var(--accent);
+                }
+                
+                .article-content-text h3 {
+                    font-size: 1.3em;
+                    margin: 25px 0 12px 0;
+                    color: var(--text-primary);
+                }
+                
+                .article-content-text p {
+                    margin-bottom: 20px;
+                }
+                
+                .article-content-text strong {
+                    color: var(--accent);
+                    font-weight: 600;
+                }
+                
+                .article-content-text em {
+                    font-style: italic;
+                    color: var(--text-secondary);
+                }
+                
+                .article-tags {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+                
+                .article-tag {
+                    background: rgba(212, 175, 55, 0.1);
+                    color: var(--accent);
+                    padding: 5px 12px;
+                    border-radius: 15px;
+                    font-size: 0.85em;
+                    border: 1px solid rgba(212, 175, 55, 0.2);
+                }
+                
+                .back-to-list {
+                    display: inline-block;
+                    background: var(--accent);
+                    color: white;
+                    padding: 12px 25px;
+                    border-radius: 25px;
+                    text-decoration: none;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+                
+                .back-to-list:hover {
+                    background: rgba(212, 175, 55, 0.8);
+                    transform: translateX(-5px);
+                }
+                
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                
+                /* Responsive */
+                @media (max-width: 768px) {
+                    .article-title {
+                        font-size: 1.8em;
+                    }
+                    
+                    .article-meta {
+                        flex-direction: column;
+                        align-items: flex-start;
+                    }
+                    
+                    .meta-left, .meta-right {
+                        width: 100%;
+                        justify-content: space-between;
+                    }
+                    
+                    .article-header,
+                    .article-body,
+                    .article-footer {
+                        padding: 20px;
+                    }
+                }
+            </style>
         `;
     }
     
@@ -1720,19 +1894,21 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (article.rubrique === 'visages') {
             html += `
-                <div class="specific-info creator-info">
+                <div class="specific-info creator-info rounded-article" style="margin: 30px 0; padding: 20px; background: rgba(212, 175, 55, 0.05); border-radius: 10px;">
                     <h3>À propos du créateur</h3>
-                    <ul>
-                        ${article.nom_marque ? `<li><strong>Marque :</strong> ${article.nom_marque}</li>` : ''}
-                        ${article.nom_createur ? `<li><strong>Créateur :</strong> ${article.nom_createur}</li>` : ''}
-                        ${article.domaine ? `<li><strong>Domaine :</strong> ${article.domaine}</li>` : ''}
-                        ${article.reseaux_instagram ? `<li><strong>Instagram :</strong> <a href="https://instagram.com/${article.reseaux_instagram.replace('@', '')}" target="_blank">${article.reseaux_instagram}</a></li>` : ''}
-                        ${article.site_web ? `<li><strong>Site web :</strong> <a href="${article.site_web}" target="_blank">${article.site_web}</a></li>` : ''}
+                    <ul style="list-style: none; padding: 0; margin: 15px 0;">
+                        ${article.nom_marque ? `<li style="margin-bottom: 10px;"><strong>Marque :</strong> ${article.nom_marque}</li>` : ''}
+                        ${article.nom_createur ? `<li style="margin-bottom: 10px;"><strong>Créateur :</strong> ${article.nom_createur}</li>` : ''}
+                        ${article.domaine ? `<li style="margin-bottom: 10px;"><strong>Domaine :</strong> ${article.domaine}</li>` : ''}
+                        ${article.reseaux_instagram ? `<li style="margin-bottom: 10px;"><strong>Instagram :</strong> <a href="https://instagram.com/${article.reseaux_instagram.replace('@', '')}" target="_blank" style="color: var(--accent); text-decoration: none;">${article.reseaux_instagram}</a></li>` : ''}
+                        ${article.site_web ? `<li style="margin-bottom: 10px;"><strong>Site web :</strong> <a href="${article.site_web}" target="_blank" style="color: var(--accent); text-decoration: none;">${article.site_web}</a></li>` : ''}
                     </ul>
                     ${article.interview_fr ? `
-                    <div class="interview-section">
-                        <h4>Interview</h4>
-                        <div class="interview-content">${formatArticleContent(article.interview_fr)}</div>
+                    <div class="interview-section" style="margin-top: 20px;">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Interview</h4>
+                        <div class="interview-content" style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid var(--accent);">
+                            ${formatArticleContent(article.interview_fr)}
+                        </div>
                     </div>
                     ` : ''}
                 </div>
@@ -1741,15 +1917,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (article.rubrique === 'culture' && article.type_evenement) {
             html += `
-                <div class="specific-info event-info">
+                <div class="specific-info event-info rounded-article" style="margin: 30px 0; padding: 20px; background: rgba(212, 175, 55, 0.05); border-radius: 10px;">
                     <h3>Informations pratiques</h3>
-                    <ul>
-                        ${article.type_evenement ? `<li><strong>Type :</strong> ${article.type_evenement}</li>` : ''}
-                        ${article.date_evenement ? `<li><strong>Date :</strong> ${new Date(article.date_evenement).toLocaleDateString('fr-FR')}</li>` : ''}
-                        ${article.heure_evenement ? `<li><strong>Heure :</strong> ${article.heure_evenement}</li>` : ''}
-                        ${article.lieu ? `<li><strong>Lieu :</strong> ${article.lieu}</li>` : ''}
-                        ${article.statut_evenement ? `<li><strong>Statut :</strong> ${article.statut_evenement}</li>` : ''}
-                        ${article.lien_evenement ? `<li><strong>Lien :</strong> <a href="${article.lien_evenement}" target="_blank">${article.lien_evenement}</a></li>` : ''}
+                    <ul style="list-style: none; padding: 0; margin: 15px 0;">
+                        ${article.type_evenement ? `<li style="margin-bottom: 10px;"><strong>Type :</strong> ${article.type_evenement}</li>` : ''}
+                        ${article.date_evenement ? `<li style="margin-bottom: 10px;"><strong>Date :</strong> ${new Date(article.date_evenement).toLocaleDateString('fr-FR')}</li>` : ''}
+                        ${article.heure_evenement ? `<li style="margin-bottom: 10px;"><strong>Heure :</strong> ${article.heure_evenement}</li>` : ''}
+                        ${article.lieu ? `<li style="margin-bottom: 10px;"><strong>Lieu :</strong> ${article.lieu}</li>` : ''}
+                        ${article.statut_evenement ? `<li style="margin-bottom: 10px;"><strong>Statut :</strong> ${article.statut_evenement}</li>` : ''}
+                        ${article.lien_evenement ? `<li style="margin-bottom: 10px;"><strong>Lien :</strong> <a href="${article.lien_evenement}" target="_blank" style="color: var(--accent); text-decoration: none;">${article.lien_evenement}</a></li>` : ''}
                     </ul>
                 </div>
             `;
@@ -1884,80 +2060,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🔄 Initialisation des données de la page...');
         detectPageAndLoad();
     };
-    
-    // ============================================
-    // FONCTION SPÉCIALE POUR COULISSES (ARTICLE À LA UNE)
-    // ============================================
-    
-    async function loadCoulissesFeatured() {
-        try {
-            const container = document.getElementById('coulisses-container');
-            const featuredContainer = document.getElementById('coulisses-featured');
-            
-            if (!container) return;
-            
-            // Si vous avez un conteneur "featured" séparé
-            if (featuredContainer) {
-                const { data, error } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .eq('rubrique', 'coulisses')
-                    .eq('statut', 'publié')
-                    .order('date_publication', { ascending: false })
-                    .limit(7);
-                
-                if (error) throw error;
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p class="no-content">Aucun article coulisses pour le moment.</p>';
-                    featuredContainer.innerHTML = '';
-                    return;
-                }
-                
-                // Premier article = à la une
-                const featured = data[0];
-                featuredContainer.innerHTML = `
-                    <article class="featured-article-content">
-                        ${featured.image_url ? `
-                        <img src="${featured.image_url}" alt="${featured.titre_fr}" 
-                             onerror="this.src='https://placehold.co/800x400?text=COULISSES'">
-                        ` : ''}
-                        <div class="featured-info">
-                            <span class="category">COULISSES</span>
-                            <h2>${featured.titre_fr}</h2>
-                            <a href="article.html?id=${featured.id}" class="read-more">Lire l'article →</a>
-                        </div>
-                    </article>
-                `;
-                
-                // Les 6 articles suivants = liste
-                const otherArticles = data.slice(1);
-                if (otherArticles.length > 0) {
-                    container.innerHTML = otherArticles.map(article => `
-                        <article class="article-item">
-                            ${article.image_url ? `
-                            <img src="${article.image_url}" alt="${article.titre_fr}" 
-                                 onerror="this.src='https://placehold.co/300x200?text=ARTICLE'">
-                            ` : ''}
-                            <div class="article-item-info">
-                                <h3>${article.titre_fr}</h3>
-                                <a href="article.html?id=${article.id}" class="read-link">Lire →</a>
-                            </div>
-                        </article>
-                    `).join('');
-                } else {
-                    container.innerHTML = '';
-                }
-            }
-            
-        } catch (error) {
-            console.error('❌ Erreur chargement coulisses:', error);
-            const container = document.getElementById('coulisses-container');
-            if (container) {
-                container.innerHTML = '<p class="error">Erreur de chargement des articles.</p>';
-            }
-        }
-    }
     
     // ============================================
     // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION
