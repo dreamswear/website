@@ -652,55 +652,5 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script> 
-      <script>
-        // Même script JavaScript
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuBtn = document.getElementById('menu-btn');
-            const dropdownMenu = document.getElementById('dropdown-menu');
-            
-            if (menuBtn && dropdownMenu) {
-                menuBtn.addEventListener('click', function() {
-                    dropdownMenu.classList.toggle('show');
-                });
-
-                document.addEventListener('click', function(event) {
-                    if (!menuBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                        dropdownMenu.classList.remove('show');
-                    }
-                });
-            }
-
-            const themeButton = document.getElementById('theme-select-button');
-            const themeOptions = document.getElementById('theme-options');
-            const themeText = document.getElementById('theme-button-text');
-
-            if (themeButton && themeOptions) {
-                themeButton.addEventListener('click', function() {
-                    themeOptions.classList.toggle('show');
-                });
-
-                themeOptions.querySelectorAll('a').forEach(option => {
-                    option.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const theme = this.getAttribute('data-theme');
-                        document.body.setAttribute('data-theme', theme);
-                        localStorage.setItem('theme', theme);
-                        themeText.textContent = theme === 'night' ? 'Sombre' : 'Clair';
-                        themeOptions.classList.remove('show');
-                    });
-                });
-
-                document.addEventListener('click', function(event) {
-                    if (!themeButton.contains(event.target) && !themeOptions.contains(event.target)) {
-                        themeOptions.classList.remove('show');
-                    }
-                });
-
-                const savedTheme = localStorage.getItem('theme') || 'day';
-                document.body.setAttribute('data-theme', savedTheme);
-                themeText.textContent = savedTheme === 'night' ? 'Sombre' : 'Clair';
-            }
-        });
-    </script>
 </body>
 </html>
