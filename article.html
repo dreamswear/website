@@ -269,36 +269,32 @@
             }
         }
         
-        /* Styles pour le thème sombre */
-        [data-theme="night"] {
-            background: #121212;
-            color: #ffffff;
-        }
-        
-        [data-theme="night"] .main-header {
-            background: #1a1a1a;
-        }
-        
-        [data-theme="night"] .logo {
-            color: #ffffff;
-        }
-        
-        [data-theme="night"] .article-header h1 {
-            color: #ffffff;
-        }
-        
-        [data-theme="night"] .article-content {
-            color: #f0f0f0;
-        }
-        
-        [data-theme="night"] .article-content h2,
-        [data-theme="night"] .article-content h3 {
-            color: #ffffff;
-        }
-        
-        [data-theme="night"] .main-footer {
-            background: #0a0a0a;
-        }
+      /* Styles pour le thème sombre */
+[data-theme="night"] {
+    background: #121212;
+    color: #7B1B38 !important; /* Texte en noir */
+}
+
+[data-theme="night"] .article-content {
+    color: #7B1B38 !important; /* Texte en noir */
+}
+
+[data-theme="night"] .article-content p,
+[data-theme="night"] .article-content h2,
+[data-theme="night"] .article-content h3 {
+    color: #7B1B38 !important;
+}
+
+/* Pour le contenu chargé dynamiquement */
+[data-theme="night"] #article-container,
+[data-theme="night"] #article-content {
+    color: #7B1B38 !important;
+}
+
+/* Forcer le texte en noir même avec le thème sombre */
+[data-theme="night"] body {
+    color: #000000 !important;
+}
     </style>
 </head>
 <body>
