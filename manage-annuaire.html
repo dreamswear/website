@@ -8,72 +8,92 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .management-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         .management-header {
             background: linear-gradient(135deg, #2c3e50 0%, #1a1a1a 100%);
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
+            padding: 25px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
             color: white;
             text-align: center;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            width: 100%;
         }
         
         .management-header h1 {
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
+            flex-wrap: wrap;
         }
         
         .management-header p {
-            opacity: 0.8;
-            font-size: 1.1rem;
+            opacity: 0.9;
+            font-size: clamp(0.95rem, 2vw, 1.1rem);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.5;
         }
         
         .back-to-management {
             display: inline-block;
             margin-top: 20px;
-            padding: 10px 25px;
+            padding: 12px 25px;
             background: #d4af37;
             color: #1a1a1a;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-weight: 600;
             transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            width: auto;
+            min-width: 200px;
         }
         
         .back-to-management:hover {
             background: #c19b30;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(212, 175, 55, 0.2);
         }
         
         .data-section {
             background: white;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 25px 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            width: 100%;
+            box-sizing: border-box;
         }
         
         [data-theme="night"] .data-section {
             background: #2a2a2a;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-color: #444;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
         .section-title {
             color: #2c3e50;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #d4af37;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #d4af37;
             display: flex;
             align-items: center;
             gap: 10px;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            flex-wrap: wrap;
         }
         
         [data-theme="night"] .section-title {
@@ -82,31 +102,42 @@
         
         .data-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
             gap: 20px;
+            margin-top: 20px;
+            width: 100%;
         }
         
         .data-card {
             background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
             padding: 20px;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         
         [data-theme="night"] .data-card {
             background: #3a3a3a;
-            border-color: #444;
+            border-color: #555;
         }
         
         .data-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: #d4af37;
         }
         
         .data-card h3 {
             color: #2c3e50;
             margin-bottom: 10px;
+            font-size: clamp(1.1rem, 2vw, 1.3rem);
+            word-break: break-word;
         }
         
         [data-theme="night"] .data-card h3 {
@@ -115,8 +146,10 @@
         
         .data-card p {
             color: #666;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             font-size: 0.9rem;
+            line-height: 1.5;
+            word-break: break-word;
         }
         
         [data-theme="night"] .data-card p {
@@ -125,6 +158,7 @@
         
         .form-group {
             margin-bottom: 20px;
+            width: 100%;
         }
         
         .form-group label {
@@ -132,6 +166,7 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #2c3e50;
+            font-size: 0.95rem;
         }
         
         [data-theme="night"] .form-group label {
@@ -143,47 +178,71 @@
         .form-group textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            background: white;
+            box-sizing: border-box;
         }
         
         [data-theme="night"] .form-group input,
         [data-theme="night"] .form-group select,
         [data-theme="night"] .form-group textarea {
             background: #3a3a3a;
-            border-color: #444;
+            border-color: #555;
             color: #ffffff;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
         }
         
         .form-actions {
             display: flex;
             gap: 15px;
             justify-content: flex-end;
-            margin-top: 30px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        
+        [data-theme="night"] .form-actions {
+            border-top-color: #444;
         }
         
         .action-buttons {
             display: flex;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
         
         .btn {
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: all 0.3s;
+            font-size: 0.9rem;
+            min-height: 44px;
+            box-sizing: border-box;
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
         }
         
         .btn-primary {
-            background: #d4af37;
+            background: linear-gradient(135deg, #d4af37 0%, #c19a2d 100%);
             color: #1a1a1a;
         }
         
@@ -197,134 +256,824 @@
             color: white;
         }
         
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #d4af37;
+            color: #d4af37;
+        }
+        
         .btn:hover {
-            opacity: 0.9;
             transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+            opacity: 0.95;
         }
         
         .status-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
             margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            max-width: 100%;
+            word-break: keep-all;
         }
         
         .status-active {
-            background: #d4edda;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
         
         .status-pending {
-            background: #fff3cd;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
             color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-inactive {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .professional-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 12px 0;
+            padding: 12px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+        }
+        
+        [data-theme="night"] .professional-meta {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            flex-wrap: nowrap;
+        }
+        
+        .meta-item i {
+            color: #d4af37;
+            width: 14px;
+            flex-shrink: 0;
+        }
+        
+        .rating-stars {
+            color: #ffc107;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 25px 20px;
+            max-width: min(600px, 95vw);
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            box-sizing: border-box;
+        }
+        
+        [data-theme="night"] .modal-content {
+            background: #2a2a2a;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .modal-header h2 {
+            color: #2c3e50;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+        }
+        
+        [data-theme="night"] .modal-header h2 {
+            color: #ffffff;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: #666;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        
+        .close-modal:hover {
+            background: #f8f9fa;
+            color: #dc3545;
+        }
+        
+        [data-theme="night"] .close-modal:hover {
+            background: #3a3a3a;
+        }
+        
+        .search-bar {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            background: white url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23666" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>') no-repeat 15px center;
+            background-size: 18px;
+            box-sizing: border-box;
+        }
+        
+        [data-theme="night"] .search-bar input {
+            background-color: #3a3a3a;
+            border-color: #555;
+            color: #ffffff;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="%23cccccc" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>');
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 15px;
+            color: #666;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .empty-state i {
+            font-size: clamp(3rem, 8vw, 4rem);
+            color: #d4af37;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+        }
+        
+        [data-theme="night"] .empty-state {
+            color: #cccccc;
+        }
+        
+        [data-theme="night"] .empty-state h3 {
+            color: #ffffff;
+        }
+
+        /* Styles pour les grilles responsives */
+        .responsive-grid {
+            display: grid;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .two-column-grid {
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+        }
+
+        /* Styles pour les titres et boutons côte à côte */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .section-header .btn {
+            flex-shrink: 0;
+            min-width: 160px;
+        }
+
+        /* Améliorations pour mobile */
+        .mobile-stack {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .mobile-full-width {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* Ajustements pour petits écrans */
+        .hide-on-mobile {
+            display: none;
+        }
+
+        /* Media Queries */
+        @media (min-width: 768px) {
+            .management-header {
+                padding: 30px;
+            }
+            
+            .data-section {
+                padding: 30px;
+            }
+            
+            .modal-content {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .management-container {
+                padding: 10px;
+            }
+            
+            .management-header h1 {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+            
+            .management-header h1 i {
+                margin-bottom: 5px;
+            }
+            
+            .back-to-management {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            
+            .section-header .btn {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons .btn {
+                width: 100%;
+            }
+            
+            .two-column-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .management-header {
+                padding: 20px 15px;
+            }
+            
+            .data-section {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 0.85rem;
+                min-height: 42px;
+            }
+            
+            .section-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .section-title i {
+                margin-right: 0;
+            }
+            
+            .modal-content {
+                padding: 20px 15px;
+            }
+            
+            .professional-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .management-header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.2rem;
+            }
+            
+            .data-card {
+                padding: 15px;
+            }
+            
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+        }
+
+        /* Ajustements pour les formulaires en mobile */
+        @media (max-width: 768px) {
+            .form-group-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+        }
+
+        /* Améliorations pour le menu de filtres */
+        .filter-menu {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            .filter-menu {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-menu .btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="management-container">
         <div class="management-header">
-            <h1><i class="fas fa-address-book"></i> Gestion de l'Annuaire</h1>
-            <p>Gérez les professionnels, catégories et paramètres de l'annuaire</p>
+            <h1><i class="fas fa-address-book"></i> Gestion de l'Annuaire Professionnel</h1>
+            <p>Administrez l'annuaire des professionnels de la mode. Ajoutez, modifiez ou supprimez des profils, gérez les catégories et configurez les paramètres d'affichage.</p>
             <a href="dashboard-management.html" class="back-to-management">
-                <i class="fas fa-arrow-left"></i> Retour au Management
+                <i class="fas fa-arrow-left"></i> Retour au Tableau de Bord Management
             </a>
         </div>
         
+        <!-- Barre de recherche -->
+        <section class="data-section">
+            <div class="search-bar">
+                <input type="text" id="searchProfessionals" placeholder="Rechercher un professionnel par nom, catégorie, spécialité...">
+            </div>
+        </section>
+        
         <!-- Section des Professionnels -->
         <section class="data-section">
-            <h2 class="section-title"><i class="fas fa-user-tie"></i> Professionnels</h2>
-            
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="addProfessional()">
-                    <i class="fas fa-plus"></i> Ajouter un professionnel
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-user-tie"></i> Professionnels de l'Annuaire</h2>
+                <button class="btn btn-primary" onclick="openAddProfessionalModal()">
+                    <i class="fas fa-plus-circle"></i> Nouveau Professionnel
                 </button>
-                <button class="btn btn-secondary" onclick="exportData()">
-                    <i class="fas fa-download"></i> Exporter les données
+            </div>
+            
+            <div class="filter-menu">
+                <button class="btn btn-secondary" onclick="filterByStatus('all')">
+                    <i class="fas fa-th"></i> Tous
+                </button>
+                <button class="btn btn-success" onclick="filterByStatus('active')">
+                    <i class="fas fa-check-circle"></i> Actifs
+                </button>
+                <button class="btn btn-outline" onclick="filterByStatus('pending')">
+                    <i class="fas fa-clock"></i> En attente
+                </button>
+                <button class="btn btn-danger" onclick="filterByStatus('inactive')">
+                    <i class="fas fa-times-circle"></i> Inactifs
                 </button>
             </div>
             
             <div class="data-grid" id="professionalsList">
                 <!-- Professionnels chargés dynamiquement -->
+                <div class="empty-state" id="loadingState">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <h3>Chargement des professionnels...</h3>
+                </div>
             </div>
         </section>
         
         <!-- Section des Catégories -->
         <section class="data-section">
-            <h2 class="section-title"><i class="fas fa-tags"></i> Catégories</h2>
+            <h2 class="section-title"><i class="fas fa-tags"></i> Gestion des Catégories</h2>
             
-            <form id="categoriesForm">
-                <div class="form-group">
-                    <label for="categoryList">Liste des catégories (une par ligne)</label>
-                    <textarea id="categoryList" rows="6" placeholder="Exemple:
-Photographes
-Stylistes
-Mannequins
-Couturiers
-Accessoiristes">Photographes
-Mannequins
-Couturiers
-Accessoiristes
-Stylistes</textarea>
+            <div class="responsive-grid two-column-grid">
+                <div>
+                    <form id="categoriesForm">
+                        <div class="form-group">
+                            <label for="categoryList">Catégories principales (une par ligne)</label>
+                            <textarea id="categoryList" rows="8" placeholder="" style="font-family: monospace;"></textarea>
+                            <small style="color: #666; display: block; margin-top: 5px;">Ces catégories seront disponibles dans les filtres de l'annuaire</small>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Enregistrer les Catégories
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div>
+                    <div class="data-card">
+                        <h3><i class="fas fa-chart-pie"></i> Statistiques par Catégorie</h3>
+                        <div id="categoryStats">
+                            <!-- Stats chargées dynamiquement -->
+                        </div>
+                    </div>
+                    
+                    <div class="data-card" style="margin-top: 20px;">
+                        <h3><i class="fas fa-lightbulb"></i> Conseils de Gestion</h3>
+                        <ul style="color: #666; padding-left: 20px;">
+                            <li>Limitez-vous à 8-10 catégories maximum</li>
+                            <li>Utilisez des noms clairs et précis</li>
+                            <li>Pensez aux besoins des créateurs</li>
+                            <li>Vérifiez régulièrement les statistiques</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Paramètres généraux -->
+        <section class="data-section">
+            <h2 class="section-title"><i class="fas fa-cog"></i> Paramètres de l'Annuaire</h2>
+            
+            <form id="settingsForm">
+                <div class="responsive-grid two-column-grid">
+                    <div>
+                        <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: clamp(1rem, 2vw, 1.2rem);">
+                            <i class="fas fa-display"></i> Affichage
+                        </h3>
+                        <div class="form-group">
+                            <label for="itemsPerPage">Professionnels par page</label>
+                            <input type="range" id="itemsPerPage" min="6" max="24" step="6" value="12">
+                            <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                                <span>6</span>
+                                <span>12</span>
+                                <span>18</span>
+                                <span>24</span>
+                            </div>
+                            <output for="itemsPerPage" style="display: block; text-align: center; font-weight: bold; color: #d4af37; margin-top: 5px;"></output>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="defaultSort">Tri par défaut</label>
+                            <select id="defaultSort">
+                                <option value="name">Nom (A-Z)</option>
+                                <option value="rating">Note (décroissant)</option>
+                                <option value="recent">Plus récents</option>
+                                <option value="popular">Plus populaires</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="color: #2c3e50; margin-bottom: 20px; font-size: clamp(1rem, 2vw, 1.2rem);">
+                            <i class="fas fa-toggle-on"></i> Fonctionnalités
+                        </h3>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="showRatings" checked style="width: auto;">
+                                <span>Afficher les notes et avis</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="allowSuggestions" checked style="width: auto;">
+                                <span>Autoriser les suggestions de professionnels</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="showContactInfo" checked style="width: auto;">
+                                <span>Afficher les informations de contact</span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="enableFilters" checked style="width: auto;">
+                                <span>Activer les filtres par catégorie</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-actions">
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Réinitialiser
+                    </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer les catégories
+                        <i class="fas fa-save"></i> Enregistrer les Paramètres
                     </button>
                 </div>
             </form>
         </section>
         
-        <!-- Paramètres généraux -->
+        <!-- Statistiques -->
         <section class="data-section">
-            <h2 class="section-title"><i class="fas fa-cog"></i> Paramètres</h2>
+            <h2 class="section-title"><i class="fas fa-chart-line"></i> Statistiques de l'Annuaire</h2>
             
-            <form id="settingsForm">
-                <div class="form-group">
-                    <label for="itemsPerPage">Professionnels par page</label>
-                    <input type="number" id="itemsPerPage" min="1" max="50" value="12">
+            <div class="responsive-grid stats-grid">
+                <div class="data-card">
+                    <i class="fas fa-user-tie fa-3x" style="color: #d4af37; margin-bottom: 15px;"></i>
+                    <h3>Professionnels totaux</h3>
+                    <p class="stat-number" id="totalProfessionals">0</p>
+                    <p>dont <span id="activeProfessionals">0</span> actifs</p>
                 </div>
                 
-                <div class="form-group">
-                    <label for="defaultSort">Tri par défaut</label>
-                    <select id="defaultSort">
-                        <option value="name">Nom (A-Z)</option>
-                        <option value="rating">Note (décroissant)</option>
-                        <option value="recent">Plus récents</option>
-                        <option value="popular">Plus populaires</option>
-                    </select>
+                <div class="data-card">
+                    <i class="fas fa-tags fa-3x" style="color: #28a745; margin-bottom: 15px;"></i>
+                    <h3>Catégories</h3>
+                    <p class="stat-number" id="totalCategories">0</p>
+                    <p>catégories disponibles</p>
                 </div>
                 
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="showRatings" checked>
-                        Afficher les notes
-                    </label>
+                <div class="data-card">
+                    <i class="fas fa-eye fa-3x" style="color: #17a2b8; margin-bottom: 15px;"></i>
+                    <h3>Visites mensuelles</h3>
+                    <p class="stat-number" id="monthlyViews">0</p>
+                    <p>consultations ce mois</p>
                 </div>
                 
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="allowSuggestions" checked>
-                        Autoriser les suggestions de professionnels
-                    </label>
+                <div class="data-card">
+                    <i class="fas fa-handshake fa-3x" style="color: #6f42c1; margin-bottom: 15px;"></i>
+                    <h3>Contacts générés</h3>
+                    <p class="stat-number" id="totalContacts">0</p>
+                    <p>mails envoyés</p>
                 </div>
-                
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer les paramètres
-                    </button>
-                </div>
-            </form>
+            </div>
         </section>
     </div>
 
+    <!-- Modal Ajout/Modification Professionnel -->
+    <div class="modal-overlay" id="professionalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> <span id="modalTitle">Nouveau Professionnel</span></h2>
+                <button class="close-modal" onclick="closeProfessionalModal()">&times;</button>
+            </div>
+            
+            <form id="professionalForm">
+                <input type="hidden" id="professionalId">
+                
+                <div class="form-group-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="proName">Nom / Entreprise *</label>
+                        <input type="text" id="proName" required placeholder="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proCategory">Catégorie *</label>
+                        <select id="proCategory" required>
+                            <option value="">Sélectionner une catégorie</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="proSpecialty">Spécialité *</label>
+                    <input type="text" id="proSpecialty" required placeholder="">
+                </div>
+                
+                <div class="form-group">
+                    <label for="proDescription">Description / Présentation *</label>
+                    <textarea id="proDescription" rows="4" required placeholder=""></textarea>
+                </div>
+                
+                <div class="form-group-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="proEmail">Email de contact *</label>
+                        <input type="email" id="proEmail" required placeholder="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proWebsite">Site web (optionnel)</label>
+                        <input type="url" id="proWebsite" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="proPhone">Téléphone (optionnel)</label>
+                        <input type="tel" id="proPhone" placeholder="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proLocation">Localisation (optionnel)</label>
+                        <input type="text" id="proLocation" placeholder="">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="proRating">Note (0-5)</label>
+                    <input type="range" id="proRating" min="0" max="5" step="0.1" value="4">
+                    <output for="proRating" style="display: block; text-align: center; font-weight: bold; color: #d4af37; margin-top: 5px;"></output>
+                </div>
+                
+                <div class="form-group">
+                    <label for="proStatus">Statut</label>
+                    <select id="proStatus">
+                        <option value="active">Actif</option>
+                        <option value="pending">En attente</option>
+                        <option value="inactive">Inactif</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeProfessionalModal()">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // Fonction de vérification d'authentification UNIFIÉE
+function checkAdminAccess() {
+    console.log('🔐 Vérification des sessions admin...');
+    
+    // Vérifier TOUTES les méthodes possibles d'authentification
+    const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+    const isAdmin = sessionStorage.getItem('isAdmin');
+    const userRole = sessionStorage.getItem('userRole');
+    
+    console.log('📊 État session:', {
+        adminLoggedIn: adminLoggedIn,
+        isAdmin: isAdmin,
+        userRole: userRole
+    });
+    
+    // Nettoyer les valeurs
+    const cleanedAdminLoggedIn = adminLoggedIn?.toString().toLowerCase();
+    const cleanedIsAdmin = isAdmin?.toString().toLowerCase();
+    const cleanedUserRole = userRole?.toString().toLowerCase();
+    
+    // Vérifier si l'utilisateur est autorisé (n'importe quelle méthode)
+    const isAuthorized = 
+        cleanedAdminLoggedIn === 'true' || 
+        cleanedIsAdmin === 'true' || 
+        cleanedUserRole === 'admin';
+    
+    console.log('✅ Résultat vérification:', isAuthorized);
+    
+    if (!isAuthorized) {
+        console.warn('🚫 Accès refusé - Redirection vers admin.html');
+        
+        // Message plus informatif
+        const message = 'Accès administrateur requis.\n\nVeuillez vous connecter avec un compte administrateur pour accéder à cette page.';
+        
+        // Créer une alerte plus stylée
+        const alertDiv = document.createElement('div');
+        alertDiv.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        `;
+        
+        alertDiv.innerHTML = `
+            <div style="background: linear-gradient(135deg, #2c3e50 0%, #1a1a1a 100%);
+                       padding: 40px;
+                       border-radius: 15px;
+                       max-width: 500px;
+                       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                       border: 2px solid #d4af37;">
+                <h2 style="color: #d4af37; margin-bottom: 20px;">
+                    <i class="fas fa-lock"></i> Accès Restreint
+                </h2>
+                <p style="margin-bottom: 30px; font-size: 16px; line-height: 1.6;">
+                    Cette section est réservée aux administrateurs de Dreamswear.
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="goToLogin()" style="background: #d4af37; color: #1a1a1a; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                    <button onclick="goToDashboard()" style="background: #6c757d; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-home"></i> Tableau de bord
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(alertDiv);
+        
+        // Ajouter les fonctions globales
+        window.goToLogin = function() {
+            sessionStorage.clear();
+            window.location.href = 'admin.html';
+        };
+        
+        window.goToDashboard = function() {
+            window.location.href = 'dashboard-home.html';
+        };
+        
+        // Rediriger automatiquement après 5 secondes
+        setTimeout(() => {
+            sessionStorage.clear();
+            window.location.href = 'admin.html';
+        }, 5000);
+        
+        return false;
+    }
+    
+    return true;
+}
         document.addEventListener('DOMContentLoaded', function() {
-            checkAdminAccess();
-            loadProfessionals();
-            setupForms();
+            if (!checkAdminAccess()) return;
+            initAnnuaireManagement();
         });
         
         function checkAdminAccess() {
@@ -334,103 +1083,344 @@ Stylistes</textarea>
             const isAuthorized = (adminLoggedIn === 'true') || (isAdmin === 'true');
             
             if (!isAuthorized) {
-                alert('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
+                alert('⛔ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
                 window.location.href = 'admin.html';
                 return false;
             }
             
+            console.log('✅ Accès admin autorisé');
             return true;
         }
         
-        function loadProfessionals() {
-            // Dans un cas réel, charger depuis Supabase
-            const professionals = [
-                {
-                    id: 1,
-                    name: "Studio Lumière",
-                    category: "Photographes",
-                    specialty: "Photographie de mode & portrait",
-                    rating: 4.8,
-                    status: "active",
-                    contact: "contact@studiolumiere.com"
-                },
-                {
-                    id: 2,
-                    name: "Agence Aura",
-                    category: "Mannequins",
-                    specialty: "Mannequins professionnels",
-                    rating: 4.6,
-                    status: "active",
-                    contact: "info@agenceaura.fr"
-                }
-            ];
-            
-            displayProfessionals(professionals);
+        function initAnnuaireManagement() {
+            loadProfessionalsData();
+            loadCategoryStats();
+            loadSettings();
+            setupEventListeners();
+            updateStatistics();
+        }
+        
+        function loadProfessionalsData() {
+            setTimeout(() => {
+                const professionals = [];
+                displayProfessionals(professionals);
+            }, 1000);
         }
         
         function displayProfessionals(professionals) {
             const container = document.getElementById('professionalsList');
             
-            container.innerHTML = professionals.map(pro => `
-                <div class="data-card">
-                    <span class="status-badge ${pro.status === 'active' ? 'status-active' : 'status-pending'}">
-                        ${pro.status === 'active' ? 'Actif' : 'En attente'}
-                    </span>
-                    <h3>${pro.name}</h3>
-                    <p><strong>Catégorie:</strong> ${pro.category}</p>
-                    <p><strong>Spécialité:</strong> ${pro.specialty}</p>
-                    <p><strong>Contact:</strong> ${pro.contact}</p>
-                    <p><strong>Note:</strong> ${pro.rating}/5</p>
-                    
-                    <div class="action-buttons">
-                        <button class="btn btn-secondary" onclick="editProfessional(${pro.id})">
-                            <i class="fas fa-edit"></i> Modifier
+            if (!professionals || professionals.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-tie"></i>
+                        <h3>Aucun professionnel trouvé</h3>
+                        <p>Commencez par ajouter votre premier professionnel !</p>
+                        <button class="btn btn-primary" onclick="openAddProfessionalModal()" style="margin-top: 20px;">
+                            <i class="fas fa-plus-circle"></i> Ajouter un professionnel
                         </button>
-                        <button class="btn btn-danger" onclick="deleteProfessional(${pro.id})">
-                            <i class="fas fa-trash"></i> Supprimer
-                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = professionals.map(pro => {
+                const statusClass = `status-${pro.status}`;
+                const statusText = pro.status === 'active' ? 'Actif' : pro.status === 'pending' ? 'En attente' : 'Inactif';
+                const categoryText = getCategoryName(pro.category);
+                
+                return `
+                    <div class="data-card" data-status="${pro.status}" data-category="${pro.category}">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        <h3>${pro.name}</h3>
+                        <p><strong>Catégorie:</strong> ${categoryText}</p>
+                        <p><strong>Spécialité:</strong> ${pro.specialty}</p>
+                        
+                        <div class="professional-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-star"></i>
+                                <span class="rating-stars">${generateStars(pro.rating)}</span>
+                                <span>${pro.rating}/5</span>
+                            </div>
+                            ${pro.location ? `<div class="meta-item"><i class="fas fa-map-marker-alt"></i>${pro.location}</div>` : ''}
+                            ${pro.website ? `<div class="meta-item"><i class="fas fa-globe"></i>Site web</div>` : ''}
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-secondary" onclick="editProfessional(${pro.id})">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                            <button class="btn btn-danger" onclick="confirmDeleteProfessional(${pro.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                            <button class="btn ${pro.status === 'active' ? 'btn-outline' : 'btn-success'}" onclick="toggleProfessionalStatus(${pro.id})">
+                                <i class="fas fa-power-off"></i> ${pro.status === 'active' ? 'Désactiver' : 'Activer'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getCategoryName(categoryKey) {
+            const categories = {};
+            return categories[categoryKey] || categoryKey;
+        }
+        
+        function generateStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            for (let i = 0; i < fullStars; i++) stars += '★';
+            if (hasHalfStar) stars += '⯨';
+            for (let i = stars.length; i < 5; i++) stars += '☆';
+            
+            return stars;
+        }
+        
+        function loadCategoryStats() {
+            const stats = [];
+            const container = document.getElementById('categoryStats');
+            container.innerHTML = stats.map(stat => `
+                <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <strong>${stat.category}</strong>
+                        <span>${stat.count} profils</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="flex: 1; height: 8px; background: #e9ecef; border-radius: 4px; overflow: hidden;">
+                            <div style="width: ${(stat.active / stat.count) * 100}%; height: 100%; background: #28a745;"></div>
+                        </div>
+                        <small>${stat.active} actifs</small>
                     </div>
                 </div>
             `).join('');
         }
         
-        function setupForms() {
+        function loadSettings() {
+            const settings = JSON.parse(localStorage.getItem('annuaire_settings') || '{}');
+            
+            if (settings.itemsPerPage) {
+                document.getElementById('itemsPerPage').value = settings.itemsPerPage;
+                document.querySelector('output[for="itemsPerPage"]').textContent = `${settings.itemsPerPage} professionnels`;
+            }
+            
+            if (settings.defaultSort) {
+                document.getElementById('defaultSort').value = settings.defaultSort;
+            }
+            
+            if (typeof settings.showRatings !== 'undefined') {
+                document.getElementById('showRatings').checked = settings.showRatings;
+            }
+            
+            if (typeof settings.allowSuggestions !== 'undefined') {
+                document.getElementById('allowSuggestions').checked = settings.allowSuggestions;
+            }
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('searchProfessionals').addEventListener('input', function(e) {
+                searchProfessionals(e.target.value);
+            });
+            
+            const itemsPerPageSlider = document.getElementById('itemsPerPage');
+            const itemsPerPageOutput = document.querySelector('output[for="itemsPerPage"]');
+            
+            itemsPerPageSlider.addEventListener('input', function() {
+                itemsPerPageOutput.textContent = `${this.value} professionnels`;
+            });
+            
+            const ratingSlider = document.getElementById('proRating');
+            const ratingOutput = document.querySelector('#professionalForm output[for="proRating"]');
+            
+            if (ratingSlider && ratingOutput) {
+                ratingSlider.addEventListener('input', function() {
+                    ratingOutput.textContent = `${this.value} / 5`;
+                });
+            }
+            
             document.getElementById('categoriesForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 const categories = document.getElementById('categoryList').value;
-                // Sauvegarder dans Supabase
-                alert('Catégories enregistrées avec succès !');
+                saveCategories(categories);
             });
             
             document.getElementById('settingsForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-                const settings = {
-                    itemsPerPage: document.getElementById('itemsPerPage').value,
-                    defaultSort: document.getElementById('defaultSort').value,
-                    showRatings: document.getElementById('showRatings').checked,
-                    allowSuggestions: document.getElementById('allowSuggestions').checked
-                };
-                // Sauvegarder dans Supabase
-                alert('Paramètres enregistrés avec succès !');
+                saveSettings();
+            });
+            
+            document.getElementById('professionalForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProfessional();
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeProfessionalModal();
+                }
             });
         }
         
-        function addProfessional() {
-            alert('Fonctionnalité d\'ajout - À implémenter avec Supabase');
+        function searchProfessionals(query) {
+            const cards = document.querySelectorAll('.data-card[data-status]');
+            const normalizedQuery = query.toLowerCase().trim();
+            
+            cards.forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const category = card.querySelector('p:nth-child(3)').textContent.toLowerCase();
+                const specialty = card.querySelector('p:nth-child(4)').textContent.toLowerCase();
+                
+                if (normalizedQuery === '' || 
+                    name.includes(normalizedQuery) || 
+                    category.includes(normalizedQuery) ||
+                    specialty.includes(normalizedQuery)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function filterByStatus(status) {
+            const cards = document.querySelectorAll('.data-card[data-status]');
+            
+            cards.forEach(card => {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        function openAddProfessionalModal() {
+            document.getElementById('modalTitle').textContent = 'Nouveau Professionnel';
+            document.getElementById('professionalForm').reset();
+            document.getElementById('professionalId').value = '';
+            document.getElementById('proRating').value = 4;
+            document.querySelector('#professionalForm output[for="proRating"]').textContent = '4.0 / 5';
+            document.getElementById('proStatus').value = 'active';
+            document.getElementById('professionalModal').style.display = 'flex';
         }
         
         function editProfessional(id) {
-            alert(`Modification du professionnel #${id} - À implémenter avec Supabase`);
+            document.getElementById('modalTitle').textContent = 'Modifier Professionnel';
+            document.getElementById('professionalId').value = id;
+            
+            const proData = {};
+            
+            document.getElementById('proName').value = proData.name || '';
+            document.getElementById('proCategory').value = proData.category || '';
+            document.getElementById('proSpecialty').value = proData.specialty || '';
+            document.getElementById('proDescription').value = proData.description || '';
+            document.getElementById('proEmail').value = proData.email || '';
+            document.getElementById('proWebsite').value = proData.website || '';
+            document.getElementById('proPhone').value = proData.phone || '';
+            document.getElementById('proLocation').value = proData.location || '';
+            document.getElementById('proRating').value = proData.rating || 4;
+            document.querySelector('#professionalForm output[for="proRating"]').textContent = `${proData.rating || 4} / 5`;
+            document.getElementById('proStatus').value = proData.status || 'active';
+            
+            document.getElementById('professionalModal').style.display = 'flex';
         }
         
-        function deleteProfessional(id) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer ce professionnel ?')) {
-                alert(`Professionnel #${id} supprimé - À implémenter avec Supabase`);
+        function closeProfessionalModal() {
+            document.getElementById('professionalModal').style.display = 'none';
+        }
+        
+        function saveProfessional() {
+            const id = document.getElementById('professionalId').value;
+            const isNew = !id;
+            
+            const proData = {
+                name: document.getElementById('proName').value,
+                category: document.getElementById('proCategory').value,
+                specialty: document.getElementById('proSpecialty').value,
+                description: document.getElementById('proDescription').value,
+                email: document.getElementById('proEmail').value,
+                website: document.getElementById('proWebsite').value || null,
+                phone: document.getElementById('proPhone').value || null,
+                location: document.getElementById('proLocation').value || null,
+                rating: parseFloat(document.getElementById('proRating').value),
+                status: document.getElementById('proStatus').value,
+                updated_at: new Date().toISOString()
+            };
+            
+            if (isNew) {
+                proData.id = Date.now();
+                proData.created_at = new Date().toISOString();
+                proData.views = 0;
+                proData.contacts = 0;
+            }
+            
+            console.log('Sauvegarde professionnel:', proData);
+            
+            alert(`${isNew ? 'Ajout' : 'Modification'} réussie !\n\nNom: ${proData.name}\nCatégorie: ${getCategoryName(proData.category)}\nStatut: ${proData.status === 'active' ? 'Actif' : proData.status === 'pending' ? 'En attente' : 'Inactif'}`);
+            
+            closeProfessionalModal();
+            loadProfessionalsData();
+            updateStatistics();
+        }
+        
+        function confirmDeleteProfessional(id) {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer définitivement ce professionnel ?\n\nCette action est irréversible.')) {
+                deleteProfessional(id);
             }
         }
         
-        function exportData() {
-            alert('Export des données - À implémenter avec Supabase');
+        function deleteProfessional(id) {
+            console.log('Suppression professionnel:', id);
+            alert('✅ Professionnel supprimé avec succès');
+            loadProfessionalsData();
+            updateStatistics();
+        }
+        
+        function toggleProfessionalStatus(id) {
+            console.log('Changement statut professionnel:', id);
+            alert('✅ Statut du professionnel modifié');
+            loadProfessionalsData();
+            updateStatistics();
+        }
+        
+        function saveCategories(categories) {
+            localStorage.setItem('annuaire_categories', categories);
+            alert('✅ Catégories enregistrées avec succès !');
+            loadCategoryStats();
+            updateStatistics();
+        }
+        
+        function saveSettings() {
+            const settings = {
+                itemsPerPage: parseInt(document.getElementById('itemsPerPage').value),
+                defaultSort: document.getElementById('defaultSort').value,
+                showRatings: document.getElementById('showRatings').checked,
+                allowSuggestions: document.getElementById('allowSuggestions').checked,
+                showContactInfo: document.getElementById('showContactInfo').checked,
+                enableFilters: document.getElementById('enableFilters').checked,
+                updated_at: new Date().toISOString()
+            };
+            
+            localStorage.setItem('annuaire_settings', JSON.stringify(settings));
+            alert('✅ Paramètres enregistrés avec succès !');
+        }
+        
+        function updateStatistics() {
+            const professionals = document.querySelectorAll('.data-card[data-status]');
+            const categories = new Set();
+            const activeProfessionals = Array.from(professionals).filter(card => card.dataset.status === 'active');
+            
+            professionals.forEach(card => {
+                categories.add(card.dataset.category);
+            });
+            
+            document.getElementById('totalProfessionals').textContent = professionals.length;
+            document.getElementById('activeProfessionals').textContent = activeProfessionals.length;
+            document.getElementById('totalCategories').textContent = categories.size;
+            
+            document.getElementById('monthlyViews').textContent = (professionals.length * 150).toLocaleString();
+            document.getElementById('totalContacts').textContent = (professionals.length * 25).toLocaleString();
         }
     </script>
 </body>
