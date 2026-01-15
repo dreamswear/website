@@ -341,6 +341,153 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-   <script src="script.js"></script>
+    <script>
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadArticle();
+        });
+        
+        async function loadArticle() {
+            const container = document.getElementById('article-container');
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+            
+            if (!articleId) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Article non trouvé.</p><a href="index.html" class="back-button">Retour à l\'accueil</a></div>';
+                return;
+            }
+            
+            try {
+                container.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Chargement...</p></div>';
+                
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('id', articleId)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (!data || data.statut !== 'publié') {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px;"><p>Article non disponible.</p><a href="index.html" class="back-button">Retour à l\'accueil</a></div>';
+                    return;
+                }
+                
+                // Formater la date
+                const date = new Date(data.date_publication);
+                const formattedDate = date.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                
+                // Construire le contenu HTML
+                let html = `
+                    <article class="article-header">
+                        ${data.image_url ? `
+                        <img src="${data.image_url}" 
+                             alt="${data.titre_fr}" 
+                             onerror="this.src='https://placehold.co/800x400?text=ARTICLE'"
+                             loading="lazy">
+                        ` : ''}
+                        
+                        <h1>${data.titre_fr}</h1>
+                        
+                        <div class="article-meta">
+                            <span><i class="far fa-calendar"></i> ${formattedDate}</span>
+                            <span><i class="fas fa-user"></i> ${data.auteur || 'Rédaction'}</span>
+                            ${data.rubrique ? `<span><i class="fas fa-tag"></i> ${data.rubrique}</span>` : ''}
+                        </div>
+                    </article>
+                    
+                    <div class="article-content">
+                `;
+                
+                // Ajouter le contenu avec formatage basique
+                if (data.contenu_fr) {
+                    html += formatContent(data.contenu_fr);
+                } else {
+                    html += '<p>Contenu non disponible.</p>';
+                }
+                
+                // Ajouter les informations spécifiques selon la rubrique
+                if (data.rubrique === 'visages') {
+                    html += `
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 30px 0;">
+                            <h3>À propos du créateur</h3>
+                            ${data.nom_marque ? `<p><strong>Marque :</strong> ${data.nom_marque}</p>` : ''}
+                            ${data.domaine ? `<p><strong>Domaine :</strong> ${data.domaine}</p>` : ''}
+                            ${data.reseaux_instagram ? `<p><strong>Instagram :</strong> <a href="https://instagram.com/${data.reseaux_instagram.replace('@', '')}" target="_blank">${data.reseaux_instagram}</a></p>` : ''}
+                            ${data.site_web ? `<p><strong>Site web :</strong> <a href="${data.site_web}" target="_blank">${data.site_web}</a></p>` : ''}
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+                
+                container.innerHTML = html;
+                
+                // Mettre à jour le titre de la page
+                document.title = `${data.titre_fr} - DREAMSWEAR MAG`;
+                
+            } catch (error) {
+                console.error('Erreur chargement article:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <p>Erreur de chargement de l'article. Veuillez réessayer.</p>
+                        <a href="index.html" class="back-button">Retour à l'accueil</a>
+                    </div>
+                `;
+            }
+        }
+        
+        function formatContent(content) {
+            if (!content) return '';
+            
+            // Convertir les retours à la ligne en paragraphes
+            let formatted = content
+                .split('\n\n')  // Séparer par paragraphes
+                .map(paragraph => {
+                    if (paragraph.trim() === '') return '';
+                    
+                    // Détecter les titres (commençant par #, ##, ###)
+                    if (paragraph.startsWith('# ')) {
+                        return `<h2>${paragraph.substring(2)}</h2>`;
+                    } else if (paragraph.startsWith('## ')) {
+                        return `<h3>${paragraph.substring(3)}</h3>`;
+                    } else if (paragraph.startsWith('### ')) {
+                        return `<h4>${paragraph.substring(4)}</h4>`;
+                    }
+                    
+                    // Formater le texte en gras (**texte**)
+                    paragraph = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    
+                    // Formater le texte en italique (*texte*)
+                    paragraph = paragraph.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    
+                    // Créer des listes
+                    if (paragraph.includes('- ') || paragraph.includes('* ')) {
+                        const lines = paragraph.split('\n');
+                        if (lines.some(line => line.trim().startsWith('- ') || line.trim().startsWith('* '))) {
+                            const listItems = lines
+                                .filter(line => line.trim().startsWith('- ') || line.trim().startsWith('* '))
+                                .map(line => `<li>${line.substring(2)}</li>`)
+                                .join('');
+                            return `<ul>${listItems}</ul>`;
+                        }
+                    }
+                    
+                    return `<p>${paragraph}</p>`;
+                })
+                .join('');
+            
+            return formatted;
+        }
+    </script>
 </body>
 </html>
