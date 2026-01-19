@@ -1,9 +1,9 @@
 // ============================================
-// CODE PRINCIPAL - CENTRALISÉ
+// SCRIPT PRINCIPAL CENTRALISÉ - VERSION RENFORCÉE
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================
-    // CONFIGURATION SUPABASE (COMMUNE À TOUTES LES PAGES)
+    // 1. CONFIGURATION SUPABASE
     // ============================================
     const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
@@ -12,17 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let supabase;
     
     if (typeof window.supabase !== 'undefined' && window.supabase.from) {
-        // Si supabase est déjà initialisé (depuis un autre script)
         console.log('✅ Utilisation de Supabase existant');
         supabase = window.supabase;
     } else {
-        // Initialiser Supabase depuis zéro
         console.log('🔄 Initialisation de Supabase...');
         
-        // Vérifier que la bibliothèque Supabase est chargée
         if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            window.supabase = supabase; // Stocker pour une utilisation ultérieure
+            window.supabase = supabase;
         } else {
             console.error('❌ Bibliothèque Supabase non chargée');
             alert('Erreur: Bibliothèque Supabase non chargée. Vérifiez votre connexion internet.');
@@ -31,7 +28,161 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // TEST DE CONNEXION SUPABASE
+    // 2. GESTION DE SESSION AMÉLIORÉE
+    // ============================================
+    const SessionManager = {
+        // Vérification ULTRA flexible pour admin
+        isAdmin: function() {
+            console.group('🔐 VÉRIFICATION SESSION ADMIN');
+            
+            // Récupérer TOUTES les clés de session
+            const sessionKeys = [];
+            for (let i = 0; i < sessionStorage.length; i++) {
+                sessionKeys.push(sessionStorage.key(i));
+            }
+            console.log('Clés session trouvées:', sessionKeys);
+            
+            // Vérifier MULTIPLES indicateurs admin
+            const adminIndicators = [
+                { key: 'adminLoggedIn', value: 'true' },
+                { key: 'isAdmin', value: 'true' },
+                { key: 'userRole', value: 'admin' },
+                { key: 'role', value: 'admin' },
+                { key: 'loggedIn', value: 'true' },
+                { key: 'isLoggedIn', value: 'true' }
+            ];
+            
+            for (const indicator of adminIndicators) {
+                const value = sessionStorage.getItem(indicator.key);
+                console.log(`${indicator.key}: ${value}`);
+                if (value === indicator.value) {
+                    console.log(`✅ Admin détecté via: ${indicator.key}`);
+                    console.groupEnd();
+                    return true;
+                }
+            }
+            
+            // Vérifier aussi par URL (pour développement)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('admin') && urlParams.get('admin') === 'true') {
+                console.log('⚠️ Mode développement: accès admin via URL');
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                console.groupEnd();
+                return true;
+            }
+            
+            console.warn('❌ Aucun marqueur admin trouvé');
+            console.groupEnd();
+            return false;
+        },
+        
+        // Vérification pour créateur
+        isCreator: function() {
+            const creatorId = sessionStorage.getItem('creatorId');
+            const hasBrand = sessionStorage.getItem('creatorBrand');
+            
+            console.log(`🎨 Vérification créateur: ID=${creatorId}, Marque=${hasBrand}`);
+            
+            return !!(creatorId && hasBrand);
+        },
+        
+        // Vérifier l'accès requis pour la page actuelle
+        checkAccess: function() {
+            const currentPath = window.location.pathname;
+            console.log(`📍 Page actuelle: ${currentPath}`);
+            
+            // Pages ADMIN (manage-*, admin.html, Actualisation.html)
+            if (currentPath.includes('admin.html') || 
+                currentPath.includes('Actualisation.html') ||
+                currentPath.includes('manage-')) {
+                
+                console.log('🔒 Page ADMIN détectée');
+                
+                if (!this.isAdmin()) {
+                    console.warn('🚫 Accès ADMIN refusé');
+                    
+                    // Message intelligent
+                    if (this.isCreator()) {
+                        alert('❌ Zone réservée aux administrateurs\n\nVous êtes connecté en tant que créateur. Déconnectez-vous pour accéder à cette zone.');
+                        window.location.href = 'dashboard-home.html';
+                    } else {
+                        alert('🔒 Accès administrateur requis\n\nVeuillez vous connecter avec vos identifiants administrateur.');
+                        sessionStorage.setItem('redirectAfterLogin', window.location.href);
+                        window.location.href = 'admin.html';
+                    }
+                    return false;
+                }
+                
+                console.log('✅ Accès ADMIN autorisé');
+                return true;
+            }
+            
+            // Pages CRÉATEUR (dashboard-*)
+            if (currentPath.includes('dashboard-') && 
+                !currentPath.includes('dashboard-management')) {
+                
+                console.log('🎨 Page CRÉATEUR détectée');
+                
+                if (!this.isCreator()) {
+                    console.warn('🚫 Accès CRÉATEUR refusé');
+                    
+                    if (this.isAdmin()) {
+                        alert('❌ Zone réservée aux créateurs\n\nVous êtes connecté en tant qu\'administrateur.');
+                        window.location.href = 'dashboard-management.html';
+                    } else {
+                        alert('🎨 Espace créateur\n\nVeuillez vous connecter avec vos identifiants créateur.');
+                        window.location.href = 'index.html';
+                    }
+                    return false;
+                }
+                
+                console.log('✅ Accès CRÉATEUR autorisé');
+                return true;
+            }
+            
+            // Pages publiques - accès libre
+            console.log('🌐 Page publique - accès libre');
+            return true;
+        },
+        
+        // Définir session admin
+        setAdminSession: function(username, email = '') {
+            sessionStorage.setItem('adminLoggedIn', 'true');
+            sessionStorage.setItem('isAdmin', 'true');
+            sessionStorage.setItem('userRole', 'admin');
+            sessionStorage.setItem('username', username);
+            sessionStorage.setItem('email', email);
+            sessionStorage.setItem('loginTime', new Date().toISOString());
+            console.log('✅ Session admin définie pour:', username);
+        },
+        
+        // Définir session créateur
+        setCreatorSession: function(creatorId, brandName) {
+            sessionStorage.setItem('creatorId', creatorId);
+            sessionStorage.setItem('creatorBrand', brandName);
+            sessionStorage.setItem('creatorLoggedIn', 'true');
+            sessionStorage.setItem('loginTime', new Date().toISOString());
+            console.log('✅ Session créateur définie pour:', brandName);
+        },
+        
+        // Nettoyer session
+        clearSession: function() {
+            const keysToRemove = [
+                'adminLoggedIn', 'isAdmin', 'userRole', 'username', 'email',
+                'creatorId', 'creatorBrand', 'creatorLoggedIn',
+                'loggedIn', 'isLoggedIn', 'role', 'loginTime'
+            ];
+            
+            keysToRemove.forEach(key => sessionStorage.removeItem(key));
+            console.log('🧹 Session nettoyée');
+        }
+    };
+    
+    // Exposer globalement
+    window.SessionManager = SessionManager;
+
+    // ============================================
+    // 3. TEST DE CONNEXION SUPABASE
     // ============================================
     async function testerConnexionSupabase() {
         console.log('🔍 Test de connexion Supabase...');
@@ -54,33 +205,45 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // DÉTECTION AUTOMATIQUE DE LA PAGE
+    // 4. DÉTECTION AUTOMATIQUE DE LA PAGE
     // ============================================
     function detectPageAndLoad() {
         console.log('🔍 Détection automatique de la page...');
         
-        // 1. Vérifier si on est sur la page d'administration admin.html
+        // Vérifier les accès d'abord (sauf pour certaines pages)
+        const currentPath = window.location.pathname;
+        if (!currentPath.includes('index.html') && 
+            !currentPath.includes('article.html') &&
+            !currentPath.includes('.css') &&
+            !currentPath.includes('.js')) {
+            
+            if (!SessionManager.checkAccess()) {
+                return; // Redirection déjà gérée par checkAccess()
+            }
+        }
+        
+        // 1. Page d'administration admin.html
         if (window.location.pathname.includes('admin.html')) {
             console.log('📄 Page Admin détectée');
             initAdminPage();
             return;
         }
         
-        // 2. Vérifier si on est sur la page d'actualisation
+        // 2. Page d'actualisation
         if (window.location.pathname.includes('Actualisation.html')) {
             console.log('📄 Page Actualisation détectée');
             initActualisationPage();
             return;
         }
         
-        // 3. Si on est sur article.html
+        // 3. Page article unique
         if (document.getElementById('article-content')) {
             console.log('📄 Page Article détectée');
             loadSingleArticle();
             return;
         }
         
-        // 4. Liste des conteneurs et leurs rubriques associées
+        // 4. Liste des conteneurs et leurs rubriques
         const containerMap = {
             'actualites-container': 'actualites',
             'visages-container': 'visages',
@@ -91,20 +254,18 @@ document.addEventListener('DOMContentLoaded', () => {
             'culture-container': 'culture',
             'decouvertes-container': 'decouvertes',
             'mode-container': 'mode',
-            // Anciens noms pour compatibilité
             'articles-list': 'coulisses',
             'trends-container': 'tendances',
             'discoveries-container': 'decouvertes',
             'events-container': 'culture'
         };
         
-        // 5. Chercher quel conteneur est présent sur la page
+        // 5. Chercher quel conteneur est présent
         for (const [containerId, rubrique] of Object.entries(containerMap)) {
             if (document.getElementById(containerId)) {
                 console.log(`📄 Page ${rubrique} détectée (${containerId})`);
                 loadArticlesByRubrique(rubrique, containerId);
                 
-                // Configurations spécifiques
                 if (rubrique === 'visages' && document.querySelectorAll('.filter-btn').length > 0) {
                     setupVisageFilters();
                 }
@@ -137,17 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('ℹ️ Aucune page spécifique détectée');
     }
-    
+
     // ============================================
-    // FONCTIONS POUR LA PAGE ADMINISTRATION (admin.html)
+    // 5. FONCTIONS POUR LA PAGE ADMINISTRATION
     // ============================================
     
     async function initAdminPage() {
         console.log('🔄 Initialisation de la page admin...');
         
-        // Vérification de connexion admin
-        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+        // Vérification améliorée
+        if (!SessionManager.isAdmin()) {
             alert('⚠️ Accès non autorisé. Connectez-vous en tant qu\'administrateur.');
             window.location.href = 'index.html';
             return;
@@ -155,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('✅ Admin connecté');
         
-        // Tester la connexion avant de continuer
+        // Tester la connexion
         const connected = await testerConnexionSupabase();
         if (!connected) {
             const pendingDiv = document.getElementById('pendingCreators');
@@ -163,12 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pendingDiv.innerHTML = 
                     `<div style="color: red; padding: 30px; text-align: center;">
                         <h3>❌ Erreur de connexion à la base de données</h3>
-                        <p>Impossible de se connecter à Supabase. Vérifiez:</p>
-                        <ul style="text-align: left; display: inline-block;">
-                            <li>Votre connexion internet</li>
-                            <li>Les politiques RLS dans Supabase</li>
-                            <li>Que la clé API est correcte</li>
-                        </ul>
+                        <p>Impossible de se connecter à Supabase.</p>
                     </div>`;
             }
             return;
@@ -193,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', function() {
                 if (confirm('Déconnexion ?')) {
-                    sessionStorage.clear();
+                    SessionManager.clearSession();
                     window.location.href = 'index.html';
                 }
             });
@@ -205,7 +360,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🎯 Script admin prêt');
     }
     
-    // REQUÊTE : Charger tous les créateurs
     async function chargerTousLesCreateurs() {
         console.log('📡 Chargement des créateurs...');
         
@@ -215,26 +369,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const approvedCount = document.getElementById('approvedCount');
         
         try {
-            // Test de connexion d'abord
-            const { count, error: testError } = await supabase
-                .from('créateurs')
-                .select('*', { count: 'exact', head: true });
-            
-            if (testError) {
-                console.error('❌ Erreur connexion:', testError);
-                if (pendingDiv) {
-                    pendingDiv.innerHTML = `
-                        <div style="color: red; padding: 20px; text-align: center;">
-                            Erreur connexion: ${testError.message}<br>
-                            <small>Code: ${testError.code}</small>
-                        </div>
-                    `;
-                }
-                return;
-            }
-            
-            console.log(`✅ ${count} créateurs dans la base`);
-            
             // Charger les créateurs en attente
             const { data: pendingData, error: pendingError } = await supabase
                 .from('créateurs')
@@ -283,7 +417,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // REQUÊTE : Approuver un créateur
     async function approuverCreateur(id, nomMarque) {
         console.log(`🔄 Tentative d'approbation: ${id} - "${nomMarque}"`);
         
@@ -300,14 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
                 .eq('id', id);
             
-            console.log('📊 Résultat mise à jour:', { data, error: error?.message });
-            
             if (error) {
                 throw new Error(`Erreur Supabase: ${error.message}`);
-            }
-            
-            if (data && data.length === 0) {
-                throw new Error('Créateur non trouvé ou déjà approuvé');
             }
             
             alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
@@ -323,7 +450,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // REQUÊTE : Refuser un créateur
     async function refuserCreateur(id, nomMarque) {
         console.log(`🗑️ Tentative de refus: ${id} - "${nomMarque}"`);
         
@@ -337,14 +463,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .delete()
                 .eq('id', id);
             
-            console.log('📊 Résultat suppression:', { data, error: error?.message });
-            
             if (error) {
                 throw new Error(`Erreur Supabase: ${error.message}`);
-            }
-            
-            if (data && data.length === 0) {
-                throw new Error('Créateur non trouvé ou déjà traité');
             }
             
             alert(`❌ "${nomMarque}" a été refusé et supprimé.`);
@@ -360,7 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Fonction pour afficher les créateurs (VERSION CORRIGÉE)
     function afficherCreateurs(creators, container, status) {
         if (!creators || creators.length === 0) {
             const message = status === 'pending' 
@@ -409,9 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         container.innerHTML = html;
         
-        // AJOUTER LES ÉVÉNEMENTS APRÈS L'INSERTION DU HTML
+        // Ajouter les événements après l'insertion du HTML
         if (status === 'pending') {
-            // Boutons Approuver
             container.querySelectorAll('.approve-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.getAttribute('data-id');
@@ -420,7 +538,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
             
-            // Boutons Refuser
             container.querySelectorAll('.reject-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.getAttribute('data-id');
@@ -439,20 +556,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return div.innerHTML;
     }
     
-    // Rendre les fonctions globales pour admin
-    window.approuverCreateur = approuverCreateur;
-    window.refuserCreateur = refuserCreateur;
-    
     // ============================================
-    // FONCTIONS POUR LA PAGE ACTUALISATION (Actualisation.html)
+    // 6. FONCTIONS POUR LA PAGE ACTUALISATION
     // ============================================
     
     async function initActualisationPage() {
         console.log('🔄 Initialisation de la page actualisation...');
         
-        // Vérification de connexion admin
-        const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-        if (!isAdminLoggedIn || isAdminLoggedIn !== 'true') {
+        // Vérification améliorée
+        if (!SessionManager.isAdmin()) {
             alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
             window.location.href = 'index.html';
             return;
@@ -470,12 +582,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tabId = this.getAttribute('data-tab');
                 document.getElementById(tabId + '-tab').classList.add('active');
                 
-                // Charger les données de la rubrique sélectionnée
                 loadAdminData(tabId);
             });
         });
         
-        // Initialiser l'upload d'images pour chaque rubrique
+        // Initialiser l'upload d'images
         const rubriques = ['actualites', 'visages', 'coulisses', 'tendances', 'decouvertes', 'mode', 'accessoires', 'beaute', 'culture'];
         rubriques.forEach(rubrique => {
             setupImageUpload(rubrique);
@@ -501,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Charger les données initiales
         await loadAdminData('actualites');
         
-        // Définir la date du jour comme valeur par défaut pour tous les champs date
+        // Définir la date du jour
         setDefaultDates();
     }
     
@@ -522,7 +633,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!uploadArea || !imageFile) return;
         
-        // Gestion du drag & drop
         uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
             this.style.borderColor = 'var(--accent)';
@@ -547,12 +657,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Gestion du clic
         uploadArea.addEventListener('click', function() {
             imageFile.click();
         });
         
-        // Gestion du changement de fichier
         imageFile.addEventListener('change', function(e) {
             if (this.files && this.files[0]) {
                 displayImagePreview(this.files[0], preview);
@@ -639,43 +747,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // ============================================
-    // FONCTION UPLOAD D'IMAGE MODIFIÉE
-    // ============================================
     async function uploadImage(file, rubrique) {
         if (!file) return null;
         
         try {
             console.log('📤 Début upload image:', file.name, file.size);
             
-            // Vérifier la taille du fichier (max 2MB)
             if (file.size > 2 * 1024 * 1024) {
                 console.error('❌ Fichier trop volumineux:', file.size);
                 alert('Le fichier est trop volumineux (max 2MB)');
                 return null;
             }
             
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${rubrique}_${Date.now()}.${fileExt}`;
-            const filePath = `${rubrique}/${fileName}`;
-            
-            console.log('📁 Chemin de fichier:', filePath);
-            
-            // Option 1: Si vous avez configuré le bucket "images" dans Supabase Storage
-            // const { data, error } = await supabase.storage
-            //     .from('images')
-            //     .upload(filePath, file);
-            
-            // Option 2: Utiliser un service d'upload externe ou stocker l'image en base64
-            // Pour le moment, on va stocker l'image en base64 directement dans la base de données
-            
             const reader = new FileReader();
             
             return new Promise((resolve, reject) => {
                 reader.onload = function(e) {
                     const base64Image = e.target.result;
-                    console.log('✅ Image convertie en base64:', base64Image.length);
-                    resolve(base64Image); // Stocker l'image en base64
+                    console.log('✅ Image convertie en base64');
+                    resolve(base64Image);
                 };
                 
                 reader.onerror = function(error) {
@@ -701,28 +791,23 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!formTitle || !btnSave) return;
         
-        // Récupérer les données du formulaire
         const formData = getFormData(rubrique);
         
-        // Validation
         if (!formData.titre_fr) {
             showStatus(statusElement, '❌ Le titre est obligatoire', 'error');
             return;
         }
         
-        // Désactiver le bouton pendant l'enregistrement
         btnSave.disabled = true;
         btnSave.innerHTML = '<span>⏳ Enregistrement...</span>';
         
         try {
             let imageUrl = null;
             
-            // Upload de l'image si présente
             if (imageFile.files && imageFile.files[0]) {
                 imageUrl = await uploadImage(imageFile.files[0], rubrique);
             }
             
-            // Préparer les données pour Supabase
             const articleData = {
                 ...formData,
                 image_url: imageUrl || formData.image_url,
@@ -732,12 +817,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('📤 Données à envoyer:', articleData);
             
-            // Vérifier si c'est une création ou une mise à jour
             const editingId = btnSave.getAttribute('data-editing-id');
             
             let result;
             if (editingId) {
-                // Mise à jour
                 const { data, error } = await supabase
                     .from('articles')
                     .update(articleData)
@@ -751,7 +834,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 formTitle.textContent = getFormTitle(rubrique, false);
                 
             } else {
-                // Création
                 const { data, error } = await supabase
                     .from('articles')
                     .insert([articleData]);
@@ -762,13 +844,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 showStatus(statusElement, '✅ Article publié avec succès!', 'success');
             }
             
-            // Réinitialiser le formulaire
             resetForm(rubrique);
-            
-            // Recharger la liste
             await loadAdminData(rubrique);
             
-            // Afficher le succès pendant 3 secondes
             setTimeout(() => {
                 showStatus(statusElement, '', 'success');
             }, 3000);
@@ -777,7 +855,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error(`❌ Erreur sauvegarde ${rubrique}:`, error);
             showStatus(statusElement, `❌ Erreur: ${error.message}`, 'error');
         } finally {
-            // Réactiver le bouton
             btnSave.disabled = false;
             btnSave.innerHTML = editingId ? 
                 '<span>💾 Mettre à jour</span>' : 
@@ -794,7 +871,6 @@ document.addEventListener('DOMContentLoaded', () => {
             date_publication: document.getElementById(`date-${rubrique}`)?.value || new Date().toISOString().split('T')[0]
         };
         
-        // Champs spécifiques par rubrique
         switch(rubrique) {
             case 'actualites':
                 data.categorie_actualite = document.getElementById(`categorie-${rubrique}`)?.value;
@@ -823,7 +899,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 data.type_beaute = document.getElementById(`type-${rubrique}`)?.value;
                 break;
             case 'culture':
-                // Traitement spécial pour culture/agenda
                 return getCultureFormData();
         }
         
@@ -856,7 +931,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function resetForm(rubrique) {
-        // Réinitialiser tous les champs du formulaire
         const form = document.getElementById(`${rubrique}-tab`);
         if (!form) return;
         
@@ -875,7 +949,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         
-        // Réinitialiser l'image
         const preview = document.getElementById(`currentImagePreview-${rubrique}`);
         const imageFile = document.getElementById(`imageFile-${rubrique}`);
         if (preview) {
@@ -886,7 +959,6 @@ document.addEventListener('DOMContentLoaded', () => {
             imageFile.value = '';
         }
         
-        // Réinitialiser le bouton
         const btnSave = document.getElementById(`btnSave-${rubrique}`);
         const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
         const formTitle = document.getElementById(`formTitle-${rubrique}`);
@@ -904,7 +976,6 @@ document.addEventListener('DOMContentLoaded', () => {
             formTitle.textContent = getFormTitle(rubrique, false);
         }
         
-        // Cacher le message de statut
         const statusElement = document.getElementById(`status-${rubrique}`);
         if (statusElement) {
             statusElement.style.display = 'none';
@@ -927,7 +998,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return titles[rubrique] || 'Formulaire';
     }
     
-    // Fonctions pour éditer/supprimer les articles
     window.editArticle = async function(rubrique, articleId) {
         console.log(`✏️ Édition article ${articleId} (${rubrique})`);
         
@@ -945,10 +1015,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Remplir le formulaire avec les données
             fillForm(rubrique, data);
             
-            // Mettre à jour le bouton
             const btnSave = document.getElementById(`btnSave-${rubrique}`);
             const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
             const formTitle = document.getElementById(`formTitle-${rubrique}`);
@@ -966,7 +1034,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 formTitle.textContent = getFormTitle(rubrique, true);
             }
             
-            // Aller à l'onglet correspondant
             document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
@@ -997,7 +1064,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             alert('✅ Article supprimé avec succès!');
             
-            // Recharger la liste
             await loadAdminData(rubrique);
             
         } catch (error) {
@@ -1007,7 +1073,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     function fillForm(rubrique, data) {
-        // Remplir les champs communs
         const setValue = (id, value) => {
             const element = document.getElementById(`${id}-${rubrique}`);
             if (element && value) element.value = value;
@@ -1021,7 +1086,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setValue('date', data.date_publication.split('T')[0]);
         }
         
-        // Remplir les champs spécifiques
         switch(rubrique) {
             case 'actualites':
                 setValue('categorie', data.categorie_actualite);
@@ -1054,7 +1118,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
         }
         
-        // Afficher l'image si présente
         if (data.image_url) {
             const preview = document.getElementById(`currentImagePreview-${rubrique}`);
             if (preview) {
@@ -1080,12 +1143,11 @@ document.addEventListener('DOMContentLoaded', () => {
         setValue('description', data.contenu_fr);
         setValue('lien', data.lien_evenement);
     }
-    
+
     // ============================================
-    // FONCTIONS POUR LA NOUVELLE STRUCTURE
+    // 7. FONCTIONS POUR LA STRUCTURE PRINCIPALE
     // ============================================
     
-    // Fonction principale pour charger les articles par rubrique
     window.loadArticlesByRubrique = async function(rubrique, containerId) {
         const container = document.getElementById(containerId);
         if (!container) {
@@ -1096,7 +1158,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log(`🔄 Chargement des articles ${rubrique}...`);
             
-            // Afficher un message de chargement
             container.innerHTML = '<div class="loading" style="padding: 40px; text-align: center; color: #666;">Chargement des articles...</div>';
             
             const { data, error } = await supabase
@@ -1116,13 +1177,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (!data || data.length === 0) {
                 console.log(`ℹ️ Aucun article ${rubrique} trouvé (statut = publié)`);
-                container.innerHTML = `<p class="no-content" style="padding: 40px; text-align: center; color: #666;">Aucun contenu publié pour le moment.<br><small>Utilisez Actualisation.html pour publier du contenu</small></p>`;
+                container.innerHTML = `<p class="no-content" style="padding: 40px; text-align: center; color: #666;">Aucun contenu publié pour le moment.<br></p>`;
                 return;
             }
             
             console.log(`✅ ${data.length} articles ${rubrique} chargés (publiés)`);
             
-            // Appeler la fonction de rendu appropriée
             switch(rubrique) {
                 case 'actualites':
                     renderActualites(data, container);
@@ -1160,43 +1220,9 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = `<p class="error" style="padding: 40px; text-align: center; color: #dc3545;">Une erreur est survenue lors du chargement: ${error.message}</p>`;
         }
     };
-    
+
     // ============================================
-    // FONCTION DE DÉBOGAGE POUR VÉRIFIER LES ARTICLES
-    // ============================================
-    async function debugArticles(rubrique) {
-        console.log(`🔍 Debug ${rubrique}...`);
-        
-        try {
-            const { data, error, count } = await supabase
-                .from('articles')
-                .select('*', { count: 'exact' })
-                .eq('rubrique', rubrique)
-                .eq('statut', 'publié');
-            
-            if (error) {
-                console.error(`❌ Erreur query ${rubrique}:`, error);
-                return;
-            }
-            
-            console.log(`📊 ${rubrique}: ${count} articles trouvés`);
-            
-            if (data && data.length > 0) {
-                data.forEach((article, index) => {
-                    console.log(`  ${index + 1}. ${article.titre_fr} (ID: ${article.id})`);
-                    console.log(`     Image: ${article.image_url ? '✓' : '✗'}`);
-                    console.log(`     Statut: ${article.statut}`);
-                    console.log(`     Date: ${article.date_publication}`);
-                });
-            }
-            
-        } catch (error) {
-            console.error(`💥 Exception debug ${rubrique}:`, error);
-        }
-    }
-    
-    // ============================================
-    // FONCTIONS DE RENDU MODIFIÉES (TITRE + IMAGE SEULEMENT)
+    // 8. FONCTIONS DE RENDU MODIFIÉES
     // ============================================
     
     function renderActualites(articles, container) {
@@ -1221,7 +1247,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function renderVisages(visages, container) {
-        // Si le conteneur est dans la page Visages avec son design spécifique
         if (container.closest('.visages-page')) {
             container.innerHTML = visages.map(visage => `
                 <div class="visage-card rounded-article">
@@ -1240,7 +1265,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `).join('');
         } else {
-            // Version simplifiée (titre + image seulement)
             container.innerHTML = visages.map(visage => `
                 <div class="creator-card rounded-article">
                     ${visage.image_url ? `
@@ -1357,7 +1381,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         let html = '';
         
-        // Événements à venir
         if (evenementsFuturs.length > 0) {
             html += `
                 <section class="events-section">
@@ -1388,7 +1411,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
         
-        // Événements passés
         if (evenementsPasses.length > 0) {
             html += `
                 <section class="events-section">
@@ -1502,9 +1524,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </article>
         `).join('');
     }
-    
+
     // ============================================
-    // FONCTION POUR CHARGER UN ARTICLE UNIQUE (CORRIGÉE)
+    // 9. FONCTION POUR CHARGER UN ARTICLE UNIQUE
     // ============================================
     window.loadSingleArticle = async function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -1531,7 +1553,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Afficher un message de chargement avec le style arrondi
         container.innerHTML = `
             <article class="full-article rounded-article">
                 <div class="loading" style="padding: 40px; text-align: center; color: #666;">
@@ -1633,220 +1654,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </footer>
             </article>
-            
-            <style>
-                /* Styles pour les bordures arrondies comme mode/accessoires/beauté */
-                .rounded-article {
-                    border-radius: 15px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-                    background: var(--card-bg, #ffffff);
-                    border: 1px solid rgba(212, 175, 55, 0.1);
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
-                }
-                
-                .rounded-article:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-                }
-                
-                .rounded-image {
-                    border-radius: 15px 15px 0 0;
-                    overflow: hidden;
-                }
-                
-                .rounded-image img {
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                }
-                
-                /* Style spécifique pour la page article */
-                .full-article.rounded-article {
-                    max-width: 900px;
-                    margin: 0 auto;
-                    padding: 0;
-                }
-                
-                .article-header {
-                    padding: 30px;
-                    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-                }
-                
-                .article-body {
-                    padding: 30px;
-                }
-                
-                .article-footer {
-                    padding: 30px;
-                    border-top: 1px solid rgba(212, 175, 55, 0.1);
-                    background: rgba(0, 0, 0, 0.02);
-                }
-                
-                .article-breadcrumb {
-                    font-size: 0.9em;
-                    color: var(--text-secondary);
-                    margin-bottom: 20px;
-                }
-                
-                .article-breadcrumb a {
-                    color: var(--accent);
-                    text-decoration: none;
-                }
-                
-                .article-breadcrumb a:hover {
-                    text-decoration: underline;
-                }
-                
-                .article-title {
-                    font-size: 2.2em;
-                    margin: 0 0 20px 0;
-                    color: var(--text-primary);
-                    line-height: 1.3;
-                }
-                
-                .article-meta {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    flex-wrap: wrap;
-                    gap: 15px;
-                    margin-bottom: 20px;
-                    padding: 15px;
-                    background: rgba(212, 175, 55, 0.05);
-                    border-radius: 10px;
-                }
-                
-                .meta-left, .meta-right {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 15px;
-                    align-items: center;
-                }
-                
-                .article-date, .article-author, .article-rubrique {
-                    font-size: 0.9em;
-                    color: var(--text-secondary);
-                }
-                
-                .specific-badge {
-                    background: var(--accent);
-                    color: white;
-                    padding: 5px 12px;
-                    border-radius: 20px;
-                    font-size: 0.85em;
-                    font-weight: 500;
-                }
-                
-                .article-hero-image {
-                    margin: 20px 0;
-                }
-                
-                .article-hero-image img {
-                    width: 100%;
-                    height: auto;
-                    border-radius: 10px;
-                }
-                
-                .article-content-text {
-                    font-size: 1.1em;
-                    line-height: 1.8;
-                    color: var(--text-primary);
-                }
-                
-                .article-content-text h2 {
-                    font-size: 1.5em;
-                    margin: 30px 0 15px 0;
-                    color: var(--text-primary);
-                    padding-bottom: 10px;
-                    border-bottom: 2px solid var(--accent);
-                }
-                
-                .article-content-text h3 {
-                    font-size: 1.3em;
-                    margin: 25px 0 12px 0;
-                    color: var(--text-primary);
-                }
-                
-                .article-content-text p {
-                    margin-bottom: 20px;
-                }
-                
-                .article-content-text strong {
-                    color: var(--accent);
-                    font-weight: 600;
-                }
-                
-                .article-content-text em {
-                    font-style: italic;
-                    color: var(--text-secondary);
-                }
-                
-                .article-tags {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 10px;
-                    margin-bottom: 20px;
-                }
-                
-                .article-tag {
-                    background: rgba(212, 175, 55, 0.1);
-                    color: var(--accent);
-                    padding: 5px 12px;
-                    border-radius: 15px;
-                    font-size: 0.85em;
-                    border: 1px solid rgba(212, 175, 55, 0.2);
-                }
-                
-                .back-to-list {
-                    display: inline-block;
-                    background: var(--accent);
-                    color: white;
-                    padding: 12px 25px;
-                    border-radius: 25px;
-                    text-decoration: none;
-                    font-weight: 500;
-                    transition: all 0.3s ease;
-                }
-                
-                .back-to-list:hover {
-                    background: rgba(212, 175, 55, 0.8);
-                    transform: translateX(-5px);
-                }
-                
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                }
-                
-                /* Responsive */
-                @media (max-width: 768px) {
-                    .article-title {
-                        font-size: 1.8em;
-                    }
-                    
-                    .article-meta {
-                        flex-direction: column;
-                        align-items: flex-start;
-                    }
-                    
-                    .meta-left, .meta-right {
-                        width: 100%;
-                        justify-content: space-between;
-                    }
-                    
-                    .article-header,
-                    .article-body,
-                    .article-footer {
-                        padding: 20px;
-                    }
-                }
-            </style>
         `;
     }
-    
+
     // ============================================
-    // FONCTIONS UTILITAIRES
+    // 10. FONCTIONS UTILITAIRES
     // ============================================
     
     function getTypeDecouverteLabel(type) {
@@ -1958,12 +1770,11 @@ document.addEventListener('DOMContentLoaded', () => {
         
         return tags.map(tag => `<span class="article-tag">${tag}</span>`).join('');
     }
-    
+
     // ============================================
-    // FONCTIONS POUR FILTRES ET CONFIGURATIONS
+    // 11. FONCTIONS POUR FILTRES
     // ============================================
     
-    // Fonction pour configurer les filtres génériques
     window.setupFilters = function() {
         const filterBtns = document.querySelectorAll('.filter-btn');
         filterBtns.forEach(btn => {
@@ -1978,7 +1789,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // Fonction pour configurer les filtres Visages (spécifique)
     window.setupVisageFilters = function() {
         console.log('🔄 Configuration des filtres Visages...');
         const filterBtns = document.querySelectorAll('.filter-btn');
@@ -1990,22 +1800,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         filterBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                // Retirer la classe active de tous les boutons
                 filterBtns.forEach(b => b.classList.remove('active'));
-                
-                // Ajouter la classe active au bouton cliqué
                 this.classList.add('active');
                 
                 const filter = this.dataset.filter;
                 console.log(`🎯 Filtre sélectionné: ${filter}`);
                 
-                // Filtrer les articles Visages
                 filterVisages(filter);
             });
         });
     };
     
-    // Fonction pour filtrer les Visages par domaine
     async function filterVisages(domain) {
         const container = document.getElementById('visages-container');
         if (!container) return;
@@ -2018,7 +1823,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 .eq('statut', 'publié')
                 .order('date_publication', { ascending: false });
             
-            // Ajouter un filtre si ce n'est pas "all"
             if (domain !== 'all') {
                 query = query.eq('domaine', domain);
             }
@@ -2032,7 +1836,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // Réutiliser la fonction de rendu existante
             renderVisages(data, container);
             
         } catch (error) {
@@ -2041,7 +1844,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Fonction pour configurer les catégories
     window.setupCategoryFilters = function() {
         const categoryElements = document.querySelectorAll('[data-category]');
         categoryElements.forEach(el => {
@@ -2052,24 +1854,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // ============================================
-    // FONCTION D'INITIALISATION AUTOMATIQUE DES PAGES
-    // ============================================
-    
     window.initPageData = function() {
         console.log('🔄 Initialisation des données de la page...');
         detectPageAndLoad();
     };
-    
+
     // ============================================
-    // EXÉCUTION AUTOMATIQUE DE LA DÉTECTION
+    // 12. EXÉCUTION AUTOMATIQUE
     // ============================================
     setTimeout(() => {
         detectPageAndLoad();
     }, 100);
 
     // ============================================
-    // 1. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
+    // 13. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
     // ============================================
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
@@ -2088,14 +1886,13 @@ document.addEventListener('DOMContentLoaded', () => {
     hiddenElements.forEach(el => observer.observe(el));
 
     // ============================================
-    // 2. SELECTEUR DE THÈME
+    // 14. SELECTEUR DE THÈME
     // ============================================
     const themeSelectButton = document.getElementById('theme-select-button');
     const themeOptions = document.getElementById('theme-options');
     const themeButtonText = document.getElementById('theme-button-text');
     const body = document.body;
 
-    // Fonction pour définir le thème
     const setTheme = (theme) => {
         if (theme === 'day') {
             body.classList.add('day-mode');
@@ -2108,7 +1905,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Basculer le menu déroulant du thème
     if (themeSelectButton) {
         themeSelectButton.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -2117,7 +1913,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Définir le thème depuis le menu déroulant
     if (themeOptions) {
         themeOptions.addEventListener('click', (e) => {
             e.preventDefault();
@@ -2130,7 +1925,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Fermer le menu déroulant en cliquant à l'extérieur
     document.addEventListener('click', () => {
         if (themeOptions && !themeOptions.classList.contains('hidden-options')) {
             themeOptions.classList.add('hidden-options');
@@ -2138,19 +1932,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Vérifier le thème sauvegardé dans localStorage au chargement
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
         setTheme(savedTheme);
     } else {
-        // Thème par défaut si aucun n'est sauvegardé
         setTheme('night');
     }
 
     // ============================================
-    // 3. MODAL D'ABONNEMENT - MODIFICATION POUR DEUX BOUTONS
+    // 15. MODAL D'ABONNEMENT
     // ============================================
-    // MODIFICATION : Remplacer l'ancien sélecteur par ces deux lignes
     const subscribeDesktop = document.getElementById('subscribe-desktop');
     const subscribeMobile = document.getElementById('subscribe-mobile');
     
@@ -2162,7 +1953,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const openModal = () => modal.classList.remove('hidden-modal');
     const closeModal = () => modal.classList.add('hidden-modal');
 
-    // MODIFICATION : Gestion du bouton desktop
     if (subscribeDesktop) {
         subscribeDesktop.addEventListener('click', (e) => {
             e.preventDefault();
@@ -2170,7 +1960,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // MODIFICATION : Gestion du bouton mobile
     if (subscribeMobile) {
         subscribeMobile.addEventListener('click', (e) => {
             e.preventDefault();
@@ -2217,10 +2006,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 4. FORMULAIRES D'INSCRIPTION
+    // 16. FORMULAIRES D'INSCRIPTION
     // ============================================
     
-    // Gestion de l'inscription abonné
     const subscriberForm = document.getElementById('subscriber-form-element');
     if (subscriberForm) {
         subscriberForm.addEventListener('submit', async function(e) {
@@ -2263,7 +2051,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Gestion de l'inscription créateur
     const creatorRegisterForm = document.getElementById('creator-register-form');
     if (creatorRegisterForm) {
         creatorRegisterForm.addEventListener('submit', async function(e) {
@@ -2314,7 +2101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 5. MENU DÉROULANT PRINCIPAL
+    // 17. MENU DÉROULANT PRINCIPAL
     // ============================================
     const menuBtn = document.getElementById('menu-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
@@ -2325,21 +2112,19 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdownMenu.classList.toggle('active');
         });
         
-        // Fermer le menu si on clique ailleurs
         document.addEventListener('click', function(e) {
             if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
                 dropdownMenu.classList.remove('active');
             }
         });
         
-        // Empêcher la fermeture quand on clique dans le menu
         dropdownMenu.addEventListener('click', function(e) {
             e.stopPropagation();
         });
     }
 
     // ============================================
-    // 6. FENÊTRE D'AUTHENTIFICATION
+    // 18. FENÊTRE D'AUTHENTIFICATION AMÉLIORÉE
     // ============================================
     const authBtn = document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
@@ -2350,7 +2135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminError = document.getElementById('admin-error');
     const creatorError = document.getElementById('creator-error');
 
-    // Ouvrir la fenêtre d'authentification
     if (authBtn && authModal) {
         authBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -2359,7 +2143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fermer la fenêtre d'authentification
     if (closeAuthModal) {
         closeAuthModal.addEventListener('click', function() {
             authModal.classList.remove('active');
@@ -2371,7 +2154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fermer en cliquant à l'extérieur
     if (authModal) {
         authModal.addEventListener('click', function(e) {
             if (e.target === authModal) {
@@ -2385,7 +2167,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Gestion des onglets d'authentification
     authTabs.forEach(tab => {
         tab.addEventListener('click', function() {
             const authType = this.getAttribute('data-auth-type');
@@ -2409,7 +2190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 7. CONNEXION ADMINISTRATEUR
+    // 19. CONNEXION ADMINISTRATEUR AMÉLIORÉE
     // ============================================
     if (adminForm) {
         adminForm.addEventListener('submit', async function(e) {
@@ -2421,7 +2202,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🔐 Tentative connexion admin:', nom);
             
             try {
-                // Vérification dans la table administrateurs
                 const { data, error } = await supabase
                     .from('administrateurs')
                     .select('*')
@@ -2451,14 +2231,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('✅ Connexion réussie! Admin:', data);
                 
-                // Connexion réussie
-                sessionStorage.setItem('adminLoggedIn', 'true');
-                sessionStorage.setItem('adminId', data.id);
-                sessionStorage.setItem('adminName', data.nom);
-                sessionStorage.setItem('adminEmail', data.email);
+                // Utiliser le SessionManager amélioré
+                SessionManager.setAdminSession(data.nom, data.email);
                 
-                // Redirection vers la page d'administration
-                window.location.href = 'admin.html';
+                // Redirection
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin') || 'admin.html';
+                sessionStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectUrl;
                 
             } catch (error) {
                 console.error('💥 Erreur de connexion:', error);
@@ -2471,7 +2250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 8. CONNEXION CRÉATEUR
+    // 20. CONNEXION CRÉATEUR AMÉLIORÉE
     // ============================================
     if (creatorForm) {
         creatorForm.addEventListener('submit', async function(e) {
@@ -2483,7 +2262,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🎨 Tentative connexion créateur:', brand);
             
             try {
-                // Vérification dans la table créateurs
                 const { data, error } = await supabase
                     .from('créateurs')
                     .select('*')
@@ -2514,10 +2292,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('✅ Connexion créateur réussie!', data);
                 
-                // Connexion réussie
-                sessionStorage.setItem('creatorLoggedIn', 'true');
-                sessionStorage.setItem('creatorId', data.id);
-                sessionStorage.setItem('creatorBrand', data.nom_marque);
+                // Utiliser le SessionManager amélioré
+                SessionManager.setCreatorSession(data.id, data.nom_marque);
                 
                 // Redirection vers le dashboard créateur
                 window.location.href = 'dashboard-home.html';
@@ -2533,10 +2309,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 9. GESTION DES ÉVÉNEMENTS CLAVIER
+    // 21. GESTION DES ÉVÉNEMENTS CLAVIER
     // ============================================
     document.addEventListener('keydown', function(e) {
-        // Échap pour fermer la fenêtre d'authentification
         if (e.key === 'Escape' && authModal && authModal.classList.contains('active')) {
             authModal.classList.remove('active');
             document.body.style.overflow = '';
@@ -2546,14 +2321,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (creatorForm) creatorForm.reset();
         }
         
-        // Échap pour fermer le modal d'abonnement
         if (e.key === 'Escape' && modal && !modal.classList.contains('hidden-modal')) {
             closeModal();
         }
     });
 
     // ============================================
-    // 10. EMPÊCHER LA SOUMISSION PAR DÉFAUT DES AUTRES FORMULAIRES
+    // 22. EMPÊCHER LA SOUMISSION PAR DÉFAUT
     // ============================================
     const otherForms = document.querySelectorAll('form:not(#subscriber-form-element):not(#creator-register-form):not(#admin-form):not(#creator-form)');
     otherForms.forEach(form => {
@@ -2565,54 +2339,77 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 11. ANCIENNES FONCTIONS PRÉSERVÉES POUR COMPATIBILITÉ
+    // 23. FONCTIONS DE COMPATIBILITÉ
     // ============================================
     
-    // Fonction pour charger les articles de Coulisses (ancienne version)
     window.loadCoulissesArticles = async function() {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadCoulissesArticles');
         loadArticlesByRubrique('coulisses', 'articles-list');
     };
     
-    // Fonction pour charger les Tendances (ancienne version)
     window.loadTrends = async function() {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadTrends');
         loadArticlesByRubrique('tendances', 'trends-container');
     };
     
-    // Fonction pour charger les Visages (ancienne version)
     window.loadVisages = async function(filter = 'all') {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadVisages');
         loadArticlesByRubrique('visages', 'visages-container');
     };
     
-    // Fonction pour charger les Découvertes (ancienne version)
     window.loadDiscoveries = async function() {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadDiscoveries');
         loadArticlesByRubrique('decouvertes', 'discoveries-container');
     };
     
-    // Fonction pour charger les Événements (Culture/Agenda)
     window.loadEvents = async function() {
         console.log('⚠️ Utilisation de l\'ancienne fonction loadEvents');
         loadArticlesByRubrique('culture', 'events-container');
     };
-    
+
     // ============================================
-    // 12. FONCTION DE DÉBOGAGE GLOBALE
+    // 24. FONCTION DE DÉBOGAGE GLOBALE
     // ============================================
     
-    // Fonction de débogage pour vérifier les articles (globale)
+    async function debugArticles(rubrique) {
+        console.log(`🔍 Debug ${rubrique}...`);
+        
+        try {
+            const { data, error, count } = await supabase
+                .from('articles')
+                .select('*', { count: 'exact' })
+                .eq('rubrique', rubrique)
+                .eq('statut', 'publié');
+            
+            if (error) {
+                console.error(`❌ Erreur query ${rubrique}:`, error);
+                return;
+            }
+            
+            console.log(`📊 ${rubrique}: ${count} articles trouvés`);
+            
+            if (data && data.length > 0) {
+                data.forEach((article, index) => {
+                    console.log(`  ${index + 1}. ${article.titre_fr} (ID: ${article.id})`);
+                    console.log(`     Image: ${article.image_url ? '✓' : '✗'}`);
+                    console.log(`     Statut: ${article.statut}`);
+                    console.log(`     Date: ${article.date_publication}`);
+                });
+            }
+            
+        } catch (error) {
+            console.error(`💥 Exception debug ${rubrique}:`, error);
+        }
+    }
+    
     window.debugArticles = debugArticles;
     
-    // Testez chaque rubrique au chargement
+    // Test au chargement
     setTimeout(() => {
         console.log('🔍 Lancement du débogage des articles...');
         debugArticles('actualites');
         debugArticles('visages');
         debugArticles('mode');
-        debugArticles('tendances');
-        debugArticles('coulisses');
     }, 2000);
     
     console.log('🚀 Script principal centralisé chargé avec succès !');
