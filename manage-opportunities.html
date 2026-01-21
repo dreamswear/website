@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Opportunités - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container" style="max-width: 1400px; margin: 40px auto; padding: 20px;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+            <h1><i class="fas fa-bullhorn"></i> Gestion des Opportunités</h1>
+            <div style="display: flex; gap: 10px;">
+                <a href="dashboard-management.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au Dashboard Management
+                </a>
+                <a href="dashboard-opportunities.html" target="_blank" class="btn btn-outline">
+                    <i class="fas fa-eye"></i> Voir Dashboard Opportunités
+                </a>
+                <button class="btn btn-primary" onclick="createOpportunity()">
+                    <i class="fas fa-plus"></i> Créer une opportunité
+                </button>
+            </div>
+        </header>
+
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>Opportunités actives</h3>
+                <p class="stat-number" id="activeOpportunities" style="font-size: 2rem; font-weight: bold; color: #28a745;">0</p>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>Candidatures totales</h3>
+                <p class="stat-number" id="totalApplications" style="font-size: 2rem; font-weight: bold; color: #17a2b8;">0</p>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>À venir</h3>
+                <p class="stat-number" id="upcomingOpportunities" style="font-size: 2rem; font-weight: bold; color: #ffc107;">0</p>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>Terminées</h3>
+                <p class="stat-number" id="completedOpportunities" style="font-size: 2rem; font-weight: bold; color: #6c757d;">0</p>
+            </div>
+        </div>
+
+        <div class="tabs" style="display: flex; border-bottom: 2px solid #eee; margin-bottom: 30px;">
+            <button class="tab-btn active" onclick="switchTab('active')" data-tab="active">
+                <i class="fas fa-play-circle"></i> Actives
+            </button>
+            <button class="tab-btn" onclick="switchTab('upcoming')" data-tab="upcoming">
+                <i class="fas fa-clock"></i> À venir
+            </button>
+            <button class="tab-btn" onclick="switchTab('completed')" data-tab="completed">
+                <i class="fas fa-check-circle"></i> Terminées
+            </button>
+            <button class="tab-btn" onclick="switchTab('applications')" data-tab="applications">
+                <i class="fas fa-file-alt"></i> Candidatures
+                <span id="pendingAppsBadge" class="badge" style="display: none;">0</span>
+            </button>
+        </div>
+
+        <!-- Onglet Opportunités -->
+        <div id="opportunitiesTab" class="tab-content" style="display: block;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Opportunités</h2>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="searchOpportunity" placeholder="Rechercher..." 
+                           style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 250px;">
+                    <select id="filterType" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">Tous types</option>
+                        <option value="editorial">Éditorial</option>
+                        <option value="collaboration">Collaboration</option>
+                        <option value="contest">Concours</option>
+                        <option value="workshop">Workshop</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="opportunitiesList">
+                <!-- Opportunités chargées dynamiquement -->
+            </div>
+        </div>
+
+        <!-- Onglet Candidatures -->
+        <div id="applicationsTab" class="tab-content" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Candidatures</h2>
+                <div style="display: flex; gap: 10px;">
+                    <select id="filterApplicationStatus" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">Tous statuts</option>
+                        <option value="pending">En attente</option>
+                        <option value="reviewed">En revue</option>
+                        <option value="accepted">Acceptées</option>
+                        <option value="rejected">Rejetées</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="applicationsList">
+                <!-- Candidatures chargées dynamiquement -->
+            </div>
+        </div>
+
+        <!-- Modal création/édition opportunité -->
+        <div id="opportunityModal" class="modal" style="display: none;">
+            <div style="background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                    <h2 id="modalTitle">Créer une opportunité</h2>
+                    <button onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+                <form id="opportunityForm" onsubmit="saveOpportunity(event)">
+                    <input type="hidden" id="opportunityId">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label>Titre *</label>
+                            <input type="text" id="title" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label>Type *</label>
+                            <select id="type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="">Sélectionner</option>
+                                <option value="editorial">Éditorial</option>
+                                <option value="collaboration">Collaboration</option>
+                                <option value="contest">Concours</option>
+                                <option value="workshop">Workshop</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label>Description *</label>
+                        <textarea id="description" rows="4" required 
+                                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label>Date de début *</label>
+                            <input type="date" id="start_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label>Date limite *</label>
+                            <input type="date" id="deadline" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label>Participation (€)</label>
+                            <input type="number" id="participation_fee" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label>Places disponibles</label>
+                            <input type="number" id="spots_available" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        </div>
+                        <div>
+                            <label>Statut</label>
+                            <select id="status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                <option value="active">Active</option>
+                                <option value="upcoming">À venir</option>
+                                <option value="completed">Terminée</option>
+                                <option value="draft">Brouillon</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label>Domaines concernés</label>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="domains" value="haute-couture"> Haute Couture
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="domains" value="streetwear"> Streetwear
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="domains" value="designer"> Designer
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="domains" value="bijoux"> Bijoux
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" name="domains" value="tricot"> Tricot
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<script src="dashboard-management.js"></script>
+</body>
+</html>
