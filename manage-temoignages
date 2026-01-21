@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Témoignages - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container" style="max-width: 1200px; margin: 40px auto; padding: 20px;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+            <h1><i class="fas fa-star"></i> Gestion des Témoignages</h1>
+            <div style="display: flex; gap: 10px;">
+                <a href="dashboard-management.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au Dashboard Management
+                </a>
+                <a href="dashboard-temoignages.html" target="_blank" class="btn btn-outline">
+                    <i class="fas fa-eye"></i> Voir Dashboard Témoignages
+                </a>
+            </div>
+        </header>
+
+        <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>Témoignages publiés</h3>
+                <p class="stat-number" id="publishedCount" style="font-size: 2rem; font-weight: bold; color: #28a745;">0</p>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>En attente</h3>
+                <p class="stat-number" id="pendingCount" style="font-size: 2rem; font-weight: bold; color: #ffc107;">0</p>
+            </div>
+            <div class="stat-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                <h3>Taux de réponse</h3>
+                <p class="stat-number" id="responseRate" style="font-size: 2rem; font-weight: bold; color: #17a2b8;">0%</p>
+            </div>
+        </div>
+
+        <div class="tabs" style="display: flex; border-bottom: 2px solid #eee; margin-bottom: 30px;">
+            <button class="tab-btn active" onclick="switchTab('all')" data-tab="all">
+                <i class="fas fa-list"></i> Tous les témoignages
+            </button>
+            <button class="tab-btn" onclick="switchTab('pending')" data-tab="pending">
+                <i class="fas fa-clock"></i> En attente
+                <span id="pendingBadge" class="badge" style="display: none;">0</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('featured')" data-tab="featured">
+                <i class="fas fa-crown"></i> En vedette
+            </button>
+        </div>
+
+        <div id="allTab" class="tab-content" style="display: block;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Tous les témoignages</h2>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="searchTestimonial" placeholder="Rechercher..." 
+                           style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 250px;">
+                    <select id="filterRating" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="">Toutes les notes</option>
+                        <option value="5">★★★★★</option>
+                        <option value="4">★★★★☆</option>
+                        <option value="3">★★★☆☆</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="testimonialsList">
+                <!-- Témoignages chargés dynamiquement -->
+            </div>
+        </div>
+
+        <div id="pendingTab" class="tab-content" style="display: none;">
+            <h2>Témoignages en attente de validation</h2>
+            <div id="pendingList">
+                <!-- Témoignages en attente -->
+            </div>
+        </div>
+
+        <div id="featuredTab" class="tab-content" style="display: none;">
+            <h2>Témoignages en vedette</h2>
+            <div id="featuredList">
+                <!-- Témoignages en vedette -->
+            </div>
+        </div>
+    </div>
+<script src="dashboard-management.js"></script>
+</body>
+</html>
