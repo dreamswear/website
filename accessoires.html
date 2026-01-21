@@ -2,422 +2,243 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accessoires - DREAMSWEAR MAG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #1a1a1a;
-            --secondary: #f5f5f5;
-            --accent: #d4af37;
-            --text-dark: #1a1a1a;
-            --text-light: #ffffff;
-            --bg-light: #ffffff;
-            --bg-dark: #121212;
-            --border-light: #e0e0e0;
-            --border-dark: #333333;
-            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            --radius: 8px;
-            --transition: all 0.3s ease;
+        /* Styles spécifiques à la page Accessoires */
+        .accessoires-page {
+            padding: 40px 0;
         }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Montserrat', sans-serif;
-            background: var(--bg-light);
-            color: var(--text-dark);
-            transition: var(--transition);
-        }
-
-        body[data-theme="night"] {
-            background: var(--bg-dark);
-            color: var(--text-light);
-        }
-
-        /* Header */
-        .simple-header {
-            background: var(--bg-light);
-            border-bottom: 1px solid var(--border-light);
-            padding: 15px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-        }
-
-        body[data-theme="night"] .simple-header {
-            background: rgba(18, 18, 18, 0.9);
-            border-bottom-color: var(--border-dark);
-        }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-            letter-spacing: 1px;
-        }
-
-        body[data-theme="night"] .logo {
-            color: var(--text-light);
-        }
-
-        .theme-selector {
-            position: relative;
-        }
-
-        .theme-button {
-            background: transparent;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius);
-            padding: 8px 15px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            color: var(--primary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-        }
-
-        body[data-theme="night"] .theme-button {
-            border-color: var(--border-dark);
-            color: var(--text-light);
-        }
-
-        .theme-button:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .theme-arrow {
-            font-size: 0.8rem;
-            transition: transform 0.3s ease;
-        }
-
-        .theme-options {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 5px;
-            background: var(--bg-light);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius);
-            box-shadow: var(--card-shadow);
-            min-width: 120px;
-            display: none;
-            z-index: 1001;
-        }
-
-        body[data-theme="night"] .theme-options {
-            background: var(--bg-dark);
-            border-color: var(--border-dark);
-        }
-
-        .theme-options.show {
-            display: block;
-        }
-
-        .theme-option {
-            display: block;
-            padding: 10px 15px;
-            color: var(--primary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        body[data-theme="night"] .theme-option {
-            color: var(--text-light);
-        }
-
-        .theme-option:hover {
-            background: var(--accent);
-            color: var(--text-dark);
-        }
-
-        /* Contenu principal */
-        .main-content {
-            max-width: 1200px;
-            margin: 80px auto 40px;
-            padding: 0 20px;
-        }
-
-        .page-title {
+        
+        .page-header {
             text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--accent);
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 80px 20px;
+            border-radius: 10px;
+            color: white;
         }
-
-        .page-title h1 {
+        
+        .page-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin: 0 0 10px 0;
+            font-size: 3rem;
+            margin-bottom: 20px;
         }
-
-        body[data-theme="night"] .page-title h1 {
-            color: var(--text-light);
-        }
-
-        .page-title p {
-            color: #666;
+        
+        .page-header p {
             font-size: 1.1rem;
-            margin: 0;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
         }
-
-        body[data-theme="night"] .page-title p {
-            color: #aaa;
-        }
-
-        /* Articles Grid */
-        .articles-grid {
+        
+        .accessoires-categories {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
         }
-
-        .article-card {
-            background: var(--bg-light);
-            border-radius: var(--radius);
+        
+        .accessoires-category {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .accessoires-category:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .accessoires-category i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        .accessoires-category h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .accessoires-category p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .accessoires-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .accessoires-card {
+            background: var(--card-bg);
+            border-radius: 15px;
             overflow: hidden;
             box-shadow: var(--card-shadow);
-            border: 1px solid var(--border-light);
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
-
-        body[data-theme="night"] .article-card {
-            background: #1e1e1e;
-            border-color: var(--border-dark);
+        
+        .accessoires-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
-
-        .article-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .article-image {
+        
+        .accessoires-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
-            display: block;
         }
-
-        .article-content {
-            padding: 20px;
+        
+        .accessoires-content {
+            padding: 25px;
         }
-
-        .article-meta {
+        
+        .accessoires-tag {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--accent);
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .accessoires-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .accessoires-content p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .accessoires-meta {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            color: #666;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
         }
-
-        body[data-theme="night"] .article-meta {
-            color: #aaa;
+        
+        .accessoires-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-
-        .article-category {
+        
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
             background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: var(--text-dark);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75rem;
             font-weight: 600;
+            font-size: 0.8rem;
         }
-
-        .article-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.3rem;
-            margin: 0 0 10px 0;
-            color: var(--primary);
-            line-height: 1.3;
-        }
-
-        body[data-theme="night"] .article-title {
-            color: var(--text-light);
-        }
-
-        .article-excerpt {
-            color: #666;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin: 0 0 15px 0;
-        }
-
-        body[data-theme="night"] .article-excerpt {
-            color: #aaa;
-        }
-
-        .article-read-more {
-            display: inline-block;
+        
+        .accessoires-link {
             color: var(--accent);
             text-decoration: none;
             font-weight: 600;
             font-size: 0.9rem;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
-
-        .article-read-more:hover {
+        
+        .accessoires-link:hover {
             text-decoration: underline;
+            transform: translateX(5px);
         }
-
-        .loading {
+        
+        .section-title {
             text-align: center;
-            padding: 40px;
-            color: #666;
+            margin-bottom: 40px;
         }
-
-        body[data-theme="night"] .loading {
-            color: #aaa;
-        }
-
-        .error-message {
-            text-align: center;
-            padding: 40px;
-            color: #dc3545;
-            background: rgba(220, 53, 69, 0.1);
-            border-radius: var(--radius);
-            border: 1px solid rgba(220, 53, 69, 0.2);
-        }
-
-        /* Footer */
-        .simple-footer {
-            background: var(--bg-light);
-            border-top: 1px solid var(--border-light);
-            padding: 40px 20px;
-        }
-
-        body[data-theme="night"] .simple-footer {
-            background: var(--bg-dark);
-            border-top-color: var(--border-dark);
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
-        }
-
-        .footer-logo {
+        
+        .section-title h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 20px;
+            font-size: 2.2rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
         }
-
-        body[data-theme="night"] .footer-logo {
-            color: var(--text-light);
+        
+        .section-title p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
         }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background: var(--secondary);
-            border-radius: 50%;
-            color: var(--primary);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        body[data-theme="night"] .social-links a {
-            background: #2a2a2a;
-            color: var(--text-light);
-        }
-
-        .social-links a:hover {
-            background: var(--accent);
-            color: var(--text-dark);
-            transform: translateY(-2px);
-        }
-
-        .footer-bottom {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-light);
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        body[data-theme="night"] .footer-bottom {
-            border-top-color: var(--border-dark);
-            color: #aaa;
-        }
-
-        /* Type d'accessoire */
-        .accessoire-type {
-            text-transform: capitalize;
-        }
-
-        /* Responsive */
+        
         @media (max-width: 768px) {
-            .main-content {
-                margin: 70px auto 30px;
-                padding: 0 15px;
+            .page-header h1 {
+                font-size: 2.5rem;
             }
-
-            .page-title h1 {
-                font-size: 2rem;
-            }
-
-            .articles-grid {
+            
+            .accessoires-grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
             }
-
-            .simple-header {
-                padding: 12px 15px;
-            }
-
-            .logo {
-                font-size: 1.3rem;
+            
+            .accessoires-categories {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-    <div id="notifications-container" class="notifications-container"></div>
 <body>
-    <!-- Header simple -->
-    <header class="simple-header">
-        <div class="header-content">
-            <div class="logo">DREAMS</div>
-             <div class="theme-selector">
-                     <button id="theme-select-button" aria-label="Choisir un thème">
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">DREAMSWEAR</div>
+            <nav class="main-nav">
+                <ul>
+                    <!-- Bouton S'abonner retiré -->
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="menu-container">
+                    <button class="menu-btn" id="menu-btn">
+                        <i class="fas fa-bars"></i>
+                        <span>Menu</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-menu">
+                        <ul>
+                            <li><a href="index.html">Accueil</a></li>
+                            <li><a href="visages.html">Visages</a></li>
+                            <li><a href="coulisses.html">Coulisses</a></li>
+                            <li><a href="tendances.html">Tendances</a></li>
+                            <li><a href="mode.html">Mode</a></li>
+                            <li><a href="beaute.html">Beauté</a></li>
+                            <li><a href="accessoires.html" class="active">Accessoires</a></li>
+                            <li><a href="actualites.html">Actualités</a></li>
+                            <li><a href="découvertes.html">Découvertes</a></li>
+                            <li><a href="culture.html">Culture/Agenda</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- Bouton Espace Créateurs retiré -->
+                <div class="theme-selector">
+                    <button id="theme-select-button" aria-label="Choisir un thème">
                         <span id="theme-button-text">Thème</span> <span class="arrow-down"></span>
                     </button>
                     <ul id="theme-options" class="hidden-options">
@@ -429,38 +250,72 @@
         </div>
     </header>
 
-    <!-- Contenu principal -->
-    <main class="main-content">
-        <div class="page-title">
-            <h1>Accessoires</h1>
-            <p>Les détails qui font la différence</p>
-        </div>
-
-        <!-- Liste des articles -->
-        <div id="accessoires-container" class="articles-grid">
-            <div class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Chargement des articles...
+    <main class="accessoires-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Accessoires</h1>
+                <p>Les détails qui font la différence. Découvrez l'univers des bijoux, sacs, chaussures et autres éléments essentiels qui subliment votre style.</p>
+            </div>
+            
+            <div class="accessoires-categories">
+                <!-- Catégories basées sur l'admin : bijoux, sacs, chaussures, ceintures, lunettes -->
+                <div class="accessoires-category" data-category="bijoux">
+                    <i class="fas fa-gem"></i>
+                    <h3>Bijoux</h3>
+                    <p>Pièces uniques et tendances qui subliment chaque tenue</p>
+                </div>
+                <div class="accessoires-category" data-category="sacs">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h3>Sacs</h3>
+                    <p>Des indispensables pratiques aux pièces de collection</p>
+                </div>
+                <div class="accessoires-category" data-category="chaussures">
+                    <i class="fas fa-shoe-prints"></i>
+                    <h3>Chaussures</h3>
+                    <p>Créations qui allient confort, style et innovation</p>
+                </div>
+                <div class="accessoires-category" data-category="ceintures">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Ceintures</h3>
+                    <p>Accessoires structurants pour compléter votre look</p>
+                </div>
+                <div class="accessoires-category" data-category="lunettes">
+                    <i class="fas fa-glasses"></i>
+                    <h3>Lunettes</h3>
+                    <p>De la vue au style, des créations qui transforment</p>
+                </div>
+            </div>
+            
+            <div class="section-title">
+                <h2>Nos Derniers Articles Accessoires</h2>
+                <p>Des analyses expertes et des guides sur les accessoires essentiels</p>
+            </div>
+            
+            <div class="accessoires-grid" id="accessoires-container">
+                <!-- Chargé dynamiquement -->
             </div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="simple-footer">
-        <div class="footer-content">
-            <div class="footer-logo">DREAMSWEAR MAG</div>
-            <div class="social-links">
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <h4>DREAMWEAR MAG</h4>
+                <p>Le style est une façon de dire qui vous êtes sans parler.</p>
+                <div class="social-links">
                     <a href="https://www.instagram.com/dreamswear_mag?utm_source=ig_web_button_share_sheet&igsh=MWtqbm5menp5MTlubw==" target="_blank"><i class="fab fa-instagram"></i></a>
                     <a href="#"><i class="fab fa-linkedin-in"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>
                     <a href="https://www.tiktok.com/@dreams_wear0?is_from_webapp=1&sender_device=pc"><i class="fab fa-tiktok"></i></a>
                     <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
+            </div>
             <div class="footer-bottom">
                 <p>&copy; 2025 DREAMSWEAR MAG. Tous droits réservés.</p>
-                <p>L'élégance dans chaque détail</p>
             </div>
         </div>
     </footer>
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
 </body>
