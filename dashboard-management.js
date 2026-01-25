@@ -1323,13 +1323,15 @@ class DashboardManager {
             
             if (this.supabase) {
                 const { data, error } = await this.supabase
-                    .from('portfolios')
+                    .from('portfolio')
                     .select(`
                         *,
-                        creators (
-                            full_name,
+                        créateurs:creator_id (
+                            nom_marque,
+                            prenom,
+                            nom,
                             email,
-                            domain
+                            domaine
                         )
                     `)
                     .order('updated_at', { ascending: false });
@@ -1337,18 +1339,36 @@ class DashboardManager {
                 if (error) throw error;
                 
                 portfolios = data.map(item => ({
-                    ...item,
-                    creator_name: item.creators?.full_name,
-                    creator_email: item.creators?.email,
-                    creator_domain: item.creators?.domain
+                    id: item.id,
+                    brand_name: item.title,
+                    creator_id: item.creator_id,
+                    creator_name: item.créateurs?.nom_marque || 
+                                 `${item.créateurs?.prenom || ''} ${item.créateurs?.nom || ''}`.trim(),
+                    creator_email: item.créateurs?.email,
+                    creator_domain: item.créateurs?.domaine,
+                    bio: item.description,
+                    style: item.domain,
+                    profile_image: item.main_image_url,
+                    instagram: item.instagram_handle,
+                    website: item.website,
+                    is_complete: item.is_complete,
+                    needs_review: item.needs_review,
+                    photos_count: item.photos_count || 0,
+                    collections_count: item.collections_count || 0,
+                    products_count: item.products_count || 0,
+                    admin_notes: item.admin_notes,
+                    is_public: item.is_public,
+                    validated_at: item.validated_at,
+                    updated_at: item.updated_at,
+                    created_at: item.created_at
                 }));
             } else {
                 // Mode simulation
                 portfolios = [
                     {
-                        id: 1,
+                        id: '550e8400-e29b-41d4-a716-446655440000',
                         brand_name: 'Maison Couture',
-                        creator_id: 1,
+                        creator_id: '123e4567-e89b-12d3-a456-426614174000',
                         creator_name: 'Marie Lambert',
                         creator_domain: 'haute-couture',
                         bio: 'Créatrice de haute couture parisienne',
@@ -1562,27 +1582,50 @@ class DashboardManager {
             let portfolio = window.allPortfolios.find(p => p.id == portfolioId);
             let creator = null;
             
-            if (!portfolio && this.supabase) {
-                const { data, error } = await this.supabase
-                    .from('portfolios')
-                    .select('*')
-                    .eq('id', portfolioId)
-                    .single();
-                
-                if (error) throw error;
-                portfolio = data;
-            }
+        if (!portfolio && this.supabase) {
+            const { data, error } = await this.supabase
+                .from('portfolio')
+                .select(`
+                    *,
+                    créateurs:creator_id (
+                        *
+                    )
+                `)
+                .eq('id', portfolioId)
+                .single();
             
-            if (portfolio && this.supabase) {
-                const { data, error } = await this.supabase
-                    .from('creators')
-                    .select('*')
-                    .eq('id', portfolio.creator_id)
-                    .single();
-                
-                if (!error) creator = data;
-            }
+            if (error) throw error;
             
+            if (data) {
+                portfolio = {
+                    id: data.id,
+                    brand_name: data.title,
+                    creator_id: data.creator_id,
+                    creator_name: data.créateurs?.nom_marque || 
+                                 `${data.créateurs?.prenom || ''} ${data.créateurs?.nom || ''}`.trim(),
+                    creator_email: data.créateurs?.email,
+                    creator_phone: data.créateurs?.telephone,
+                    creator_domain: data.créateurs?.domaine,
+                    bio: data.description,
+                    style: data.domain,
+                    profile_image: data.main_image_url,
+                    instagram: data.instagram_handle,
+                    website: data.website,
+                    is_complete: data.is_complete,
+                    needs_review: data.needs_review,
+                    photos_count: data.photos_count || 0,
+                    collections_count: data.collections_count || 0,
+                    products_count: data.products_count || 0,
+                    admin_notes: data.admin_notes,
+                    is_public: data.is_public,
+                    validated_at: data.validated_at,
+                    updated_at: data.updated_at,
+                    created_at: data.created_at
+                };
+                creator = data.créateurs;
+            }
+        }
+        
             const modal = document.getElementById('portfolioModal');
             const content = document.getElementById('portfolioModalContent');
             
