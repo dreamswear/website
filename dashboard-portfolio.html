@@ -412,206 +412,193 @@
     </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Vérifier la connexion
-            const creatorId = sessionStorage.getItem('creatorId');
-            const creatorBrand = sessionStorage.getItem('creatorBrand');
-            
-            if (!creatorId) {
-                window.location.href = '../index.html';
-                return;
-            }
-
-            // Mettre à jour le nom
-            if (creatorBrand) {
-                document.getElementById('userName').textContent = creatorBrand;
-            }
-
-            // Charger les données existantes
-            let portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {
-                brandName: creatorBrand || '',
-                creatorName: '',
-                domain: '',
-                bio: '',
-                instagram: '',
-                photoBase64: ''
-            };
-
-            // Éléments du DOM
-            const elements = {
-                fileInput: document.getElementById('fileInput'),
-                browseOption: document.getElementById('browseOption'),
-                cameraOption: document.getElementById('cameraOption'),
-                previewImage: document.getElementById('previewImage'),
-                previewActions: document.getElementById('previewActions'),
-                changePhotoBtn: document.getElementById('changePhotoBtn'),
-                removePhotoBtn: document.getElementById('removePhotoBtn'),
-                brandName: document.getElementById('brandName'),
-                creatorName: document.getElementById('creatorName'),
-                domain: document.getElementById('domain'),
-                bio: document.getElementById('bio'),
-                instagram: document.getElementById('instagram'),
-                form: document.getElementById('portfolioForm'),
-                userAvatar: document.getElementById('userAvatar')
-            };
-
-            // Remplir le formulaire
-            Object.keys(portfolioData).forEach(key => {
-                if (elements[key]) {
-                    elements[key].value = portfolioData[key] || '';
-                }
-            });
-
-            // Afficher la photo si elle existe
-            if (portfolioData.photoBase64) {
-                elements.previewImage.src = portfolioData.photoBase64;
-                elements.previewImage.classList.add('visible');
-                elements.previewActions.style.display = 'flex';
-                elements.userAvatar.innerHTML = `<img src="${portfolioData.photoBase64}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-            }
-
-            // 1. PARCOURIR L'APPAREIL
-            elements.browseOption.addEventListener('click', function() {
-                elements.fileInput.click();
-            });
-
-            // 2. PRENDRE UNE PHOTO
-            elements.cameraOption.addEventListener('click', function() {
-                if (!('mediaDevices' in navigator) || !navigator.mediaDevices.getUserMedia) {
-                    // Fallback vers input file normal
-                    alert("Votre appareil ne supporte pas l'appareil photo directement. Utilisez 'Parcourir l'appareil'.");
-                    elements.fileInput.click();
-                    return;
-                }
-
-                // Créer un input file avec capture pour appareil photo
-                const cameraInput = document.createElement('input');
-                cameraInput.type = 'file';
-                cameraInput.accept = 'image/*';
-                cameraInput.capture = 'environment'; // 'environment' pour arrière, 'user' pour avant
+// Initialisation après chargement du DOM
+document.addEventListener('DOMContentLoaded', function() {
+    // Déclarer les variables globales
+    const previewImage = document.getElementById('previewImage');
+    const previewActions = document.getElementById('previewActions');
+    const userAvatar = document.getElementById('userAvatar');
+    const portfolioForm = document.getElementById('portfolioForm');
+    const fileInput = document.getElementById('fileInput');
+    const browseOption = document.getElementById('browseOption');
+    const cameraOption = document.getElementById('cameraOption');
+    const changePhotoBtn = document.getElementById('changePhotoBtn');
+    const removePhotoBtn = document.getElementById('removePhotoBtn');
+    
+    // Récupérer creatorId (exemple)
+    const creatorId = sessionStorage.getItem('userId') || 'temp-user';
+    
+    // Fonction de notification
+    function showNotification(message, type = 'success') {
+        // Implémentez votre système de notification
+        alert(message); // Solution temporaire
+    }
+    
+    // Gestion de la sélection de photo
+    function handlePhotoSelection(file) {
+        if (!file.type.match('image.*')) {
+            showNotification('Veuillez sélectionner une image', 'error');
+            return;
+        }
+        
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('La photo est trop lourde (max 5 Mo)', 'error');
+            return;
+        }
+        
+        // Upload vers Supabase Storage
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                // Créer un nom de fichier unique
+                const fileName = `portfolio-${creatorId}-${Date.now()}.jpg`;
+                const filePath = `portfolio-images/${fileName}`;
                 
-                cameraInput.onchange = function(e) {
-                    if (e.target.files.length > 0) {
-                        handlePhotoSelection(e.target.files[0]);
-                    }
-                };
+                // Convertir Base64 en blob
+                const base64Data = e.target.result.split(',')[1];
+                const blob = await fetch(`data:${file.type};base64,${base64Data}`).then(res => res.blob());
                 
-                cameraInput.click();
-            });
-
-            // 3. Gestion de la sélection de fichier (pour parcourir l'appareil)
-            elements.fileInput.addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    handlePhotoSelection(e.target.files[0]);
-                }
-            });
-
-            // 4. Fonction pour traiter la photo
-            function handlePhotoSelection(file) {
-                // Validation
-                if (!file.type.match('image.*')) {
-                    showNotification('Veuillez sélectionner une image', 'error');
-                    return;
-                }
-
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('La photo est trop lourde (max 5 Mo)', 'error');
-                    return;
-                }
-
-                // Convertir en base64
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    portfolioData.photoBase64 = e.target.result;
-                    
-                    // Afficher l'aperçu
-                    elements.previewImage.src = e.target.result;
-                    elements.previewImage.classList.add('visible');
-                    elements.previewActions.style.display = 'flex';
-                    
-                    // Mettre à jour l'avatar
-                    elements.userAvatar.innerHTML = `<img src="${e.target.result}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
-                    
+                // Upload vers Supabase Storage
+                const { data, error } = await supabase.storage
+                    .from('portfolios')
+                    .upload(filePath, blob, {
+                        contentType: file.type,
+                        upsert: true
+                    });
+                
+                if (error) throw error;
+                
+                // Récupérer l'URL publique
+                const { data: { publicUrl } } = supabase.storage
+                    .from('portfolios')
+                    .getPublicUrl(filePath);
+                
+                // Afficher l'image
+                if (previewImage) {
+                    previewImage.src = publicUrl;
+                    previewImage.classList.add('visible');
                     showNotification('Photo ajoutée avec succès', 'success');
-                };
-                reader.readAsDataURL(file);
-            }
-
-            // 5. Changer la photo
-            elements.changePhotoBtn.addEventListener('click', function() {
-                elements.fileInput.click();
-            });
-
-            // 6. Supprimer la photo
-            elements.removePhotoBtn.addEventListener('click', function() {
-                if (confirm('Supprimer cette photo ?')) {
-                    portfolioData.photoBase64 = '';
-                    elements.previewImage.src = '';
-                    elements.previewImage.classList.remove('visible');
-                    elements.previewActions.style.display = 'none';
-                    elements.userAvatar.innerHTML = 'C';
-                    elements.fileInput.value = '';
-                    
-                    showNotification('Photo supprimée', 'success');
                 }
-            });
-
-            // 7. Sauvegarde du formulaire
-            elements.form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                // Récupérer les données
-                portfolioData = {
-                    brandName: elements.brandName.value.trim(),
-                    creatorName: elements.creatorName.value.trim(),
-                    domain: elements.domain.value,
-                    bio: elements.bio.value.trim(),
-                    instagram: elements.instagram.value.trim(),
-                    photoBase64: portfolioData.photoBase64
-                };
-
-                // Validation
-                if (!portfolioData.brandName || !portfolioData.creatorName || !portfolioData.domain || !portfolioData.bio) {
-                    showNotification('Veuillez remplir tous les champs obligatoires', 'error');
-                    return;
+                
+            } catch (error) {
+                console.error('Erreur upload image:', error);
+                // Fallback: utiliser Base64 localement
+                if (previewImage) {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.add('visible');
                 }
-
-                // Sauvegarder
-                localStorage.setItem(`portfolio_${creatorId}`, JSON.stringify(portfolioData));
-                sessionStorage.setItem('creatorBrand', portfolioData.brandName);
-                elements.userName.textContent = portfolioData.brandName;
-                
-                showNotification('Portfolio sauvegardé avec succès !', 'success');
-                
-                // Redirection après 2 secondes
-                setTimeout(() => {
-                    window.location.href = 'dashboard-home.html';
-                }, 2000);
-            });
-
-            // 8. Fonction de notification
-            function showNotification(message, type) {
-                // Supprimer les anciennes notifications
-                document.querySelectorAll('.notification').forEach(n => n.remove());
-                
-                const notification = document.createElement('div');
-                notification.className = `notification notification-${type === 'error' ? 'error' : 'success'}`;
-                notification.innerHTML = `
-                    <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
-                    <span>${message}</span>
-                `;
-                
-                document.body.appendChild(notification);
-                
-                setTimeout(() => notification.classList.add('show'), 10);
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
+                if (previewActions) previewActions.style.display = 'flex';
+                if (userAvatar) {
+                    userAvatar.innerHTML = `<img src="${e.target.result}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                }
+                showNotification('Photo ajoutée (stockage local)', 'success');
             }
-
-            console.log('Portfolio prêt ! Le créateur peut choisir une photo depuis son appareil.');
-        });
-    </script>
+        };
+        reader.readAsDataURL(file);
+    }
+    
+    // Événements pour les options de photo
+    browseOption.addEventListener('click', () => fileInput.click());
+    
+    cameraOption.addEventListener('click', () => {
+        // Implémentation de l'appareil photo à ajouter
+        showNotification('Fonctionnalité appareil photo à implémenter');
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handlePhotoSelection(e.target.files[0]);
+        }
+    });
+    
+    changePhotoBtn.addEventListener('click', () => fileInput.click());
+    
+    removePhotoBtn.addEventListener('click', () => {
+        previewImage.src = '';
+        previewImage.classList.remove('visible');
+        previewActions.style.display = 'none';
+        userAvatar.innerHTML = 'C';
+    });
+    
+    // Soumission du formulaire
+    portfolioForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const brandName = document.getElementById('brandName').value.trim();
+        const creatorName = document.getElementById('creatorName').value.trim();
+        const domain = document.getElementById('domain').value;
+        const bio = document.getElementById('bio').value.trim();
+        const instagram = document.getElementById('instagram').value.trim();
+        
+        if (!brandName || !creatorName || !domain || !bio) {
+            alert('Veuillez remplir tous les champs obligatoires');
+            return;
+        }
+        
+        // Récupérer l'URL de l'image
+        const photoPreview = document.getElementById('previewImage');
+        const mainImageUrl = photoPreview.src && photoPreview.classList.contains('visible') ? 
+            photoPreview.src : null;
+        
+        try {
+            // Vérifier si un portfolio existe déjà
+            const { data: existingPortfolio } = await supabase
+                .from('portfolio')
+                .select('id')
+                .eq('creator_id', creatorId)
+                .single();
+            
+            const portfolioData = {
+                creator_id: creatorId,
+                title: brandName,
+                description: bio,
+                domain: domain,
+                instagram_handle: instagram || null,
+                main_image_url: mainImageUrl,
+                is_complete: true,
+                needs_review: false,
+                updated_at: new Date().toISOString()
+            };
+            
+            let error;
+            if (existingPortfolio) {
+                // Mettre à jour le portfolio existant
+                const { error: updateError } = await supabase
+                    .from('portfolio')
+                    .update(portfolioData)
+                    .eq('id', existingPortfolio.id);
+                error = updateError;
+            } else {
+                // Créer un nouveau portfolio
+                portfolioData.id = self.crypto.randomUUID();
+                portfolioData.created_at = new Date().toISOString();
+                portfolioData.photos_count = mainImageUrl ? 1 : 0;
+                
+                const { error: insertError } = await supabase
+                    .from('portfolio')
+                    .insert([portfolioData]);
+                error = insertError;
+            }
+            
+            if (error) throw error;
+            
+            // Mettre à jour la session
+            sessionStorage.setItem('creatorBrand', brandName);
+            
+            // Afficher un message de succès
+            showNotification('Portfolio sauvegardé avec succès !', 'success');
+            
+            // Rediriger après 2 secondes
+            setTimeout(() => {
+                window.location.href = 'dashboard-home.html';
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Erreur sauvegarde portfolio:', error);
+            alert('Erreur lors de la sauvegarde du portfolio: ' + error.message);
+        }
+    });
+});
+</script>
 </body>
 </html>
