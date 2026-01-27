@@ -476,9 +476,6 @@
                 <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un portfolio, créateur ou mot-clé...">
             </div>
             
-            <button class="action-btn btn-view" onclick="applyFilters()">
-                <i class="fas fa-filter"></i> Appliquer
-            </button>
             <button class="action-btn btn-contact" onclick="resetFilters()">
                 <i class="fas fa-redo"></i> Réinitialiser
             </button>
@@ -516,7 +513,8 @@
             currentSort: 'recent',
             currentSearch: '',
             totalPortfolios: 0,
-            totalPages: 1
+            totalPages: 1,
+            searchTimeout: null
         };
 
         // INITIALISATION
@@ -558,8 +556,18 @@
             try {
                 // Construire la requête Supabase
                 let query = supabase
-                    .from('portfolio_with_creators')
-                    .select('*', { count: 'exact' });
+                    .from('portfolio')
+                    .select(`
+                        *,
+                        créateurs:creator_id (
+                            nom_marque,
+                            prenom,
+                            nom,
+                            domaine
+                        )
+                    `, { count: 'exact' })
+                    .eq('is_complete', true)
+                    .eq('is_public', true);
                 
                 // Appliquer les filtres
                 if (appState.currentDomain !== 'all') {
@@ -568,7 +576,7 @@
                 
                 // Appliquer la recherche
                 if (appState.currentSearch) {
-                    query = query.or(`portfolio_title.ilike.%${appState.currentSearch}%,portfolio_description.ilike.%${appState.currentSearch}%,brand_name.ilike.%${appState.currentSearch}%`);
+                    query = query.or(`title.ilike.%${appState.currentSearch}%,description.ilike.%${appState.currentSearch}%`);
                 }
                 
                 // Appliquer le tri
@@ -617,29 +625,30 @@
                         </div>
                     `;
                 } else {
-                    grid.innerHTML = portfolios.map(portfolio => `
+                    grid.innerHTML = portfolios.map(portfolio => {
+                        // Extraire les informations du créateur
+                        const creatorInfo = portfolio.créateurs || {};
+                        const brandName = creatorInfo.nom_marque || '';
+                        const creatorName = `${creatorInfo.prenom || ''} ${creatorInfo.nom || ''}`.trim();
+                        const creatorDisplay = brandName || creatorName || 'Anonyme';
+                        const domain = portfolio.domain || creatorInfo.domaine || 'Non spécifié';
+                        
+                        return `
                         <div class="portfolio-card" data-id="${portfolio.id}">
                             <div class="portfolio-image">
                                 ${portfolio.main_image_url ? 
-                                    `<img src="${portfolio.main_image_url}" alt="${portfolio.portfolio_title}" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMmEyYTJhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';">` : 
-                                    `<div class="portfolio-placeholder"><i class="fas fa-image"></i></div>`
-                                }
+                                    `<img src="${portfolio.main_image_url}" alt="${portfolio.title}" 
+                                          onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMmEyYTJhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';">` : 
+                                    `<div class="portfolio-placeholder"><i class="fas fa-image"></i></div>`}
                             </div>
                             <div class="portfolio-content">
-                                <div class="portfolio-title">${portfolio.portfolio_title || 'Sans titre'}</div>
+                                <div class="portfolio-title">${portfolio.title || 'Sans titre'}</div>
                                 <div class="portfolio-creator">
                                     <i class="fas fa-user"></i>
-                                    ${portfolio.brand_name || portfolio.creator_firstname + ' ' + portfolio.creator_lastname}
+                                    ${creatorDisplay}
                                 </div>
-                                <div class="portfolio-domain">${portfolio.domain || 'Non spécifié'}</div>
-                                <p class="portfolio-description">${portfolio.portfolio_description || 'Aucune description disponible.'}</p>
-                                
-                                ${portfolio.tags && portfolio.tags.length > 0 ? `
-                                    <div class="portfolio-tags">
-                                        ${portfolio.tags.slice(0, 3).map(tag => `<span class="tag">${tag}</span>`).join('')}
-                                        ${portfolio.tags.length > 3 ? `<span class="tag">+${portfolio.tags.length - 3}</span>` : ''}
-                                    </div>
-                                ` : ''}
+                                <div class="portfolio-domain">${domain}</div>
+                                <p class="portfolio-description">${portfolio.description || 'Aucune description disponible.'}</p>
                                 
                                 <div class="portfolio-meta">
                                     <div class="portfolio-stats">
@@ -669,7 +678,7 @@
                                 </div>
                             </div>
                         </div>
-                    `).join('');
+                    `}).join('');
                 }
                 
                 // Mettre à jour les statistiques
@@ -697,13 +706,15 @@
                 const { count: totalPortfolios } = await supabase
                     .from('portfolio')
                     .select('*', { count: 'exact', head: true })
-                    .eq('is_published', true);
+                    .eq('is_complete', true)
+                    .eq('is_public', true);
                 
-                // Récupérer le nombre de créateurs uniques avec portfolios
+                // Récupérer le nombre de créateurs uniques avec portfolios publics
                 const { data: creatorsData } = await supabase
                     .from('portfolio')
                     .select('creator_id')
-                    .eq('is_published', true);
+                    .eq('is_complete', true)
+                    .eq('is_public', true);
                 
                 const uniqueCreators = new Set(creatorsData?.map(p => p.creator_id) || []).size;
                 
@@ -711,17 +722,25 @@
                 const { data: viewsData } = await supabase
                     .from('portfolio')
                     .select('views_count')
-                    .eq('is_published', true);
+                    .eq('is_complete', true)
+                    .eq('is_public', true);
                 
                 const totalViews = viewsData?.reduce((sum, p) => sum + (p.views_count || 0), 0) || 0;
+                
+                // Nombre de domaines uniques
+                const { data: domainsData } = await supabase
+                    .from('portfolio')
+                    .select('domain')
+                    .eq('is_complete', true)
+                    .eq('is_public', true);
+                
+                const uniqueDomains = new Set(domainsData?.map(p => p.domain).filter(Boolean) || []).size;
                 
                 // Mettre à jour l'interface
                 document.getElementById('total-portfolios').textContent = totalPortfolios || 0;
                 document.getElementById('total-creators').textContent = uniqueCreators;
                 document.getElementById('total-views').textContent = totalViews;
-                
-                // Les domaines sont fixes
-                document.getElementById('total-domains').textContent = 5;
+                document.getElementById('total-domains').textContent = uniqueDomains;
                 
             } catch (error) {
                 console.error('❌ Erreur statistiques:', error);
@@ -792,7 +811,7 @@
             }
         }
 
-        // APPLICATION DES FILTRES
+        // APPLICATION AUTOMATIQUE DES FILTRES
         function applyFilters() {
             appState.currentDomain = document.getElementById('domainFilter').value;
             appState.currentSort = document.getElementById('sortFilter').value;
@@ -814,6 +833,19 @@
             appState.currentPage = 1;
             
             loadPortfolios();
+        }
+
+        // RECHERCHE AVEC DÉLAI (debounce)
+        function debouncedSearch() {
+            // Annuler le timeout précédent
+            if (appState.searchTimeout) {
+                clearTimeout(appState.searchTimeout);
+            }
+            
+            // Définir un nouveau timeout
+            appState.searchTimeout = setTimeout(() => {
+                applyFilters();
+            }, 500); // 500ms de délai
         }
 
         // VISIONNER UN PORTFOLIO
@@ -854,12 +886,8 @@
 
         // CONFIGURATION DES ÉVÉNEMENTS
         function setupEventListeners() {
-            // Recherche avec la touche Enter
-            document.getElementById('searchInput').addEventListener('keyup', function(event) {
-                if (event.key === 'Enter') {
-                    applyFilters();
-                }
-            });
+            // Recherche avec délai (debounce)
+            document.getElementById('searchInput').addEventListener('input', debouncedSearch);
             
             // Filtres automatiques
             document.getElementById('domainFilter').addEventListener('change', applyFilters);
@@ -872,6 +900,7 @@
         window.changePage = changePage;
         window.viewPortfolio = viewPortfolio;
         window.openInstagram = openInstagram;
+        window.formatDate = formatDate;
     </script>
 </body>
 </html>
