@@ -4,300 +4,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil Créateur - Dreamswear</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Styles pour le menu mobile amélioré */
+        /* Styles pour le header simplifié */
         .dashboard-header {
-            position: relative;
-        }
-
-        .main-nav {
-            display: flex;
-            gap: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: white;
-            cursor: pointer;
-            padding: 0.5rem;
-        }
-
-        /* Menu déroulant */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-toggle {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            padding: 0.75rem 1rem;
-        }
-
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
-            min-width: 200px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-            border-radius: 8px;
+            background: var(--dark);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
             z-index: 1000;
-            overflow: hidden;
         }
-
-        .dropdown-menu.active {
-            display: block;
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            color: #333;
-            text-decoration: none;
-            transition: background 0.2s;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .dropdown-item:hover {
-            background: #f8f9fa;
-        }
-
-        .dropdown-item:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-item i {
-            width: 20px;
-            color: #666;
-        }
-
-        /* Header mobile */
-        .header-container {
+        
+        .dashboard-header .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
+            padding: 0 20px;
         }
-
+        
         .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
         }
-
+        
         .logo a {
-            color: white;
+            color: var(--primary);
             text-decoration: none;
+            letter-spacing: 1px;
         }
-
-        /* Mobile styles */
-        @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .main-nav {
-                display: none;
-                position: fixed;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: #2c3e50;
-                flex-direction: column;
-                padding: 1rem;
-                z-index: 1000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-
-            .main-nav.active {
-                display: flex;
-            }
-
-            .main-nav .nav-link {
-                width: 100%;
-                text-align: left;
-                padding: 0.75rem 1rem;
-                border-radius: 4px;
-                margin: 0.25rem 0;
-            }
-
-            /* Menu déroulant mobile */
-            .dropdown {
-                width: 100%;
-            }
-
-            .dropdown-toggle {
-                width: 100%;
-                justify-content: space-between;
-                background: rgba(255,255,255,0.1);
-                border-radius: 4px;
-            }
-
-            .dropdown-menu {
-                position: static;
-                box-shadow: none;
-                background: rgba(0,0,0,0.2);
-                margin-top: 0.25rem;
-                border-radius: 4px;
-            }
-
-            .dropdown-item {
-                color: white;
-                border-bottom: 1px solid rgba(255,255,255,0.1);
-            }
-
-            .dropdown-item:hover {
-                background: rgba(255,255,255,0.1);
-            }
-
-            .dropdown-item i {
-                color: rgba(255,255,255,0.7);
-            }
-
-            /* Correction du header */
-            .dashboard-header {
-                padding: 0;
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
-
-        @media (max-width: 480px) {
-            .logo {
-                font-size: 1.2rem;
-            }
-
-            .main-nav {
-                top: 60px;
-            }
-
-            .welcome-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-
-            .quick-nav-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .quick-stats {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .stat-card {
-                width: 100%;
-            }
+        
+        .btn-logout {
+            padding: 8px 15px;
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(220, 53, 69, 0.2);
         }
     </style>
 </head>
 <body>
-    <!-- Header Commun -->
+    <!-- Header simplifié -->
     <header class="dashboard-header">
-        <div class="container header-container">
+        <div class="container">
             <div class="logo">
-                <a href="index.html">DREAMSWEAR</a>
+                <a href="index.html">DREAMS</a>
             </div>
-            
-            <nav class="main-nav">
-                <a href="dashboard-home.html" class="nav-link active">
-                    <i class="fas fa-home"></i> Accueil
-                </a>
-                
-                <!-- Menu déroulant pour les rubriques -->
-                <div class="dropdown">
-                    <div class="dropdown-toggle nav-link">
-                        <i class="fas fa-th-large"></i>
-                        <span>Rubriques</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-menu">
-                        <a href="dashboard-portfolio.html" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i>
-                            Portfolio
-                        </a>
-                        <a href="dashboard-interactions.html" class="dropdown-item">
-                            <i class="fas fa-comments"></i>
-                            Interactions
-                        </a>
-                        <a href="dashboard-creators.html" class="dropdown-item">
-                            <i class="fas fa-users"></i>
-                            Créateurs
-                        </a>
-                        <a href="dashboard-opportunities.html" class="dropdown-item">
-                            <i class="fas fa-bullhorn"></i>
-                            Opportunités
-                        </a>
-                        <a href="dashboard-temoignages.html" class="dropdown-item">
-                            <i class="fas fa-star"></i>
-                            Témoignages
-                        </a>
-                        <a href="dashboard-annuaire.html" class="dropdown-item">
-                            <i class="fas fa-address-book"></i>
-                            Annuaire
-                        </a>
-                    </div>
-                </div>
-                
-                <a href="#" id="logoutBtn" class="nav-link logout">
+            <div class="header-actions">
+                <button id="logoutBtn" class="btn-logout">
                     <i class="fas fa-sign-out-alt"></i> Déconnexion
-                </a>
-            </nav>
-            
-            <button class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
+                </button>
+            </div>
         </div>
     </header>
 
     <main class="dashboard-main">
-        <!-- Section Bienvenue Personnalisée -->
-        <section class="welcome-section">
-            <div class="container">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-user-circle"></i> Mon Espace Créateur</h1>
+                <p class="page-subtitle">Gérez votre marque et développez votre visibilité</p>
+            </div>
+
+            <!-- Section Bienvenue -->
+            <section class="welcome-section">
                 <div class="welcome-header">
                     <div class="welcome-avatar" id="welcomeAvatar">
+                        <!-- L'image sera chargée depuis Supabase -->
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="welcome-text">
-                        <h1>Bienvenue, <span id="creatorName">Créateur</span> !</h1>
+                        <h1>Bonjour, <span id="creatorName">Chargement...</span> !</h1>
                         <p class="welcome-subtitle" id="welcomeSubtitle">
                             Votre espace personnel pour faire grandir votre marque
                         </p>
                         <div class="creator-domain" id="creatorDomain">
                             <i class="fas fa-tag"></i>
-                            <span>En attente de spécialisation...</span>
+                            <span>Chargement...</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Description Personnalisée par Domaine -->
-                <div class="domain-description" id="domainDescription">
-                    <h2><i class="fas fa-gem"></i> Votre Espace Créateur</h2>
-                    <p>Dans cet espace, vous pourrez :</p>
-                    <ul class="features-list">
-                        <li><i class="fas fa-check"></i> <strong>Gérer votre portfolio</strong> - Présentez votre marque avec une photo professionnelle et une biographie captivante</li>
-                        <li><i class="fas fa-check"></i> <strong>Interagir avec l'équipe</strong> - Posez vos questions et recevez des conseils personnalisés</li>
-                        <li><i class="fas fa-check"></i> <strong>Découvrir des opportunités</strong> - Participez à des appels à projets exclusifs</li>
-                        <li><i class="fas fa-check"></i> <strong>Rencontrer d'autres créateurs</strong> - Échangez avec une communauté passionnée</li>
-                        <li><i class="fas fa-check"></i> <strong>Accéder à l'annuaire professionnel</strong> - Trouvez les meilleurs partenaires pour vos projets</li>
-                    </ul>
-                </div>
-
-                <!-- Statistiques Simples -->
                 <div class="quick-stats">
                     <div class="stat-card">
                         <i class="fas fa-calendar-check"></i>
@@ -313,37 +118,18 @@
                             <span class="stat-label">portfolio complété</span>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Aperçu du Portfolio -->
-        <section class="portfolio-preview-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2><i class="fas fa-eye"></i> Aperçu de votre portfolio</h2>
-                    <a href="dashboard-portfolio.html" class="edit-btn">
-                        <i class="fas fa-edit"></i> Modifier
-                    </a>
-                </div>
-                
-                <div class="preview-container" id="portfolioPreview">
-                    <!-- Chargé dynamiquement -->
-                    <div class="empty-preview">
-                        <i class="fas fa-portrait"></i>
-                        <h3>Votre portfolio est vide</h3>
-                        <p>Complétez-le pour être visible par la communauté</p>
-                        <a href="dashboard-portfolio.html" class="btn btn-primary">
-                            <i class="fas fa-plus-circle"></i> Créer mon portfolio
-                        </a>
+                    <div class="stat-card">
+                        <i class="fas fa-eye"></i>
+                        <div>
+                            <span class="stat-number" id="profileViews">0</span>
+                            <span class="stat-label">vues du profil</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Navigation Rapide -->
-        <section class="quick-nav-section">
-            <div class="container">
+            <!-- Navigation Rapide MODIFIÉE -->
+            <section class="quick-nav-section">
                 <h2><i class="fas fa-compass"></i> Explorez votre espace</h2>
                 <div class="quick-nav-grid">
                     <a href="dashboard-portfolio.html" class="nav-card">
@@ -377,192 +163,516 @@
                         <h3>Opportunités</h3>
                         <p>Participez aux projets</p>
                     </a>
+                    
+                    <!-- NOUVEAUX LIENS AJOUTÉS -->
+                    <a href="dashboard-annuaire.html" class="nav-card">
+                        <div class="nav-icon" style="background: #d4af37;">
+                            <i class="fas fa-address-book"></i>
+                        </div>
+                        <h3>Annuaire</h3>
+                        <p>Trouvez des professionnels</p>
+                    </a>
+                    
+                    <a href="dashboard-temoignages.html" class="nav-card">
+                        <div class="nav-icon" style="background: #e91e63;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h3>Témoignages</h3>
+                        <p>Lisez les expériences</p>
+                    </a>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <!-- Aperçu du Portfolio -->
+            <section class="portfolio-preview-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-eye"></i> Aperçu de votre portfolio</h2>
+                    <a href="dashboard-portfolio.html" class="edit-btn">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                </div>
+                
+                <div class="preview-container" id="portfolioPreview">
+                    <!-- Chargé dynamiquement depuis Supabase -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Chargement de votre portfolio...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>    
-    <script src="script.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Vérifier la connexion
-            const creatorId = sessionStorage.getItem('creatorId');
-            const creatorBrand = sessionStorage.getItem('creatorBrand');
+            // Initialiser Supabase
+            initSupabase();
             
-            if (!creatorId) {
-                window.location.href = '../index.html';
-                return;
-            }
-            
-            // Charger les données du portfolio
-            const portfolioData = JSON.parse(localStorage.getItem(`portfolio_${creatorId}`)) || {};
-            
-            // Mettre à jour les informations
-            updateWelcomeSection(portfolioData, creatorBrand);
-            updatePortfolioPreview(portfolioData);
-            
-            // Déconnexion
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Déconnexion ?')) {
-                    sessionStorage.clear();
-                    window.location.href = 'index.html';
-                }
-            });
-            
-            // Menu mobile principal
-            const menuToggle = document.querySelector('.menu-toggle');
-            const mainNav = document.querySelector('.main-nav');
-            
-            menuToggle.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mainNav.classList.toggle('active');
-                
-                // Fermer les sous-menus quand on ouvre/ferme le menu principal
-                const dropdownMenus = document.querySelectorAll('.dropdown-menu');
-                dropdownMenus.forEach(menu => menu.classList.remove('active'));
-            });
-            
-            // Gestion du menu déroulant
-            const dropdownToggle = document.querySelector('.dropdown-toggle');
-            const dropdownMenu = document.querySelector('.dropdown-menu');
-            
-            if (dropdownToggle && dropdownMenu) {
-                dropdownToggle.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('active');
-                });
-            }
-            
-            // Fermer les menus en cliquant à l'extérieur
-            document.addEventListener('click', function(e) {
-                if (dropdownMenu && !dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                    dropdownMenu.classList.remove('active');
-                }
-                
-                // Fermer le menu principal en cliquant à l'extérieur (mobile uniquement)
-                if (window.innerWidth <= 768 && mainNav.classList.contains('active') && 
-                    !menuToggle.contains(e.target) && !mainNav.contains(e.target)) {
-                    mainNav.classList.remove('active');
-                }
-            });
-            
-            // Fermer le menu quand on clique sur un lien
-            document.querySelectorAll('.nav-link, .dropdown-item').forEach(link => {
-                link.addEventListener('click', function() {
-                    mainNav.classList.remove('active');
-                    if (dropdownMenu) {
-                        dropdownMenu.classList.remove('active');
+            // Gestion de la déconnexion
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        window.location.href = 'index.html';
                     }
                 });
-            });
-            
-            // Fonctions
-            function updateWelcomeSection(portfolioData, creatorBrand) {
-                // Nom du créateur
-                const displayName = portfolioData.brandName || creatorBrand || 'Créateur';
-                document.getElementById('creatorName').textContent = displayName;
+            }
+
+            // Charger les données du créateur
+            loadCreatorData();
+            loadPortfolioPreview();
+        });
+
+        // Configuration Supabase
+        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        let supabase;
+
+        function initSupabase() {
+            if (supabaseUrl && supabaseKey) {
+                supabase = supabase.createClient(supabaseUrl, supabaseKey);
+            } else {
+                console.error('Configuration Supabase manquante');
+                alert('Erreur de configuration. Veuillez contacter l\'administrateur.');
+            }
+        }
+
+        async function loadCreatorData() {
+            try {
+                // Récupérer l'ID du créateur depuis la session
+                const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
                 
-                // Domaine
-                if (portfolioData.domain) {
-                    document.getElementById('creatorDomain').innerHTML = `
-                        <i class="fas fa-tag"></i>
-                        <span>${portfolioData.domain}</span>
-                    `;
+                if (!creatorId) {
+                    console.warn('Aucun ID de créateur trouvé');
+                    document.getElementById('creatorName').textContent = 'Créateur';
+                    return;
+                }
+
+                // Récupérer les données du créateur depuis Supabase
+                const { data, error } = await supabase
+                    .from('créateurs')  // Votre table s'appelle "créateurs" avec accent
+                    .select('*')
+                    .eq('id', creatorId)  // Vous utilisez l'ID UUID de la table
+                    .single();
+
+                if (error) {
+                    console.error('Erreur Supabase:', error);
+                    document.getElementById('creatorName').textContent = 'Créateur';
+                    return;
+                }
+
+                if (data) {
+                    // Mettre à jour les informations affichées
+                    const fullName = `${data.prenom} ${data.nom}`;
+                    document.getElementById('creatorName').textContent = fullName || 'Créateur';
                     
-                    // Description personnalisée par domaine
-                    updateDomainDescription(portfolioData.domain);
-                }
-                
-                // Avatar
-                if (portfolioData.photoBase64) {
-                    document.getElementById('welcomeAvatar').innerHTML = 
-                        `<img src="${portfolioData.photoBase64}" alt="${displayName}">`;
-                }
-                
-                // Jours depuis l'inscription
-                const joinDate = sessionStorage.getItem('joinDate') || new Date().toISOString();
-                const days = Math.floor((new Date() - new Date(joinDate)) / (1000 * 60 * 60 * 24));
-                document.getElementById('memberDays').textContent = days;
-                
-                // Progression portfolio
-                const progress = calculateProgress(portfolioData);
-                document.getElementById('portfolioCompletion').textContent = `${progress}%`;
-            }
-            
-            function calculateProgress(portfolioData) {
-                const checks = [
-                    portfolioData.brandName,
-                    portfolioData.creatorName,
-                    portfolioData.domain,
-                    portfolioData.bio,
-                    portfolioData.photoBase64
-                ];
-                const completed = checks.filter(item => item && item.trim() !== '').length;
-                return Math.round((completed / checks.length) * 100);
-            }
-            
-            function updateDomainDescription(domain) {
-                const descriptions = {
-                    'Styliste haute couture': 'Votre expertise en haute couture vous donne accès à des opportunités exclusives et des collaborations prestigieuses.',
-                    'Styliste streetwear': 'L\'univers streetwear est en effervescence. Partagez votre vision unique avec notre communauté.',
-                    'Designer': 'Votre créativité est votre atout principal. Montrez vos collections et inspirez d\'autres créateurs.',
-                    'Marque de bijoux': 'Les accessoires font la différence. Présentez vos créations à un public passionné.',
-                    'Artisans du tricot': 'L\'artisanat textile est à l\'honneur. Partagez vos techniques et votre savoir-faire unique.'
-                };
-                
-                const defaultDesc = 'Votre expertise est précieuse. Partagez-la avec notre communauté de passionnés.';
-                const description = descriptions[domain] || defaultDesc;
-                
-                document.getElementById('welcomeSubtitle').textContent = description;
-            }
-            
-            function updatePortfolioPreview(portfolioData) {
-                const previewContainer = document.getElementById('portfolioPreview');
-                
-                if (portfolioData.brandName || portfolioData.photoBase64) {
-                    previewContainer.innerHTML = `
-                        <div class="portfolio-preview-card">
-                            ${portfolioData.photoBase64 ? `
-                            <div class="preview-photo">
-                                <img src="${portfolioData.photoBase64}" alt="${portfolioData.brandName || 'Portfolio'}">
-                            </div>
-                            ` : ''}
-                            
-                            <div class="preview-content">
-                                <h3>${portfolioData.brandName || 'Votre marque'}</h3>
-                                ${portfolioData.domain ? `<p class="preview-domain"><i class="fas fa-tag"></i> ${portfolioData.domain}</p>` : ''}
-                                ${portfolioData.bio ? `<p class="preview-bio">${portfolioData.bio.substring(0, 150)}${portfolioData.bio.length > 150 ? '...' : ''}</p>` : ''}
-                                
-                                <div class="preview-meta">
-                                    ${portfolioData.creatorName ? `<span><i class="fas fa-user"></i> ${portfolioData.creatorName}</span>` : ''}
-                                    ${portfolioData.instagram ? `<span><i class="fab fa-instagram"></i> ${portfolioData.instagram}</span>` : ''}
-                                </div>
-                            </div>
+                    const domainElement = document.getElementById('creatorDomain').querySelector('span');
+                    domainElement.textContent = data.domaine || 'Domaine non spécifié';
+                    
+                    // Mettre à jour l'avatar avec les initiales
+                    const avatarElement = document.getElementById('welcomeAvatar');
+                    avatarElement.innerHTML = `
+                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+                              font-size:2.5rem;font-weight:bold;color:var(--primary);">
+                            ${data.prenom ? data.prenom.charAt(0).toUpperCase() : ''}${data.nom ? data.nom.charAt(0).toUpperCase() : ''}
                         </div>
                     `;
-                }
-            }
-            
-            // Sauvegarder la date d'inscription
-            if (!sessionStorage.getItem('joinDate')) {
-                sessionStorage.setItem('joinDate', new Date().toISOString());
-            }
-            
-            // Ajuster le menu pour mobile
-            function adjustMenuForMobile() {
-                if (window.innerWidth <= 768) {
-                    // Cache le menu déroulant si le menu principal est fermé
-                    if (!mainNav.classList.contains('active')) {
-                        dropdownMenu.classList.remove('active');
+                    
+                    // Calculer les jours depuis l'inscription
+                    if (data.date_inscription) {
+                        const joinDate = new Date(data.date_inscription);
+                        const now = new Date();
+                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
+                        document.getElementById('memberDays').textContent = days;
                     }
+                    
+                    // Personnaliser le sous-titre selon le domaine
+                    const subtitle = document.getElementById('welcomeSubtitle');
+                    const domainTitles = {
+                        'Styliste haute couture': 'Votre espace pour créer des pièces uniques',
+                        'Styliste streetwear': 'Exprimez votre style streetwear',
+                        'Designer': 'Développez votre vision créative',
+                        'Marque de bijoux': 'Faites briller vos créations',
+                        'Artisans du tricot': 'Tissez votre succès créatif'
+                    };
+                    subtitle.textContent = domainTitles[data.domaine] || 
+                        'Votre espace personnel pour faire grandir votre marque';
+                    
+                    // Sauvegarder dans sessionStorage pour un accès rapide
+                    sessionStorage.setItem('creatorName', fullName);
+                    sessionStorage.setItem('creatorDomain', data.domaine);
+                    sessionStorage.setItem('creatorBrand', data.nom_marque);
+                    sessionStorage.setItem('creatorEmail', data.email);
+                    
+                } else {
+                    document.getElementById('creatorName').textContent = 'Créateur';
                 }
+
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                document.getElementById('creatorName').textContent = 'Créateur';
+            }
+        }
+
+        async function loadPortfolioPreview() {
+            const previewContainer = document.getElementById('portfolioPreview');
+            if (!previewContainer) return;
+
+            try {
+                const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
+                
+                if (!creatorId) {
+                    previewContainer.innerHTML = `
+                        <div class="empty-preview">
+                            <i class="fas fa-portrait"></i>
+                            <h3>Connectez-vous pour voir votre portfolio</h3>
+                            <a href="index.html" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Se connecter
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Récupérer les données du créateur depuis Supabase
+                const { data, error } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('id', creatorId)
+                    .single();
+
+                if (error || !data) {
+                    previewContainer.innerHTML = `
+                        <div class="empty-preview">
+                            <i class="fas fa-portrait"></i>
+                            <h3>Votre portfolio est vide</h3>
+                            <p>Complétez-le pour être visible par la communauté</p>
+                            <a href="dashboard-portfolio.html" class="btn btn-primary">
+                                <i class="fas fa-plus-circle"></i> Créer mon portfolio
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Vérifier si le créateur a un portfolio dans la table "portfolio"
+                const { data: portfolioData, error: portfolioError } = await supabase
+                    .from('portfolio')
+                    .select('*')
+                    .eq('creator_id', creatorId)
+                    .single();
+
+                const hasPortfolio = portfolioData && !portfolioError;
+
+                // Afficher l'aperçu du portfolio
+                previewContainer.innerHTML = `
+                    <div class="portfolio-preview-content">
+                        <div class="preview-header">
+                            <div class="preview-avatar">
+                                <div style="width:80px;height:80px;background:var(--dark);border-radius:50%;
+                                      display:flex;align-items:center;justify-content:center;
+                                      color:var(--primary);font-size:2rem;font-weight:bold;
+                                      border:3px solid var(--primary);">
+                                    ${data.prenom ? data.prenom.charAt(0).toUpperCase() : ''}${data.nom ? data.nom.charAt(0).toUpperCase() : ''}
+                                </div>
+                            </div>
+                            <div class="preview-info">
+                                <h3>${data.nom_marque || 'Votre marque'}</h3>
+                                <p class="preview-creator">${data.prenom} ${data.nom}</p>
+                                <p class="preview-domain">${data.domaine || 'Domaine non spécifié'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-body">
+                            <div class="preview-status">
+                                <h4><i class="fas fa-chart-line"></i> Statut de votre compte</h4>
+                                <div class="status-indicator ${data.statut === 'validated' ? 'status-active' : 'status-pending'}">
+                                    <i class="fas fa-${data.statut === 'validated' ? 'check-circle' : 'clock'}"></i>
+                                    <span>${data.statut === 'validated' ? 'Compte validé' : 'En attente de validation'}</span>
+                                </div>
+                                ${data.statut === 'validated' && data.date_validation ? 
+                                    `<p class="validation-date">Validé le ${new Date(data.date_validation).toLocaleDateString('fr-FR')}</p>` : ''}
+                            </div>
+                            
+                            <div class="preview-portfolio">
+                                <h4><i class="fas fa-file-alt"></i> Portfolio</h4>
+                                ${hasPortfolio ? 
+                                    `<div class="portfolio-status status-active">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Portfolio complet</span>
+                                        <a href="dashboard-portfolio.html" class="btn-link">Voir</a>
+                                    </div>` :
+                                    `<div class="portfolio-status status-incomplete">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Portfolio incomplet</span>
+                                        <a href="dashboard-portfolio.html" class="btn-link">Compléter</a>
+                                    </div>`}
+                            </div>
+                            
+                            <div class="preview-contact">
+                                <h4><i class="fas fa-envelope"></i> Contact</h4>
+                                <p><i class="fas fa-envelope"></i> ${data.email}</p>
+                                ${data.telephone ? `<p><i class="fas fa-phone"></i> ${data.telephone}</p>` : ''}
+                                <p><i class="fas fa-calendar"></i> Membre depuis ${new Date(data.date_inscription).toLocaleDateString('fr-FR')}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-footer">
+                            <div class="preview-actions">
+                                <a href="dashboard-portfolio.html" class="btn btn-outline">
+                                    <i class="fas fa-edit"></i> Modifier mon portfolio
+                                </a>
+                                ${data.statut !== 'validated' ? 
+                                    `<div class="validation-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Votre compte est en attente de validation par notre équipe</span>
+                                    </div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Erreur lors du chargement du portfolio:', error);
+                previewContainer.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erreur de chargement</h3>
+                        <p>Impossible de charger votre portfolio</p>
+                        <a href="dashboard-portfolio.html" class="btn btn-primary">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // Ajouter des styles CSS pour l'aperçu
+        const style = document.createElement('style');
+        style.textContent = `
+            .portfolio-preview-content {
+                background: var(--dark-light);
+                border-radius: var(--radius);
+                padding: 25px;
+                border: 1px solid var(--border);
             }
             
-            // Écouter les changements de taille d'écran
-            window.addEventListener('resize', adjustMenuForMobile);
-            adjustMenuForMobile(); // Appel initial
-        });
+            .preview-header {
+                display: flex;
+                gap: 20px;
+                align-items: center;
+                margin-bottom: 25px;
+            }
+            
+            .preview-avatar {
+                flex-shrink: 0;
+            }
+            
+            .preview-info h3 {
+                color: #ffffff;
+                margin-bottom: 5px;
+                font-size: 1.3rem;
+            }
+            
+            .preview-creator {
+                color: var(--primary);
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+            
+            .preview-domain {
+                color: var(--gray-light);
+                font-size: 0.9rem;
+            }
+            
+            .preview-body {
+                margin-bottom: 25px;
+            }
+            
+            .preview-body h4 {
+                color: var(--primary);
+                margin: 20px 0 15px 0;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 1rem;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 8px;
+            }
+            
+            .preview-status, .preview-portfolio, .preview-contact {
+                margin-bottom: 20px;
+            }
+            
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 15px;
+                border-radius: var(--radius);
+                font-weight: 500;
+                margin-bottom: 10px;
+            }
+            
+            .status-active {
+                background: rgba(40, 167, 69, 0.1);
+                color: var(--success);
+                border: 1px solid rgba(40, 167, 69, 0.3);
+            }
+            
+            .status-pending {
+                background: rgba(255, 193, 7, 0.1);
+                color: var(--warning);
+                border: 1px solid rgba(255, 193, 7, 0.3);
+            }
+            
+            .status-incomplete {
+                background: rgba(108, 117, 125, 0.1);
+                color: var(--gray);
+                border: 1px solid rgba(108, 117, 125, 0.3);
+            }
+            
+            .portfolio-status {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 15px;
+                border-radius: var(--radius);
+                margin-bottom: 10px;
+                justify-content: space-between;
+            }
+            
+            .btn-link {
+                color: var(--primary);
+                text-decoration: none;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            
+            .btn-link:hover {
+                text-decoration: underline;
+            }
+            
+            .validation-date {
+                color: var(--gray-light);
+                font-size: 0.9rem;
+                margin-top: 5px;
+                font-style: italic;
+            }
+            
+            .preview-contact p {
+                color: #cccccc;
+                margin-bottom: 8px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .preview-contact i {
+                color: var(--primary);
+                width: 20px;
+            }
+            
+            .preview-footer {
+                padding-top: 20px;
+                border-top: 1px solid var(--border);
+            }
+            
+            .preview-actions {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            
+            .validation-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--warning);
+                font-size: 0.9rem;
+                background: rgba(255, 193, 7, 0.1);
+                padding: 10px 15px;
+                border-radius: var(--radius);
+                border: 1px solid rgba(255, 193, 7, 0.3);
+                flex: 1;
+            }
+            
+            .loading-state {
+                text-align: center;
+                padding: 40px;
+                color: var(--gray-light);
+            }
+            
+            .loading-spinner {
+                width: 40px;
+                height: 40px;
+                border: 4px solid rgba(212, 175, 55, 0.2);
+                border-top: 4px solid var(--primary);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 15px;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .error-state {
+                text-align: center;
+                padding: 40px;
+                color: var(--danger);
+            }
+            
+            .error-state i {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                opacity: 0.5;
+            }
+            
+            .empty-preview {
+                text-align: center;
+                padding: 60px 20px;
+                color: var(--gray-light);
+            }
+            
+            .empty-preview i {
+                font-size: 4rem;
+                margin-bottom: 20px;
+                opacity: 0.3;
+            }
+            
+            .empty-preview h3 {
+                color: var(--gray-light);
+                margin-bottom: 10px;
+            }
+            
+            .empty-preview p {
+                color: var(--gray);
+                margin-bottom: 20px;
+            }
+            
+            @media (max-width: 768px) {
+                .preview-header {
+                    flex-direction: column;
+                    text-align: center;
+                }
+                
+                .preview-actions {
+                    flex-direction: column;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
