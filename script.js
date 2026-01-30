@@ -793,10 +793,41 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const formData = getFormData(rubrique);
         
-        if (!formData.titre_fr) {
-            showStatus(statusElement, '❌ Le titre est obligatoire', 'error');
-            return;
-        }
+        // === CORRECTION ICI ===
+    // Vérifications différentes selon la rubrique
+    let validationError = '';
+    
+    switch(rubrique) {
+        case 'visages':
+            // Pour Visages, vérifier le nom de la marque
+            if (!formData.nom_marque) {
+                validationError = '❌ Le nom de la marque est obligatoire';
+            } else if (!formData.biographie) {
+                validationError = '❌ La biographie est obligatoire';
+            }
+            break;
+            
+        case 'culture':
+            // Pour Culture, vérifier le titre et la date
+            if (!formData.titre_fr) {
+                validationError = '❌ Le titre est obligatoire';
+            } else if (!formData.date_evenement) {
+                validationError = '❌ La date de début est obligatoire';
+            }
+            break;
+            
+        default:
+            // Pour toutes les autres rubriques, vérifier le titre
+            if (!formData.titre_fr) {
+                validationError = '❌ Le titre est obligatoire';
+            }
+    }
+    
+    if (validationError) {
+        showStatus(statusElement, validationError, 'error');
+        return;
+    }
+    // === FIN DE LA CORRECTION ===
         
         btnSave.disabled = true;
         btnSave.innerHTML = '<span>⏳ Enregistrement...</span>';
@@ -814,7 +845,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 statut: 'publié',
                 date_publication: formData.date_publication || new Date().toISOString()
             };
-            
+             // === CORRECTION SUPPLEMENTAIRE POUR VISAGES ===
+        // Pour la rubrique Visages, générer un titre automatique
+        if (rubrique === 'visages' && articleData.nom_marque) {
+            articleData.titre_fr = articleData.nom_createur 
+                ? `${articleData.nom_marque} par ${articleData.nom_createur}`
+                : `${articleData.nom_marque}`;
+        }
+        // === FIN DE LA CORRECTION ===
+
             console.log('📤 Données à envoyer:', articleData);
             
             const editingId = btnSave.getAttribute('data-editing-id');
@@ -862,27 +901,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    function getFormData(rubrique) {
-        const data = {
-            rubrique: document.getElementById(`rubrique-${rubrique}`)?.value || rubrique,
-            titre_fr: document.getElementById(`titre-${rubrique}`)?.value || '',
-            contenu_fr: document.getElementById(`contenu-${rubrique}`)?.value || '',
-            auteur: document.getElementById(`auteur-${rubrique}`)?.value || 'Rédaction',
-            date_publication: document.getElementById(`date-${rubrique}`)?.value || new Date().toISOString().split('T')[0]
-        };
-        
-        switch(rubrique) {
-            case 'actualites':
-                data.categorie_actualite = document.getElementById(`categorie-${rubrique}`)?.value;
-                break;
-            case 'visages':
-                data.nom_marque = document.getElementById(`nom_marque-${rubrique}`)?.value;
-                data.nom_createur = document.getElementById(`nom_createur-${rubrique}`)?.value;
-                data.domaine = document.getElementById(`domaine-${rubrique}`)?.value;
-                data.reseaux_instagram = document.getElementById(`instagram-${rubrique}`)?.value;
-                data.site_web = document.getElementById(`siteweb-${rubrique}`)?.value;
-                data.interview_fr = document.getElementById(`interview-${rubrique}`)?.value;
-                break;
+   function getFormData(rubrique) {
+    const data = {
+        rubrique: document.getElementById(`rubrique-${rubrique}`)?.value || rubrique,
+        titre_fr: document.getElementById(`titre-${rubrique}`)?.value || '',
+        contenu_fr: document.getElementById(`contenu-${rubrique}`)?.value || '',
+        auteur: document.getElementById(`auteur-${rubrique}`)?.value || 'Rédaction',
+        date_publication: document.getElementById(`date-${rubrique}`)?.value || new Date().toISOString().split('T')[0]
+    };
+    
+    switch(rubrique) {
+        case 'actualites':
+            data.categorie_actualite = document.getElementById(`categorie-${rubrique}`)?.value;
+            break;
+        case 'visages':
+            data.nom_marque = document.getElementById(`nom_marque-${rubrique}`)?.value;
+            data.nom_createur = document.getElementById(`nom_createur-${rubrique}`)?.value;
+            data.domaine = document.getElementById(`domaine-${rubrique}`)?.value;
+            data.reseaux_instagram = document.getElementById(`instagram-${rubrique}`)?.value;
+            data.site_web = document.getElementById(`siteweb-${rubrique}`)?.value;
+            data.biographie = document.getElementById(`biographie-${rubrique}`)?.value; // Ajouté
+            data.interview_fr = document.getElementById(`interview-${rubrique}`)?.value;
+            break;
             case 'tendances':
                 data.saison = document.getElementById(`saison-${rubrique}`)?.value;
                 break;
@@ -1705,28 +1745,36 @@ document.addEventListener('DOMContentLoaded', () => {
         let html = '';
         
         if (article.rubrique === 'visages') {
-            html += `
-                <div class="specific-info creator-info rounded-article" style="margin: 30px 0; padding: 20px; background: rgba(212, 175, 55, 0.05); border-radius: 10px;">
-                    <h3>À propos du créateur</h3>
-                    <ul style="list-style: none; padding: 0; margin: 15px 0;">
-                        ${article.nom_marque ? `<li style="margin-bottom: 10px;"><strong>Marque :</strong> ${article.nom_marque}</li>` : ''}
-                        ${article.nom_createur ? `<li style="margin-bottom: 10px;"><strong>Créateur :</strong> ${article.nom_createur}</li>` : ''}
-                        ${article.domaine ? `<li style="margin-bottom: 10px;"><strong>Domaine :</strong> ${article.domaine}</li>` : ''}
-                        ${article.reseaux_instagram ? `<li style="margin-bottom: 10px;"><strong>Instagram :</strong> <a href="https://instagram.com/${article.reseaux_instagram.replace('@', '')}" target="_blank" style="color: var(--accent); text-decoration: none;">${article.reseaux_instagram}</a></li>` : ''}
-                        ${article.site_web ? `<li style="margin-bottom: 10px;"><strong>Site web :</strong> <a href="${article.site_web}" target="_blank" style="color: var(--accent); text-decoration: none;">${article.site_web}</a></li>` : ''}
-                    </ul>
-                    ${article.interview_fr ? `
-                    <div class="interview-section" style="margin-top: 20px;">
-                        <h4 style="color: var(--accent); margin-bottom: 15px;">Interview</h4>
-                        <div class="interview-content" style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid var(--accent);">
-                            ${formatArticleContent(article.interview_fr)}
-                        </div>
+        html += `
+            <div class="specific-info creator-info rounded-article">
+                <h3>À propos du créateur</h3>
+                ${article.biographie ? `
+                <div class="biography" style="margin-bottom: 20px;">
+                    <h4 style="color: var(--accent); margin-bottom: 10px;">Présentation</h4>
+                    <div class="bio-content" style="background: white; padding: 15px; border-radius: 8px;">
+                        ${formatArticleContent(article.biographie)}
                     </div>
-                    ` : ''}
                 </div>
-            `;
-        }
-        
+                ` : ''}
+                <ul style="list-style: none; padding: 0; margin: 15px 0;">
+                    ${article.nom_marque ? `<li><strong>Marque :</strong> ${article.nom_marque}</li>` : ''}
+                    ${article.nom_createur ? `<li><strong>Créateur :</strong> ${article.nom_createur}</li>` : ''}
+                    ${article.domaine ? `<li><strong>Domaine :</strong> ${article.domaine}</li>` : ''}
+                    ${article.reseaux_instagram ? `<li><strong>Instagram :</strong> <a href="https://instagram.com/${article.reseaux_instagram.replace('@', '')}" target="_blank">${article.reseaux_instagram}</a></li>` : ''}
+                    ${article.site_web ? `<li><strong>Site web :</strong> <a href="${article.site_web}" target="_blank">${article.site_web}</a></li>` : ''}
+                </ul>
+                ${article.interview_fr ? `
+                <div class="interview-section" style="margin-top: 20px;">
+                    <h4 style="color: var(--accent); margin-bottom: 15px;">Interview</h4>
+                    <div class="interview-content" style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid var(--accent);">
+                        ${formatArticleContent(article.interview_fr)}
+                    </div>
+                </div>
+                ` : ''}
+            </div>
+        `;
+    }
+    
         if (article.rubrique === 'culture' && article.type_evenement) {
             html += `
                 <div class="specific-info event-info rounded-article" style="margin: 30px 0; padding: 20px; background: rgba(212, 175, 55, 0.05); border-radius: 10px;">
