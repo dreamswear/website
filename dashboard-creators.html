@@ -8,24 +8,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+<script src="session-manager.js"></script>
+<script src="dashboard-common.js"></script>
+    <!-- Header simplifié -->
     <header class="dashboard-header">
         <div class="container">
             <div class="logo">
-                <a href="index.html">DREAMSWEAR</a>
+                <a href="index.html">DREAMS</a>
             </div>
-            <nav class="main-nav">
-                <a href="dashboard-home.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
-                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
-                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
-                <a href="dashboard-creators.html" class="nav-link active"><i class="fas fa-users"></i> Créateurs</a>
-                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
-                <a href="dashboard-temoignages.html" class="nav-link"><i class="fas fa-star"></i> Témoignages</a>
-                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
-                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-            </nav>
-            <button class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div class="header-actions">
+                <a href="dashboard-home.html" class="btn btn-outline" style="text-decoration: none;">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
         </div>
     </header>
 
@@ -36,40 +34,15 @@
                 <p class="page-subtitle">Rencontrez les talents qui font vibrer Dreamswear</p>
             </div>
 
-            <!-- Filtres -->
-            <section class="filters-section">
-                <div class="filters">
-                    <div class="filter-group">
-                        <label for="domainFilter"><i class="fas fa-filter"></i> Filtrer par domaine</label>
-                        <select id="domainFilter">
-                            <option value="all">Tous les domaines</option>
-                            <option value="haute-couture">Haute Couture</option>
-                            <option value="streetwear">Streetwear</option>
-                            <option value="designer">Designer</option>
-                            <option value="bijoux">Bijoux</option>
-                            <option value="tricot">Tricot</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label for="sortFilter"><i class="fas fa-sort"></i> Trier par</label>
-                        <select id="sortFilter">
-                            <option value="recent">Plus récents</option>
-                            <option value="name">Nom A-Z</option>
-                            <option value="popular">Plus populaires</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
             <!-- Grille des Créateurs -->
             <section class="creators-grid-section">
-                <h2><i class="fas fa-star"></i> Créateurs en vedette</h2>
+                <h2><i class="fas fa-star"></i> Créateurs actifs</h2>
                 <div class="creators-grid" id="creatorsGrid">
-                    <!-- Chargé dynamiquement ou depuis Supabase -->
+                    <!-- Chargé dynamiquement -->
                     <div class="empty-state">
                         <i class="fas fa-users-slash"></i>
                         <h3>Aucun créateur pour le moment</h3>
-                        <p>Soyez le premier à compléter votre portfolio !</p>
+                        <p>Les créateurs seront affichés ici</p>
                     </div>
                 </div>
             </section>
@@ -107,37 +80,12 @@
             <!-- Événements -->
             <section class="events-section">
                 <h2><i class="fas fa-calendar-alt"></i> Prochains événements</h2>
-                <div class="events-list">
-                    <div class="event-card">
-                        <div class="event-date">
-                            <span class="event-day">15</span>
-                            <span class="event-month">DEC</span>
-                        </div>
-                        <div class="event-content">
-                            <h3>Rencontre virtuelle des créateurs</h3>
-                            <p>Échangez en direct avec d'autres créateurs de mode</p>
-                            <div class="event-meta">
-                                <span><i class="fas fa-clock"></i> 19h00 - 21h00</span>
-                                <span><i class="fas fa-video"></i> En ligne</span>
-                            </div>
-                        </div>
-                        <button class="btn btn-secondary">S'inscrire</button>
-                    </div>
-                    
-                    <div class="event-card">
-                        <div class="event-date">
-                            <span class="event-day">22</span>
-                            <span class="event-month">JAN</span>
-                        </div>
-                        <div class="event-content">
-                            <h3>Workshop branding</h3>
-                            <p>Apprenez à construire une identité de marque forte</p>
-                            <div class="event-meta">
-                                <span><i class="fas fa-clock"></i> 14h00 - 17h00</span>
-                                <span><i class="fas fa-map-marker-alt"></i> Paris</span>
-                            </div>
-                        </div>
-                        <button class="btn btn-secondary">S'inscrire</button>
+                <div class="events-list" id="eventsList">
+                    <!-- Chargé dynamiquement -->
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>Aucun événement à venir</h3>
+                        <p>Revenez plus tard pour découvrir nos prochains événements</p>
                     </div>
                 </div>
             </section>
@@ -146,107 +94,136 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Vérifier la connexion
-            const creatorId = sessionStorage.getItem('creatorId');
-            if (!creatorId) {
-                window.location.href = '../index.html';
-                return;
+            // Gestion de la déconnexion
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                    }
+                });
             }
-            
-            // Déconnexion
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Déconnexion ?')) {
-                    sessionStorage.clear();
-                    window.location.href = '../index.html';
-                }
-            });
-            
-            // Menu mobile
-            document.querySelector('.menu-toggle').addEventListener('click', function() {
-                document.querySelector('.main-nav').classList.toggle('active');
-            });
-            
-            // Filtres
-            document.getElementById('domainFilter').addEventListener('change', filterCreators);
-            document.getElementById('sortFilter').addEventListener('change', filterCreators);
-            
+
             // Charger les créateurs
             loadCreators();
             
-            function loadCreators() {
-                // Ici, vous chargeriez depuis Supabase
-                // Pour l'instant, données simulées
-                const sampleCreators = [
-                    {
-                        id: 1,
-                        name: "Élyra Fashion",
-                        domain: "Haute Couture",
-                        bio: "Marque de haute couture parisienne",
-                        photo: "https://source.unsplash.com/random/300x300/?fashion,portrait",
-                        instagram: "@elyrafashion"
-                    },
-                    {
-                        id: 2,
-                        name: "StreetWear Co",
-                        domain: "Streetwear",
-                        bio: "Style urbain et moderne",
-                        photo: "https://source.unsplash.com/random/300x300/?streetwear",
-                        instagram: "@streetwearco"
-                    }
-                ];
-                
-                displayCreators(sampleCreators);
-                updateStats(sampleCreators.length);
-            }
+            // Charger les événements
+            loadEvents();
+        });
+
+        async function loadCreators() {
+            const grid = document.getElementById('creatorsGrid');
+            if (!grid) return;
             
-            function displayCreators(creators) {
-                const grid = document.getElementById('creatorsGrid');
+            try {
+                const { data, error } = await supabase
+                    .from('creators')
+                    .select('*')
+                    .eq('status', 'active')
+                    .eq('portfolio_complete', true)
+                    .order('created_at', { ascending: false })
+                    .limit(6);
                 
-                if (creators.length === 0) {
+                if (error) throw error;
+                
+                if (data.length === 0) {
                     grid.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-users-slash"></i>
                             <h3>Aucun créateur pour le moment</h3>
-                            <p>Soyez le premier à compléter votre portfolio !</p>
+                            <p>Les créateurs seront affichés ici</p>
                         </div>
                     `;
                     return;
                 }
                 
-                grid.innerHTML = creators.map(creator => `
+                grid.innerHTML = data.map(creator => `
                     <div class="creator-card">
-                        <div class="creator-photo">
-                            <img src="${creator.photo}" alt="${creator.name}">
-                        </div>
-                        <div class="creator-info">
-                            <h3>${creator.name}</h3>
-                            <span class="creator-domain">${creator.domain}</span>
-                            <p class="creator-bio">${creator.bio}</p>
-                            <div class="creator-social">
-                                ${creator.instagram ? `<a href="#"><i class="fab fa-instagram"></i> ${creator.instagram}</a>` : ''}
+                        <div class="creator-header">
+                            <div class="creator-avatar">
+                                <i class="fas fa-user-circle"></i>
                             </div>
-                            <button class="btn btn-outline view-profile">
-                                <i class="fas fa-eye"></i> Voir le profil
-                            </button>
+                            <div class="creator-info">
+                                <h3>${creator.name || 'Créateur'}</h3>
+                                <p class="creator-brand">${creator.brand_name || ''}</p>
+                                <p class="creator-domain">${creator.domain || ''}</p>
+                            </div>
+                        </div>
+                        <div class="creator-body">
+                            <p>${creator.bio ? creator.bio.substring(0, 150) + '...' : 'Aucune description disponible.'}</p>
                         </div>
                     </div>
                 `).join('');
+                
+                // Mettre à jour les statistiques
+                document.getElementById('totalCreators').textContent = data.length;
+                
+            } catch (error) {
+                console.error('Erreur:', error);
             }
+        }
+
+        async function loadEvents() {
+            const list = document.getElementById('eventsList');
+            if (!list) return;
             
-            function filterCreators() {
-                const domain = document.getElementById('domainFilter').value;
-                const sort = document.getElementById('sortFilter').value;
-                // Logique de filtrage à implémenter
-                console.log('Filtrage:', { domain, sort });
+            try {
+                const now = new Date().toISOString();
+                
+                const { data, error } = await supabase
+                    .from('events')
+                    .select('*')
+                    .gte('date', now.split('T')[0])
+                    .order('date', { ascending: true })
+                    .limit(2);
+                
+                if (error) throw error;
+                
+                if (data.length === 0) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>Aucun événement à venir</h3>
+                            <p>Revenez plus tard pour découvrir nos prochains événements</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                list.innerHTML = data.map(event => {
+                    const eventDate = new Date(event.date);
+                    return `
+                        <div class="event-card">
+                            <div class="event-date">
+                                <span class="event-day">${eventDate.getDate()}</span>
+                                <span class="event-month">${eventDate.toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase()}</span>
+                            </div>
+                            <div class="event-content">
+                                <h3>${event.title}</h3>
+                                <p>${event.description.substring(0, 100)}...</p>
+                                <div class="event-meta">
+                                    <span><i class="fas fa-clock"></i> ${event.time}</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
             }
-            
-            function updateStats(count) {
-                document.getElementById('totalCreators').textContent = count;
-                document.getElementById('totalCountries').textContent = Math.min(count, 5); // Simulé
-                document.getElementById('totalCollabs').textContent = count * 2; // Simulé
-            }
-        });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase
+        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 </body>
 </html>
