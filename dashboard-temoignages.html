@@ -8,24 +8,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- Header simplifié -->
     <header class="dashboard-header">
         <div class="container">
             <div class="logo">
-                <a href="index.html">DREAMSWEAR</a>
+                <a href="index.html">DREAMS</a>
             </div>
-            <nav class="main-nav">
-                <a href="dashboard-home.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
-                <a href="dashboard-portfolio.html" class="nav-link"><i class="fas fa-user-circle"></i> Portfolio</a>
-                <a href="dashboard-interactions.html" class="nav-link"><i class="fas fa-comments"></i> Interactions</a>
-                <a href="dashboard-creators.html" class="nav-link"><i class="fas fa-users"></i> Créateurs</a>
-                <a href="dashboard-opportunities.html" class="nav-link"><i class="fas fa-bullhorn"></i> Opportunités</a>
-                <a href="dashboard-temoignages.html" class="nav-link active"><i class="fas fa-star"></i> Témoignages</a>
-                <a href="dashboard-annuaire.html" class="nav-link"><i class="fas fa-address-book"></i> Annuaire</a>
-                <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-            </nav>
-            <button class="menu-toggle">
-                <i class="fas fa-bars"></i>
-            </button>
+            <div class="header-actions">
+                <a href="dashboard-home.html" class="btn btn-outline" style="text-decoration: none;">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
         </div>
     </header>
 
@@ -36,46 +32,16 @@
                 <p class="page-subtitle">Découvrez les expériences de créateurs qui ont collaboré avec Dreamswear</p>
             </div>
 
-            <!-- Témoignages en vedette -->
-            <section class="featured-testimonials">
-                <h2><i class="fas fa-crown"></i> Témoignages à la une</h2>
-                <div class="testimonial-slider">
-                    <div class="testimonial-card featured">
-                        <div class="testimonial-header">
-                            <img src="https://source.unsplash.com/random/100x100/?portrait,woman" alt="Chloé Dubois">
-                            <div class="testimonial-author">
-                                <h3>Chloé Dubois</h3>
-                                <p class="author-brand">Marque "Aetheria"</p>
-                                <p class="author-domain">Haute Couture</p>
-                            </div>
-                        </div>
-                        <div class="testimonial-content">
-                            <i class="fas fa-quote-left"></i>
-                            <blockquote>
-                                "Collaborer avec Dreamswear a été une expérience transformative pour ma marque. 
-                                L'équipe m'a accompagnée à chaque étape, de la création à la promotion. 
-                                Grâce à eux, ma collection a été vue par des milliers de passionnés de mode."
-                            </blockquote>
-                        </div>
-                        <div class="testimonial-stats">
-                            <div class="stat">
-                                <i class="fas fa-chart-line"></i>
-                                <span>+300% de visibilité</span>
-                            </div>
-                            <div class="stat">
-                                <i class="fas fa-handshake"></i>
-                                <span>5 nouvelles collaborations</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <!-- Tous les témoignages -->
             <section class="all-testimonials">
-                <h2><i class="fas fa-comments"></i> Autres témoignages</h2>
+                <h2><i class="fas fa-comments"></i> Témoignages de la communauté</h2>
                 <div class="testimonials-grid" id="testimonialsGrid">
-                    <!-- Chargé dynamiquement -->
+                    <!-- Chargé dynamiquement depuis Supabase -->
+                    <div class="empty-state">
+                        <i class="fas fa-comments"></i>
+                        <h3>Aucun témoignage pour le moment</h3>
+                        <p>Soyez le premier à partager votre expérience !</p>
+                    </div>
                 </div>
             </section>
 
@@ -95,15 +61,17 @@
                     <div class="submit-form">
                         <form id="testimonialForm">
                             <div class="form-group">
-                                <label for="testimonialName">Votre nom</label>
-                                <input type="text" id="testimonialName" required>
+                                <label for="testimonialName">Votre nom *</label>
+                                <input type="text" id="testimonialName" required
+                                       placeholder="Votre nom ou pseudo">
                             </div>
                             <div class="form-group">
-                                <label for="testimonialBrand">Nom de votre marque</label>
-                                <input type="text" id="testimonialBrand" required>
+                                <label for="testimonialBrand">Nom de votre marque *</label>
+                                <input type="text" id="testimonialBrand" required
+                                       placeholder="Nom de votre marque ou entreprise">
                             </div>
                             <div class="form-group">
-                                <label for="testimonialMessage">Votre témoignage</label>
+                                <label for="testimonialMessage">Votre témoignage *</label>
                                 <textarea id="testimonialMessage" rows="5" required 
                                           placeholder="Partagez votre expérience avec Dreamswear..."></textarea>
                             </div>
@@ -121,86 +89,125 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Vérifier la connexion
-            const creatorId = sessionStorage.getItem('creatorId');
-            if (!creatorId) {
-                window.location.href = '../index.html';
-                return;
+            // Gestion de la déconnexion
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        window.location.href = 'index.html';
+                    }
+                });
             }
-            
-            // Déconnexion
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Déconnexion ?')) {
-                    sessionStorage.clear();
-                    window.location.href = '../index.html';
-                }
-            });
-            
-            // Menu mobile
-            document.querySelector('.menu-toggle').addEventListener('click', function() {
-                document.querySelector('.main-nav').classList.toggle('active');
-            });
-            
+
             // Charger les témoignages
             loadTestimonials();
-            
-            // Formulaire de témoignage
-            document.getElementById('testimonialForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('Merci pour votre témoignage ! Il sera examiné par notre équipe avant publication.');
-                this.reset();
-            });
-            
-            function loadTestimonials() {
-                const testimonials = [
-                    {
-                        name: "Lucas Martin",
-                        brand: "StreetStyle Co",
-                        domain: "Streetwear",
-                        message: "Une plateforme incroyable pour les créateurs émergents. Les opportunités sont réelles et l'accompagnement est professionnel.",
-                        photo: "https://source.unsplash.com/random/100x100/?portrait,man"
-                    },
-                    {
-                        name: "Sophie Laurent",
-                        brand: "Bijoux Céleste",
-                        domain: "Bijoux",
-                        message: "Grâce à Dreamswear, mes créations ont touché un public international. L'équipe est à l'écoute et très réactive.",
-                        photo: "https://source.unsplash.com/random/100x100/?portrait,woman2"
-                    },
-                    {
-                        name: "Thomas Dubois",
-                        brand: "Atelier Précision",
-                        domain: "Couture",
-                        message: "La qualité des collaborations proposées est exceptionnelle. Je recommande Dreamswear à tous les créateurs sérieux.",
-                        photo: "https://source.unsplash.com/random/100x100/?portrait,man2"
+
+            // Soumission du témoignage
+            const testimonialForm = document.getElementById('testimonialForm');
+            if (testimonialForm) {
+                testimonialForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const name = document.getElementById('testimonialName').value.trim();
+                    const brand = document.getElementById('testimonialBrand').value.trim();
+                    const message = document.getElementById('testimonialMessage').value.trim();
+                    
+                    if (!name || !brand || !message) {
+                        alert('Veuillez remplir tous les champs obligatoires');
+                        return;
                     }
-                ];
-                
-                displayTestimonials(testimonials);
+                    
+                    try {
+                        const creatorId = sessionStorage.getItem('creatorId');
+                        
+                        const { data, error } = await supabase
+                            .from('testimonials')
+                            .insert([{
+                                creator_id: creatorId,
+                                name: name,
+                                brand: brand,
+                                message: message,
+                                status: 'pending',
+                                created_at: new Date().toISOString()
+                            }]);
+                        
+                        if (error) throw error;
+                        
+                        alert('Merci pour votre témoignage ! Il sera examiné par notre équipe avant publication.');
+                        testimonialForm.reset();
+                        loadTestimonials();
+                        
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors de la soumission du témoignage');
+                    }
+                });
             }
+        });
+
+        async function loadTestimonials() {
+            const grid = document.getElementById('testimonialsGrid');
+            if (!grid) return;
             
-            function displayTestimonials(testimonials) {
-                const grid = document.getElementById('testimonialsGrid');
+            grid.innerHTML = '<div class="loading-state">Chargement des témoignages...</div>';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('testimonials')
+                    .select('*')
+                    .eq('status', 'approved')
+                    .order('created_at', { ascending: false });
                 
-                grid.innerHTML = testimonials.map(testimonial => `
+                if (error) throw error;
+                
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <h3>Aucun témoignage pour le moment</h3>
+                            <p>Soyez le premier à partager votre expérience !</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = data.map(testimonial => `
                     <div class="testimonial-card">
                         <div class="testimonial-header">
-                            <img src="${testimonial.photo}" alt="${testimonial.name}">
+                            <div class="testimonial-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
                             <div class="testimonial-author">
                                 <h3>${testimonial.name}</h3>
                                 <p class="author-brand">${testimonial.brand}</p>
-                                <p class="author-domain">${testimonial.domain}</p>
                             </div>
                         </div>
                         <div class="testimonial-content">
                             <i class="fas fa-quote-left"></i>
                             <blockquote>${testimonial.message}</blockquote>
                         </div>
+                        <div class="testimonial-date">
+                            <i class="fas fa-calendar"></i>
+                            ${new Date(testimonial.created_at).toLocaleDateString('fr-FR')}
+                        </div>
                     </div>
                 `).join('');
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                grid.innerHTML = '<div class="error-state">Erreur lors du chargement des témoignages</div>';
             }
-        });
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase
+        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 </body>
 </html>
