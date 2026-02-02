@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -974,7 +973,7 @@
                 });
             }
 
-            // Gestion de la connexion créateur - Même code que index.html
+            // Gestion de la connexion créateur - VERSION COMPLÈTE MISE À JOUR
             if (creatorForm) {
                 creatorForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
@@ -983,7 +982,9 @@
                     const password = document.getElementById('creator-password').value;
                     
                     try {
-                        // Vérification dans la table createurs
+                        console.log('🔑 Tentative de connexion pour:', brand);
+                        
+                        // Vérification dans la table créateurs
                         const { data, error } = await supabase
                             .from('créateurs')
                             .select('*')
@@ -992,21 +993,77 @@
                             .eq('statut', 'actif')
                             .single();
                         
-                        if (error || !data) {
+                        if (error) {
+                            console.error('❌ Erreur Supabase:', error);
                             creatorError.style.display = 'block';
                             return;
                         }
                         
-                        // Connexion réussie
+                        if (!data) {
+                            console.log('⚠️ Aucun créateur trouvé ou compte non actif');
+                            creatorError.style.display = 'block';
+                            return;
+                        }
+                        
+                        console.log('✅ Connexion réussie! Données:', data);
+                        
+                        // ============================================
+                        // SAUVEGARDER TOUTES LES DONNÉES DANS SESSIONSTORAGE
+                        // ============================================
+                        
+                        // Données principales
                         sessionStorage.setItem('creatorLoggedIn', 'true');
                         sessionStorage.setItem('creatorId', data.id);
-                        sessionStorage.setItem('creatorBrand', data.nom_marque);
+                        sessionStorage.setItem('creatorBrand', data.nom_marque || '');
                         
-                        // Redirection vers le dashboard créateur
+                        // Nom complet
+                        const fullName = `${data.prenom || ''} ${data.nom || ''}`.trim();
+                        sessionStorage.setItem('creatorName', fullName || data.nom_marque || 'Créateur');
+                        
+                        // Domaine
+                        sessionStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
+                        
+                        // Informations de contact
+                        sessionStorage.setItem('creatorEmail', data.email || '');
+                        sessionStorage.setItem('creatorPhone', data.telephone || '');
+                        
+                        // Informations supplémentaires
+                        sessionStorage.setItem('creatorStatus', data.statut || '');
+                        if (data.date_inscription) {
+                            sessionStorage.setItem('creatorJoinDate', data.date_inscription);
+                        }
+                        if (data.date_validation) {
+                            sessionStorage.setItem('creatorValidationDate', data.date_validation);
+                        }
+                        
+                        // Informations de portfolio (si disponibles)
+                        sessionStorage.setItem('creatorBiography', data.biographie || '');
+                        sessionStorage.setItem('creatorInstagram', data.reseaux_instagram || '');
+                        sessionStorage.setItem('creatorWebsite', data.site_web || '');
+                        
+                        // Marquer le timestamp de connexion
+                        sessionStorage.setItem('creatorLoginTime', new Date().toISOString());
+                        
+                        // ============================================
+                        // SAUVEGARDER AUSSI DANS LOCALSTORAGE POUR PERSISTANCE
+                        // ============================================
+                        localStorage.setItem('creatorId', data.id);
+                        localStorage.setItem('creatorBrand', data.nom_marque || '');
+                        localStorage.setItem('creatorName', fullName || data.nom_marque || 'Créateur');
+                        localStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
+                        
+                        console.log('💾 Données sauvegardées dans sessionStorage:', {
+                            id: sessionStorage.getItem('creatorId'),
+                            name: sessionStorage.getItem('creatorName'),
+                            domain: sessionStorage.getItem('creatorDomain'),
+                            brand: sessionStorage.getItem('creatorBrand')
+                        });
+                        
+                        // Redirection vers le dashboard
                         window.location.href = 'dashboard-home.html';
                         
                     } catch (error) {
-                        console.error('Erreur de connexion:', error);
+                        console.error('💥 Erreur lors de la connexion:', error);
                         creatorError.style.display = 'block';
                     }
                 });
