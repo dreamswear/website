@@ -1115,289 +1115,292 @@
         </div>
     </footer>
 
-    <script>
-        // Script principal pour la gestion du menu
-        document.addEventListener('DOMContentLoaded', function() {
-            // ============================================
-            // 1. GESTION DU MENU DÉROULANT (DESKTOP)
-            // ============================================
-            const dropdownToggle = document.getElementById('dropdownToggle');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            
-            if (dropdownToggle && dropdownMenu) {
-                // Ouvrir/fermer le menu déroulant
-                dropdownToggle.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
-                    dropdownToggle.classList.toggle('open');
-                });
-                
-                // Fermer le menu en cliquant à l'extérieur
-                document.addEventListener('click', function(e) {
-                    if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
-                        dropdownMenu.classList.remove('show');
-                        dropdownToggle.classList.remove('open');
-                    }
-                });
-                
-                // Fermer le menu en cliquant sur un élément
-                dropdownMenu.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A') {
-                        dropdownMenu.classList.remove('show');
-                        dropdownToggle.classList.remove('open');
-                    }
-                });
+   <!-- À la fin, avant </body> -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // Script simple pour dashboard-annuaire
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('📄 Dashboard Annuaire - Chargement simplifié');
+        
+        // Vérifier la connexion
+        const creatorId = sessionStorage.getItem('creatorId');
+        if (!creatorId) {
+            window.location.href = 'index.html';
+            return;
+        }
+        
+        // Initialiser Supabase
+        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        window.supabase = supabase;
+        
+        // Déconnexion
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Déconnexion ?')) {
+                sessionStorage.clear();
+                window.location.href = 'index.html';
             }
+        });
+        
+        // Menu mobile
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('.main-nav').classList.toggle('active');
+        });
+        
+        // Fonction pour charger les professionnels
+        async function loadProfessionals(category = 'all', search = '') {
+            const grid = document.getElementById('professionalsGrid');
+            if (!grid) return;
             
-            // ============================================
-            // 2. GESTION DU MENU HAMBURGER (MOBILE)
-            // ============================================
-            const hamburgerBtn = document.getElementById('hamburgerBtn');
-            const mobileMenu = document.getElementById('mobileMenu');
+            grid.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;">Chargement...</div>';
             
-            if (hamburgerBtn && mobileMenu) {
-                // Ouvrir/fermer le menu mobile
-                hamburgerBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    mobileMenu.classList.toggle('show');
-                    // Animation de l'icône hamburger
-                    const icon = hamburgerBtn.querySelector('i');
-                    if (mobileMenu.classList.contains('show')) {
-                        icon.classList.remove('fa-bars');
-                        icon.classList.add('fa-times');
-                    } else {
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
-                });
+            try {
+                let query = supabase
+                    .from('annuaire')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
                 
-                // Fermer le menu en cliquant à l'extérieur
-                document.addEventListener('click', function(e) {
-                    if (!hamburgerBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
-                        mobileMenu.classList.remove('show');
-                        const icon = hamburgerBtn.querySelector('i');
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
-                });
+                if (category !== 'all') {
+                    query = query.eq('category_id', category);
+                }
                 
-                // Fermer le menu en cliquant sur un lien
-                mobileMenu.addEventListener('click', function(e) {
-                    if (e.target.tagName === 'A') {
-                        mobileMenu.classList.remove('show');
-                        const icon = hamburgerBtn.querySelector('i');
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-bars');
-                    }
-                });
+                if (search.trim()) {
+                    query = query.or(`name.ilike.%${search}%,specialty.ilike.%${search}%`);
+                }
+                
+                const { data, error } = await query;
+                
+                if (error) throw error;
+                
+                if (!data || data.length === 0) {
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">
+                            <h3>Aucun professionnel trouvé</h3>
+                            <p>${search ? 'Aucun résultat pour votre recherche.' : 'Aucun professionnel disponible.'}</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Afficher les professionnels
+                displayProfessionals(data);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc3545;">
+                        <h3>Erreur de chargement</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             }
+        }
+        
+        function displayProfessionals(professionals) {
+            const grid = document.getElementById('professionalsGrid');
             
-            // ============================================
-            // 3. GESTION DE LA DÉCONNEXION
-            // ============================================
-            function setupLogout(buttonId) {
-                const logoutBtn = document.getElementById(buttonId);
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                            sessionStorage.clear();
-                            localStorage.clear();
-                            window.location.href = 'index.html';
-                        }
-                    });
+            grid.innerHTML = professionals.map(pro => {
+                // Déterminer l'icône et la couleur en fonction de la catégorie
+                const categoryInfo = getCategoryInfo(pro.category_id);
+                
+                return `
+                    <div class="professional-card">
+                        <div class="professional-header">
+                            <div class="pro-avatar" style="background: ${categoryInfo.color}20; color: ${categoryInfo.color};">
+                                <i class="${categoryInfo.icon}"></i>
+                            </div>
+                            <div class="pro-info">
+                                <span class="pro-category" style="background: ${categoryInfo.color}20; color: ${categoryInfo.color};">
+                                    ${categoryInfo.name}
+                                </span>
+                                <h3>${pro.name}</h3>
+                                <div class="pro-rating">
+                                    ${generateStars(pro.rating || 0)}
+                                    <span>${pro.rating ? pro.rating.toFixed(1) : 'Non noté'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="professional-body">
+                            <div class="pro-specialty">
+                                <i class="fas fa-star"></i> ${pro.specialty || 'Spécialité non spécifiée'}
+                            </div>
+                            <p class="pro-description">
+                                ${pro.description?.substring(0, 150) || 'Aucune description disponible'}
+                                ${pro.description && pro.description.length > 150 ? '...' : ''}
+                            </p>
+                        </div>
+                        
+                        <div class="professional-footer">
+                            <div class="pro-contact">
+                                <i class="fas fa-envelope"></i> 
+                                ${pro.contact_info?.length > 30 ? pro.contact_info.substring(0, 30) + '...' : pro.contact_info || 'Non disponible'}
+                            </div>
+                            <button class="btn btn-outline contact-btn" onclick="alert('Contact: ' + '${pro.contact_info}')">
+                                <i class="fas fa-paper-plane"></i> Contacter
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function getCategoryInfo(categoryId) {
+            const categories = {
+                'photographers': { name: 'Photographes', icon: 'fas fa-camera', color: '#2196F3' },
+                'models': { name: 'Mannequins', icon: 'fas fa-user-tie', color: '#4CAF50' },
+                'seamstresses': { name: 'Couturiers', icon: 'fas fa-cut', color: '#FF9800' },
+                'accessories': { name: 'Accessoiristes', icon: 'fas fa-gem', color: '#9C27B0' },
+                'stylists': { name: 'Stylistes', icon: 'fas fa-palette', color: '#E91E63' }
+            };
+            
+            return categories[categoryId] || { name: 'Autre', icon: 'fas fa-user', color: '#d4af37' };
+        }
+        
+        function generateStars(rating) {
+            if (!rating) return '<i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>';
+            
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const halfStar = rating % 1 >= 0.5;
+            
+            for (let i = 0; i < 5; i++) {
+                if (i < fullStars) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else if (i === fullStars && halfStar) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                } else {
+                    stars += '<i class="far fa-star"></i>';
                 }
             }
-            
-            // Configurer les deux boutons de déconnexion
-            setupLogout('logoutBtn');
-            setupLogout('logoutBtnMobile');
-            
-            // ============================================
-            // 4. GESTION DES MODALS
-            // ============================================
-            function setupModal(modalId, openBtnId, closeSelectors) {
-                const modal = document.getElementById(modalId);
-                const openBtn = document.getElementById(openBtnId);
-                
-                if (!modal || !openBtn) return;
-                
-                // Ouvrir le modal
-                openBtn.addEventListener('click', function() {
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                });
-                
-                // Fermer le modal
-                closeSelectors.forEach(selector => {
-                    const elements = modal.querySelectorAll(selector);
-                    elements.forEach(element => {
-                        element.addEventListener('click', function() {
-                            modal.style.display = 'none';
-                            document.body.style.overflow = '';
-                        });
-                    });
-                });
-                
-                // Fermer en cliquant à l'extérieur
-                modal.addEventListener('click', function(e) {
-                    if (e.target === modal) {
-                        modal.style.display = 'none';
-                        document.body.style.overflow = '';
-                    }
-                });
-                
-                // Fermer avec Escape
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape' && modal.style.display === 'flex') {
-                        modal.style.display = 'none';
-                        document.body.style.overflow = '';
-                    }
-                });
-            }
-            
-            // Configuration du modal d'ajout de professionnel
-            setupModal('addProfessionalModal', 'addProfessionalBtn', ['.close-modal', '.close-modal-form']);
-            
-            // ============================================
-            // 5. GESTION DE LA RECHERCHE
-            // ============================================
-            const searchInput = document.getElementById('directorySearch');
-            const searchButton = document.getElementById('searchButton');
-            
-            if (searchInput && searchButton) {
-                searchButton.addEventListener('click', function() {
-                    const activeFilter = document.querySelector('.category-filter.active');
-                    const category = activeFilter ? activeFilter.dataset.category : 'all';
-                    const searchTerm = searchInput.value.trim();
-                    
-                    if (window.loadProfessionals) {
-                        window.loadProfessionals(category, searchTerm);
-                    }
-                });
-                
-                searchInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        searchButton.click();
-                    }
-                });
-            }
-            
-            // ============================================
-            // 6. INITIALISATION DES FILTRES DE CATÉGORIE
-            // ============================================
-            function initializeCategoryFilters() {
-                const filtersContainer = document.getElementById('categoryFilters');
-                if (!filtersContainer) return;
-                
-                const categories = [
-                    { id: 'all', name: 'Tous', icon: 'fas fa-th' },
-                    { id: 'photographers', name: 'Photographes', icon: 'fas fa-camera' },
-                    { id: 'models', name: 'Mannequins', icon: 'fas fa-user-tie' },
-                    { id: 'seamstresses', name: 'Couturiers', icon: 'fas fa-cut' },
-                    { id: 'accessories', name: 'Accessoiristes', icon: 'fas fa-gem' },
-                    { id: 'stylists', name: 'Stylistes', icon: 'fas fa-palette' }
-                ];
-                
-                filtersContainer.innerHTML = categories.map(cat => `
-                    <button class="category-filter ${cat.id === 'all' ? 'active' : ''}" 
-                            data-category="${cat.id}">
-                        <i class="${cat.icon}"></i> ${cat.name}
-                    </button>
-                `).join('');
-                
-                // Ajouter les événements aux boutons
-                filtersContainer.querySelectorAll('.category-filter').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        // Retirer la classe active de tous les boutons
-                        filtersContainer.querySelectorAll('.category-filter').forEach(b => {
-                            b.classList.remove('active');
-                        });
-                        
-                        // Ajouter la classe active au bouton cliqué
-                        this.classList.add('active');
-                        
-                        const category = this.dataset.category;
-                        const searchTerm = searchInput ? searchInput.value.trim() : '';
-                        
-                        if (window.loadProfessionals) {
-                            window.loadProfessionals(category, searchTerm);
-                        }
-                    });
-                });
-            }
-            
-            initializeCategoryFilters();
-            
-            // ============================================
-            // 7. GESTION DES CARTES DE CATÉGORIE
-            // ============================================
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('category-card') || 
-                    e.target.closest('.category-card')) {
-                    const categoryCard = e.target.classList.contains('category-card') ? 
-                        e.target : e.target.closest('.category-card');
-                    const category = categoryCard.dataset.category;
-                    
-                    if (category) {
-                        // Activer le filtre correspondant
-                        const filterButtons = document.querySelectorAll('.category-filter');
-                        filterButtons.forEach(btn => {
-                            btn.classList.remove('active');
-                            if (btn.dataset.category === category) {
-                                btn.classList.add('active');
-                            }
-                        });
-                        
-                        // Déclencher la recherche
-                        if (window.loadProfessionals) {
-                            window.loadProfessionals(category, '');
-                        }
-                        
-                        // Scroll vers la liste des professionnels
-                        document.querySelector('#professionalsGrid').scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
+            return stars;
+        }
+        
+        // Charger les professionnels
+        await loadProfessionals();
+        
+        // Filtres par catégorie
+        document.querySelectorAll('.category-filter').forEach(filter => {
+            filter.addEventListener('click', function() {
+                document.querySelectorAll('.category-filter').forEach(f => f.classList.remove('active'));
+                this.classList.add('active');
+                loadProfessionals(this.dataset.category);
+            });
+        });
+        
+        // Recherche
+        const searchInput = document.getElementById('directorySearch');
+        const searchBtn = document.querySelector('.search-box .btn');
+        
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function() {
+                const activeCategory = document.querySelector('.category-filter.active');
+                const category = activeCategory ? activeCategory.dataset.category : 'all';
+                loadProfessionals(category, searchInput.value);
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const activeCategory = document.querySelector('.category-filter.active');
+                    const category = activeCategory ? activeCategory.dataset.category : 'all';
+                    loadProfessionals(category, this.value);
                 }
             });
-            
-            // ============================================
-            // 8. GESTION DU THÈME (NIGHT/DAY)
-            // ============================================
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.body.setAttribute('data-theme', savedTheme);
-            }
-            
-            // ============================================
-            // 9. DÉTECTION DE LA TAILLE D'ÉCRAN
-            // ============================================
-            function handleResize() {
-                const mobileMenu = document.getElementById('mobileMenu');
-                const hamburgerBtn = document.getElementById('hamburgerBtn');
-                
-                if (window.innerWidth > 1024) {
-                    // Desktop : fermer le menu mobile s'il est ouvert
-                    if (mobileMenu && mobileMenu.classList.contains('show')) {
-                        mobileMenu.classList.remove('show');
-                        if (hamburgerBtn) {
-                            const icon = hamburgerBtn.querySelector('i');
-                            icon.classList.remove('fa-times');
-                            icon.classList.add('fa-bars');
-                        }
-                    }
+        }
+        
+        // Modal d'ajout
+        const addBtn = document.getElementById('addProfessionalBtn');
+        const modal = document.getElementById('addProfessionalModal');
+        const closeModal = modal?.querySelector('.close-modal');
+        const form = document.getElementById('professionalForm');
+        
+        if (addBtn && modal) {
+            addBtn.addEventListener('click', function() {
+                modal.style.display = 'block';
+            });
+        }
+        
+        if (closeModal) {
+            closeModal.addEventListener('click', function() {
+                modal.style.display = 'none';
+                if (form) form.reset();
+            });
+        }
+        
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                    if (form) form.reset();
                 }
-            }
+            });
+        }
+        
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    name: document.getElementById('proName').value,
+                    category_id: document.getElementById('proCategory').value,
+                    specialty: document.getElementById('proSpecialty').value,
+                    contact_info: document.getElementById('proContact').value,
+                    description: document.getElementById('proDescription').value,
+                    status: 'pending'
+                };
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('annuaire')
+                        .insert([formData]);
+                    
+                    if (error) throw error;
+                    
+                    alert('✅ Votre suggestion a été soumise avec succès !\n\nElle sera examinée par notre équipe avant publication.');
+                    modal.style.display = 'none';
+                    form.reset();
+                    
+                    // Recharger les professionnels
+                    await loadProfessionals();
+                    
+                } catch (error) {
+                    console.error('Erreur:', error);
+                    alert('❌ Erreur: ' + error.message);
+                }
+            });
+        }
+        
+        // Remplir les catégories dans le formulaire
+        const categorySelect = document.getElementById('proCategory');
+        if (categorySelect) {
+            const categories = [
+                { id: 'photographers', name: 'Photographe' },
+                { id: 'models', name: 'Mannequin / Agence' },
+                { id: 'seamstresses', name: 'Couturier / Atelier' },
+                { id: 'accessories', name: 'Accessoiriste' },
+                { id: 'stylists', name: 'Styliste' },
+                { id: 'other', name: 'Autre' }
+            ];
             
-            window.addEventListener('resize', handleResize);
-            
-            console.log('✅ Dashboard Annuaire initialisé avec succès');
-        });
-    </script>
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.id;
+                option.textContent = cat.name;
+                categorySelect.appendChild(option);
+            });
+        }
+        
+        console.log('✅ Dashboard Annuaire prêt !');
+    });
+</script>
     
     <!-- Script Supabase pour l'annuaire -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="annuaire-script.js"></script>
 </body>
 </html>
