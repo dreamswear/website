@@ -300,6 +300,17 @@
             margin-bottom: 20px;
         }
         
+        /* État de chargement */
+        .data-loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(212, 175, 55, 0.2);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
         @media (max-width: 768px) {
             .preview-header {
                 flex-direction: column;
@@ -338,16 +349,16 @@
             <section class="welcome-section">
                 <div class="welcome-header">
                     <div class="welcome-avatar" id="welcomeAvatar">
-                        <!-- Les initiales seront affichées immédiatement -->
+                        <div class="data-loading" style="width: 40px; height: 40px;"></div>
                     </div>
                     <div class="welcome-text">
-                        <h1>Bonjour, <span id="creatorName"></span> !</h1>
+                        <h1>Bonjour, <span id="creatorName">Chargement...</span> !</h1>
                         <p class="welcome-subtitle" id="welcomeSubtitle">
-                            <!-- Le sous-titre sera mis à jour dynamiquement -->
+                            Votre espace personnel pour faire grandir votre marque
                         </p>
                         <div class="creator-domain" id="creatorDomain">
                             <i class="fas fa-tag"></i>
-                            <span id="domainText"></span>
+                            <span id="domainText">Chargement...</span>
                         </div>
                     </div>
                 </div>
@@ -377,7 +388,7 @@
                 </div>
             </section>
 
-            <!-- Navigation Rapide MODIFIÉE -->
+            <!-- Navigation Rapide -->
             <section class="quick-nav-section">
                 <h2><i class="fas fa-compass"></i> Explorez votre espace</h2>
                 <div class="quick-nav-grid">
@@ -476,12 +487,8 @@
                 });
             }
 
-            // AFFICHER IMMÉDIATEMENT LES DONNÉES DU CRÉATEUR
-            displayCreatorDataImmediately();
-            
-            // Charger les données supplémentaires depuis Supabase
-            loadCreatorData();
-            loadPortfolioPreview();
+            // CHARGER LES DONNÉES DIRECTEMENT DEPUIS SUPABASE
+            loadCreatorDataFromSupabase();
         });
 
         function initSupabase() {
@@ -493,33 +500,77 @@
             }
         }
 
-        // NOUVELLE FONCTION : Afficher les données immédiatement
-        function displayCreatorDataImmediately() {
-            // Récupérer les données du créateur depuis sessionStorage
-            const creatorName = sessionStorage.getItem('creatorName') || localStorage.getItem('creatorName');
-            const creatorDomain = sessionStorage.getItem('creatorDomain') || localStorage.getItem('creatorDomain');
-            
-            // Afficher le nom immédiatement
-            const creatorNameElement = document.getElementById('creatorName');
-            if (creatorName) {
-                creatorNameElement.textContent = creatorName;
-            } else {
-                creatorNameElement.textContent = 'Créateur';
+        // Fonction principale pour charger les données du créateur
+        async function loadCreatorDataFromSupabase() {
+            try {
+                // Récupérer l'ID du créateur depuis la session
+                const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
+                
+                if (!creatorId) {
+                    console.warn('Aucun ID de créateur trouvé');
+                    document.getElementById('creatorName').textContent = 'Créateur';
+                    document.getElementById('domainText').textContent = 'Domaine non spécifié';
+                    return;
+                }
+
+                console.log('Chargement des données pour le créateur ID:', creatorId);
+
+                // Récupérer les données du créateur depuis la table "créateurs" dans Supabase
+                const { data, error } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('id', creatorId)
+                    .single();
+
+                if (error) {
+                    console.error('Erreur Supabase:', error);
+                    showErrorState();
+                    return;
+                }
+
+                if (data) {
+                    console.log('Données reçues:', data);
+                    
+                    // Afficher le nom du créateur
+                    const fullName = `${data.prenom || ''} ${data.nom || ''}`.trim();
+                    document.getElementById('creatorName').textContent = fullName || 'Créateur';
+                    
+                    // Afficher le domaine
+                    document.getElementById('domainText').textContent = data.domaine || 'Domaine non spécifié';
+                    
+                    // Afficher les initiales dans l'avatar
+                    displayInitials(fullName);
+                    
+                    // Mettre à jour le sous-titre selon le domaine
+                    updateWelcomeSubtitle(data.domaine);
+                    
+                    // Calculer et afficher les jours depuis l'inscription
+                    if (data.date_inscription) {
+                        const joinDate = new Date(data.date_inscription);
+                        const now = new Date();
+                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
+                        document.getElementById('memberDays').textContent = days;
+                    }
+                    
+                    // Sauvegarder les données dans sessionStorage pour usage ultérieur
+                    sessionStorage.setItem('creatorName', fullName);
+                    sessionStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
+                    sessionStorage.setItem('creatorBrand', data.nom_marque || '');
+                    sessionStorage.setItem('creatorEmail', data.email);
+                    sessionStorage.setItem('creatorStatus', data.statut || 'pending');
+                    
+                    // Charger l'aperçu du portfolio
+                    loadPortfolioPreview(data);
+                    
+                } else {
+                    console.warn('Aucune donnée trouvée pour ce créateur');
+                    showErrorState();
+                }
+
+            } catch (error) {
+                console.error('Erreur lors du chargement des données:', error);
+                showErrorState();
             }
-            
-            // Afficher le domaine immédiatement
-            const domainTextElement = document.getElementById('domainText');
-            if (creatorDomain) {
-                domainTextElement.textContent = creatorDomain;
-            } else {
-                domainTextElement.textContent = 'Domaine non spécifié';
-            }
-            
-            // Afficher les initiales dans l'avatar
-            displayInitials(creatorName || '');
-            
-            // Mettre à jour le sous-titre selon le domaine
-            updateWelcomeSubtitle(creatorDomain || '');
         }
 
         // Fonction pour afficher les initiales
@@ -527,7 +578,6 @@
             const avatarElement = document.getElementById('welcomeAvatar');
             if (!avatarElement) return;
             
-            // Extraire les initiales
             let initials = '';
             if (fullName && fullName.trim() !== '') {
                 initials = fullName
@@ -566,56 +616,29 @@
                 'Votre espace personnel pour faire grandir votre marque';
         }
 
-        async function loadCreatorData() {
-            try {
-                // Récupérer l'ID du créateur depuis la session
-                const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
-                
-                if (!creatorId) {
-                    console.warn('Aucun ID de créateur trouvé');
-                    return;
-                }
-
-                // Récupérer les données du créateur depuis Supabase
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('id', creatorId)
-                    .single();
-
-                if (error) {
-                    console.error('Erreur Supabase:', error);
-                    return;
-                }
-
-                if (data) {
-                    // Mettre à jour les données dans sessionStorage
-                    const fullName = `${data.prenom} ${data.nom}`;
-                    sessionStorage.setItem('creatorName', fullName);
-                    sessionStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
-                    sessionStorage.setItem('creatorBrand', data.nom_marque || '');
-                    sessionStorage.setItem('creatorEmail', data.email);
-                    sessionStorage.setItem('creatorStatus', data.statut || 'pending');
-                    
-                    // Calculer les jours depuis l'inscription
-                    if (data.date_inscription) {
-                        const joinDate = new Date(data.date_inscription);
-                        const now = new Date();
-                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
-                        document.getElementById('memberDays').textContent = days;
-                    }
-                    
-                    // Mettre à jour le sous-titre selon le domaine
-                    updateWelcomeSubtitle(data.domaine || '');
-                    
-                }
-
-            } catch (error) {
-                console.error('Erreur lors du chargement des données:', error);
+        // Fonction pour afficher l'état d'erreur
+        function showErrorState() {
+            document.getElementById('creatorName').textContent = 'Créateur';
+            document.getElementById('domainText').textContent = 'Domaine non spécifié';
+            document.getElementById('welcomeAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
+            
+            const portfolioPreview = document.getElementById('portfolioPreview');
+            if (portfolioPreview) {
+                portfolioPreview.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erreur de chargement</h3>
+                        <p>Impossible de charger vos données</p>
+                        <button onclick="loadCreatorDataFromSupabase()" class="btn btn-primary">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </button>
+                    </div>
+                `;
             }
         }
 
-        async function loadPortfolioPreview() {
+        // Fonction pour charger l'aperçu du portfolio
+        async function loadPortfolioPreview(creatorData) {
             const previewContainer = document.getElementById('portfolioPreview');
             if (!previewContainer) return;
 
@@ -629,27 +652,6 @@
                             <h3>Connectez-vous pour voir votre portfolio</h3>
                             <a href="index.html" class="btn btn-primary">
                                 <i class="fas fa-sign-in-alt"></i> Se connecter
-                            </a>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Récupérer les données du créateur depuis Supabase
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('id', creatorId)
-                    .single();
-
-                if (error || !data) {
-                    previewContainer.innerHTML = `
-                        <div class="empty-preview">
-                            <i class="fas fa-portrait"></i>
-                            <h3>Votre portfolio est vide</h3>
-                            <p>Complétez-le pour être visible par la communauté</p>
-                            <a href="dashboard-portfolio.html" class="btn btn-primary">
-                                <i class="fas fa-plus-circle"></i> Créer mon portfolio
                             </a>
                         </div>
                     `;
@@ -674,25 +676,25 @@
                                       display:flex;align-items:center;justify-content:center;
                                       color:var(--primary);font-size:2rem;font-weight:bold;
                                       border:3px solid var(--primary);">
-                                    ${data.prenom ? data.prenom.charAt(0).toUpperCase() : ''}${data.nom ? data.nom.charAt(0).toUpperCase() : ''}
+                                    ${creatorData.prenom ? creatorData.prenom.charAt(0).toUpperCase() : ''}${creatorData.nom ? creatorData.nom.charAt(0).toUpperCase() : ''}
                                 </div>
                             </div>
                             <div class="preview-info">
-                                <h3>${data.nom_marque || 'Votre marque'}</h3>
-                                <p class="preview-creator">${data.prenom} ${data.nom}</p>
-                                <p class="preview-domain">${data.domaine || 'Domaine non spécifié'}</p>
+                                <h3>${creatorData.nom_marque || 'Votre marque'}</h3>
+                                <p class="preview-creator">${creatorData.prenom} ${creatorData.nom}</p>
+                                <p class="preview-domain">${creatorData.domaine || 'Domaine non spécifié'}</p>
                             </div>
                         </div>
                         
                         <div class="preview-body">
                             <div class="preview-status">
                                 <h4><i class="fas fa-chart-line"></i> Statut de votre compte</h4>
-                                <div class="status-indicator ${data.statut === 'validated' ? 'status-active' : 'status-pending'}">
-                                    <i class="fas fa-${data.statut === 'validated' ? 'check-circle' : 'clock'}"></i>
-                                    <span>${data.statut === 'validated' ? 'Compte validé' : 'En attente de validation'}</span>
+                                <div class="status-indicator ${creatorData.statut === 'validated' ? 'status-active' : 'status-pending'}">
+                                    <i class="fas fa-${creatorData.statut === 'validated' ? 'check-circle' : 'clock'}"></i>
+                                    <span>${creatorData.statut === 'validated' ? 'Compte validé' : 'En attente de validation'}</span>
                                 </div>
-                                ${data.statut === 'validated' && data.date_validation ? 
-                                    `<p class="validation-date">Validé le ${new Date(data.date_validation).toLocaleDateString('fr-FR')}</p>` : ''}
+                                ${creatorData.statut === 'validated' && creatorData.date_validation ? 
+                                    `<p class="validation-date">Validé le ${new Date(creatorData.date_validation).toLocaleDateString('fr-FR')}</p>` : ''}
                             </div>
                             
                             <div class="preview-portfolio">
@@ -712,9 +714,9 @@
                             
                             <div class="preview-contact">
                                 <h4><i class="fas fa-envelope"></i> Contact</h4>
-                                <p><i class="fas fa-envelope"></i> ${data.email}</p>
-                                ${data.telephone ? `<p><i class="fas fa-phone"></i> ${data.telephone}</p>` : ''}
-                                <p><i class="fas fa-calendar"></i> Membre depuis ${new Date(data.date_inscription).toLocaleDateString('fr-FR')}</p>
+                                <p><i class="fas fa-envelope"></i> ${creatorData.email}</p>
+                                ${creatorData.telephone ? `<p><i class="fas fa-phone"></i> ${creatorData.telephone}</p>` : ''}
+                                <p><i class="fas fa-calendar"></i> Membre depuis ${new Date(creatorData.date_inscription).toLocaleDateString('fr-FR')}</p>
                             </div>
                         </div>
                         
@@ -723,7 +725,7 @@
                                 <a href="dashboard-portfolio.html" class="btn btn-outline">
                                     <i class="fas fa-edit"></i> Modifier mon portfolio
                                 </a>
-                                ${data.statut !== 'validated' ? 
+                                ${creatorData.statut !== 'validated' ? 
                                     `<div class="validation-info">
                                         <i class="fas fa-info-circle"></i>
                                         <span>Votre compte est en attente de validation par notre équipe</span>
@@ -740,9 +742,9 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <h3>Erreur de chargement</h3>
                         <p>Impossible de charger votre portfolio</p>
-                        <a href="dashboard-portfolio.html" class="btn btn-primary">
+                        <button onclick="loadCreatorDataFromSupabase()" class="btn btn-primary">
                             <i class="fas fa-redo"></i> Réessayer
-                        </a>
+                        </button>
                     </div>
                 `;
             }
