@@ -60,6 +60,256 @@
         .btn-logout:hover {
             background: rgba(220, 53, 69, 0.2);
         }
+
+        /* Styles pour la section de bienvenue */
+        .welcome-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--dark-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--primary);
+            overflow: hidden;
+        }
+
+        .welcome-avatar i {
+            font-size: 3.5rem;
+            color: var(--primary);
+            opacity: 0.7;
+        }
+
+        .creator-domain {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .creator-domain i {
+            font-size: 0.9rem;
+        }
+
+        /* Styles pour l'aperçu du portfolio */
+        .portfolio-preview-content {
+            background: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 25px;
+            border: 1px solid var(--border);
+        }
+        
+        .preview-header {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .preview-avatar {
+            flex-shrink: 0;
+        }
+        
+        .preview-info h3 {
+            color: #ffffff;
+            margin-bottom: 5px;
+            font-size: 1.3rem;
+        }
+        
+        .preview-creator {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .preview-domain {
+            color: var(--gray-light);
+            font-size: 0.9rem;
+        }
+        
+        .preview-body {
+            margin-bottom: 25px;
+        }
+        
+        .preview-body h4 {
+            color: var(--primary);
+            margin: 20px 0 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+        
+        .preview-status, .preview-portfolio, .preview-contact {
+            margin-bottom: 20px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .status-active {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+        
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .status-incomplete {
+            background: rgba(108, 117, 125, 0.1);
+            color: var(--gray);
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+        
+        .portfolio-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            justify-content: space-between;
+        }
+        
+        .btn-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+        
+        .validation-date {
+            color: var(--gray-light);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        .preview-contact p {
+            color: #cccccc;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .preview-contact i {
+            color: var(--primary);
+            width: 20px;
+        }
+        
+        .preview-footer {
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .preview-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .validation-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--warning);
+            font-size: 0.9rem;
+            background: rgba(255, 193, 7, 0.1);
+            padding: 10px 15px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            flex: 1;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-light);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(212, 175, 55, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--danger);
+        }
+        
+        .error-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-preview {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray-light);
+        }
+        
+        .empty-preview i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .empty-preview h3 {
+            color: var(--gray-light);
+            margin-bottom: 10px;
+        }
+        
+        .empty-preview p {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .preview-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -88,17 +338,16 @@
             <section class="welcome-section">
                 <div class="welcome-header">
                     <div class="welcome-avatar" id="welcomeAvatar">
-                        <!-- L'image sera chargée depuis Supabase -->
-                        <i class="fas fa-user-circle"></i>
+                        <!-- Les initiales seront affichées immédiatement -->
                     </div>
                     <div class="welcome-text">
-                        <h1>Bonjour, <span id="creatorName">Chargement...</span> !</h1>
+                        <h1>Bonjour, <span id="creatorName"></span> !</h1>
                         <p class="welcome-subtitle" id="welcomeSubtitle">
-                            Votre espace personnel pour faire grandir votre marque
+                            <!-- Le sous-titre sera mis à jour dynamiquement -->
                         </p>
                         <div class="creator-domain" id="creatorDomain">
                             <i class="fas fa-tag"></i>
-                            <span>Chargement...</span>
+                            <span id="domainText"></span>
                         </div>
                     </div>
                 </div>
@@ -203,7 +452,13 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // Configuration Supabase
+        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        let supabase;
+
         document.addEventListener('DOMContentLoaded', function() {
             // Initialiser Supabase
             initSupabase();
@@ -221,15 +476,13 @@
                 });
             }
 
-            // Charger les données du créateur
+            // AFFICHER IMMÉDIATEMENT LES DONNÉES DU CRÉATEUR
+            displayCreatorDataImmediately();
+            
+            // Charger les données supplémentaires depuis Supabase
             loadCreatorData();
             loadPortfolioPreview();
         });
-
-        // Configuration Supabase
-        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-        let supabase;
 
         function initSupabase() {
             if (supabaseUrl && supabaseKey) {
@@ -240,6 +493,79 @@
             }
         }
 
+        // NOUVELLE FONCTION : Afficher les données immédiatement
+        function displayCreatorDataImmediately() {
+            // Récupérer les données du créateur depuis sessionStorage
+            const creatorName = sessionStorage.getItem('creatorName') || localStorage.getItem('creatorName');
+            const creatorDomain = sessionStorage.getItem('creatorDomain') || localStorage.getItem('creatorDomain');
+            
+            // Afficher le nom immédiatement
+            const creatorNameElement = document.getElementById('creatorName');
+            if (creatorName) {
+                creatorNameElement.textContent = creatorName;
+            } else {
+                creatorNameElement.textContent = 'Créateur';
+            }
+            
+            // Afficher le domaine immédiatement
+            const domainTextElement = document.getElementById('domainText');
+            if (creatorDomain) {
+                domainTextElement.textContent = creatorDomain;
+            } else {
+                domainTextElement.textContent = 'Domaine non spécifié';
+            }
+            
+            // Afficher les initiales dans l'avatar
+            displayInitials(creatorName || '');
+            
+            // Mettre à jour le sous-titre selon le domaine
+            updateWelcomeSubtitle(creatorDomain || '');
+        }
+
+        // Fonction pour afficher les initiales
+        function displayInitials(fullName) {
+            const avatarElement = document.getElementById('welcomeAvatar');
+            if (!avatarElement) return;
+            
+            // Extraire les initiales
+            let initials = '';
+            if (fullName && fullName.trim() !== '') {
+                initials = fullName
+                    .split(' ')
+                    .filter(name => name.trim() !== '')
+                    .map(name => name.charAt(0).toUpperCase())
+                    .join('');
+            }
+            
+            if (initials.length > 0) {
+                avatarElement.innerHTML = `
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+                          font-size:2.5rem;font-weight:bold;color:var(--primary);">
+                        ${initials}
+                    </div>
+                `;
+            } else {
+                avatarElement.innerHTML = '<i class="fas fa-user-circle"></i>';
+            }
+        }
+
+        // Fonction pour mettre à jour le sous-titre de bienvenue
+        function updateWelcomeSubtitle(domain) {
+            const subtitle = document.getElementById('welcomeSubtitle');
+            if (!subtitle) return;
+            
+            const domainTitles = {
+                'Styliste haute couture': 'Votre espace pour créer des pièces uniques',
+                'Styliste streetwear': 'Exprimez votre style streetwear',
+                'Designer': 'Développez votre vision créative',
+                'Marque de bijoux': 'Faites briller vos créations',
+                'Artisans du tricot': 'Tissez votre succès créatif'
+            };
+            
+            subtitle.textContent = domainTitles[domain] || 
+                'Votre espace personnel pour faire grandir votre marque';
+        }
+
         async function loadCreatorData() {
             try {
                 // Récupérer l'ID du créateur depuis la session
@@ -247,39 +573,29 @@
                 
                 if (!creatorId) {
                     console.warn('Aucun ID de créateur trouvé');
-                    document.getElementById('creatorName').textContent = 'Créateur';
                     return;
                 }
 
                 // Récupérer les données du créateur depuis Supabase
                 const { data, error } = await supabase
-                    .from('créateurs')  // Votre table s'appelle "créateurs" avec accent
+                    .from('créateurs')
                     .select('*')
-                    .eq('id', creatorId)  // Vous utilisez l'ID UUID de la table
+                    .eq('id', creatorId)
                     .single();
 
                 if (error) {
                     console.error('Erreur Supabase:', error);
-                    document.getElementById('creatorName').textContent = 'Créateur';
                     return;
                 }
 
                 if (data) {
-                    // Mettre à jour les informations affichées
+                    // Mettre à jour les données dans sessionStorage
                     const fullName = `${data.prenom} ${data.nom}`;
-                    document.getElementById('creatorName').textContent = fullName || 'Créateur';
-                    
-                    const domainElement = document.getElementById('creatorDomain').querySelector('span');
-                    domainElement.textContent = data.domaine || 'Domaine non spécifié';
-                    
-                    // Mettre à jour l'avatar avec les initiales
-                    const avatarElement = document.getElementById('welcomeAvatar');
-                    avatarElement.innerHTML = `
-                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-                              font-size:2.5rem;font-weight:bold;color:var(--primary);">
-                            ${data.prenom ? data.prenom.charAt(0).toUpperCase() : ''}${data.nom ? data.nom.charAt(0).toUpperCase() : ''}
-                        </div>
-                    `;
+                    sessionStorage.setItem('creatorName', fullName);
+                    sessionStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
+                    sessionStorage.setItem('creatorBrand', data.nom_marque || '');
+                    sessionStorage.setItem('creatorEmail', data.email);
+                    sessionStorage.setItem('creatorStatus', data.statut || 'pending');
                     
                     // Calculer les jours depuis l'inscription
                     if (data.date_inscription) {
@@ -289,31 +605,13 @@
                         document.getElementById('memberDays').textContent = days;
                     }
                     
-                    // Personnaliser le sous-titre selon le domaine
-                    const subtitle = document.getElementById('welcomeSubtitle');
-                    const domainTitles = {
-                        'Styliste haute couture': 'Votre espace pour créer des pièces uniques',
-                        'Styliste streetwear': 'Exprimez votre style streetwear',
-                        'Designer': 'Développez votre vision créative',
-                        'Marque de bijoux': 'Faites briller vos créations',
-                        'Artisans du tricot': 'Tissez votre succès créatif'
-                    };
-                    subtitle.textContent = domainTitles[data.domaine] || 
-                        'Votre espace personnel pour faire grandir votre marque';
+                    // Mettre à jour le sous-titre selon le domaine
+                    updateWelcomeSubtitle(data.domaine || '');
                     
-                    // Sauvegarder dans sessionStorage pour un accès rapide
-                    sessionStorage.setItem('creatorName', fullName);
-                    sessionStorage.setItem('creatorDomain', data.domaine);
-                    sessionStorage.setItem('creatorBrand', data.nom_marque);
-                    sessionStorage.setItem('creatorEmail', data.email);
-                    
-                } else {
-                    document.getElementById('creatorName').textContent = 'Créateur';
                 }
 
             } catch (error) {
                 console.error('Erreur lors du chargement des données:', error);
-                document.getElementById('creatorName').textContent = 'Créateur';
             }
         }
 
@@ -449,230 +747,6 @@
                 `;
             }
         }
-
-        // Ajouter des styles CSS pour l'aperçu
-        const style = document.createElement('style');
-        style.textContent = `
-            .portfolio-preview-content {
-                background: var(--dark-light);
-                border-radius: var(--radius);
-                padding: 25px;
-                border: 1px solid var(--border);
-            }
-            
-            .preview-header {
-                display: flex;
-                gap: 20px;
-                align-items: center;
-                margin-bottom: 25px;
-            }
-            
-            .preview-avatar {
-                flex-shrink: 0;
-            }
-            
-            .preview-info h3 {
-                color: #ffffff;
-                margin-bottom: 5px;
-                font-size: 1.3rem;
-            }
-            
-            .preview-creator {
-                color: var(--primary);
-                margin-bottom: 5px;
-                font-weight: 500;
-            }
-            
-            .preview-domain {
-                color: var(--gray-light);
-                font-size: 0.9rem;
-            }
-            
-            .preview-body {
-                margin-bottom: 25px;
-            }
-            
-            .preview-body h4 {
-                color: var(--primary);
-                margin: 20px 0 15px 0;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-size: 1rem;
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 8px;
-            }
-            
-            .preview-status, .preview-portfolio, .preview-contact {
-                margin-bottom: 20px;
-            }
-            
-            .status-indicator {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px 15px;
-                border-radius: var(--radius);
-                font-weight: 500;
-                margin-bottom: 10px;
-            }
-            
-            .status-active {
-                background: rgba(40, 167, 69, 0.1);
-                color: var(--success);
-                border: 1px solid rgba(40, 167, 69, 0.3);
-            }
-            
-            .status-pending {
-                background: rgba(255, 193, 7, 0.1);
-                color: var(--warning);
-                border: 1px solid rgba(255, 193, 7, 0.3);
-            }
-            
-            .status-incomplete {
-                background: rgba(108, 117, 125, 0.1);
-                color: var(--gray);
-                border: 1px solid rgba(108, 117, 125, 0.3);
-            }
-            
-            .portfolio-status {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 10px 15px;
-                border-radius: var(--radius);
-                margin-bottom: 10px;
-                justify-content: space-between;
-            }
-            
-            .btn-link {
-                color: var(--primary);
-                text-decoration: none;
-                font-size: 0.9rem;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-            }
-            
-            .btn-link:hover {
-                text-decoration: underline;
-            }
-            
-            .validation-date {
-                color: var(--gray-light);
-                font-size: 0.9rem;
-                margin-top: 5px;
-                font-style: italic;
-            }
-            
-            .preview-contact p {
-                color: #cccccc;
-                margin-bottom: 8px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            
-            .preview-contact i {
-                color: var(--primary);
-                width: 20px;
-            }
-            
-            .preview-footer {
-                padding-top: 20px;
-                border-top: 1px solid var(--border);
-            }
-            
-            .preview-actions {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 15px;
-            }
-            
-            .validation-info {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                color: var(--warning);
-                font-size: 0.9rem;
-                background: rgba(255, 193, 7, 0.1);
-                padding: 10px 15px;
-                border-radius: var(--radius);
-                border: 1px solid rgba(255, 193, 7, 0.3);
-                flex: 1;
-            }
-            
-            .loading-state {
-                text-align: center;
-                padding: 40px;
-                color: var(--gray-light);
-            }
-            
-            .loading-spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid rgba(212, 175, 55, 0.2);
-                border-top: 4px solid var(--primary);
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 15px;
-            }
-            
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-            
-            .error-state {
-                text-align: center;
-                padding: 40px;
-                color: var(--danger);
-            }
-            
-            .error-state i {
-                font-size: 3rem;
-                margin-bottom: 15px;
-                opacity: 0.5;
-            }
-            
-            .empty-preview {
-                text-align: center;
-                padding: 60px 20px;
-                color: var(--gray-light);
-            }
-            
-            .empty-preview i {
-                font-size: 4rem;
-                margin-bottom: 20px;
-                opacity: 0.3;
-            }
-            
-            .empty-preview h3 {
-                color: var(--gray-light);
-                margin-bottom: 10px;
-            }
-            
-            .empty-preview p {
-                color: var(--gray);
-                margin-bottom: 20px;
-            }
-            
-            @media (max-width: 768px) {
-                .preview-header {
-                    flex-direction: column;
-                    text-align: center;
-                }
-                
-                .preview-actions {
-                    flex-direction: column;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
