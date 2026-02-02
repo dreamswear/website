@@ -300,7 +300,7 @@
             margin-bottom: 20px;
         }
         
-        /* État de chargement */
+        /* État de chargement amélioré */
         .data-loading {
             display: inline-block;
             width: 20px;
@@ -309,6 +309,11 @@
             border-top: 2px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            color: var(--gray-light);
+            font-style: italic;
         }
         
         @media (max-width: 768px) {
@@ -322,6 +327,9 @@
             }
         }
     </style>
+    
+    <!-- Ajoutez ce script en premier dans dashboard-home.html -->
+    <script src="session-manager.js"></script>
 </head>
 <body>
     <!-- Header simplifié -->
@@ -349,16 +357,16 @@
             <section class="welcome-section">
                 <div class="welcome-header">
                     <div class="welcome-avatar" id="welcomeAvatar">
-                        <div class="data-loading" style="width: 40px; height: 40px;"></div>
+                        <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="welcome-text">
-                        <h1>Bonjour, <span id="creatorName">Chargement...</span> !</h1>
+                        <h1 id="welcomeTitle">Bonjour, <span id="creatorName" class="loading-text">Chargement...</span> !</h1>
                         <p class="welcome-subtitle" id="welcomeSubtitle">
                             Votre espace personnel pour faire grandir votre marque
                         </p>
                         <div class="creator-domain" id="creatorDomain">
                             <i class="fas fa-tag"></i>
-                            <span id="domainText">Chargement...</span>
+                            <span id="domainText" class="loading-text">Chargement...</span>
                         </div>
                     </div>
                 </div>
@@ -453,7 +461,6 @@
                 </div>
                 
                 <div class="preview-container" id="portfolioPreview">
-                    <!-- Chargé dynamiquement depuis Supabase -->
                     <div class="loading-state">
                         <div class="loading-spinner"></div>
                         <p>Chargement de votre portfolio...</p>
@@ -471,8 +478,18 @@
         let supabase;
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🏠 Dashboard Home chargé');
+            
             // Initialiser Supabase
             initSupabase();
+            
+            // Vérifier la connexion
+            if (!SessionManager.isCreatorLoggedIn()) {
+                console.warn('🚫 Créateur non connecté, redirection...');
+                alert('Veuillez vous connecter pour accéder à cette page.');
+                window.location.href = 'index.html';
+                return;
+            }
             
             // Gestion de la déconnexion
             const logoutBtn = document.getElementById('logoutBtn');
@@ -480,97 +497,50 @@
                 logoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                        sessionStorage.clear();
-                        localStorage.clear();
+                        SessionManager.logout();
                         window.location.href = 'index.html';
                     }
                 });
             }
-
-            // CHARGER LES DONNÉES DIRECTEMENT DEPUIS SUPABASE
+            
+            // AFFICHER IMMÉDIATEMENT LES DONNÉES DU CRÉATEUR
+            displayCreatorDataImmediately();
+            
+            // CHARGER LES DONNÉES COMPLÈTES DEPUIS SUPABASE
             loadCreatorDataFromSupabase();
         });
 
         function initSupabase() {
             if (supabaseUrl && supabaseKey) {
-                supabase = supabase.createClient(supabaseUrl, supabaseKey);
-            } else {
-                console.error('Configuration Supabase manquante');
-                alert('Erreur de configuration. Veuillez contacter l\'administrateur.');
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase initialisé');
             }
         }
 
-        // Fonction principale pour charger les données du créateur
-        async function loadCreatorDataFromSupabase() {
-            try {
-                // Récupérer l'ID du créateur depuis la session
-                const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
-                
-                if (!creatorId) {
-                    console.warn('Aucun ID de créateur trouvé');
-                    document.getElementById('creatorName').textContent = 'Créateur';
-                    document.getElementById('domainText').textContent = 'Domaine non spécifié';
-                    return;
-                }
-
-                console.log('Chargement des données pour le créateur ID:', creatorId);
-
-                // Récupérer les données du créateur depuis la table "créateurs" dans Supabase
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('id', creatorId)
-                    .single();
-
-                if (error) {
-                    console.error('Erreur Supabase:', error);
-                    showErrorState();
-                    return;
-                }
-
-                if (data) {
-                    console.log('Données reçues:', data);
-                    
-                    // Afficher le nom du créateur
-                    const fullName = `${data.prenom || ''} ${data.nom || ''}`.trim();
-                    document.getElementById('creatorName').textContent = fullName || 'Créateur';
-                    
-                    // Afficher le domaine
-                    document.getElementById('domainText').textContent = data.domaine || 'Domaine non spécifié';
-                    
-                    // Afficher les initiales dans l'avatar
-                    displayInitials(fullName);
-                    
-                    // Mettre à jour le sous-titre selon le domaine
-                    updateWelcomeSubtitle(data.domaine);
-                    
-                    // Calculer et afficher les jours depuis l'inscription
-                    if (data.date_inscription) {
-                        const joinDate = new Date(data.date_inscription);
-                        const now = new Date();
-                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
-                        document.getElementById('memberDays').textContent = days;
-                    }
-                    
-                    // Sauvegarder les données dans sessionStorage pour usage ultérieur
-                    sessionStorage.setItem('creatorName', fullName);
-                    sessionStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
-                    sessionStorage.setItem('creatorBrand', data.nom_marque || '');
-                    sessionStorage.setItem('creatorEmail', data.email);
-                    sessionStorage.setItem('creatorStatus', data.statut || 'pending');
-                    
-                    // Charger l'aperçu du portfolio
-                    loadPortfolioPreview(data);
-                    
-                } else {
-                    console.warn('Aucune donnée trouvée pour ce créateur');
-                    showErrorState();
-                }
-
-            } catch (error) {
-                console.error('Erreur lors du chargement des données:', error);
-                showErrorState();
+        // Afficher les données immédiatement depuis la session
+        function displayCreatorDataImmediately() {
+            // Récupérer les données via SessionManager
+            const creatorData = SessionManager.getCreatorData();
+            
+            console.log('🎨 Données du créateur:', creatorData);
+            
+            // Afficher le nom
+            const creatorNameElement = document.getElementById('creatorName');
+            if (creatorNameElement) {
+                creatorNameElement.textContent = creatorData.name;
             }
+            
+            // Afficher le domaine
+            const domainTextElement = document.getElementById('domainText');
+            if (domainTextElement) {
+                domainTextElement.textContent = creatorData.domain;
+            }
+            
+            // Afficher les initiales dans l'avatar
+            displayInitials(creatorData.name);
+            
+            // Mettre à jour le sous-titre selon le domaine
+            updateWelcomeSubtitle(creatorData.domain);
         }
 
         // Fonction pour afficher les initiales
@@ -599,7 +569,7 @@
             }
         }
 
-        // Fonction pour mettre à jour le sous-titre de bienvenue
+        // Fonction pour mettre à jour le sous-titre
         function updateWelcomeSubtitle(domain) {
             const subtitle = document.getElementById('welcomeSubtitle');
             if (!subtitle) return;
@@ -616,24 +586,54 @@
                 'Votre espace personnel pour faire grandir votre marque';
         }
 
-        // Fonction pour afficher l'état d'erreur
-        function showErrorState() {
-            document.getElementById('creatorName').textContent = 'Créateur';
-            document.getElementById('domainText').textContent = 'Domaine non spécifié';
-            document.getElementById('welcomeAvatar').innerHTML = '<i class="fas fa-user-circle"></i>';
-            
-            const portfolioPreview = document.getElementById('portfolioPreview');
-            if (portfolioPreview) {
-                portfolioPreview.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Erreur de chargement</h3>
-                        <p>Impossible de charger vos données</p>
-                        <button onclick="loadCreatorDataFromSupabase()" class="btn btn-primary">
-                            <i class="fas fa-redo"></i> Réessayer
-                        </button>
-                    </div>
-                `;
+        // Charger les données complètes depuis Supabase
+        async function loadCreatorDataFromSupabase() {
+            try {
+                const creatorData = SessionManager.getCreatorData();
+                const creatorId = creatorData.id;
+                
+                if (!creatorId) {
+                    console.warn('❌ ID créateur non trouvé');
+                    return;
+                }
+
+                console.log('🔄 Chargement des données depuis Supabase pour:', creatorId);
+
+                // Récupérer les données du créateur
+                const { data, error } = await supabase
+                    .from('créateurs')
+                    .select('*')
+                    .eq('id', creatorId)
+                    .single();
+
+                if (error) {
+                    console.error('❌ Erreur Supabase:', error);
+                    return;
+                }
+
+                if (data) {
+                    console.log('✅ Données récupérées:', data);
+                    
+                    // Mettre à jour la session avec toutes les données
+                    SessionManager.saveCreatorSession(data);
+                    
+                    // Calculer les jours depuis l'inscription
+                    if (data.date_inscription) {
+                        const joinDate = new Date(data.date_inscription);
+                        const now = new Date();
+                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
+                        const daysElement = document.getElementById('memberDays');
+                        if (daysElement) {
+                            daysElement.textContent = days;
+                        }
+                    }
+                    
+                    // Charger l'aperçu du portfolio
+                    loadPortfolioPreview(data);
+                }
+
+            } catch (error) {
+                console.error('💥 Erreur chargement données:', error);
             }
         }
 
@@ -643,7 +643,7 @@
             if (!previewContainer) return;
 
             try {
-                const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
+                const creatorId = SessionManager.getCreatorData().id;
                 
                 if (!creatorId) {
                     previewContainer.innerHTML = `
@@ -658,7 +658,7 @@
                     return;
                 }
 
-                // Vérifier si le créateur a un portfolio dans la table "portfolio"
+                // Vérifier si le créateur a un portfolio
                 const { data: portfolioData, error: portfolioError } = await supabase
                     .from('portfolio')
                     .select('*')
@@ -667,7 +667,7 @@
 
                 const hasPortfolio = portfolioData && !portfolioError;
 
-                // Afficher l'aperçu du portfolio
+                // Afficher l'aperçu
                 previewContainer.innerHTML = `
                     <div class="portfolio-preview-content">
                         <div class="preview-header">
@@ -716,7 +716,7 @@
                                 <h4><i class="fas fa-envelope"></i> Contact</h4>
                                 <p><i class="fas fa-envelope"></i> ${creatorData.email}</p>
                                 ${creatorData.telephone ? `<p><i class="fas fa-phone"></i> ${creatorData.telephone}</p>` : ''}
-                                <p><i class="fas fa-calendar"></i> Membre depuis ${new Date(creatorData.date_inscription).toLocaleDateString('fr-FR')}</p>
+                                ${creatorData.date_inscription ? `<p><i class="fas fa-calendar"></i> Membre depuis ${new Date(creatorData.date_inscription).toLocaleDateString('fr-FR')}</p>` : ''}
                             </div>
                         </div>
                         
@@ -742,12 +742,22 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <h3>Erreur de chargement</h3>
                         <p>Impossible de charger votre portfolio</p>
-                        <button onclick="loadCreatorDataFromSupabase()" class="btn btn-primary">
+                        <button onclick="retryLoading()" class="btn btn-primary">
                             <i class="fas fa-redo"></i> Réessayer
                         </button>
                     </div>
                 `;
             }
+        }
+
+        // Fonction pour réessayer le chargement
+        function retryLoading() {
+            document.getElementById('creatorName').textContent = 'Chargement...';
+            document.getElementById('creatorName').classList.add('loading-text');
+            document.getElementById('domainText').textContent = 'Chargement...';
+            document.getElementById('domainText').classList.add('loading-text');
+            
+            loadCreatorDataFromSupabase();
         }
     </script>
 </body>
