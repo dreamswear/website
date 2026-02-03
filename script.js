@@ -182,6 +182,198 @@ document.addEventListener('DOMContentLoaded', () => {
     window.SessionManager = SessionManager;
 
     // ============================================
+    // 25. CALENDRIER DYNAMIQUE POUR LA PAGE CULTURE
+    // ============================================
+    
+    // Fonction pour générer le calendrier dynamique
+    function generateCalendar(year, month) {
+        const calendarElement = document.getElementById('calendar');
+        const currentMonthElement = document.getElementById('current-month');
+        
+        if (!calendarElement || !currentMonthElement) {
+            return; // Élément non trouvé sur cette page
+        }
+        
+        // Mettre à jour le titre du mois
+        const monthNames = [
+            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+        ];
+        currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+        
+        // Nettoyer le calendrier
+        calendarElement.innerHTML = '';
+        
+        // Ajouter les en-têtes des jours
+        const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+        dayNames.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = day;
+            calendarElement.appendChild(dayHeader);
+        });
+        
+        // Calculer le premier jour du mois
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        // Ajouter des cases vides pour les jours avant le 1er du mois
+        for (let i = 0; i < firstDay; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day empty';
+            calendarElement.appendChild(emptyDay);
+        }
+        
+        // Ajouter tous les jours du mois
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            // Numéro du jour
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+            dayElement.appendChild(dayNumber);
+            
+            // Vérifier si c'est aujourd'hui
+            const today = new Date();
+            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
+                dayElement.style.border = '2px solid var(--accent)';
+            }
+            
+            calendarElement.appendChild(dayElement);
+        }
+        
+        // Charger les événements pour ce mois
+        loadEventsForCalendar(year, month + 1);
+    }
+    
+    // Charger les événements pour le calendrier
+    async function loadEventsForCalendar(year, month) {
+        try {
+            // Formater le mois pour la requête (ajouter un 0 devant si nécessaire)
+            const monthStr = month < 10 ? `0${month}` : `${month}`;
+            const yearStr = `${year}`;
+            
+            // Chercher les événements de ce mois
+            const { data: events, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('rubrique', 'culture')
+                .eq('statut', 'publié')
+                .ilike('date_evenement', `${yearStr}-${monthStr}-%`);
+            
+            if (error) {
+                console.error('❌ Erreur chargement événements calendrier:', error);
+                return;
+            }
+            
+            if (events && events.length > 0) {
+                console.log(`📅 ${events.length} événements trouvés pour ${month}/${year}`);
+                // Ajouter les points d'événements sur le calendrier
+                addEventsToCalendar(events);
+            }
+            
+        } catch (error) {
+            console.error('💥 Erreur lors du chargement des événements:', error);
+        }
+    }
+    
+    // Ajouter les événements au calendrier
+    function addEventsToCalendar(events) {
+        events.forEach(event => {
+            if (!event.date_evenement) return;
+            
+            const eventDate = new Date(event.date_evenement);
+            const day = eventDate.getDate();
+            
+            // Trouver le jour correspondant dans le calendrier
+            const dayElements = document.querySelectorAll('.calendar-day:not(.empty)');
+            dayElements.forEach(dayElement => {
+                const dayNumber = dayElement.querySelector('.day-number');
+                if (dayNumber && parseInt(dayNumber.textContent) === day) {
+                    // Ajouter un point d'événement
+                    const eventDot = document.createElement('div');
+                    eventDot.className = 'event-dot';
+                    eventDot.title = event.titre_fr;
+                    
+                    // Créer une popup avec les détails de l'événement
+                    const eventPopup = document.createElement('div');
+                    eventPopup.className = 'event-popup';
+                    eventPopup.innerHTML = `
+                        <h4>${event.titre_fr}</h4>
+                        <p>${event.type_evenement || 'Événement'}</p>
+                        <p>📅 ${new Date(event.date_evenement).toLocaleDateString('fr-FR')}</p>
+                        ${event.heure_evenement ? `<p>🕒 ${event.heure_evenement}</p>` : ''}
+                        ${event.lieu ? `<p>📍 ${event.lieu}</p>` : ''}
+                        <a href="article.html?id=${event.id}" class="event-link">Voir détails →</a>
+                    `;
+                    
+                    dayElement.appendChild(eventDot);
+                    dayElement.appendChild(eventPopup);
+                    
+                    // S'assurer que le jour a une position relative pour la popup
+                    dayElement.style.position = 'relative';
+                }
+            });
+        });
+    }
+    
+    // Initialiser le calendrier si on est sur la page culture
+    function initCalendar() {
+        const calendarElement = document.getElementById('calendar');
+        if (!calendarElement) return; // Pas sur la page culture
+        
+        console.log('📅 Initialisation du calendrier...');
+        
+        let currentDate = new Date();
+        let currentYear = currentDate.getFullYear();
+        let currentMonth = currentDate.getMonth();
+        
+        // Générer le calendrier initial
+        generateCalendar(currentYear, currentMonth);
+        
+        // Bouton précédent
+        const prevBtn = document.getElementById('prev-month');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                generateCalendar(currentYear, currentMonth);
+            });
+        }
+        
+        // Bouton suivant
+        const nextBtn = document.getElementById('next-month');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                generateCalendar(currentYear, currentMonth);
+            });
+        }
+        
+        // Bouton "Aujourd'hui"
+        const todayBtn = document.getElementById('today-btn');
+        if (todayBtn) {
+            todayBtn.addEventListener('click', function() {
+                currentDate = new Date();
+                currentYear = currentDate.getFullYear();
+                currentMonth = currentDate.getMonth();
+                generateCalendar(currentYear, currentMonth);
+            });
+        }
+        
+        console.log('✅ Calendrier initialisé');
+    }
+
+    // ============================================
     // 3. TEST DE CONNEXION SUPABASE
     // ============================================
     async function testerConnexionSupabase() {
@@ -243,7 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // 4. Liste des conteneurs et leurs rubriques
+        // 4. Initialiser le calendrier si on est sur culture.html
+        if (window.location.pathname.includes('culture.html')) {
+            console.log('📄 Page Culture détectée');
+            initCalendar();
+        }
+        
+        // 5. Liste des conteneurs et leurs rubriques
         const containerMap = {
             'actualites-container': 'actualites',
             'visages-container': 'visages',
@@ -260,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'events-container': 'culture'
         };
         
-        // 5. Chercher quel conteneur est présent
+        // 6. Chercher quel conteneur est présent
         for (const [containerId, rubrique] of Object.entries(containerMap)) {
             if (document.getElementById(containerId)) {
                 console.log(`📄 Page ${rubrique} détectée (${containerId})`);
@@ -273,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 6. Si aucun conteneur trouvé, essayer par nom de fichier
+        // 7. Si aucun conteneur trouvé, essayer par nom de fichier
         const path = window.location.pathname;
         const pageName = path.split('/').pop().replace('.html', '').toLowerCase();
         
@@ -793,41 +991,39 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const formData = getFormData(rubrique);
         
-        // === CORRECTION ICI ===
-    // Vérifications différentes selon la rubrique
-    let validationError = '';
-    
-    switch(rubrique) {
-        case 'visages':
-            // Pour Visages, vérifier le nom de la marque
-            if (!formData.nom_marque) {
-                validationError = '❌ Le nom de la marque est obligatoire';
-            } else if (!formData.biographie) {
-                validationError = '❌ La biographie est obligatoire';
-            }
-            break;
-            
-        case 'culture':
-            // Pour Culture, vérifier le titre et la date
-            if (!formData.titre_fr) {
-                validationError = '❌ Le titre est obligatoire';
-            } else if (!formData.date_evenement) {
-                validationError = '❌ La date de début est obligatoire';
-            }
-            break;
-            
-        default:
-            // Pour toutes les autres rubriques, vérifier le titre
-            if (!formData.titre_fr) {
-                validationError = '❌ Le titre est obligatoire';
-            }
-    }
-    
-    if (validationError) {
-        showStatus(statusElement, validationError, 'error');
-        return;
-    }
-    // === FIN DE LA CORRECTION ===
+        // Vérifications différentes selon la rubrique
+        let validationError = '';
+        
+        switch(rubrique) {
+            case 'visages':
+                // Pour Visages, vérifier le nom de la marque
+                if (!formData.nom_marque) {
+                    validationError = '❌ Le nom de la marque est obligatoire';
+                } else if (!formData.biographie) {
+                    validationError = '❌ La biographie est obligatoire';
+                }
+                break;
+                
+            case 'culture':
+                // Pour Culture, vérifier le titre et la date
+                if (!formData.titre_fr) {
+                    validationError = '❌ Le titre est obligatoire';
+                } else if (!formData.date_evenement) {
+                    validationError = '❌ La date de début est obligatoire';
+                }
+                break;
+                
+            default:
+                // Pour toutes les autres rubriques, vérifier le titre
+                if (!formData.titre_fr) {
+                    validationError = '❌ Le titre est obligatoire';
+                }
+        }
+        
+        if (validationError) {
+            showStatus(statusElement, validationError, 'error');
+            return;
+        }
         
         btnSave.disabled = true;
         btnSave.innerHTML = '<span>⏳ Enregistrement...</span>';
@@ -845,14 +1041,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 statut: 'publié',
                 date_publication: formData.date_publication || new Date().toISOString()
             };
-             // === CORRECTION SUPPLEMENTAIRE POUR VISAGES ===
-        // Pour la rubrique Visages, générer un titre automatique
-        if (rubrique === 'visages' && articleData.nom_marque) {
-            articleData.titre_fr = articleData.nom_createur 
-                ? `${articleData.nom_marque} par ${articleData.nom_createur}`
-                : `${articleData.nom_marque}`;
-        }
-        // === FIN DE LA CORRECTION ===
+            
+            // Pour la rubrique Visages, générer un titre automatique
+            if (rubrique === 'visages' && articleData.nom_marque) {
+                articleData.titre_fr = articleData.nom_createur 
+                    ? `${articleData.nom_marque} par ${articleData.nom_createur}`
+                    : `${articleData.nom_marque}`;
+            }
 
             console.log('📤 Données à envoyer:', articleData);
             
@@ -901,288 +1096,288 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-   function getFormData(rubrique) {
-    const data = {
-        rubrique: document.getElementById(`rubrique-${rubrique}`)?.value || rubrique,
-        titre_fr: document.getElementById(`titre-${rubrique}`)?.value || '',
-        contenu_fr: document.getElementById(`contenu-${rubrique}`)?.value || '',
-        auteur: document.getElementById(`auteur-${rubrique}`)?.value || 'Rédaction',
-        date_publication: document.getElementById(`date-${rubrique}`)?.value || new Date().toISOString().split('T')[0]
-    };
-    
-    switch(rubrique) {
-        case 'actualites':
-            data.categorie_actualite = document.getElementById(`categorie-${rubrique}`)?.value;
-            break;
-        case 'visages':
-            data.nom_marque = document.getElementById(`nom_marque-${rubrique}`)?.value;
-            data.nom_createur = document.getElementById(`nom_createur-${rubrique}`)?.value;
-            data.domaine = document.getElementById(`domaine-${rubrique}`)?.value;
-            data.reseaux_instagram = document.getElementById(`instagram-${rubrique}`)?.value;
-            data.site_web = document.getElementById(`siteweb-${rubrique}`)?.value;
-            data.biographie = document.getElementById(`biographie-${rubrique}`)?.value; // Ajouté
-            data.interview_fr = document.getElementById(`interview-${rubrique}`)?.value;
-            break;
-            case 'tendances':
-                data.saison = document.getElementById(`saison-${rubrique}`)?.value;
-                break;
-            case 'decouvertes':
-                data.type_decouverte = document.getElementById(`type-${rubrique}`)?.value;
-                break;
-            case 'mode':
-                data.theme_mode = document.getElementById(`theme-${rubrique}`)?.value;
-                break;
-            case 'accessoires':
-                data.type_accessoire = document.getElementById(`type-${rubrique}`)?.value;
-                break;
-            case 'beaute':
-                data.type_beaute = document.getElementById(`type-${rubrique}`)?.value;
-                break;
-            case 'culture':
-                return getCultureFormData();
-        }
-        
-        return data;
-    }
-    
-    function getCultureFormData() {
-        return {
-            rubrique: 'culture',
-            titre_fr: document.getElementById('titre-culture')?.value || '',
-            type_evenement: document.getElementById('type-culture')?.value,
-            date_evenement: document.getElementById('date_debut-culture')?.value,
-            date_fin_evenement: document.getElementById('date_fin-culture')?.value,
-            heure_evenement: document.getElementById('heure-culture')?.value,
-            statut_evenement: document.getElementById('statut-culture')?.value,
-            lieu: document.getElementById('lieu-culture')?.value,
-            contenu_fr: document.getElementById('description-culture')?.value || '',
-            lien_evenement: document.getElementById('lien-culture')?.value,
-            auteur: 'Rédaction',
-            statut: 'publié'
-        };
-    }
-    
-    function showStatus(element, message, type) {
-        if (!element) return;
-        
-        element.textContent = message;
-        element.className = `status-message status-${type}`;
-        element.style.display = message ? 'block' : 'none';
-    }
-    
-    function resetForm(rubrique) {
-        const form = document.getElementById(`${rubrique}-tab`);
-        if (!form) return;
-        
-        const inputs = form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], input[type="url"], textarea, select');
-        inputs.forEach(input => {
-            if (input.type === 'select-one') {
-                input.selectedIndex = 0;
-            } else if (input.type === 'date') {
-                input.value = new Date().toISOString().split('T')[0];
-            } else if (input.id.includes('titre-') || input.id.includes('contenu-')) {
-                input.value = '';
-            } else if (input.id.includes('auteur-')) {
-                input.value = 'Rédaction';
-            } else {
-                input.value = '';
-            }
-        });
-        
-        const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-        const imageFile = document.getElementById(`imageFile-${rubrique}`);
-        if (preview) {
-            preview.style.display = 'none';
-            preview.src = '';
-        }
-        if (imageFile) {
-            imageFile.value = '';
-        }
-        
-        const btnSave = document.getElementById(`btnSave-${rubrique}`);
-        const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
-        const formTitle = document.getElementById(`formTitle-${rubrique}`);
-        
-        if (btnSave) {
-            btnSave.removeAttribute('data-editing-id');
-            btnSave.innerHTML = '<span>🚀 Publier</span>';
-        }
-        
-        if (btnCancel) {
-            btnCancel.style.display = 'none';
-        }
-        
-        if (formTitle) {
-            formTitle.textContent = getFormTitle(rubrique, false);
-        }
-        
-        const statusElement = document.getElementById(`status-${rubrique}`);
-        if (statusElement) {
-            statusElement.style.display = 'none';
-        }
-    }
-    
-    function getFormTitle(rubrique, editing = false) {
-        const titles = {
-            'actualites': editing ? 'Modifier une actualité' : 'Publier une actualité',
-            'visages': editing ? 'Modifier un créateur' : 'Ajouter un créateur',
-            'coulisses': editing ? 'Modifier un article coulisses' : 'Article Coulisses',
-            'tendances': editing ? 'Modifier un article tendances' : 'Article Tendances',
-            'decouvertes': editing ? 'Modifier une découverte' : 'Nouvelle découverte',
-            'culture': editing ? 'Modifier un événement' : 'Événement Culture/Agenda',
-            'mode': editing ? 'Modifier un article mode' : 'Article Mode',
-            'accessoires': editing ? 'Modifier un article accessoires' : 'Article Accessoires',
-            'beaute': editing ? 'Modifier un article beauté' : 'Article Beauté'
+    function getFormData(rubrique) {
+        const data = {
+            rubrique: document.getElementById(`rubrique-${rubrique}`)?.value || rubrique,
+            titre_fr: document.getElementById(`titre-${rubrique}`)?.value || '',
+            contenu_fr: document.getElementById(`contenu-${rubrique}`)?.value || '',
+            auteur: document.getElementById(`auteur-${rubrique}`)?.value || 'Rédaction',
+            date_publication: document.getElementById(`date-${rubrique}`)?.value || new Date().toISOString().split('T')[0]
         };
         
-        return titles[rubrique] || 'Formulaire';
-    }
-    
-    window.editArticle = async function(rubrique, articleId) {
-        console.log(`✏️ Édition article ${articleId} (${rubrique})`);
-        
-        try {
-            const { data, error } = await supabase
-                .from('articles')
-                .select('*')
-                .eq('id', articleId)
-                .single();
-            
-            if (error) throw error;
-            
-            if (!data) {
-                alert('Article non trouvé');
-                return;
+        switch(rubrique) {
+            case 'actualites':
+                data.categorie_actualite = document.getElementById(`categorie-${rubrique}`)?.value;
+                break;
+            case 'visages':
+                data.nom_marque = document.getElementById(`nom_marque-${rubrique}`)?.value;
+                data.nom_createur = document.getElementById(`nom_createur-${rubrique}`)?.value;
+                data.domaine = document.getElementById(`domaine-${rubrique}`)?.value;
+                data.reseaux_instagram = document.getElementById(`instagram-${rubrique}`)?.value;
+                data.site_web = document.getElementById(`siteweb-${rubrique}`)?.value;
+                data.biographie = document.getElementById(`biographie-${rubrique}`)?.value; // Ajouté
+                data.interview_fr = document.getElementById(`interview-${rubrique}`)?.value;
+                break;
+                case 'tendances':
+                    data.saison = document.getElementById(`saison-${rubrique}`)?.value;
+                    break;
+                case 'decouvertes':
+                    data.type_decouverte = document.getElementById(`type-${rubrique}`)?.value;
+                    break;
+                case 'mode':
+                    data.theme_mode = document.getElementById(`theme-${rubrique}`)?.value;
+                    break;
+                case 'accessoires':
+                    data.type_accessoire = document.getElementById(`type-${rubrique}`)?.value;
+                    break;
+                case 'beaute':
+                    data.type_beaute = document.getElementById(`type-${rubrique}`)?.value;
+                    break;
+                case 'culture':
+                    return getCultureFormData();
             }
             
-            fillForm(rubrique, data);
+            return data;
+        }
+        
+        function getCultureFormData() {
+            return {
+                rubrique: 'culture',
+                titre_fr: document.getElementById('titre-culture')?.value || '',
+                type_evenement: document.getElementById('type-culture')?.value,
+                date_evenement: document.getElementById('date_debut-culture')?.value,
+                date_fin_evenement: document.getElementById('date_fin-culture')?.value,
+                heure_evenement: document.getElementById('heure-culture')?.value,
+                statut_evenement: document.getElementById('statut-culture')?.value,
+                lieu: document.getElementById('lieu-culture')?.value,
+                contenu_fr: document.getElementById('description-culture')?.value || '',
+                lien_evenement: document.getElementById('lien-culture')?.value,
+                auteur: 'Rédaction',
+                statut: 'publié'
+            };
+        }
+        
+        function showStatus(element, message, type) {
+            if (!element) return;
+            
+            element.textContent = message;
+            element.className = `status-message status-${type}`;
+            element.style.display = message ? 'block' : 'none';
+        }
+        
+        function resetForm(rubrique) {
+            const form = document.getElementById(`${rubrique}-tab`);
+            if (!form) return;
+            
+            const inputs = form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], input[type="url"], textarea, select');
+            inputs.forEach(input => {
+                if (input.type === 'select-one') {
+                    input.selectedIndex = 0;
+                } else if (input.type === 'date') {
+                    input.value = new Date().toISOString().split('T')[0];
+                } else if (input.id.includes('titre-') || input.id.includes('contenu-')) {
+                    input.value = '';
+                } else if (input.id.includes('auteur-')) {
+                    input.value = 'Rédaction';
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+            const imageFile = document.getElementById(`imageFile-${rubrique}`);
+            if (preview) {
+                preview.style.display = 'none';
+                preview.src = '';
+            }
+            if (imageFile) {
+                imageFile.value = '';
+            }
             
             const btnSave = document.getElementById(`btnSave-${rubrique}`);
             const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
             const formTitle = document.getElementById(`formTitle-${rubrique}`);
             
             if (btnSave) {
-                btnSave.setAttribute('data-editing-id', articleId);
-                btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
+                btnSave.removeAttribute('data-editing-id');
+                btnSave.innerHTML = '<span>🚀 Publier</span>';
             }
             
             if (btnCancel) {
-                btnCancel.style.display = 'block';
+                btnCancel.style.display = 'none';
             }
             
             if (formTitle) {
-                formTitle.textContent = getFormTitle(rubrique, true);
+                formTitle.textContent = getFormTitle(rubrique, false);
             }
             
-            document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            const tabBtn = document.querySelector(`.tab-link[data-tab="${rubrique}"]`);
-            const tabContent = document.getElementById(`${rubrique}-tab`);
-            
-            if (tabBtn) tabBtn.classList.add('active');
-            if (tabContent) tabContent.classList.add('active');
-            
-        } catch (error) {
-            console.error('❌ Erreur chargement article:', error);
-            alert('Erreur lors du chargement de l\'article');
-        }
-    };
-    
-    window.deleteArticle = async function(rubrique, articleId) {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
-            return;
-        }
-        
-        try {
-            const { error } = await supabase
-                .from('articles')
-                .delete()
-                .eq('id', articleId);
-            
-            if (error) throw error;
-            
-            alert('✅ Article supprimé avec succès!');
-            
-            await loadAdminData(rubrique);
-            
-        } catch (error) {
-            console.error('❌ Erreur suppression:', error);
-            alert('❌ Erreur lors de la suppression');
-        }
-    };
-    
-    function fillForm(rubrique, data) {
-        const setValue = (id, value) => {
-            const element = document.getElementById(`${id}-${rubrique}`);
-            if (element && value) element.value = value;
-        };
-        
-        setValue('titre', data.titre_fr);
-        setValue('contenu', data.contenu_fr);
-        setValue('auteur', data.auteur);
-        
-        if (data.date_publication) {
-            setValue('date', data.date_publication.split('T')[0]);
-        }
-        
-        switch(rubrique) {
-            case 'actualites':
-                setValue('categorie', data.categorie_actualite);
-                break;
-            case 'visages':
-                setValue('nom_marque', data.nom_marque);
-                setValue('nom_createur', data.nom_createur);
-                setValue('domaine', data.domaine);
-                setValue('instagram', data.reseaux_instagram);
-                setValue('siteweb', data.site_web);
-                setValue('interview', data.interview_fr);
-                break;
-            case 'tendances':
-                setValue('saison', data.saison);
-                break;
-            case 'decouvertes':
-                setValue('type', data.type_decouverte);
-                break;
-            case 'mode':
-                setValue('theme', data.theme_mode);
-                break;
-            case 'accessoires':
-                setValue('type', data.type_accessoire);
-                break;
-            case 'beaute':
-                setValue('type', data.type_beaute);
-                break;
-            case 'culture':
-                fillCultureForm(data);
-                break;
-        }
-        
-        if (data.image_url) {
-            const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-            if (preview) {
-                preview.src = data.image_url;
-                preview.style.display = 'block';
+            const statusElement = document.getElementById(`status-${rubrique}`);
+            if (statusElement) {
+                statusElement.style.display = 'none';
             }
         }
-    }
-    
-    function fillCultureForm(data) {
-        const setValue = (id, value) => {
-            const element = document.getElementById(`${id}-culture`);
-            if (element && value) element.value = value;
+        
+        function getFormTitle(rubrique, editing = false) {
+            const titles = {
+                'actualites': editing ? 'Modifier une actualité' : 'Publier une actualité',
+                'visages': editing ? 'Modifier un créateur' : 'Ajouter un créateur',
+                'coulisses': editing ? 'Modifier un article coulisses' : 'Article Coulisses',
+                'tendances': editing ? 'Modifier un article tendances' : 'Article Tendances',
+                'decouvertes': editing ? 'Modifier une découverte' : 'Nouvelle découverte',
+                'culture': editing ? 'Modifier un événement' : 'Événement Culture/Agenda',
+                'mode': editing ? 'Modifier un article mode' : 'Article Mode',
+                'accessoires': editing ? 'Modifier un article accessoires' : 'Article Accessoires',
+                'beaute': editing ? 'Modifier un article beauté' : 'Article Beauté'
+            };
+            
+            return titles[rubrique] || 'Formulaire';
+        }
+        
+        window.editArticle = async function(rubrique, articleId) {
+            console.log(`✏️ Édition article ${articleId} (${rubrique})`);
+            
+            try {
+                const { data, error } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('id', articleId)
+                    .single();
+                
+                if (error) throw error;
+                
+                if (!data) {
+                    alert('Article non trouvé');
+                    return;
+                }
+                
+                fillForm(rubrique, data);
+                
+                const btnSave = document.getElementById(`btnSave-${rubrique}`);
+                const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
+                const formTitle = document.getElementById(`formTitle-${rubrique}`);
+                
+                if (btnSave) {
+                    btnSave.setAttribute('data-editing-id', articleId);
+                    btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
+                }
+                
+                if (btnCancel) {
+                    btnCancel.style.display = 'block';
+                }
+                
+                if (formTitle) {
+                    formTitle.textContent = getFormTitle(rubrique, true);
+                }
+                
+                document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                const tabBtn = document.querySelector(`.tab-link[data-tab="${rubrique}"]`);
+                const tabContent = document.getElementById(`${rubrique}-tab`);
+                
+                if (tabBtn) tabBtn.classList.add('active');
+                if (tabContent) tabContent.classList.add('active');
+                
+            } catch (error) {
+                console.error('❌ Erreur chargement article:', error);
+                alert('Erreur lors du chargement de l\'article');
+            }
         };
         
-        setValue('titre', data.titre_fr);
-        setValue('type', data.type_evenement);
-        setValue('date_debut', data.date_evenement ? data.date_evenement.split('T')[0] : '');
-        setValue('date_fin', data.date_fin_evenement ? data.date_fin_evenement.split('T')[0] : '');
-        setValue('heure', data.heure_evenement);
-        setValue('statut', data.statut_evenement);
-        setValue('lieu', data.lieu);
-        setValue('description', data.contenu_fr);
-        setValue('lien', data.lien_evenement);
-    }
+        window.deleteArticle = async function(rubrique, articleId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('articles')
+                    .delete()
+                    .eq('id', articleId);
+                
+                if (error) throw error;
+                
+                alert('✅ Article supprimé avec succès!');
+                
+                await loadAdminData(rubrique);
+                
+            } catch (error) {
+                console.error('❌ Erreur suppression:', error);
+                alert('❌ Erreur lors de la suppression');
+            }
+        };
+        
+        function fillForm(rubrique, data) {
+            const setValue = (id, value) => {
+                const element = document.getElementById(`${id}-${rubrique}`);
+                if (element && value) element.value = value;
+            };
+            
+            setValue('titre', data.titre_fr);
+            setValue('contenu', data.contenu_fr);
+            setValue('auteur', data.auteur);
+            
+            if (data.date_publication) {
+                setValue('date', data.date_publication.split('T')[0]);
+            }
+            
+            switch(rubrique) {
+                case 'actualites':
+                    setValue('categorie', data.categorie_actualite);
+                    break;
+                case 'visages':
+                    setValue('nom_marque', data.nom_marque);
+                    setValue('nom_createur', data.nom_createur);
+                    setValue('domaine', data.domaine);
+                    setValue('instagram', data.reseaux_instagram);
+                    setValue('siteweb', data.site_web);
+                    setValue('interview', data.interview_fr);
+                    break;
+                case 'tendances':
+                    setValue('saison', data.saison);
+                    break;
+                case 'decouvertes':
+                    setValue('type', data.type_decouverte);
+                    break;
+                case 'mode':
+                    setValue('theme', data.theme_mode);
+                    break;
+                case 'accessoires':
+                    setValue('type', data.type_accessoire);
+                    break;
+                case 'beaute':
+                    setValue('type', data.type_beaute);
+                    break;
+                case 'culture':
+                    fillCultureForm(data);
+                    break;
+            }
+            
+            if (data.image_url) {
+                const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+                if (preview) {
+                    preview.src = data.image_url;
+                    preview.style.display = 'block';
+                }
+            }
+        }
+        
+        function fillCultureForm(data) {
+            const setValue = (id, value) => {
+                const element = document.getElementById(`${id}-culture`);
+                if (element && value) element.value = value;
+            };
+            
+            setValue('titre', data.titre_fr);
+            setValue('type', data.type_evenement);
+            setValue('date_debut', data.date_evenement ? data.date_evenement.split('T')[0] : '');
+            setValue('date_fin', data.date_fin_evenement ? data.date_fin_evenement.split('T')[0] : '');
+            setValue('heure', data.heure_evenement);
+            setValue('statut', data.statut_evenement);
+            setValue('lieu', data.lieu);
+            setValue('description', data.contenu_fr);
+            setValue('lien', data.lien_evenement);
+        }
 
     // ============================================
     // 7. FONCTIONS POUR LA STRUCTURE PRINCIPALE
