@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Éducatif - Dreamswear</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Styles spécifiques pour l'espace éducatif */
+        .education-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .category-card {
+            background: var(--dark-light);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .category-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--dark);
+            flex-shrink: 0;
+        }
+        
+        .category-icon.mode-industrie {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+        
+        .category-icon.createurs-marques {
+            background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+        }
+        
+        .category-icon.culture-histoire {
+            background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+        }
+        
+        .category-header h3 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .category-description {
+            color: var(--gray-light);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .articles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .article-item {
+            background: var(--dark);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .article-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .article-title {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+        }
+        
+        .article-date {
+            color: var(--gray-light);
+            font-size: 0.85rem;
+            background: var(--dark-light);
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        
+        .article-excerpt {
+            color: var(--gray-light);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--primary);
+            font-size: 0.85rem;
+        }
+        
+        .article-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .empty-articles {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-articles i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+        
+        .modal-content {
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .article-content {
+            color: #cccccc;
+            line-height: 1.8;
+        }
+        
+        .article-content h2, 
+        .article-content h3 {
+            color: var(--primary);
+            margin: 25px 0 15px 0;
+        }
+        
+        .article-content p {
+            margin-bottom: 15px;
+        }
+        
+        .article-content ul, 
+        .article-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .article-content li {
+            margin-bottom: 8px;
+        }
+        
+        .article-content blockquote {
+            border-left: 4px solid var(--primary);
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: var(--gray-light);
+        }
+        
+        .article-footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .article-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        @media (max-width: 768px) {
+            .education-categories {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+            
+            .article-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script src="session-manager.js"></script>
+    <script src="dashboard-common.js"></script>
+
+    <!-- Header simplifié -->
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="logo">
+                <a href="index.html">DREAMS</a>
+            </div>
+            <div class="header-actions">
+                <button id="logoutBtn" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-graduation-cap"></i> Espace Éducatif</h1>
+                <p class="page-subtitle">Ressources et conseils pour développer votre marque dans l'industrie de la mode</p>
+            </div>
+
+            <!-- Section de bienvenue -->
+            <section class="welcome-section">
+                <div class="welcome-header">
+                    <div class="welcome-avatar">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="welcome-text">
+                        <h1>Bonjour, <span id="creatorName">Créateur</span> !</h1>
+                        <p class="welcome-subtitle">
+                            Explorez nos ressources éducatives pour développer votre expertise dans l'industrie de la mode
+                        </p>
+                        <div class="creator-domain">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>Votre centre de connaissances mode</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-book-open"></i>
+                        <div>
+                            <span class="stat-number" id="totalArticles">0</span>
+                            <span class="stat-label">articles disponibles</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div>
+                            <span class="stat-number" id="readingTime">0</span>
+                            <span class="stat-label">min de lecture</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <div>
+                            <span class="stat-number" id="completedArticles">0</span>
+                            <span class="stat-label">articles lus</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Navigation Rapide -->
+            <section class="quick-nav-section">
+                <h2><i class="fas fa-compass"></i> Parcourir par catégorie</h2>
+                <div class="quick-nav-grid">
+                    <a href="#mode-industrie" class="nav-card">
+                        <div class="nav-icon" style="background: #2196F3;">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <h3>Éducation mode & industrie</h3>
+                        <p>Comprendre l'industrie de la mode</p>
+                    </a>
+                    
+                    <a href="#createurs-marques" class="nav-card">
+                        <div class="nav-icon" style="background: #9C27B0;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <h3>Éducation pour créateurs & marques</h3>
+                        <p>Développer votre marque</p>
+                    </a>
+                    
+                    <a href="#culture-histoire" class="nav-card">
+                        <div class="nav-icon" style="background: #4CAF50;">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <h3>Culture & histoire de la mode</h3>
+                        <p>Explorer les racines de la mode</p>
+                    </a>
+                    
+                    <a href="dashboard-home.html" class="nav-card">
+                        <div class="nav-icon" style="background: #d4af37;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>Retour à l'accueil</h3>
+                        <p>Revenir au tableau de bord principal</p>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Catégorie 1: Éducation mode & industrie -->
+            <section id="mode-industrie" class="education-category">
+                <div class="section-header">
+                    <h2><i class="fas fa-industry"></i> Éducation mode & industrie</h2>
+                </div>
+                <p class="category-description">
+                    Comprenez les rouages de l'industrie de la mode, de la production à la distribution. 
+                    Apprenez les tendances, les cycles de production et les acteurs clés du secteur.
+                </p>
+                <div id="mode-industrie-articles" class="articles-list">
+                    <!-- Les articles seront chargés ici -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Chargement des articles...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Catégorie 2: Éducation pour créateurs & marques -->
+            <section id="createurs-marques" class="education-category">
+                <div class="section-header">
+                    <h2><i class="fas fa-user-tie"></i> Éducation pour créateurs & marques</h2>
+                </div>
+                <p class="category-description">
+                    Développez votre marque avec des conseils pratiques sur le branding, le marketing, 
+                    la gestion d'entreprise et la stratégie de croissance.
+                </p>
+                <div id="createurs-marques-articles" class="articles-list">
+                    <!-- Les articles seront chargés ici -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Chargement des articles...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Catégorie 3: Culture & histoire de la mode -->
+            <section id="culture-histoire" class="education-category">
+                <div class="section-header">
+                    <h2><i class="fas fa-landmark"></i> Culture & histoire de la mode</h2>
+                </div>
+                <p class="category-description">
+                    Plongez dans l'histoire de la mode, explorez les mouvements culturels et découvrez 
+                    comment le contexte social influence les tendances vestimentaires.
+                </p>
+                <div id="culture-histoire-articles" class="articles-list">
+                    <!-- Les articles seront chargés ici -->
+                    <div class="loading-state">
+                        <div class="loading-spinner"></div>
+                        <p>Chargement des articles...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Modal pour afficher les articles -->
+            <div id="articleModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modalArticleTitle"></h2>
+                        <button class="close-modal" id="closeArticleModal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modalArticleContent" class="article-content"></div>
+                        <div class="article-footer">
+                            <div class="article-tags" id="modalArticleTags"></div>
+                            <div class="article-meta">
+                                <span><i class="fas fa-clock"></i> <span id="modalArticleReadTime"></span> min de lecture</span>
+                                <span><i class="fas fa-calendar"></i> Publié le <span id="modalArticleDate"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase
+        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        let supabase;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎓 Espace Éducatif chargé');
+            
+            // Initialiser Supabase
+            initSupabase();
+            
+            // Vérifier la connexion
+            if (!SessionManager.isCreatorLoggedIn()) {
+                console.warn('🚫 Créateur non connecté, redirection...');
+                alert('Veuillez vous connecter pour accéder à cette page.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // Gestion de la déconnexion
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                        SessionManager.logout();
+                        window.location.href = 'index.html';
+                    }
+                });
+            }
+            
+            // Afficher le nom du créateur
+            displayCreatorName();
+            
+            // Charger les articles depuis la table annuaire
+            loadEducationalArticles();
+            
+            // Configurer le modal
+            setupModal();
+        });
+
+        function initSupabase() {
+            if (supabaseUrl && supabaseKey) {
+                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase initialisé pour l\'espace éducatif');
+            }
+        }
+
+        function displayCreatorName() {
+            const creatorData = SessionManager.getCreatorData();
+            const creatorNameElement = document.getElementById('creatorName');
+            if (creatorNameElement && creatorData.name) {
+                creatorNameElement.textContent = creatorData.name;
+            }
+        }
+
+        async function loadEducationalArticles() {
+            try {
+                console.log('📚 Chargement des articles depuis la table annuaire...');
+                
+                // Charger depuis la table annuaire
+                const { data: articles, error } = await supabase
+                    .from('annuaire')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('❌ Erreur Supabase:', error);
+                    showEmptyState();
+                    return;
+                }
+
+                console.log('✅ Articles chargés depuis annuaire:', articles?.length || 0);
+
+                // Mettre à jour les statistiques
+                updateStatistics(articles || []);
+
+                // Afficher les articles par catégorie
+                displayArticlesByCategory(articles || []);
+
+            } catch (error) {
+                console.error('❌ Erreur chargement articles:', error);
+                showEmptyState();
+            }
+        }
+
+        function updateStatistics(articles) {
+            const totalArticles = articles.length;
+            const totalReadingTime = articles.reduce((sum, article) => sum + 5, 0); // 5 min par article par défaut
+            
+            // Récupérer les articles lus depuis localStorage
+            const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
+            const completedArticles = articles.filter(article => readArticles.includes(article.id)).length;
+
+            document.getElementById('totalArticles').textContent = totalArticles;
+            document.getElementById('readingTime').textContent = totalReadingTime;
+            document.getElementById('completedArticles').textContent = completedArticles;
+        }
+
+        function displayArticlesByCategory(articles) {
+            const categories = {
+                'mode-industrie': 'Éducation mode & industrie',
+                'createurs-marques': 'Éducation pour créateurs & marques',
+                'culture-histoire': 'Culture & histoire de la mode'
+            };
+
+            for (const [categoryId, categoryName] of Object.entries(categories)) {
+                // Pour l'instant, afficher tous les articles dans toutes les catégories
+                // (à adapter selon votre logique de catégorisation dans la table annuaire)
+                const container = document.getElementById(`${categoryId}-articles`);
+                
+                if (container) {
+                    if (articles.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-articles">
+                                <i class="fas fa-newspaper"></i>
+                                <h3>Aucun article disponible</h3>
+                                <p>Revenez bientôt pour découvrir nos ressources</p>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = articles.map(article => createArticleHTML(article)).join('');
+                        
+                        // Ajouter les événements de clic
+                        container.querySelectorAll('.article-item').forEach(item => {
+                            const articleId = item.getAttribute('data-article-id');
+                            const article = articles.find(a => a.id == articleId);
+                            if (article) {
+                                item.addEventListener('click', () => openArticleModal(article));
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+        function createArticleHTML(article) {
+            const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
+            const isRead = readArticles.includes(article.id);
+            
+            return `
+                <div class="article-item" data-article-id="${article.id}">
+                    <div class="article-header">
+                        <h3 class="article-title">
+                            ${article.nom_entreprise || article.prenom + ' ' + article.nom || 'Article sans titre'}
+                            ${isRead ? ' <i class="fas fa-check-circle" style="color: var(--success); font-size: 0.9rem;"></i>' : ''}
+                        </h3>
+                        <span class="article-date">${formatDate(article.created_at)}</span>
+                    </div>
+                    <p class="article-excerpt">${article.description ? article.description.substring(0, 150) + '...' : 'Aucune description disponible'}</p>
+                    <div class="article-meta">
+                        <span><i class="fas fa-clock"></i> 5 min de lecture</span>
+                        <span><i class="fas fa-user"></i> ${article.prenom || ''} ${article.nom || ''}</span>
+                        ${article.domaine ? `<span><i class="fas fa-tag"></i> ${article.domaine}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'Date inconnue';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            } catch (e) {
+                return 'Date inconnue';
+            }
+        }
+
+        function setupModal() {
+            const modal = document.getElementById('articleModal');
+            const closeBtn = document.getElementById('closeArticleModal');
+            
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+            
+            // Fermer avec la touche Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                }
+            });
+        }
+
+        function openArticleModal(article) {
+            const modal = document.getElementById('articleModal');
+            const titleElement = document.getElementById('modalArticleTitle');
+            const contentElement = document.getElementById('modalArticleContent');
+            const tagsElement = document.getElementById('modalArticleTags');
+            const readTimeElement = document.getElementById('modalArticleReadTime');
+            const dateElement = document.getElementById('modalArticleDate');
+            
+            // Mettre à jour le contenu du modal
+            titleElement.textContent = article.nom_entreprise || article.prenom + ' ' + article.nom || 'Article';
+            
+            // Construire le contenu à partir des données de l'annuaire
+            let content = '';
+            
+            if (article.description) {
+                content += `<h3>Description</h3><p>${article.description}</p>`;
+            }
+            
+            if (article.poste) {
+                content += `<h3>Poste</h3><p>${article.poste}</p>`;
+            }
+            
+            if (article.domaine) {
+                content += `<h3>Domaine</h3><p>${article.domaine}</p>`;
+            }
+            
+            if (article.competences) {
+                content += `<h3>Compétences</h3><p>${article.competences}</p>`;
+            }
+            
+            if (article.parcours) {
+                content += `<h3>Parcours</h3><p>${article.parcours}</p>`;
+            }
+            
+            contentElement.innerHTML = content || '<p>Aucun contenu disponible</p>';
+            
+            readTimeElement.textContent = 5;
+            dateElement.textContent = formatDate(article.created_at);
+            
+            // Afficher les tags
+            if (article.domaine) {
+                tagsElement.innerHTML = `<span class="tag">${article.domaine}</span>`;
+                if (article.specialite) {
+                    tagsElement.innerHTML += `<span class="tag">${article.specialite}</span>`;
+                }
+            } else {
+                tagsElement.innerHTML = '';
+            }
+            
+            // Ouvrir le modal
+            modal.classList.add('active');
+            
+            // Marquer l'article comme lu
+            markArticleAsRead(article.id);
+        }
+
+        function markArticleAsRead(articleId) {
+            const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
+            if (!readArticles.includes(articleId)) {
+                readArticles.push(articleId);
+                localStorage.setItem('readArticles', JSON.stringify(readArticles));
+                
+                // Mettre à jour l'affichage
+                const completedElement = document.getElementById('completedArticles');
+                const currentCount = parseInt(completedElement.textContent) || 0;
+                completedElement.textContent = currentCount + 1;
+            }
+        }
+
+        function showEmptyState() {
+            const containers = [
+                'mode-industrie-articles',
+                'createurs-marques-articles',
+                'culture-histoire-articles'
+            ];
+            
+            containers.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-articles">
+                            <i class="fas fa-newspaper"></i>
+                            <h3>Aucun contenu disponible</h3>
+                            <p>L'annuaire ne contient pas encore de ressources éducatives</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
