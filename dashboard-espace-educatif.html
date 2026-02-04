@@ -423,7 +423,7 @@
     <script>
         // Configuration Supabase
         const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZJI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
         let supabase;
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -481,25 +481,26 @@
             try {
                 console.log('📚 Chargement des articles depuis educational_articles...');
                 
-                // Charger tous les articles publiés
+                // CORRECTION ICI : Filtrer par status = 'published' au lieu de is_published
                 const { data: articles, error } = await supabase
                     .from('educational_articles')
                     .select('*')
-                    .eq('is_published', true)
+                    .eq('status', 'published')  // Changé de is_published à status
                     .order('created_at', { ascending: false });
 
                 if (error) {
                     console.error('❌ Erreur Supabase:', error);
-                    console.log('💡 Vérifiez que la table educational_articles existe dans Supabase');
+                    console.log('💡 Message d\'erreur:', error.message);
                     showEmptyState();
                     return;
                 }
 
                 console.log('✅ Articles chargés:', articles?.length || 0);
-                console.log('📊 Contenu des articles:', articles);
+                console.log('📊 Premier article (pour vérification):', articles ? articles[0] : 'Aucun');
 
                 if (!articles || articles.length === 0) {
-                    console.log('ℹ️ Aucun article trouvé dans la table educational_articles');
+                    console.log('ℹ️ Aucun article avec status="published" trouvé');
+                    console.log('💡 Essayez d\'ajouter des articles via manage-espace-educatif.html');
                     showEmptyState();
                     return;
                 }
@@ -512,6 +513,7 @@
 
             } catch (error) {
                 console.error('❌ Erreur chargement articles:', error);
+                console.log('💡 Erreur complète:', error);
                 showEmptyState();
             }
         }
@@ -598,6 +600,7 @@
                     year: 'numeric'
                 });
             } catch (e) {
+                console.log('⚠️ Erreur format date:', dateString);
                 return 'Date inconnue';
             }
         }
@@ -718,7 +721,10 @@
                     .eq('id', articleId)
                     .single();
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Erreur récupération vues:', error);
+                    return;
+                }
                 
                 // Incrémenter les vues
                 const newViews = (article.views || 0) + 1;
@@ -727,6 +733,8 @@
                     .from('educational_articles')
                     .update({ views: newViews })
                     .eq('id', articleId);
+                
+                console.log(`✅ Vues incrémentées pour l'article ${articleId}: ${newViews}`);
                 
                 // Mettre à jour l'affichage local
                 const articleElement = document.querySelector(`[data-article-id="${articleId}"]`);
@@ -757,7 +765,7 @@
                             <i class="fas fa-newspaper"></i>
                             <h3>Aucun article disponible</h3>
                             <p>La table educational_articles est vide ou les articles ne sont pas encore publiés</p>
-                            <p>Utilisez "manage-espace-educatif.html" pour ajouter des articles</p>
+                            <p>Utilisez "manage-espace-educatif.html" pour ajouter des articles avec status="published"</p>
                         </div>
                     `;
                 }
