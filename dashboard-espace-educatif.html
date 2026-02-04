@@ -423,7 +423,7 @@
     <script>
         // Configuration Supabase
         const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZJI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
         let supabase;
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -455,7 +455,7 @@
             // Afficher le nom du créateur
             displayCreatorName();
             
-            // Charger les articles depuis la table annuaire
+            // Charger les articles depuis la table educational_articles
             loadEducationalArticles();
             
             // Configurer le modal
@@ -479,27 +479,36 @@
 
         async function loadEducationalArticles() {
             try {
-                console.log('📚 Chargement des articles depuis la table annuaire...');
+                console.log('📚 Chargement des articles depuis educational_articles...');
                 
-                // Charger depuis la table annuaire
+                // Charger tous les articles publiés
                 const { data: articles, error } = await supabase
                     .from('educational_articles')
                     .select('*')
+                    .eq('is_published', true)
                     .order('created_at', { ascending: false });
 
                 if (error) {
                     console.error('❌ Erreur Supabase:', error);
+                    console.log('💡 Vérifiez que la table educational_articles existe dans Supabase');
                     showEmptyState();
                     return;
                 }
 
-                console.log('✅ Articles chargés depuis annuaire:', articles?.length || 0);
+                console.log('✅ Articles chargés:', articles?.length || 0);
+                console.log('📊 Contenu des articles:', articles);
+
+                if (!articles || articles.length === 0) {
+                    console.log('ℹ️ Aucun article trouvé dans la table educational_articles');
+                    showEmptyState();
+                    return;
+                }
 
                 // Mettre à jour les statistiques
-                updateStatistics(articles || []);
+                updateStatistics(articles);
 
                 // Afficher les articles par catégorie
-                displayArticlesByCategory(articles || []);
+                displayArticlesByCategory(articles);
 
             } catch (error) {
                 console.error('❌ Erreur chargement articles:', error);
@@ -509,7 +518,7 @@
 
         function updateStatistics(articles) {
             const totalArticles = articles.length;
-            const totalReadingTime = articles.reduce((sum, article) => sum + 5, 0); // 5 min par article par défaut
+            const totalReadingTime = articles.reduce((sum, article) => sum + (article.read_time || 5), 0);
             
             // Récupérer les articles lus depuis localStorage
             const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
@@ -528,21 +537,20 @@
             };
 
             for (const [categoryId, categoryName] of Object.entries(categories)) {
-                // Pour l'instant, afficher tous les articles dans toutes les catégories
-                // (à adapter selon votre logique de catégorisation dans la table annuaire)
+                const categoryArticles = articles.filter(article => article.category === categoryName);
                 const container = document.getElementById(`${categoryId}-articles`);
                 
                 if (container) {
-                    if (articles.length === 0) {
+                    if (categoryArticles.length === 0) {
                         container.innerHTML = `
                             <div class="empty-articles">
                                 <i class="fas fa-newspaper"></i>
                                 <h3>Aucun article disponible</h3>
-                                <p>Revenez bientôt pour découvrir nos ressources</p>
+                                <p>Revenez bientôt pour découvrir nos ressources dans cette catégorie</p>
                             </div>
                         `;
                     } else {
-                        container.innerHTML = articles.map(article => createArticleHTML(article)).join('');
+                        container.innerHTML = categoryArticles.map(article => createArticleHTML(article)).join('');
                         
                         // Ajouter les événements de clic
                         container.querySelectorAll('.article-item').forEach(item => {
@@ -565,16 +573,16 @@
                 <div class="article-item" data-article-id="${article.id}">
                     <div class="article-header">
                         <h3 class="article-title">
-                            ${article.nom_entreprise || article.prenom + ' ' + article.nom || 'Article sans titre'}
+                            ${article.title || 'Article sans titre'}
                             ${isRead ? ' <i class="fas fa-check-circle" style="color: var(--success); font-size: 0.9rem;"></i>' : ''}
                         </h3>
                         <span class="article-date">${formatDate(article.created_at)}</span>
                     </div>
-                    <p class="article-excerpt">${article.description ? article.description.substring(0, 150) + '...' : 'Aucune description disponible'}</p>
+                    <p class="article-excerpt">${article.excerpt || (article.content ? article.content.substring(0, 150) + '...' : 'Aucun extrait disponible')}</p>
                     <div class="article-meta">
-                        <span><i class="fas fa-clock"></i> 5 min de lecture</span>
-                        <span><i class="fas fa-user"></i> ${article.prenom || ''} ${article.nom || ''}</span>
-                        ${article.domaine ? `<span><i class="fas fa-tag"></i> ${article.domaine}</span>` : ''}
+                        <span><i class="fas fa-clock"></i> ${article.read_time || 5} min de lecture</span>
+                        ${article.views ? `<span><i class="fas fa-eye"></i> ${article.views} vues</span>` : ''}
+                        ${article.tags ? `<span><i class="fas fa-tags"></i> ${article.tags.split(',').length} tags</span>` : ''}
                     </div>
                 </div>
             `;
@@ -625,42 +633,24 @@
             const dateElement = document.getElementById('modalArticleDate');
             
             // Mettre à jour le contenu du modal
-            titleElement.textContent = article.nom_entreprise || article.prenom + ' ' + article.nom || 'Article';
+            titleElement.textContent = article.title || 'Article';
             
-            // Construire le contenu à partir des données de l'annuaire
-            let content = '';
-            
-            if (article.description) {
-                content += `<h3>Description</h3><p>${article.description}</p>`;
+            // Formater le contenu
+            let contentHTML = '';
+            if (article.content) {
+                contentHTML = formatArticleContent(article.content);
+            } else {
+                contentHTML = '<p>Aucun contenu disponible</p>';
             }
             
-            if (article.poste) {
-                content += `<h3>Poste</h3><p>${article.poste}</p>`;
-            }
-            
-            if (article.domaine) {
-                content += `<h3>Domaine</h3><p>${article.domaine}</p>`;
-            }
-            
-            if (article.competences) {
-                content += `<h3>Compétences</h3><p>${article.competences}</p>`;
-            }
-            
-            if (article.parcours) {
-                content += `<h3>Parcours</h3><p>${article.parcours}</p>`;
-            }
-            
-            contentElement.innerHTML = content || '<p>Aucun contenu disponible</p>';
-            
-            readTimeElement.textContent = 5;
+            contentElement.innerHTML = contentHTML;
+            readTimeElement.textContent = article.read_time || 5;
             dateElement.textContent = formatDate(article.created_at);
             
             // Afficher les tags
-            if (article.domaine) {
-                tagsElement.innerHTML = `<span class="tag">${article.domaine}</span>`;
-                if (article.specialite) {
-                    tagsElement.innerHTML += `<span class="tag">${article.specialite}</span>`;
-                }
+            if (article.tags) {
+                const tags = article.tags.split(',').map(tag => tag.trim());
+                tagsElement.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join('');
             } else {
                 tagsElement.innerHTML = '';
             }
@@ -670,6 +660,40 @@
             
             // Marquer l'article comme lu
             markArticleAsRead(article.id);
+            
+            // Incrémenter le compteur de vues
+            incrementArticleViews(article.id);
+        }
+
+        function formatArticleContent(content) {
+            if (!content) return '<p>Contenu non disponible</p>';
+            
+            // Convertir les retours à la ligne en paragraphes
+            return content.split('\n\n').map(paragraph => {
+                if (paragraph.trim() === '') return '';
+                
+                // Vérifier si c'est un titre
+                if (paragraph.startsWith('# ')) {
+                    return `<h2>${paragraph.substring(2)}</h2>`;
+                } else if (paragraph.startsWith('## ')) {
+                    return `<h3>${paragraph.substring(3)}</h3>`;
+                } else if (paragraph.startsWith('> ')) {
+                    return `<blockquote>${paragraph.substring(2)}</blockquote>`;
+                } else if (paragraph.startsWith('- ') || paragraph.startsWith('* ')) {
+                    const items = paragraph.split('\n').map(item => 
+                        `<li>${item.substring(2)}</li>`
+                    ).join('');
+                    return `<ul>${items}</ul>`;
+                } else if (/^\d+\.\s/.test(paragraph)) {
+                    const items = paragraph.split('\n').map(item => {
+                        const match = item.match(/^(\d+)\.\s(.+)$/);
+                        return match ? `<li>${match[2]}</li>` : '';
+                    }).join('');
+                    return `<ol>${items}</ol>`;
+                } else {
+                    return `<p>${paragraph}</p>`;
+                }
+            }).join('');
         }
 
         function markArticleAsRead(articleId) {
@@ -682,6 +706,39 @@
                 const completedElement = document.getElementById('completedArticles');
                 const currentCount = parseInt(completedElement.textContent) || 0;
                 completedElement.textContent = currentCount + 1;
+            }
+        }
+
+        async function incrementArticleViews(articleId) {
+            try {
+                // Récupérer les vues actuelles
+                const { data: article, error } = await supabase
+                    .from('educational_articles')
+                    .select('views')
+                    .eq('id', articleId)
+                    .single();
+                
+                if (error) throw error;
+                
+                // Incrémenter les vues
+                const newViews = (article.views || 0) + 1;
+                
+                await supabase
+                    .from('educational_articles')
+                    .update({ views: newViews })
+                    .eq('id', articleId);
+                
+                // Mettre à jour l'affichage local
+                const articleElement = document.querySelector(`[data-article-id="${articleId}"]`);
+                if (articleElement) {
+                    const viewsElement = articleElement.querySelector('.fa-eye');
+                    if (viewsElement && viewsElement.parentElement) {
+                        viewsElement.parentElement.textContent = ` ${newViews} vues`;
+                    }
+                }
+                
+            } catch (error) {
+                console.error('❌ Erreur incrémentation vues:', error);
             }
         }
 
@@ -698,12 +755,18 @@
                     container.innerHTML = `
                         <div class="empty-articles">
                             <i class="fas fa-newspaper"></i>
-                            <h3>Aucun contenu disponible</h3>
-                            <p>L'annuaire ne contient pas encore de ressources éducatives</p>
+                            <h3>Aucun article disponible</h3>
+                            <p>La table educational_articles est vide ou les articles ne sont pas encore publiés</p>
+                            <p>Utilisez "manage-espace-educatif.html" pour ajouter des articles</p>
                         </div>
                     `;
                 }
             });
+            
+            // Mettre à jour les statistiques à zéro
+            document.getElementById('totalArticles').textContent = '0';
+            document.getElementById('readingTime').textContent = '0';
+            document.getElementById('completedArticles').textContent = '0';
         }
     </script>
 </body>
