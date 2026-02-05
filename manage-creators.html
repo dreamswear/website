@@ -357,23 +357,6 @@
         let deleteType = null; // 'creator' ou 'event'
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Gestion des onglets
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    
-                    this.classList.add('active');
-                    document.getElementById(this.dataset.tab + 'Tab').classList.add('active');
-                    
-                    if (this.dataset.tab === 'events') {
-                        loadEvents();
-                    } else {
-                        loadCreators();
-                    }
-                });
-            });
-
             // Initialiser les créateurs
             loadCreators();
             setupSearch();
@@ -382,10 +365,49 @@
             // Gestion des événements
             setupEventManagement();
             setupDeleteModal();
+            
+            // Gestion des onglets
+            setupTabs();
         });
+
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Désactiver tous les onglets
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Cacher tous les contenus
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Activer l'onglet cliqué
+                    this.classList.add('active');
+                    
+                    // Afficher le contenu correspondant
+                    const tabId = this.getAttribute('data-tab');
+                    const contentId = tabId + 'Tab';
+                    const contentElement = document.getElementById(contentId);
+                    
+                    if (contentElement) {
+                        contentElement.classList.add('active');
+                        
+                        // Charger les données selon l'onglet
+                        if (tabId === 'events') {
+                            loadEvents();
+                        } else if (tabId === 'creators') {
+                            loadCreators();
+                        }
+                    }
+                });
+            });
+        }
 
         async function loadCreators() {
             try {
+                console.log('Chargement des créateurs...');
                 const { data, error } = await supabase
                     .from('creators')
                     .select('*')
@@ -393,6 +415,7 @@
                 
                 if (error) throw error;
                 
+                console.log('Créateurs chargés:', data.length);
                 totalCreators = data.length;
                 updateStats(data);
                 displayCreators(data);
@@ -498,32 +521,45 @@
                 }
             };
             
-            searchInput.addEventListener('input', () => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(performSearch, 300);
-            });
+            if (searchInput) {
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(performSearch, 300);
+                });
+            }
             
-            filterSelect.addEventListener('change', performSearch);
+            if (filterSelect) {
+                filterSelect.addEventListener('change', performSearch);
+            }
         }
 
         function setupPagination() {
-            document.getElementById('prevPage').addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    loadCreators();
-                }
-            });
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
             
-            document.getElementById('nextPage').addEventListener('click', () => {
-                if (currentPage * pageSize < totalCreators) {
-                    currentPage++;
-                    loadCreators();
-                }
-            });
+            if (prevPageBtn) {
+                prevPageBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        loadCreators();
+                    }
+                });
+            }
+            
+            if (nextPageBtn) {
+                nextPageBtn.addEventListener('click', () => {
+                    if (currentPage * pageSize < totalCreators) {
+                        currentPage++;
+                        loadCreators();
+                    }
+                });
+            }
         }
 
         function updatePaginationInfo() {
             const info = document.getElementById('paginationInfo');
+            if (!info) return;
+            
             const totalPages = Math.ceil(totalCreators / pageSize);
             info.textContent = `Page ${currentPage} sur ${totalPages} - ${totalCreators} créateurs`;
         }
@@ -532,55 +568,68 @@
             // Ouvrir modal avec détails du créateur
             console.log('Voir créateur:', creatorId);
             // Implémenter la vue détaillée
+            alert(`Voir les détails du créateur ${creatorId}`);
         }
 
         function confirmDelete(type, id) {
             deleteType = type;
             deleteId = id;
-            document.getElementById('deleteModal').style.display = 'flex';
+            const modal = document.getElementById('deleteModal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
         }
 
         function setupDeleteModal() {
             const modal = document.getElementById('deleteModal');
+            if (!modal) return;
+            
             const closeBtn = modal.querySelector('.close-modal');
             const cancelBtn = document.getElementById('cancelDeleteBtn');
             const confirmBtn = document.getElementById('confirmDeleteBtn');
             
-            closeBtn.addEventListener('click', () => modal.style.display = 'none');
-            cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => modal.style.display = 'none');
+            }
             
-            confirmBtn.addEventListener('click', async () => {
-                try {
-                    if (deleteType === 'creator') {
-                        const { error } = await supabase
-                            .from('creators')
-                            .delete()
-                            .eq('id', deleteId);
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+            }
+            
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', async () => {
+                    try {
+                        if (deleteType === 'creator') {
+                            const { error } = await supabase
+                                .from('creators')
+                                .delete()
+                                .eq('id', deleteId);
+                            
+                            if (error) throw error;
+                            
+                            alert('Créateur supprimé avec succès');
+                            loadCreators();
+                            
+                        } else if (deleteType === 'event') {
+                            const { error } = await supabase
+                                .from('events')
+                                .delete()
+                                .eq('id', deleteId);
+                            
+                            if (error) throw error;
+                            
+                            alert('Événement supprimé avec succès');
+                            loadEvents();
+                        }
                         
-                        if (error) throw error;
+                        modal.style.display = 'none';
                         
-                        alert('Créateur supprimé avec succès');
-                        loadCreators();
-                        
-                    } else if (deleteType === 'event') {
-                        const { error } = await supabase
-                            .from('events')
-                            .delete()
-                            .eq('id', deleteId);
-                        
-                        if (error) throw error;
-                        
-                        alert('Événement supprimé avec succès');
-                        loadEvents();
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                        alert('Erreur lors de la suppression');
                     }
-                    
-                    modal.style.display = 'none';
-                    
-                } catch (error) {
-                    console.error('Erreur:', error);
-                    alert('Erreur lors de la suppression');
-                }
-            });
+                });
+            }
             
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -595,11 +644,25 @@
             const eventForm = document.getElementById('eventForm');
             const formContainer = document.getElementById('eventFormContainer');
             
+            if (!addEventBtn || !cancelEventBtn || !eventForm || !formContainer) {
+                console.error('Éléments de gestion des événements non trouvés');
+                return;
+            }
+            
             addEventBtn.addEventListener('click', () => {
                 formContainer.style.display = 'block';
                 addEventBtn.style.display = 'none';
                 eventForm.reset();
-                document.getElementById('eventDate').valueAsDate = new Date();
+                
+                // Définir la date par défaut (aujourd'hui)
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                document.getElementById('eventDate').value = formattedDate;
+                
+                // Définir l'heure par défaut (maintenant + 1 heure)
+                const nextHour = new Date(today.getTime() + 60 * 60 * 1000);
+                const formattedTime = nextHour.toTimeString().substring(0, 5);
+                document.getElementById('eventTime').value = formattedTime;
             });
             
             cancelEventBtn.addEventListener('click', () => {
@@ -644,6 +707,7 @@
 
         async function loadEvents() {
             try {
+                console.log('Chargement des événements...');
                 const { data, error } = await supabase
                     .from('events')
                     .select('*')
@@ -651,6 +715,7 @@
                 
                 if (error) throw error;
                 
+                console.log('Événements chargés:', data);
                 displayEvents(data);
                 
             } catch (error) {
@@ -661,9 +726,12 @@
 
         function displayEvents(events) {
             const table = document.getElementById('eventsTable');
-            if (!table) return;
+            if (!table) {
+                console.error('Tableau des événements non trouvé');
+                return;
+            }
             
-            if (events.length === 0) {
+            if (!events || events.length === 0) {
                 table.innerHTML = `
                     <tr>
                         <td colspan="7" style="text-align: center; padding: 40px;">
@@ -682,7 +750,7 @@
                 
                 return `
                     <tr>
-                        <td><strong>${event.title}</strong></td>
+                        <td><strong>${event.title || 'Sans titre'}</strong></td>
                         <td>
                             <span class="status-badge ${event.type === 'meeting' ? 'status-active' : 'status-inactive'}">
                                 ${getEventTypeLabel(event.type)}
@@ -690,9 +758,9 @@
                         </td>
                         <td>
                             ${eventDate.toLocaleDateString('fr-FR')}<br>
-                            <small>${event.time}</small>
+                            <small>${event.time || ''}</small>
                         </td>
-                        <td>${event.location}</td>
+                        <td>${event.location || 'Non spécifié'}</td>
                         <td>${event.max_participants || 'Illimité'}</td>
                         <td>
                             <span class="status-badge ${isPast ? 'status-inactive' : 'status-active'}">
@@ -722,12 +790,13 @@
                 'conference': 'Conférence',
                 'networking': 'Networking'
             };
-            return labels[type] || type;
+            return labels[type] || type || 'Non spécifié';
         }
 
         function editEvent(eventId) {
             // Implémenter l'édition d'événement
             console.log('Éditer événement:', eventId);
+            alert(`Éditer l'événement ${eventId}`);
         }
     </script>
 </body>
