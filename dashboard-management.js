@@ -309,6 +309,25 @@ class DashboardManager {
         this.switchTab('all');
     }
     
+    async initializeAnnuaireManagement() {
+        console.log('🔄 Initialisation gestion annuaire...');
+        
+        try {
+            // Les fonctions sont maintenant dans annuaire-script.js
+            // Nous n'avons plus besoin de les réécrire ici
+            
+            // Juste vérifier que la page est chargée
+            if (document.getElementById('professionalModal')) {
+                console.log('✅ Page gestion annuaire détectée');
+                // Les scripts annuaire-script.js s'occuperont du reste
+            }
+            
+        } catch (error) {
+            console.error('❌ Erreur initialisation annuaire:', error);
+            this.showNotification('Erreur lors de l\'initialisation de l\'annuaire', 'error');
+        }
+    }
+    
     setupAnnuaireEvents() {
         // Événements des onglets
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -3442,7 +3461,7 @@ class DashboardManager {
         // Initialiser la page spécifique
         switch(page) {
             case 'manage-annuaire':
-                await this.initializeAnnuairePage();
+                await this.initializeAnnuaireManagement();
                 break;
             case 'manage-creators':
                 await this.initializeCreatorsPage();
