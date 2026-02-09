@@ -1,0 +1,380 @@
+/* RESPONSIVE DESIGN POUR PAGES MANAGE */
+/* =================================== */
+
+/* 1. Conteneurs principaux */
+.container, .management-container {
+    max-width: 1400px !important;
+    margin: 30px auto !important;
+    padding: 15px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* 2. En-têtes */
+.management-header, 
+header[style*="display: flex"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+    margin-bottom: 25px !important;
+}
+
+.management-header h1, 
+h1[style*="display: flex"] {
+    font-size: 1.5rem !important;
+    margin-bottom: 10px !important;
+}
+
+.header-actions, 
+div[style*="display: flex; gap: 10px"] {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    width: 100% !important;
+    justify-content: flex-start !important;
+}
+
+/* 3. Grilles de statistiques */
+.stats-grid,
+div[style*="grid-template-columns"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 15px !important;
+    margin-bottom: 25px !important;
+}
+
+.stat-card, 
+.stat-card.large {
+    padding: 15px !important;
+    text-align: center !important;
+}
+
+.stat-number {
+    font-size: 1.5rem !important;
+}
+
+/* 4. Onglets */
+.tabs,
+.management-tabs,
+.category-tabs {
+    flex-direction: column !important;
+    width: 100% !important;
+    border-bottom: 1px solid #ddd !important;
+    margin-bottom: 20px !important;
+}
+
+.tab, .tab-btn, .category-tab {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 12px 15px !important;
+    border-radius: 5px !important;
+    margin-bottom: 5px !important;
+    border: 1px solid #ddd !important;
+}
+
+.tab.active, 
+.tab-btn.active,
+.category-tab.active {
+    border-left: 4px solid #d4af37 !important;
+    background: #f8f9fa !important;
+}
+
+/* 5. Filtres et recherche */
+.filters-container,
+div[style*="display: flex; justify-content: space-between"] {
+    flex-direction: column !important;
+    gap: 15px !important;
+}
+
+.filters-grid,
+div[style*="gap: 10px; flex-wrap: wrap"] {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 10px !important;
+}
+
+.filter-input,
+input[type="text"], 
+select,
+input[type="search"] {
+    width: 100% !important;
+    min-width: unset !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+}
+
+/* 6. Tableaux */
+.table-container {
+    overflow-x: auto !important;
+    margin-bottom: 20px !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+table {
+    min-width: 800px !important;
+    font-size: 0.9rem !important;
+}
+
+th, td {
+    padding: 10px !important;
+    white-space: nowrap !important;
+}
+
+/* 7. Grilles de contenu */
+.articles-grid,
+.professionals-grid,
+#portfolioGrid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+}
+
+.article-management-card,
+.professional-card,
+.category-card {
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+/* 8. Boutons et actions */
+.actions, 
+.card-actions,
+.article-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+}
+
+.btn-action, .action-btn {
+    width: 100% !important;
+    justify-content: center !important;
+}
+
+/* 9. Formulaires et modals */
+.form-row,
+div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+}
+
+.form-modal, .modal-content {
+    padding: 20px !important;
+    margin: 10px !important;
+    width: calc(100% - 20px) !important;
+}
+
+/* 10. État vide et messages */
+.empty-state,
+.empty-articles,
+.loading-state {
+    padding: 30px 15px !important;
+}
+
+/* =================================== */
+/* BREAKPOINTS SPÉCIFIQUES */
+/* =================================== */
+
+/* Tablettes (768px et plus) */
+@media (min-width: 768px) {
+    .management-header, 
+    header[style*="display: flex"] {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    
+    .header-actions {
+        width: auto !important;
+        justify-content: flex-end !important;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    
+    .tabs, .management-tabs {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .tab, .tab-btn {
+        width: auto !important;
+        margin-bottom: 0 !important;
+        border-bottom: 3px solid transparent !important;
+    }
+    
+    .filters-grid {
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+    }
+    
+    .filter-input {
+        min-width: 200px !important;
+        width: auto !important;
+    }
+    
+    .articles-grid, .professionals-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .actions, .card-actions {
+        flex-direction: row !important;
+    }
+    
+    .btn-action {
+        width: auto !important;
+    }
+}
+
+/* Desktop (1024px et plus) */
+@media (min-width: 1024px) {
+    .container, .management-container {
+        padding: 20px !important;
+    }
+    
+    .management-header h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .stats-grid {
+        gap: 20px !important;
+    }
+    
+    .stat-card {
+        padding: 20px !important;
+    }
+    
+    .articles-grid, .professionals-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+    
+    table {
+        min-width: 100% !important;
+    }
+}
+
+/* Grand écran (1200px et plus) */
+@media (min-width: 1200px) {
+    .articles-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+    
+    .professional-card {
+        min-height: 350px !important;
+    }
+}
+
+/* =================================== */
+/* CORRECTIONS SPÉCIFIQUES */
+/* =================================== */
+
+/* Pour les cartes avec beaucoup de texte */
+.article-excerpt, .description {
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-height: 4.5em !important;
+    line-height: 1.5 !important;
+}
+
+/* Boutons responsifs */
+.btn {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+/* Icônes adaptatives */
+i.fas, i.far, i.fab {
+    font-size: 1rem !important;
+}
+
+/* Badges et étiquettes */
+.status-badge, .category-badge {
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    display: inline-block !important;
+}
+
+/* Pagination responsive */
+.pagination-container {
+    flex-direction: column !important;
+    gap: 15px !important;
+    align-items: center !important;
+}
+
+/* Loaders et animations */
+.loading-spinner {
+    width: 30px !important;
+    height: 30px !important;
+}
+
+/* Messages d'erreur */
+.error-message {
+    padding: 15px !important;
+    margin: 10px 0 !important;
+    font-size: 0.9rem !important;
+}
+
+/* =================================== */
+/* UTILITAIRES */
+/* =================================== */
+
+/* Masquer les éléments sur mobile */
+.mobile-hidden {
+    display: none !important;
+}
+
+@media (min-width: 768px) {
+    .mobile-hidden {
+        display: block !important;
+    }
+    
+    .desktop-hidden {
+        display: none !important;
+    }
+}
+
+/* Flexbox utilities */
+.flex-column {
+    flex-direction: column !important;
+}
+
+.flex-row {
+    flex-direction: row !important;
+}
+
+.flex-wrap {
+    flex-wrap: wrap !important;
+}
+
+/* Espacements responsive */
+.mb-mobile-20 {
+    margin-bottom: 20px !important;
+}
+
+@media (min-width: 768px) {
+    .mb-mobile-20 {
+        margin-bottom: 0 !important;
+    }
+}
+
+/* Largeur 100% sur mobile */
+.w-100-mobile {
+    width: 100% !important;
+}
+
+@media (min-width: 768px) {
+    .w-100-mobile {
+        width: auto !important;
+    }
+}
