@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Annuaire des Professionnels - Dreamswear</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,25 +13,31 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: #f8f9fa;
             color: #333;
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
+            width: 100%;
         }
 
+        /* =================================== */
+        /* EN-TÊTE */
+        /* =================================== */
+        
         .header {
             background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
             color: white;
-            padding: 40px 0;
-            border-radius: 0 0 20px 20px;
-            margin-bottom: 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 30px 0;
+            border-radius: 0 0 15px 15px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .header-content {
@@ -46,29 +52,32 @@
             display: flex;
             align-items: center;
             gap: 20px;
+            flex-wrap: wrap;
         }
 
         .logo {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             background: #d4af37;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: #1a1a1a;
+            flex-shrink: 0;
         }
 
         .header-text h1 {
-            font-size: 2.5rem;
+            font-size: 2rem;
             margin-bottom: 10px;
             color: #d4af37;
+            line-height: 1.2;
         }
 
         .header-text p {
             color: #aaa;
-            font-size: 1.1rem;
+            font-size: 1rem;
             max-width: 600px;
         }
 
@@ -78,6 +87,118 @@
             flex-wrap: wrap;
         }
 
+        /* Responsive header amélioré */
+        @media (max-width: 1024px) {
+            .header-text h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px 0;
+                border-radius: 0 0 10px 10px;
+                margin-bottom: 20px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .logo-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+                width: 100%;
+            }
+            
+            .logo {
+                width: 80px;
+                height: 80px;
+                font-size: 2.2rem;
+            }
+            
+            .header-text {
+                width: 100%;
+            }
+            
+            .header-text h1 {
+                font-size: 1.7rem;
+                margin-bottom: 8px;
+                word-break: break-word;
+            }
+            
+            .header-text p {
+                font-size: 0.95rem;
+                padding: 0 10px;
+                margin: 0 auto;
+            }
+            
+            .admin-buttons {
+                width: 100%;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .admin-buttons .btn {
+                width: calc(50% - 7.5px);
+                min-width: 160px;
+                justify-content: center;
+                padding: 14px 16px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header {
+                padding: 20px 0;
+                margin-bottom: 15px;
+            }
+            
+            .logo {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+            
+            .header-text h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header-text p {
+                font-size: 0.9rem;
+                padding: 0 15px;
+            }
+            
+            .admin-buttons {
+                flex-direction: column;
+                gap: 12px;
+                padding: 0 15px;
+            }
+            
+            .admin-buttons .btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header-text h1 {
+                font-size: 1.3rem;
+            }
+            
+            .logo {
+                width: 60px;
+                height: 60px;
+                font-size: 1.8rem;
+            }
+        }
+
+        /* =================================== */
+        /* BOUTONS */
+        /* =================================== */
+        
         .btn {
             padding: 12px 24px;
             border: none;
@@ -90,6 +211,7 @@
             gap: 10px;
             transition: all 0.3s;
             font-size: 0.95rem;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -100,6 +222,7 @@
         .btn-primary:hover {
             background: #b08924;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
         }
 
         .btn-secondary {
@@ -110,6 +233,7 @@
         .btn-secondary:hover {
             background: #5a6268;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
         }
 
         .btn-outline {
@@ -124,13 +248,44 @@
             transform: translateY(-2px);
         }
 
-        /* Filtres et recherche */
+        /* Responsive buttons amélioré */
+        @media (max-width: 768px) {
+            .btn {
+                padding: 14px 24px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .btn {
+                padding: 14px 20px;
+                font-size: 0.95rem;
+                width: 100%;
+                justify-content: center;
+                white-space: normal;
+                word-break: break-word;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+                gap: 8px;
+            }
+        }
+
+        /* =================================== */
+        /* FILTRES ET RECHERCHE */
+        /* =================================== */
+        
         .filters-section {
             background: white;
-            padding: 25px;
-            border-radius: 15px;
+            padding: 20px;
+            border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .filters-header {
@@ -144,12 +299,13 @@
 
         .filters-header h2 {
             color: #333;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            margin: 0;
         }
 
         .stats {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             flex-wrap: wrap;
         }
 
@@ -160,20 +316,20 @@
             background: #f8f9fa;
             padding: 8px 15px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #666;
         }
 
         .stat-number {
             font-weight: bold;
             color: #d4af37;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .filters-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            gap: 15px;
         }
 
         .filter-group {
@@ -185,7 +341,10 @@
         .filter-group label {
             font-weight: 600;
             color: #555;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .filter-group input,
@@ -193,15 +352,17 @@
             padding: 12px 15px;
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: border-color 0.3s;
             background: white;
+            width: 100%;
         }
 
         .filter-group input:focus,
         .filter-group select:focus {
             outline: none;
             border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
 
         .search-box {
@@ -221,49 +382,273 @@
             width: 100%;
         }
 
-        /* Grille des professionnels */
+        /* Responsive filters amélioré */
+        @media (max-width: 1100px) {
+            .filters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters-section {
+                padding: 20px;
+                margin-bottom: 20px;
+                border-radius: 10px;
+            }
+            
+            .filters-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 20px;
+            }
+            
+            .filters-header h2 {
+                text-align: center;
+                font-size: 1.3rem;
+            }
+            
+            .stats {
+                justify-content: center;
+                gap: 10px;
+            }
+            
+            .stat-item {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+                flex: 0 1 auto;
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .filter-group label {
+                font-size: 0.9rem;
+            }
+            
+            .filter-group input,
+            .filter-group select {
+                padding: 14px 16px;
+                font-size: 0.95rem;
+            }
+            
+            .search-box input {
+                padding-left: 50px;
+            }
+            
+            .search-box i {
+                left: 16px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filters-section {
+                padding: 16px;
+                border-radius: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .filters-header h2 {
+                font-size: 1.2rem;
+            }
+            
+            .stats {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .stat-item {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+                width: calc(50% - 4px);
+                justify-content: center;
+            }
+            
+            .filter-group input,
+            .filter-group select {
+                padding: 12px 14px;
+                font-size: 0.9rem;
+            }
+            
+            .search-box input {
+                padding-left: 45px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .stat-item {
+                width: 100%;
+            }
+            
+            .filters-section {
+                padding: 14px;
+            }
+        }
+
+        /* =================================== */
+        /* ONGLETS */
+        /* =================================== */
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: #333;
+        }
+
+        .tab-btn.active {
+            color: #d4af37;
+            border-bottom-color: #d4af37;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-badge {
+            background: #dc3545;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive tabs amélioré */
+        @media (max-width: 992px) {
+            .tabs {
+                justify-content: flex-start;
+            }
+            
+            .tab-btn {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+                border-bottom: none;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                text-align: left;
+                border-bottom: none;
+                border-left: 4px solid transparent;
+                border-radius: 0 8px 8px 0;
+                padding: 16px 20px;
+                background: white;
+                margin-bottom: 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                font-size: 0.95rem;
+                white-space: normal;
+                word-break: break-word;
+            }
+            
+            .tab-btn.active {
+                border-left-color: #d4af37;
+                background: #fffaf0;
+                border-bottom: none;
+            }
+            
+            .tab-btn i {
+                width: 24px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .tab-btn {
+                padding: 14px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* =================================== */
+        /* GRILLE DES PROFESSIONNELS */
+        /* =================================== */
+        
         .professionals-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         .professional-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
             height: 100%;
             display: flex;
             flex-direction: column;
             cursor: pointer;
+            border: 1px solid #eee;
         }
 
         .professional-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
         }
 
         .card-header {
-            padding: 25px;
+            padding: 20px;
             border-bottom: 1px solid #f1f1f1;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         .category-badge {
             display: inline-block;
-            padding: 6px 15px;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: white;
+            text-transform: uppercase;
         }
 
         .card-header h3 {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             margin-bottom: 10px;
             color: #333;
             line-height: 1.3;
@@ -272,11 +657,11 @@
         .specialty {
             color: #d4af37;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .rating {
@@ -288,16 +673,17 @@
 
         .rating-stars {
             color: #ffc107;
+            font-size: 0.9rem;
         }
 
         .rating-value {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-left: 5px;
         }
 
         .card-body {
-            padding: 25px;
+            padding: 20px;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
@@ -306,15 +692,21 @@
         .description {
             color: #666;
             line-height: 1.6;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             flex-grow: 1;
+            font-size: 0.9rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .contact-info {
             background: #f8f9fa;
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
 
         .contact-item {
@@ -323,7 +715,7 @@
             gap: 10px;
             margin-bottom: 8px;
             color: #555;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         .contact-item:last-child {
@@ -332,95 +724,209 @@
 
         .contact-item i {
             color: #d4af37;
-            width: 20px;
+            width: 16px;
+            font-size: 0.9rem;
+        }
+
+        .contact-item a {
+            color: #d4af37;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .contact-item a:hover {
+            text-decoration: underline;
         }
 
         .card-footer {
-            padding: 20px 25px;
+            padding: 15px 20px;
             border-top: 1px solid #f1f1f1;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #fafafa;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .location {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .status-badge {
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 15px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
         .status-active {
             background: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .status-inactive {
             background: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .status-pending {
             background: #fff3cd;
             color: #856404;
+            border: 1px solid #ffeaa7;
         }
 
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin-top: 40px;
+        /* Responsive professionals grid amélioré */
+        @media (max-width: 1200px) {
+            .professionals-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 18px;
+            }
         }
 
-        .pagination-btn {
-            padding: 10px 20px;
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: #555;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        @media (max-width: 1024px) {
+            .professionals-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 16px;
+            }
         }
 
-        .pagination-btn:hover:not(:disabled) {
-            border-color: #d4af37;
-            color: #d4af37;
+        @media (max-width: 880px) {
+            .professionals-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 15px;
+            }
         }
 
-        .pagination-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        @media (max-width: 768px) {
+            .professionals-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 16px;
+            }
+            
+            .professional-card {
+                max-width: 100%;
+                margin: 0 auto;
+                width: 100%;
+            }
+            
+            .card-header {
+                padding: 18px;
+            }
+            
+            .card-header h3 {
+                font-size: 1.15rem;
+                word-break: break-word;
+            }
+            
+            .card-body {
+                padding: 18px;
+            }
+            
+            .card-footer {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 18px;
+                gap: 12px;
+            }
+            
+            .location {
+                justify-content: flex-start;
+                flex: 1;
+            }
+            
+            .description {
+                -webkit-line-clamp: 2;
+            }
         }
 
-        .pagination-info {
-            color: #666;
-            font-size: 0.95rem;
+        @media (max-width: 650px) {
+            .professionals-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .professional-card {
+                max-width: 100%;
+            }
         }
 
-        /* Catégories */
-        .categories-section {
-            margin-bottom: 40px;
+        @media (max-width: 576px) {
+            .professionals-grid {
+                gap: 16px;
+                margin-bottom: 25px;
+            }
+            
+            .card-header {
+                padding: 16px;
+            }
+            
+            .card-body {
+                padding: 16px;
+            }
+            
+            .card-footer {
+                padding: 16px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .card-header h3 {
+                font-size: 1.1rem;
+                margin-bottom: 8px;
+            }
+            
+            .specialty {
+                font-size: 0.85rem;
+            }
+            
+            .description {
+                font-size: 0.85rem;
+                -webkit-line-clamp: 3;
+            }
+            
+            .contact-item {
+                font-size: 0.8rem;
+            }
+            
+            .location {
+                font-size: 0.8rem;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .status-badge {
+                align-self: flex-start;
+            }
         }
 
+        @media (max-width: 360px) {
+            .card-header h3 {
+                font-size: 1rem;
+            }
+            
+            .category-badge {
+                font-size: 0.7rem;
+                padding: 4px 10px;
+            }
+        }
+
+        /* =================================== */
+        /* GRILLE DES CATÉGORIES */
+        /* =================================== */
+        
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 15px;
             margin-top: 20px;
         }
 
@@ -433,6 +939,9 @@
             transition: all 0.3s;
             cursor: pointer;
             border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .category-card:hover {
@@ -456,41 +965,298 @@
         .category-card h4 {
             color: #333;
             margin-bottom: 8px;
+            font-size: 1.1rem;
         }
 
         .category-count {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             background: #f8f9fa;
             padding: 3px 10px;
             border-radius: 12px;
             display: inline-block;
         }
 
-        /* Message vide */
+        /* Responsive categories grid amélioré */
+        @media (max-width: 992px) {
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 15px;
+                margin-top: 15px;
+            }
+            
+            .category-card {
+                padding: 18px 12px;
+            }
+            
+            .category-icon {
+                width: 55px;
+                height: 55px;
+                font-size: 1.6rem;
+                margin-bottom: 12px;
+            }
+            
+            .category-card h4 {
+                font-size: 1rem;
+                word-break: break-word;
+                width: 100%;
+            }
+            
+            .category-count {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .category-card {
+                padding: 16px 10px;
+            }
+            
+            .category-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.4rem;
+                margin-bottom: 10px;
+            }
+            
+            .category-card h4 {
+                font-size: 0.95rem;
+                margin-bottom: 6px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-card {
+                padding: 16px;
+                flex-direction: row;
+                justify-content: flex-start;
+                gap: 16px;
+            }
+            
+            .category-icon {
+                margin: 0;
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+            
+            .category-card h4 {
+                margin-bottom: 4px;
+                text-align: left;
+            }
+        }
+
+        /* =================================== */
+        /* PAGINATION */
+        /* =================================== */
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #555;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 44px;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #d4af37;
+            color: #d4af37;
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive pagination amélioré */
+        @media (max-width: 768px) {
+            .pagination {
+                gap: 12px;
+                margin-top: 25px;
+            }
+            
+            .pagination-btn {
+                padding: 12px 24px;
+                min-width: 140px;
+                justify-content: center;
+            }
+            
+            .pagination-info {
+                order: -1;
+                width: 100%;
+                text-align: center;
+                margin-bottom: 5px;
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .pagination {
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 20px;
+            }
+            
+            .pagination-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 14px 20px;
+                font-size: 0.95rem;
+            }
+            
+            .pagination-info {
+                margin-bottom: 0;
+                font-size: 0.9rem;
+                padding: 8px 0;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .pagination-btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* =================================== */
+        /* MESSAGE VIDE ET CHARGEMENT */
+        /* =================================== */
+        
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             color: #666;
         }
 
         .empty-state i {
-            font-size: 4rem;
+            font-size: 3rem;
             color: #ddd;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .empty-state h3 {
             margin-bottom: 10px;
             color: #555;
+            font-size: 1.2rem;
         }
 
         .empty-state p {
             color: #888;
+            font-size: 0.95rem;
         }
 
-        /* Modal */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #d4af37;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive empty state amélioré */
+        @media (max-width: 768px) {
+            .empty-state {
+                padding: 35px 20px;
+            }
+            
+            .empty-state i {
+                font-size: 2.8rem;
+            }
+            
+            .empty-state h3 {
+                font-size: 1.15rem;
+            }
+            
+            .empty-state p {
+                font-size: 0.9rem;
+            }
+            
+            .loading {
+                padding: 35px 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .empty-state {
+                padding: 30px 16px;
+            }
+            
+            .empty-state i {
+                font-size: 2.5rem;
+            }
+            
+            .empty-state h3 {
+                font-size: 1.1rem;
+            }
+            
+            .empty-state p {
+                font-size: 0.85rem;
+            }
+            
+            .loading-spinner {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        /* =================================== */
+        /* MODAL */
+        /* =================================== */
+        
         .modal {
             display: none;
             position: fixed;
@@ -503,12 +1269,13 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow-y: auto;
             animation: fadeIn 0.3s;
         }
 
         .modal-content {
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             width: 100%;
             max-width: 800px;
             max-height: 90vh;
@@ -519,8 +1286,8 @@
 
         .modal-close {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 15px;
+            right: 15px;
             background: none;
             border: none;
             font-size: 1.8rem;
@@ -534,138 +1301,229 @@
             justify-content: center;
             border-radius: 50%;
             transition: all 0.3s;
+            background: white;
         }
 
         .modal-close:hover {
             background: #f8f9fa;
             color: #333;
+            transform: scale(1.1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        /* Responsive modal amélioré */
+        @media (max-width: 992px) {
+            .modal-content {
+                max-width: 700px;
+            }
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(-20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
+            .modal {
+                padding: 15px;
+                align-items: center;
             }
             
-            .logo-section {
-                flex-direction: column;
-                text-align: center;
+            .modal-content {
+                max-height: 95vh;
+                margin-top: 0;
+                border-radius: 12px;
+                width: 100%;
             }
             
-            .professionals-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .filters-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-text h1 {
-                font-size: 2rem;
-            }
-            
-            .admin-buttons {
-                justify-content: center;
+            .modal-close {
+                top: 12px;
+                right: 12px;
+                width: 42px;
+                height: 42px;
+                font-size: 1.8rem;
+                background: white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             }
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 15px;
+        @media (max-width: 576px) {
+            .modal {
+                padding: 10px;
             }
             
-            .btn {
-                padding: 10px 15px;
-                font-size: 0.9rem;
+            .modal-content {
+                border-radius: 10px;
+                max-height: 98vh;
+            }
+            
+            .modal-close {
+                top: 10px;
+                right: 10px;
+                width: 38px;
+                height: 38px;
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .modal {
+                padding: 8px;
+            }
+            
+            .modal-close {
+                top: 8px;
+                right: 8px;
+                width: 36px;
+                height: 36px;
+                font-size: 1.5rem;
+            }
+        }
+
+        /* =================================== */
+        /* UTILITAIRES */
+        /* =================================== */
+        
+        /* Pour les éléments cliquables sur mobile */
+        @media (max-width: 768px) {
+            button,
+            .btn,
+            .pagination-btn,
+            .tab-btn,
+            .filter-group input,
+            .filter-group select,
+            .professional-card,
+            .category-card {
+                min-height: 48px;
             }
             
             .professional-card {
-                margin: 0 -15px;
-                border-radius: 0;
+                cursor: pointer;
+            }
+            
+            .filter-group input,
+            .filter-group select {
+                font-size: 16px; /* Empêche le zoom sur iOS */
             }
         }
 
-        /* Styles pour les onglets */
-        .tabs {
-            display: flex;
-            border-bottom: 2px solid #eee;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+        @media (max-width: 576px) {
+            button,
+            .btn,
+            .pagination-btn,
+            .tab-btn,
+            .filter-group input,
+            .filter-group select,
+            .professional-card,
+            .category-card {
+                min-height: 50px;
+            }
         }
 
-        .tab-btn {
-            padding: 15px 25px;
-            background: none;
-            border: none;
-            border-bottom: 3px solid transparent;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            font-size: 0.95rem;
+        /* Améliorations responsives globales */
+        @media (max-width: 768px) {
+            .container {
+                padding: 12px;
+            }
+            
+            body {
+                font-size: 15px;
+            }
         }
 
-        .tab-btn:hover {
-            color: #333;
+        @media (max-width: 576px) {
+            .container {
+                padding: 10px;
+            }
+            
+            body {
+                font-size: 14px;
+            }
         }
 
-        .tab-btn.active {
-            color: #d4af37;
-            border-bottom-color: #d4af37;
+        @media (max-width: 360px) {
+            .container {
+                padding: 8px;
+            }
         }
 
-        .tab-content {
-            display: none;
+        /* Masquer la scrollbar horizontale */
+        body {
+            overflow-x: hidden;
+            width: 100%;
+            -webkit-text-size-adjust: 100%; /* Empêche l'ajustement automatique de la taille du texte */
         }
 
-        .tab-content.active {
-            display: block;
+        /* Amélioration du contraste pour l'accessibilité */
+        @media (prefers-contrast: high) {
+            .btn-primary {
+                border: 2px solid #1a1a1a;
+            }
+            
+            .btn-outline {
+                border-width: 3px;
+            }
         }
 
-        /* Badge pour les onglets */
-        .tab-badge {
-            background: #dc3545;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            margin-left: 5px;
-        }
-
-        /* Chargement */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #d4af37;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Support du dark mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #121212;
+                color: #e0e0e0;
+            }
+            
+            .filters-section,
+            .professional-card,
+            .category-card,
+            .modal-content,
+            .pagination-btn {
+                background: #1e1e1e;
+                color: #e0e0e0;
+            }
+            
+            .header-text p,
+            .stat-item,
+            .filter-group label,
+            .contact-item,
+            .location,
+            .pagination-info,
+            .empty-state p {
+                color: #b0b0b0;
+            }
+            
+            .filters-header h2,
+            .card-header h3,
+            .category-card h4,
+            .empty-state h3,
+            .modal-content h2,
+            .modal-content h3 {
+                color: #ffffff;
+            }
+            
+            .filter-group input,
+            .filter-group select,
+            .contact-info,
+            .modal-close {
+                background: #2d2d2d;
+                border-color: #404040;
+                color: #e0e0e0;
+            }
+            
+            .card-header {
+                background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%);
+            }
+            
+            .card-footer {
+                background: #252525;
+            }
+            
+            .modal-close {
+                background: #2d2d2d;
+                color: #e0e0e0;
+            }
+            
+            .modal-close:hover {
+                background: #3d3d3d;
+            }
+            
+            .stat-item {
+                background: #2d2d2d;
+                color: #b0b0b0;
+            }
         }
     </style>
 </head>
@@ -777,6 +1635,10 @@
             <!-- Catégories -->
             <div id="categoriesGrid" class="categories-grid">
                 <!-- Les catégories seront chargées ici -->
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Chargement des catégories...</p>
+                </div>
             </div>
         </div>
 
@@ -784,6 +1646,10 @@
             <!-- Professionnels recommandés -->
             <div id="featuredGrid" class="professionals-grid">
                 <!-- Les professionnels recommandés seront chargés ici -->
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Chargement des professionnels recommandés...</p>
+                </div>
             </div>
         </div>
 
@@ -809,7 +1675,537 @@
         </div>
     </div>
 
-    <!-- Inclusion du script de gestion -->
-    <script src="annuaire-script.js"></script>
+    <!-- Script Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase
+        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        
+        let supabaseClient = null;
+        let allProfessionals = [];
+        let allCategories = [];
+        let filteredProfessionals = [];
+        let currentPage = 1;
+        const professionalsPerPage = 12;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initSupabase();
+            setupEventListeners();
+            loadCategories();
+            loadProfessionals();
+        });
+
+        function initSupabase() {
+            try {
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase initialisé');
+            } catch (error) {
+                console.error('❌ Erreur Supabase:', error);
+                showNotification('Erreur de connexion à la base de données', 'error');
+            }
+        }
+
+        function setupEventListeners() {
+            // Gestion des onglets
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // Filtres
+            document.getElementById('searchInput')?.addEventListener('input', filterProfessionals);
+            document.getElementById('categoryFilter')?.addEventListener('change', filterProfessionals);
+            document.getElementById('statusFilter')?.addEventListener('change', filterProfessionals);
+            document.getElementById('ratingFilter')?.addEventListener('change', filterProfessionals);
+
+            // Pagination
+            document.getElementById('prevPage')?.addEventListener('click', prevPage);
+            document.getElementById('nextPage')?.addEventListener('click', nextPage);
+
+            // Modal
+            document.querySelector('.modal-close')?.addEventListener('click', closeModal);
+            document.getElementById('detailModal')?.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        }
+
+        function switchTab(tabName) {
+            // Mettre à jour les onglets actifs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            });
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.toggle('active', content.id === tabName + 'Tab');
+            });
+
+            // Charger les données de l'onglet
+            if (tabName === 'professionals') {
+                filterProfessionals();
+            } else if (tabName === 'categories') {
+                displayCategoriesView();
+            } else if (tabName === 'featured') {
+                displayFeaturedProfessionals();
+            }
+        }
+
+        async function loadProfessionals() {
+            try {
+                // Récupérer d'abord les professionnels
+                const { data: professionals, error: professionalsError } = await supabaseClient
+                    .from('annuaire_professionnels')
+                    .select('*')
+                    .eq('status', 'active') // Seulement les actifs pour la vue publique
+                    .order('created_at', { ascending: false });
+
+                if (professionalsError) throw professionalsError;
+
+                // Récupérer les catégories séparément
+                const { data: categories, error: categoriesError } = await supabaseClient
+                    .from('annuaire_categories')
+                    .select('*');
+
+                if (categoriesError) throw categoriesError;
+
+                // Fusionner les données manuellement
+                const mergedData = professionals.map(professional => {
+                    const category = categories.find(cat => cat.id === professional.category_id);
+                    return {
+                        ...professional,
+                        annuaire_categories: category || null
+                    };
+                });
+
+                allProfessionals = mergedData || [];
+                filteredProfessionals = [...allProfessionals];
+                updateStats(allProfessionals);
+                displayProfessionals();
+                
+            } catch (error) {
+                console.error('❌ Erreur chargement professionnels:', error);
+                showError('professionalsGrid', 'Erreur lors du chargement des professionnels');
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('annuaire_categories')
+                    .select('*')
+                    .order('name', { ascending: true });
+
+                if (error) throw error;
+
+                allCategories = data || [];
+                populateCategoryFilter();
+                
+            } catch (error) {
+                console.error('❌ Erreur chargement catégories:', error);
+                showError('categoriesGrid', 'Erreur lors du chargement des catégories');
+            }
+        }
+
+        function updateStats(professionals) {
+            const total = professionals.length;
+            
+            const photographers = professionals.filter(p => {
+                const categoryName = p.annuaire_categories?.name?.toLowerCase() || '';
+                return categoryName.includes('photographe') || categoryName.includes('photographer');
+            }).length;
+            
+            const stylists = professionals.filter(p => {
+                const categoryName = p.annuaire_categories?.name?.toLowerCase() || '';
+                return categoryName.includes('styliste') || categoryName.includes('stylist');
+            }).length;
+            
+            const models = professionals.filter(p => {
+                const categoryName = p.annuaire_categories?.name?.toLowerCase() || '';
+                return categoryName.includes('mannequin') || categoryName.includes('model');
+            }).length;
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('photographersCount').textContent = photographers;
+            document.getElementById('stylistsCount').textContent = stylists;
+        }
+
+        function populateCategoryFilter() {
+            const select = document.getElementById('categoryFilter');
+            if (!select) return;
+            
+            select.innerHTML = '<option value="">Toutes les catégories</option>' +
+                allCategories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+        }
+
+        function filterProfessionals() {
+            const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const category = document.getElementById('categoryFilter')?.value || '';
+            const status = document.getElementById('statusFilter')?.value || '';
+            const minRating = parseFloat(document.getElementById('ratingFilter')?.value || 0);
+
+            filteredProfessionals = allProfessionals.filter(professional => {
+                const matchesSearch = !search || 
+                    professional.name?.toLowerCase().includes(search) ||
+                    professional.specialty?.toLowerCase().includes(search) ||
+                    professional.description?.toLowerCase().includes(search);
+                
+                const matchesCategory = !category || professional.category_id === category;
+                const matchesStatus = !status || professional.status === status;
+                const matchesRating = !minRating || (professional.rating && professional.rating >= minRating);
+                
+                return matchesSearch && matchesCategory && matchesStatus && matchesRating;
+            });
+
+            currentPage = 1;
+            displayProfessionals();
+        }
+
+        function displayProfessionals() {
+            const grid = document.getElementById('professionalsGrid');
+            if (!grid) return;
+
+            const startIndex = (currentPage - 1) * professionalsPerPage;
+            const endIndex = startIndex + professionalsPerPage;
+            const pageProfessionals = filteredProfessionals.slice(startIndex, endIndex);
+
+            if (pageProfessionals.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>Aucun professionnel trouvé</h3>
+                        <p>Essayez de modifier vos critères de recherche</p>
+                    </div>
+                `;
+            } else {
+                grid.innerHTML = pageProfessionals.map(professional => `
+                    <div class="professional-card" onclick="showProfessionalDetail('${professional.id}')">
+                        <div class="card-header">
+                            <span class="category-badge" style="background: ${professional.annuaire_categories?.color || '#d4af37'}">
+                                ${professional.annuaire_categories?.name || 'Non catégorisé'}
+                            </span>
+                            <h3>${professional.name || 'Sans nom'}</h3>
+                            <div class="specialty">
+                                <i class="fas fa-star"></i>
+                                ${professional.specialty || 'Non spécifié'}
+                            </div>
+                            ${professional.rating ? `
+                            <div class="rating">
+                                <span class="rating-stars">
+                                    ${'★'.repeat(Math.floor(professional.rating))}${professional.rating % 1 >= 0.5 ? '½' : ''}
+                                </span>
+                                <span class="rating-value">${professional.rating.toFixed(1)}/5</span>
+                            </div>` : ''}
+                        </div>
+                        
+                        <div class="card-body">
+                            <p class="description">${professional.description || 'Aucune description disponible'}</p>
+                            
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    ${professional.contact_info || 'Contact non spécifié'}
+                                </div>
+                                ${professional.location ? `
+                                <div class="contact-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    ${professional.location}
+                                </div>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="card-footer">
+                            <div class="location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                ${professional.location || 'Localisation non spécifiée'}
+                            </div>
+                            <span class="status-badge status-active">
+                                Actif
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            updatePagination();
+        }
+
+        function displayCategoriesView() {
+            const grid = document.getElementById('categoriesGrid');
+            if (!grid) return;
+
+            if (allCategories.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>Aucune catégorie disponible</h3>
+                        <p>Les catégories seront bientôt disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Compter les professionnels par catégorie
+            const categoriesWithCount = allCategories.map(category => {
+                const count = allProfessionals.filter(p => p.category_id === category.id).length;
+                return { ...category, count };
+            });
+
+            grid.innerHTML = categoriesWithCount.map(category => `
+                <div class="category-card" onclick="filterByCategory('${category.id}')">
+                    <div class="category-icon" style="background: ${category.color || '#d4af37'}">
+                        <i class="${category.icon || 'fas fa-folder'}"></i>
+                    </div>
+                    <h4>${category.name}</h4>
+                    <span class="category-count">${category.count} professionnel${category.count !== 1 ? 's' : ''}</span>
+                </div>
+            `).join('');
+        }
+
+        function displayFeaturedProfessionals() {
+            const grid = document.getElementById('featuredGrid');
+            if (!grid) return;
+
+            const featured = allProfessionals.filter(p => p.type === 'recommended' || p.rating >= 4);
+            
+            if (featured.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-crown"></i>
+                        <h3>Aucun professionnel recommandé</h3>
+                        <p>Les recommandations seront bientôt disponibles</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = featured.map(professional => `
+                <div class="professional-card" onclick="showProfessionalDetail('${professional.id}')">
+                    <div class="card-header">
+                        <span class="category-badge" style="background: ${professional.annuaire_categories?.color || '#d4af37'}">
+                            ${professional.annuaire_categories?.name || 'Non catégorisé'}
+                        </span>
+                        <h3>${professional.name || 'Sans nom'} <i class="fas fa-crown" style="color: #ffc107;"></i></h3>
+                        <div class="specialty">
+                            <i class="fas fa-star"></i>
+                            ${professional.specialty || 'Non spécifié'}
+                        </div>
+                        ${professional.rating ? `
+                        <div class="rating">
+                            <span class="rating-stars">
+                                ${'★'.repeat(Math.floor(professional.rating))}${professional.rating % 1 >= 0.5 ? '½' : ''}
+                            </span>
+                            <span class="rating-value">${professional.rating.toFixed(1)}/5</span>
+                        </div>` : ''}
+                    </div>
+                    
+                    <div class="card-body">
+                        <p class="description">${professional.description || 'Aucune description disponible'}</p>
+                        
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                ${professional.contact_info || 'Contact non spécifié'}
+                            </div>
+                            ${professional.location ? `
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                ${professional.location}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${professional.location || 'Localisation non spécifiée'}
+                        </div>
+                        <span class="status-badge status-active">
+                            Recommandé
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(categoryId) {
+            document.getElementById('categoryFilter').value = categoryId;
+            document.querySelector('.tab-btn[data-tab="professionals"]').click();
+            filterProfessionals();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredProfessionals.length / professionalsPerPage);
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
+            const pageInfo = document.getElementById('pageInfo');
+
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+            pageInfo.textContent = `Page ${currentPage} sur ${totalPages}`;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayProfessionals();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredProfessionals.length / professionalsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayProfessionals();
+            }
+        }
+
+        async function showProfessionalDetail(id) {
+            const professional = allProfessionals.find(p => p.id === id);
+            if (!professional) return;
+
+            const modalContent = document.getElementById('modalContent');
+            const modal = document.getElementById('detailModal');
+
+            modalContent.innerHTML = `
+                <div style="padding: 30px;">
+                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px;">
+                        <div style="width: 80px; height: 80px; background: ${professional.annuaire_categories?.color || '#d4af37'}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <h2 style="margin: 0 0 10px 0; color: #333;">${professional.name}</h2>
+                            <span style="background: ${professional.annuaire_categories?.color || '#d4af37'}; color: white; padding: 5px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">
+                                ${professional.annuaire_categories?.name || 'Non catégorisé'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #d4af37; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-star"></i> Spécialité
+                        </h3>
+                        <p style="color: #666; margin: 0;">${professional.specialty}</p>
+                    </div>
+                    
+                    ${professional.description ? `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #d4af37; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-align-left"></i> Description
+                        </h3>
+                        <p style="color: #666; margin: 0; line-height: 1.6;">${professional.description}</p>
+                    </div>` : ''}
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="color: #d4af37; margin-bottom: 15px; font-size: 1.1rem;">
+                            <i class="fas fa-address-card"></i> Informations de contact
+                        </h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-envelope" style="color: #d4af37;"></i>
+                                <span style="color: #666;">${professional.contact_info}</span>
+                            </div>
+                            ${professional.location ? `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-map-marker-alt" style="color: #d4af37;"></i>
+                                <span style="color: #666;">${professional.location}</span>
+                            </div>` : ''}
+                            ${professional.website ? `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-globe" style="color: #d4af37;"></i>
+                                <a href="${professional.website}" target="_blank" style="color: #d4af37; text-decoration: none;">Site web</a>
+                            </div>` : ''}
+                            ${professional.instagram ? `
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fab fa-instagram" style="color: #d4af37;"></i>
+                                <span style="color: #666;">${professional.instagram}</span>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${professional.rating ? `
+                    <div style="margin-bottom: 20px;">
+                        <h3 style="color: #d4af37; margin-bottom: 10px; font-size: 1.1rem;">
+                            <i class="fas fa-star"></i> Évaluation
+                        </h3>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="font-size: 1.8rem; color: #ffc107;">
+                                ${'★'.repeat(Math.floor(professional.rating))}${professional.rating % 1 >= 0.5 ? '½' : ''}
+                            </div>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: #333;">
+                                ${professional.rating.toFixed(1)}/5
+                            </div>
+                        </div>
+                    </div>` : ''}
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            
+            const icons = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            
+            notification.innerHTML = `
+                <i class="fas fa-${icons[type] || 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                color: #333;
+                padding: 12px 16px;
+                border-radius: 8px;
+                box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                z-index: 10000;
+                border-left: 4px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : type === 'warning' ? '#ffc107' : '#17a2b8'};
+                animation: slideIn 0.3s ease;
+                max-width: 400px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Erreur de chargement</h3>
+                        <p>${message}</p>
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="fas fa-redo"></i> Réessayer
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>
