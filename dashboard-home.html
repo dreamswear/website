@@ -2,26 +2,71 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Accueil Créateur - Dreamswear</title>
     <link rel="stylesheet" href="dashboard-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Styles pour le header simplifié */
+        /* ========== RESET & VARIABLES ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #d4af37;
+            --primary-dark: #b8941f;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --white: #ffffff;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --border: #495057;
+            --radius: 12px;
+            --radius-sm: 6px;
+            --shadow: 0 5px 20px rgba(0,0,0,0.1);
+            --shadow-hover: 0 8px 25px rgba(212, 175, 55, 0.2);
+        }
+
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #fff;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* ========== HEADER ========== */
         .dashboard-header {
-            background: var(--dark);
+            background: linear-gradient(90deg, var(--dark) 0%, var(--dark-light) 100%);
             border-bottom: 1px solid var(--border);
             padding: 15px 0;
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: var(--shadow);
         }
         
         .dashboard-header .container {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            padding: 0 20px;
+            gap: 15px;
+            padding: 0 15px;
         }
         
         .logo {
@@ -29,49 +74,102 @@
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--primary);
+            letter-spacing: 2px;
         }
         
         .logo a {
             color: var(--primary);
             text-decoration: none;
-            letter-spacing: 1px;
         }
         
         .header-actions {
             display: flex;
             gap: 15px;
             align-items: center;
+            width: 100%;
+            justify-content: center;
         }
         
         .btn-logout {
-            padding: 8px 15px;
+            padding: 10px 20px;
             background: rgba(220, 53, 69, 0.1);
             color: var(--danger);
-            border: none;
-            border-radius: 5px;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: var(--radius-sm);
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-weight: 500;
+            gap: 10px;
+            font-weight: 600;
             transition: all 0.3s ease;
+            font-size: 0.95rem;
         }
         
         .btn-logout:hover {
             background: rgba(220, 53, 69, 0.2);
+            transform: translateY(-2px);
         }
 
-        /* Styles pour la section de bienvenue */
+        /* ========== MAIN CONTENT ========== */
+        .dashboard-main {
+            padding: 30px 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .page-header h1 i {
+            color: var(--primary);
+        }
+
+        .page-subtitle {
+            color: var(--gray-light);
+            font-size: 1rem;
+        }
+
+        /* ========== SECTION BIENVENUE ========== */
+        .welcome-section {
+            background: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 25px 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .welcome-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
         .welcome-avatar {
             width: 100px;
             height: 100px;
-            background: var(--dark-light);
+            background: var(--dark);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 3px solid var(--primary);
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
         .welcome-avatar i {
@@ -80,31 +178,223 @@
             opacity: 0.7;
         }
 
+        .welcome-text h1 {
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .welcome-subtitle {
+            color: var(--gray-light);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
         .creator-domain {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            margin-top: 5px;
             color: var(--primary);
-            font-weight: 500;
+            font-weight: 600;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
         }
 
         .creator-domain i {
             font-size: 0.9rem;
         }
 
-        /* Styles pour l'aperçu du portfolio */
-        .portfolio-preview-content {
+        /* ========== STATS CARDS ========== */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--dark) 0%, #252525 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .stat-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            width: 40px;
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ========== NAVIGATION RAPIDE ========== */
+        .quick-nav-section {
             background: var(--dark-light);
             border-radius: var(--radius);
-            padding: 25px;
+            padding: 25px 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .quick-nav-section h2 {
+            font-size: 1.4rem;
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+        }
+
+        .quick-nav-section h2 i {
+            color: var(--primary);
+        }
+
+        .quick-nav-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .nav-card {
+            background: linear-gradient(135deg, var(--dark) 0%, #252525 100%);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .nav-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .nav-card:hover .nav-icon {
+            transform: scale(1.1);
+        }
+
+        .nav-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .nav-card p {
+            color: var(--gray-light);
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* ========== APERÇU PORTFOLIO ========== */
+        .portfolio-preview-section {
+            background: var(--dark-light);
+            border-radius: var(--radius);
+            padding: 25px 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-size: 1.4rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-header h2 i {
+            color: var(--primary);
+        }
+
+        .edit-btn {
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            transition: all 0.3s ease;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .edit-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .portfolio-preview-content {
+            background: var(--dark);
+            border-radius: var(--radius);
+            padding: 20px;
             border: 1px solid var(--border);
         }
         
         .preview-header {
             display: flex;
-            gap: 20px;
+            flex-direction: column;
             align-items: center;
+            text-align: center;
+            gap: 20px;
             margin-bottom: 25px;
         }
         
@@ -112,21 +402,25 @@
             flex-shrink: 0;
         }
         
+        .preview-avatar div {
+            margin: 0 auto;
+        }
+        
         .preview-info h3 {
-            color: #ffffff;
-            margin-bottom: 5px;
-            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
         }
         
         .preview-creator {
             color: var(--primary);
             margin-bottom: 5px;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .preview-domain {
             color: var(--gray-light);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
         
         .preview-body {
@@ -151,11 +445,12 @@
         .status-indicator {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            border-radius: var(--radius);
-            font-weight: 500;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
             margin-bottom: 10px;
+            font-size: 0.9rem;
         }
         
         .status-active {
@@ -170,29 +465,26 @@
             border: 1px solid rgba(255, 193, 7, 0.3);
         }
         
-        .status-incomplete {
-            background: rgba(108, 117, 125, 0.1);
-            color: var(--gray);
-            border: 1px solid rgba(108, 117, 125, 0.3);
-        }
-        
         .portfolio-status {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 15px;
-            border-radius: var(--radius);
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: var(--radius-sm);
             margin-bottom: 10px;
             justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
         }
         
         .btn-link {
             color: var(--primary);
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
             gap: 5px;
+            font-weight: 600;
         }
         
         .btn-link:hover {
@@ -201,22 +493,25 @@
         
         .validation-date {
             color: var(--gray-light);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             margin-top: 5px;
             font-style: italic;
         }
         
         .preview-contact p {
-            color: #cccccc;
-            margin-bottom: 8px;
+            color: #ccc;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 0.9rem;
+            word-break: break-word;
         }
         
         .preview-contact i {
             color: var(--primary);
             width: 20px;
+            text-align: center;
         }
         
         .preview-footer {
@@ -226,28 +521,60 @@
         
         .preview-actions {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            flex-wrap: wrap;
             gap: 15px;
         }
         
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: #fff;
+        }
+        
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--dark);
+        }
+
         .validation-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             color: var(--warning);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             background: rgba(255, 193, 7, 0.1);
-            padding: 10px 15px;
-            border-radius: var(--radius);
+            padding: 12px 15px;
+            border-radius: var(--radius-sm);
             border: 1px solid rgba(255, 193, 7, 0.3);
-            flex: 1;
+            width: 100%;
         }
-        
+
+        /* ========== LOADING STATES ========== */
         .loading-state {
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
             color: var(--gray-light);
         }
         
@@ -268,7 +595,7 @@
         
         .error-state {
             text-align: center;
-            padding: 40px;
+            padding: 40px 20px;
             color: var(--danger);
         }
         
@@ -280,59 +607,176 @@
         
         .empty-preview {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             color: var(--gray-light);
         }
         
         .empty-preview i {
-            font-size: 4rem;
-            margin-bottom: 20px;
+            font-size: 3rem;
+            margin-bottom: 15px;
             opacity: 0.3;
-        }
-        
-        .empty-preview h3 {
-            color: var(--gray-light);
-            margin-bottom: 10px;
-        }
-        
-        .empty-preview p {
-            color: var(--gray);
-            margin-bottom: 20px;
-        }
-        
-        /* État de chargement amélioré */
-        .data-loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(212, 175, 55, 0.2);
-            border-top: 2px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
         }
         
         .loading-text {
             color: var(--gray-light);
             font-style: italic;
         }
-        
-        @media (max-width: 768px) {
+
+        /* ========== RESPONSIVE TABLETTE ========== */
+        @media (min-width: 481px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .dashboard-header .container {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .header-actions {
+                width: auto;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quick-nav-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-header {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+
+            .edit-btn {
+                width: auto;
+            }
+
+            .preview-actions {
+                flex-direction: row;
+            }
+
+            .btn {
+                width: auto;
+            }
+        }
+
+        /* ========== RESPONSIVE DESKTOP ========== */
+        @media (min-width: 769px) {
+            .dashboard-header .container {
+                padding: 0 30px;
+            }
+
+            .logo {
+                font-size: 2rem;
+            }
+
+            .page-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .welcome-header {
+                flex-direction: row;
+                text-align: left;
+                gap: 30px;
+            }
+
+            .welcome-text {
+                flex: 1;
+            }
+
+            .welcome-text h1 {
+                font-size: 1.8rem;
+            }
+
+            .creator-domain {
+                justify-content: flex-start;
+                display: inline-flex;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .quick-nav-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
             .preview-header {
-                flex-direction: column;
-                text-align: center;
+                flex-direction: row;
+                text-align: left;
+            }
+
+            .preview-avatar div {
+                margin: 0;
+            }
+
+            .portfolio-preview-content {
+                padding: 25px;
+            }
+        }
+
+        /* ========== RESPONSIVE GRAND ÉCRAN ========== */
+        @media (min-width: 1024px) {
+            .quick-nav-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* ========== ANIMATIONS ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .welcome-section,
+        .quick-nav-section,
+        .portfolio-preview-section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* ========== UTILITAIRES ========== */
+        .text-mobile {
+            display: inline;
+        }
+
+        @media (max-width: 480px) {
+            .btn-logout span {
+                display: none;
             }
             
-            .preview-actions {
-                flex-direction: column;
+            .btn-logout i {
+                margin: 0;
+                font-size: 1.2rem;
+            }
+            
+            .btn-logout {
+                padding: 10px 15px;
             }
         }
     </style>
-    
-    <!-- Ajoutez ce script en premier dans dashboard-home.html -->
 </head>
 <body>
+    <!-- ========================================= -->
+    <!-- ORDRE CRITIQUE DES SCRIPTS - NE PAS MODIFIER -->
+    <!-- ========================================= -->
+    
+    <!-- 1. SUPABASE CDN (DOIT ÊTRE EN PREMIER) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 2. SESSION MANAGER (DÉPEND DU CDN) -->
     <script src="session-manager.js"></script>
+    
+    <!-- 3. CONFIGURATION (DÉFINIT LES CONSTANTES) -->
+    <script src="config.js"></script>
+    
+    <!-- 4. COMMON DASHBOARD (DÉPEND DE SESSION MANAGER) -->
     <script src="dashboard-common.js"></script>
+    
+    <!-- ========================================= -->
+
     <!-- Header simplifié -->
     <header class="dashboard-header">
         <div class="container">
@@ -341,7 +785,8 @@
             </div>
             <div class="header-actions">
                 <button id="logoutBtn" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Déconnexion</span>
                 </button>
             </div>
         </div>
@@ -433,7 +878,6 @@
                         <p>Participez aux projets</p>
                     </a>
                     
-                    <!-- NOUVEAUX LIENS AJOUTÉS -->
                     <a href="dashboard-annuaire.html" class="nav-card">
                         <div class="nav-icon" style="background: #d4af37;">
                             <i class="fas fa-address-book"></i>
@@ -450,7 +894,6 @@
                         <p>Lisez les expériences</p>
                     </a>
                     
-                    <!-- ESPACE ÉDUCATIF AJOUTÉ -->
                     <a href="dashboard-espace-educatif.html" class="nav-card">
                         <div class="nav-icon" style="background: #17a2b8;">
                             <i class="fas fa-graduation-cap"></i>
@@ -480,92 +923,402 @@
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Script spécifique à la page dashboard-home - VERSION SUPABASE ACTIVE -->
     <script>
-        // Configuration Supabase
-        const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-        let supabase;
+        // =========================================
+        // DASHBOARD HOME - AVEC SUPABASE
+        // =========================================
+        
+        window.supabaseClient = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🏠 Dashboard Home chargé');
             
-            // Initialiser Supabase
-            initSupabase();
-            
-            // Vérifier la connexion
-            if (!SessionManager.isCreatorLoggedIn()) {
-                console.warn('🚫 Créateur non connecté, redirection...');
-                alert('Veuillez vous connecter pour accéder à cette page.');
+            // 1. Vérifier SessionManager
+            if (!window.SessionManager) {
+                console.error('❌ SessionManager non disponible');
                 window.location.href = 'index.html';
                 return;
             }
             
-            // Gestion de la déconnexion
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-                        SessionManager.logout();
-                        window.location.href = 'index.html';
-                    }
-                });
+            // 2. Initialiser Supabase
+            if (typeof window.SessionManager.initSupabase === 'function') {
+                window.SessionManager.initSupabase();
             }
             
-            // AFFICHER IMMÉDIATEMENT LES DONNÉES DU CRÉATEUR
+            // 3. Récupérer le client Supabase
+            if (window.SessionManager.supabase) {
+                window.supabaseClient = window.SessionManager.supabase;
+                console.log('✅ SupabaseClient récupéré');
+            }
+            
+            // 4. Vérifier connexion
+            if (!window.SessionManager.isCreatorLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // 5. AFFICHAGE IMMÉDIAT (session)
             displayCreatorDataImmediately();
             
-            // CHARGER LES DONNÉES COMPLÈTES DEPUIS SUPABASE
-            loadCreatorDataFromSupabase();
+            // 6. CHARGEMENT COMPLET (Supabase)
+            loadAllDataFromSupabase();
         });
 
-        function initSupabase() {
-            if (supabaseUrl && supabaseKey) {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                console.log('✅ Supabase initialisé');
-            }
-        }
-
-        // Afficher les données immédiatement depuis la session
+        // =========================================
+        // AFFICHAGE INSTANTANÉ (SESSION)
+        // =========================================
+        
         function displayCreatorDataImmediately() {
-            // Récupérer les données via SessionManager
-            const creatorData = SessionManager.getCreatorData();
+            const creatorData = window.SessionManager.getCreatorData();
             
-            console.log('🎨 Données du créateur:', creatorData);
-            
-            // Afficher le nom
+            // Nom
             const creatorNameElement = document.getElementById('creatorName');
             if (creatorNameElement) {
-                creatorNameElement.textContent = creatorData.name;
+                creatorNameElement.textContent = creatorData.name || 'Créateur';
+                creatorNameElement.classList.remove('loading-text');
             }
             
-            // Afficher le domaine
+            // Domaine
             const domainTextElement = document.getElementById('domainText');
             if (domainTextElement) {
-                domainTextElement.textContent = creatorData.domain;
+                domainTextElement.textContent = creatorData.domain || 'Domaine';
+                domainTextElement.classList.remove('loading-text');
             }
             
-            // Afficher les initiales dans l'avatar
+            // Avatar
             displayInitials(creatorData.name);
             
-            // Mettre à jour le sous-titre selon le domaine
+            // Sous-titre
             updateWelcomeSubtitle(creatorData.domain);
+            
+            // Jours membre (depuis session)
+            if (creatorData.joinDate) {
+                const joinDate = new Date(creatorData.joinDate);
+                const now = new Date();
+                const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
+                document.getElementById('memberDays').textContent = days || 0;
+            }
         }
 
-        // Fonction pour afficher les initiales
+        // =========================================
+        // CHARGEMENT COMPLET DEPUIS SUPABASE
+        // =========================================
+        
+        async function loadAllDataFromSupabase() {
+            try {
+                const creatorData = window.SessionManager.getCreatorData();
+                const creatorId = creatorData.id;
+                
+                if (!creatorId || !window.supabaseClient) {
+                    console.warn('⚠️ Impossible de charger Supabase');
+                    displayPortfolioFromSession(creatorData);
+                    return;
+                }
+
+                console.log('🔄 Chargement Supabase pour:', creatorId);
+                
+                // 1. CHARGER LES DONNÉES DU CRÉATEUR
+                await loadCreatorData(creatorId);
+                
+                // 2. CHARGER LES STATISTIQUES
+                await loadStats(creatorId);
+                
+                // 3. CHARGER LE PORTFOLIO
+                await loadPortfolio(creatorId);
+                
+            } catch (error) {
+                console.error('💥 Erreur:', error);
+                const creatorData = window.SessionManager.getCreatorData();
+                displayPortfolioFromSession(creatorData);
+            }
+        }
+        
+        // -----------------------------------------
+        // 1. Données créateur
+        // -----------------------------------------
+        
+        async function loadCreatorData(creatorId) {
+            try {
+                const { data, error } = await window.supabaseClient
+                    .from('créateurs')
+                    .select('*')
+                    .eq('id', creatorId)
+                    .maybeSingle();
+                
+                if (error) {
+                    console.warn('⚠️ Erreur créateur:', error.message);
+                    return;
+                }
+                
+                if (data) {
+                    // Mettre à jour la session
+                    window.SessionManager.saveCreatorSession(data);
+                    
+                    // Mettre à jour l'affichage
+                    displayCreatorDataImmediately();
+                    
+                    // Jours membre (depuis Supabase)
+                    if (data.date_inscription) {
+                        const joinDate = new Date(data.date_inscription);
+                        const now = new Date();
+                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
+                        document.getElementById('memberDays').textContent = days || 0;
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Erreur chargement créateur:', error.message);
+            }
+        }
+        
+        // -----------------------------------------
+        // 2. Statistiques
+        // -----------------------------------------
+        
+        async function loadStats(creatorId) {
+            try {
+                // 2.1 CREATOR_STATS
+                const { data: stats, error: statsError } = await window.supabaseClient
+                    .from('creator_stats')
+                    .select('portfolio_completion, profile_views')
+                    .eq('creator_id', creatorId)
+                    .maybeSingle();
+                
+                if (!statsError && stats) {
+                    // Portfolio completion
+                    const portfolioEl = document.getElementById('portfolioCompletion');
+                    if (portfolioEl && stats.portfolio_completion !== null) {
+                        portfolioEl.textContent = stats.portfolio_completion + '%';
+                    }
+                    
+                    // Profile views
+                    const viewsEl = document.getElementById('profileViews');
+                    if (viewsEl && stats.profile_views !== null) {
+                        viewsEl.textContent = stats.profile_views;
+                    }
+                }
+                
+                // 2.2 PROFILE_VIEWS (fallback)
+                if (!stats || stats.profile_views === null) {
+                    const { count, error: countError } = await window.supabaseClient
+                        .from('profile_views')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('creator_id', creatorId);
+                    
+                    if (!countError && count !== null) {
+                        document.getElementById('profileViews').textContent = count;
+                    }
+                }
+                
+            } catch (error) {
+                console.warn('⚠️ Stats non disponibles:', error.message);
+            }
+        }
+        
+        // -----------------------------------------
+        // 3. Portfolio
+        // -----------------------------------------
+        
+        async function loadPortfolio(creatorId) {
+            const previewContainer = document.getElementById('portfolioPreview');
+            if (!previewContainer) return;
+            
+            try {
+                const { data: portfolio, error } = await window.supabaseClient
+                    .from('portfolio')
+                    .select('*')
+                    .eq('creator_id', creatorId)
+                    .maybeSingle();
+                
+                if (error) {
+                    console.warn('⚠️ Erreur portfolio:', error.message);
+                    const creatorData = window.SessionManager.getCreatorData();
+                    displayPortfolioFromSession(creatorData);
+                    return;
+                }
+                
+                if (portfolio) {
+                    displayPortfolioFromSupabase(portfolio);
+                } else {
+                    const creatorData = window.SessionManager.getCreatorData();
+                    displayPortfolioFromSession(creatorData);
+                }
+                
+            } catch (error) {
+                console.warn('⚠️ Portfolio non disponible:', error.message);
+                const creatorData = window.SessionManager.getCreatorData();
+                displayPortfolioFromSession(creatorData);
+            }
+        }
+        
+        // =========================================
+        // AFFICHAGE PORTFOLIO
+        // =========================================
+        
+        function displayPortfolioFromSupabase(portfolio) {
+            const previewContainer = document.getElementById('portfolioPreview');
+            const creatorData = window.SessionManager.getCreatorData();
+            
+            const prenom = creatorData.prenom || '';
+            const nom = creatorData.nom || '';
+            const initials = (prenom.charAt(0) || '') + (nom.charAt(0) || '');
+            
+            // Déterminer le statut (actif = validé)
+            const estValide = creatorData.statut === 'actif';
+            const statutClass = estValide ? 'status-active' : 'status-pending';
+            const statutIcon = estValide ? 'check-circle' : 'clock';
+            const statutText = estValide ? 'Compte validé' : 'En attente de validation';
+            
+            previewContainer.innerHTML = `
+                <div class="portfolio-preview-content">
+                    <div class="preview-header">
+                        <div class="preview-avatar">
+                            <div style="width:80px;height:80px;background:var(--dark);border-radius:50%;
+                                  display:flex;align-items:center;justify-content:center;
+                                  color:var(--primary);font-size:2rem;font-weight:bold;
+                                  border:3px solid var(--primary);">
+                                ${initials || '👤'}
+                            </div>
+                        </div>
+                        <div class="preview-info">
+                            <h3>${creatorData.brand || creatorData.nom_marque || 'Votre marque'}</h3>
+                            <p class="preview-creator">${prenom} ${nom}</p>
+                            <p class="preview-domain">${creatorData.domain || creatorData.domaine || 'Domaine'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-body">
+                        <div class="preview-status">
+                            <h4><i class="fas fa-chart-line"></i> Statut de votre compte</h4>
+                            <div class="status-indicator ${statutClass}">
+                                <i class="fas fa-${statutIcon}"></i>
+                                <span>${statutText}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-portfolio">
+                            <h4><i class="fas fa-file-alt"></i> Portfolio</h4>
+                            <div class="portfolio-status status-active">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Portfolio ${portfolio.portfolio_completion || 0}% complet</span>
+                                <a href="dashboard-portfolio.html" class="btn-link">Voir</a>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-contact">
+                            <h4><i class="fas fa-envelope"></i> Contact</h4>
+                            <p><i class="fas fa-envelope"></i> ${creatorData.email || 'Non spécifié'}</p>
+                            ${creatorData.phone || creatorData.telephone ? `<p><i class="fas fa-phone"></i> ${creatorData.phone || creatorData.telephone}</p>` : ''}
+                            ${creatorData.joinDate || creatorData.date_inscription ? 
+                                `<p><i class="fas fa-calendar"></i> Membre depuis ${new Date(creatorData.joinDate || creatorData.date_inscription).toLocaleDateString('fr-FR')}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="preview-footer">
+                        <div class="preview-actions">
+                            <a href="dashboard-portfolio.html" class="btn btn-outline">
+                                <i class="fas fa-edit"></i> Modifier mon portfolio
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayPortfolioFromSession(creatorData) {
+            const previewContainer = document.getElementById('portfolioPreview');
+            if (!previewContainer) return;
+            
+            const prenom = creatorData.prenom || '';
+            const nom = creatorData.nom || '';
+            const initials = (prenom.charAt(0) || '') + (nom.charAt(0) || '');
+            
+            // Déterminer le statut (actif = validé)
+            const estValide = creatorData.statut === 'actif';
+            const statutClass = estValide ? 'status-active' : 'status-pending';
+            const statutIcon = estValide ? 'check-circle' : 'clock';
+            const statutText = estValide ? 'Compte validé' : 'En attente de validation';
+            
+            previewContainer.innerHTML = `
+                <div class="portfolio-preview-content">
+                    <div class="preview-header">
+                        <div class="preview-avatar">
+                            <div style="width:80px;height:80px;background:var(--dark);border-radius:50%;
+                                  display:flex;align-items:center;justify-content:center;
+                                  color:var(--primary);font-size:2rem;font-weight:bold;
+                                  border:3px solid var(--primary);">
+                                ${initials || '👤'}
+                            </div>
+                        </div>
+                        <div class="preview-info">
+                            <h3>${creatorData.brand || creatorData.nom_marque || 'Votre marque'}</h3>
+                            <p class="preview-creator">${prenom} ${nom}</p>
+                            <p class="preview-domain">${creatorData.domain || creatorData.domaine || 'Domaine'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-body">
+                        <div class="preview-status">
+                            <h4><i class="fas fa-chart-line"></i> Statut de votre compte</h4>
+                            <div class="status-indicator ${statutClass}">
+                                <i class="fas fa-${statutIcon}"></i>
+                                <span>${statutText}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-portfolio">
+                            <h4><i class="fas fa-file-alt"></i> Portfolio</h4>
+                            <div class="portfolio-status status-incomplete">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Portfolio à compléter</span>
+                                <a href="dashboard-portfolio.html" class="btn-link">Compléter</a>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-contact">
+                            <h4><i class="fas fa-envelope"></i> Contact</h4>
+                            <p><i class="fas fa-envelope"></i> ${creatorData.email || 'Non spécifié'}</p>
+                            ${creatorData.phone || creatorData.telephone ? `<p><i class="fas fa-phone"></i> ${creatorData.phone || creatorData.telephone}</p>` : ''}
+                            ${creatorData.joinDate || creatorData.date_inscription ? 
+                                `<p><i class="fas fa-calendar"></i> Membre depuis ${new Date(creatorData.joinDate || creatorData.date_inscription).toLocaleDateString('fr-FR')}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="preview-footer">
+                        <div class="preview-actions">
+                            <a href="dashboard-portfolio.html" class="btn btn-outline">
+                                <i class="fas fa-edit"></i> Créer mon portfolio
+                            </a>
+                            ${!estValide ? 
+                                `<div class="validation-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Votre compte est en attente de validation</span>
+                                </div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // =========================================
+        // FONCTIONS UTILITAIRES
+        // =========================================
+        
         function displayInitials(fullName) {
             const avatarElement = document.getElementById('welcomeAvatar');
             if (!avatarElement) return;
             
-            let initials = '';
-            if (fullName && fullName.trim() !== '') {
-                initials = fullName
-                    .split(' ')
-                    .filter(name => name.trim() !== '')
-                    .map(name => name.charAt(0).toUpperCase())
-                    .join('');
+            if (!fullName || fullName.trim() === '') {
+                avatarElement.innerHTML = '<i class="fas fa-user-circle"></i>';
+                return;
             }
+            
+            const initials = fullName
+                .split(' ')
+                .filter(name => name.trim() !== '')
+                .map(name => name.charAt(0).toUpperCase())
+                .join('')
+                .substring(0, 3);
             
             if (initials.length > 0) {
                 avatarElement.innerHTML = `
@@ -574,12 +1327,9 @@
                         ${initials}
                     </div>
                 `;
-            } else {
-                avatarElement.innerHTML = '<i class="fas fa-user-circle"></i>';
             }
         }
 
-        // Fonction pour mettre à jour le sous-titre
         function updateWelcomeSubtitle(domain) {
             const subtitle = document.getElementById('welcomeSubtitle');
             if (!subtitle) return;
@@ -594,180 +1344,6 @@
             
             subtitle.textContent = domainTitles[domain] || 
                 'Votre espace personnel pour faire grandir votre marque';
-        }
-
-        // Charger les données complètes depuis Supabase
-        async function loadCreatorDataFromSupabase() {
-            try {
-                const creatorData = SessionManager.getCreatorData();
-                const creatorId = creatorData.id;
-                
-                if (!creatorId) {
-                    console.warn('❌ ID créateur non trouvé');
-                    return;
-                }
-
-                console.log('🔄 Chargement des données depuis Supabase pour:', creatorId);
-
-                // Récupérer les données du créateur
-                const { data, error } = await supabase
-                    .from('créateurs')
-                    .select('*')
-                    .eq('id', creatorId)
-                    .single();
-
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error);
-                    return;
-                }
-
-                if (data) {
-                    console.log('✅ Données récupérées:', data);
-                    
-                    // Mettre à jour la session avec toutes les données
-                    SessionManager.saveCreatorSession(data);
-                    
-                    // Calculer les jours depuis l'inscription
-                    if (data.date_inscription) {
-                        const joinDate = new Date(data.date_inscription);
-                        const now = new Date();
-                        const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
-                        const daysElement = document.getElementById('memberDays');
-                        if (daysElement) {
-                            daysElement.textContent = days;
-                        }
-                    }
-                    
-                    // Charger l'aperçu du portfolio
-                    loadPortfolioPreview(data);
-                }
-
-            } catch (error) {
-                console.error('💥 Erreur chargement données:', error);
-            }
-        }
-
-        // Fonction pour charger l'aperçu du portfolio
-        async function loadPortfolioPreview(creatorData) {
-            const previewContainer = document.getElementById('portfolioPreview');
-            if (!previewContainer) return;
-
-            try {
-                const creatorId = SessionManager.getCreatorData().id;
-                
-                if (!creatorId) {
-                    previewContainer.innerHTML = `
-                        <div class="empty-preview">
-                            <i class="fas fa-portrait"></i>
-                            <h3>Connectez-vous pour voir votre portfolio</h3>
-                            <a href="index.html" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt"></i> Se connecter
-                            </a>
-                        </div>
-                    `;
-                    return;
-                }
-
-                // Vérifier si le créateur a un portfolio
-                const { data: portfolioData, error: portfolioError } = await supabase
-                    .from('portfolio')
-                    .select('*')
-                    .eq('creator_id', creatorId)
-                    .single();
-
-                const hasPortfolio = portfolioData && !portfolioError;
-
-                // Afficher l'aperçu
-                previewContainer.innerHTML = `
-                    <div class="portfolio-preview-content">
-                        <div class="preview-header">
-                            <div class="preview-avatar">
-                                <div style="width:80px;height:80px;background:var(--dark);border-radius:50%;
-                                      display:flex;align-items:center;justify-content:center;
-                                      color:var(--primary);font-size:2rem;font-weight:bold;
-                                      border:3px solid var(--primary);">
-                                    ${creatorData.prenom ? creatorData.prenom.charAt(0).toUpperCase() : ''}${creatorData.nom ? creatorData.nom.charAt(0).toUpperCase() : ''}
-                                </div>
-                            </div>
-                            <div class="preview-info">
-                                <h3>${creatorData.nom_marque || 'Votre marque'}</h3>
-                                <p class="preview-creator">${creatorData.prenom} ${creatorData.nom}</p>
-                                <p class="preview-domain">${creatorData.domaine || 'Domaine non spécifié'}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="preview-body">
-                            <div class="preview-status">
-                                <h4><i class="fas fa-chart-line"></i> Statut de votre compte</h4>
-                                <div class="status-indicator ${creatorData.statut === 'validated' ? 'status-active' : 'status-pending'}">
-                                    <i class="fas fa-${creatorData.statut === 'validated' ? 'check-circle' : 'clock'}"></i>
-                                    <span>${creatorData.statut === 'validated' ? 'Compte validé' : 'En attente de validation'}</span>
-                                </div>
-                                ${creatorData.statut === 'validated' && creatorData.date_validation ? 
-                                    `<p class="validation-date">Validé le ${new Date(creatorData.date_validation).toLocaleDateString('fr-FR')}</p>` : ''}
-                            </div>
-                            
-                            <div class="preview-portfolio">
-                                <h4><i class="fas fa-file-alt"></i> Portfolio</h4>
-                                ${hasPortfolio ? 
-                                    `<div class="portfolio-status status-active">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Portfolio complet</span>
-                                        <a href="dashboard-portfolio.html" class="btn-link">Voir</a>
-                                    </div>` :
-                                    `<div class="portfolio-status status-incomplete">
-                                        <i class="fas fa-exclamation-circle"></i>
-                                        <span>Portfolio incomplet</span>
-                                        <a href="dashboard-portfolio.html" class="btn-link">Compléter</a>
-                                    </div>`}
-                            </div>
-                            
-                            <div class="preview-contact">
-                                <h4><i class="fas fa-envelope"></i> Contact</h4>
-                                <p><i class="fas fa-envelope"></i> ${creatorData.email}</p>
-                                ${creatorData.telephone ? `<p><i class="fas fa-phone"></i> ${creatorData.telephone}</p>` : ''}
-                                ${creatorData.date_inscription ? `<p><i class="fas fa-calendar"></i> Membre depuis ${new Date(creatorData.date_inscription).toLocaleDateString('fr-FR')}</p>` : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="preview-footer">
-                            <div class="preview-actions">
-                                <a href="dashboard-portfolio.html" class="btn btn-outline">
-                                    <i class="fas fa-edit"></i> Modifier mon portfolio
-                                </a>
-                                ${creatorData.statut !== 'validated' ? 
-                                    `<div class="validation-info">
-                                        <i class="fas fa-info-circle"></i>
-                                        <span>Votre compte est en attente de validation par notre équipe</span>
-                                    </div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-            } catch (error) {
-                console.error('Erreur lors du chargement du portfolio:', error);
-                previewContainer.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Erreur de chargement</h3>
-                        <p>Impossible de charger votre portfolio</p>
-                        <button onclick="retryLoading()" class="btn btn-primary">
-                            <i class="fas fa-redo"></i> Réessayer
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        // Fonction pour réessayer le chargement
-        function retryLoading() {
-            document.getElementById('creatorName').textContent = 'Chargement...';
-            document.getElementById('creatorName').classList.add('loading-text');
-            document.getElementById('domainText').textContent = 'Chargement...';
-            document.getElementById('domainText').classList.add('loading-text');
-            
-            loadCreatorDataFromSupabase();
         }
     </script>
 </body>
