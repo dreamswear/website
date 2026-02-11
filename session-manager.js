@@ -1,16 +1,38 @@
-// session-manager.js
+// session-manager.js - Gestion complète des sessions
+// À CHARGER IMMÉDIATEMENT APRÈS LE CDN SUPABASE
+
 class SessionManager {
     constructor() {
         this.supabase = null;
-        this.initSupabase();
+        console.log('🔄 SessionManager: Instance créée');
     }
     
+    // Initialiser Supabase (appeler après chargement du CDN)
     initSupabase() {
-        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+        if (this.supabase) {
+            return this.supabase;
+        }
         
-        if (typeof window.supabase !== 'undefined') {
-            this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        if (typeof window.supabase === 'undefined') {
+            console.error('❌ SessionManager: Supabase CDN non chargé');
+            return null;
+        }
+        
+        if (!window.SUPABASE_CONFIG) {
+            console.error('❌ SessionManager: Configuration Supabase manquante');
+            return null;
+        }
+        
+        try {
+            this.supabase = window.supabase.createClient(
+                window.SUPABASE_CONFIG.URL,
+                window.SUPABASE_CONFIG.KEY
+            );
+            console.log('✅ SessionManager: Supabase initialisé');
+            return this.supabase;
+        } catch (error) {
+            console.error('❌ SessionManager: Erreur initialisation Supabase', error);
+            return null;
         }
     }
     
@@ -19,12 +41,17 @@ class SessionManager {
         if (!creatorData) return false;
         
         try {
+            // Nettoyer les anciennes données
+            this.clearSessionData();
+            
             // Données principales
             sessionStorage.setItem('creatorId', creatorData.id);
             sessionStorage.setItem('creatorBrand', creatorData.nom_marque || '');
             
             // Nom complet
-            const fullName = `${creatorData.prenom || ''} ${creatorData.nom || ''}`.trim();
+            const prenom = creatorData.prenom || '';
+            const nom = creatorData.nom || '';
+            const fullName = `${prenom} ${nom}`.trim();
             sessionStorage.setItem('creatorName', fullName || creatorData.nom_marque || 'Créateur');
             
             // Domaine
@@ -35,7 +62,7 @@ class SessionManager {
             sessionStorage.setItem('creatorPhone', creatorData.telephone || '');
             
             // Statut
-            sessionStorage.setItem('creatorStatus', creatorData.statut || '');
+            sessionStorage.setItem('creatorStatus', creatorData.statut || 'pending');
             
             // Dates importantes
             if (creatorData.date_inscription) {
@@ -50,6 +77,10 @@ class SessionManager {
             sessionStorage.setItem('creatorInstagram', creatorData.reseaux_instagram || '');
             sessionStorage.setItem('creatorWebsite', creatorData.site_web || '');
             
+            // Prénom et nom séparés
+            sessionStorage.setItem('creatorPrenom', creatorData.prenom || '');
+            sessionStorage.setItem('creatorNom', creatorData.nom || '');
+            
             // Marquer comme connecté
             sessionStorage.setItem('creatorLoggedIn', 'true');
             sessionStorage.setItem('creatorLoginTime', new Date().toISOString());
@@ -58,6 +89,7 @@ class SessionManager {
             this.saveToLocalStorage(creatorData);
             
             console.log('✅ Session créateur sauvegardée:', {
+                id: creatorData.id,
                 name: sessionStorage.getItem('creatorName'),
                 domain: sessionStorage.getItem('creatorDomain')
             });
@@ -76,9 +108,13 @@ class SessionManager {
             localStorage.setItem('creatorId', creatorData.id);
             localStorage.setItem('creatorBrand', creatorData.nom_marque || '');
             
-            const fullName = `${creatorData.prenom || ''} ${creatorData.nom || ''}`.trim();
+            const prenom = creatorData.prenom || '';
+            const nom = creatorData.nom || '';
+            const fullName = `${prenom} ${nom}`.trim();
             localStorage.setItem('creatorName', fullName || creatorData.nom_marque || 'Créateur');
             localStorage.setItem('creatorDomain', creatorData.domaine || 'Domaine non spécifié');
+            localStorage.setItem('creatorPrenom', creatorData.prenom || '');
+            localStorage.setItem('creatorNom', creatorData.nom || '');
             
         } catch (error) {
             console.error('❌ Erreur localStorage:', error);
@@ -94,21 +130,30 @@ class SessionManager {
             brand: sessionStorage.getItem('creatorBrand') || localStorage.getItem('creatorBrand') || '',
             email: sessionStorage.getItem('creatorEmail') || '',
             phone: sessionStorage.getItem('creatorPhone') || '',
-            status: sessionStorage.getItem('creatorStatus') || '',
+            status: sessionStorage.getItem('creatorStatus') || 'pending',
             joinDate: sessionStorage.getItem('creatorJoinDate'),
-            validationDate: sessionStorage.getItem('creatorValidationDate')
+            validationDate: sessionStorage.getItem('creatorValidationDate'),
+            prenom: sessionStorage.getItem('creatorPrenom') || localStorage.getItem('creatorPrenom') || '',
+            nom: sessionStorage.getItem('creatorNom') || localStorage.getItem('creatorNom') || ''
         };
     }
     
     // Vérifier si le créateur est connecté
     isCreatorLoggedIn() {
-        const loggedIn = sessionStorage.getItem('creatorLoggedIn') === 'true' || 
-                        localStorage.getItem('creatorId') !== null;
+        const sessionLoggedIn = sessionStorage.getItem('creatorLoggedIn') === 'true';
+        const localId = localStorage.getItem('creatorId');
         
-        if (loggedIn) {
-            // Vérifier que les données essentielles sont présentes
-            const data = this.getCreatorData();
-            return !!(data.id && data.name);
+        if (sessionLoggedIn) {
+            return true;
+        }
+        
+        if (localId) {
+            // Restaurer la session depuis localStorage
+            sessionStorage.setItem('creatorId', localId);
+            sessionStorage.setItem('creatorName', localStorage.getItem('creatorName') || 'Créateur');
+            sessionStorage.setItem('creatorDomain', localStorage.getItem('creatorDomain') || 'Domaine');
+            sessionStorage.setItem('creatorLoggedIn', 'true');
+            return true;
         }
         
         return false;
@@ -119,8 +164,14 @@ class SessionManager {
         try {
             const creatorId = sessionStorage.getItem('creatorId') || localStorage.getItem('creatorId');
             
-            if (!creatorId || !this.supabase) {
+            if (!creatorId) {
+                console.warn('⚠️ Aucun ID créateur trouvé');
                 return false;
+            }
+            
+            if (!this.supabase) {
+                this.initSupabase();
+                if (!this.supabase) return false;
             }
             
             const { data, error } = await this.supabase
@@ -129,14 +180,17 @@ class SessionManager {
                 .eq('id', creatorId)
                 .single();
             
-            if (error || !data) {
+            if (error) {
                 console.error('❌ Erreur rafraîchissement:', error);
                 return false;
             }
             
-            // Mettre à jour la session
-            this.saveCreatorSession(data);
-            return true;
+            if (data) {
+                this.saveCreatorSession(data);
+                return true;
+            }
+            
+            return false;
             
         } catch (error) {
             console.error('💥 Erreur rafraîchissement:', error);
@@ -144,26 +198,31 @@ class SessionManager {
         }
     }
     
-    // Déconnexion
-    logout() {
-        // Supprimer sessionStorage
+    // Nettoyer les données de session
+    clearSessionData() {
         const keysToRemove = [
             'creatorId', 'creatorName', 'creatorDomain', 'creatorBrand',
             'creatorEmail', 'creatorPhone', 'creatorStatus', 'creatorLoggedIn',
             'creatorJoinDate', 'creatorValidationDate', 'creatorLoginTime',
-            'creatorBiography', 'creatorInstagram', 'creatorWebsite'
+            'creatorBiography', 'creatorInstagram', 'creatorWebsite',
+            'creatorPrenom', 'creatorNom'
         ];
         
         keysToRemove.forEach(key => sessionStorage.removeItem(key));
-        
-        // Garder localStorage pour la persistance (optionnel)
-        // localStorage.clear(); // Décommenter pour tout supprimer
-        
+    }
+    
+    // Déconnexion complète
+    logout() {
+        this.clearSessionData();
+        // Optionnel: décommenter pour supprimer aussi localStorage
+        // localStorage.clear();
         console.log('👋 Session créateur effacée');
     }
     
     // Initialiser la session au chargement de la page
     async initSession() {
+        this.initSupabase();
+        
         if (this.isCreatorLoggedIn()) {
             console.log('✅ Créateur déjà connecté');
             
@@ -174,7 +233,6 @@ class SessionManager {
                 const now = new Date();
                 const hoursDiff = (now - loginDate) / (1000 * 60 * 60);
                 
-                // Rafraîchir après 1 heure
                 if (hoursDiff > 1) {
                     console.log('🔄 Rafraîchissement des données...');
                     await this.refreshCreatorData();
@@ -188,5 +246,8 @@ class SessionManager {
     }
 }
 
-// Créer une instance globale
-window.SessionManager = new SessionManager();
+// Créer une instance globale UNIQUE
+if (!window.SessionManager) {
+    window.SessionManager = new SessionManager();
+    console.log('✅ SessionManager initialisé globalement');
+}
