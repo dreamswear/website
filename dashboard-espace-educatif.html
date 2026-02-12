@@ -219,6 +219,52 @@
             font-size: 0.8rem;
         }
         
+        .featured-badge {
+            background: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 10px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 10px;
+        }
+
+        .status-published {
+            background: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            grid-column: 1 / -1;
+        }
+        
+        .loading-spinner {
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .education-categories {
                 grid-template-columns: 1fr;
@@ -421,18 +467,29 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Configuration Supabase
+        // === CONFIGURATION IDENTIQUE À MANAGE-ESPACE-EDUCATIF ===
         const supabaseUrl = 'https://kfptsbpriihydidnfzhj.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-        let supabase;
+        
+        // === VARIABLES GLOBALES (COMME DANS MANAGE) ===
+        let supabaseClient = null;
+        let allArticles = [];
 
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🎓 Espace Éducatif chargé');
+        // === INITIALISATION (COMME DANS MANAGE) ===
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🎓 Espace Éducatif - Lecture des données de manage-espace-educatif');
             
-            // Initialiser Supabase
-            initSupabase();
+            // 1. Initialiser Supabase (EXACTEMENT comme dans manage)
+            try {
+                supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+                console.log('✅ Supabase initialisé avec succès');
+            } catch (error) {
+                console.error('❌ Erreur initialisation Supabase:', error);
+                alert('Erreur de connexion à la base de données');
+                return;
+            }
             
-            // Vérifier la connexion
+            // 2. Vérifier la connexion créateur
             if (!SessionManager.isCreatorLoggedIn()) {
                 console.warn('🚫 Créateur non connecté, redirection...');
                 alert('Veuillez vous connecter pour accéder à cette page.');
@@ -440,7 +497,30 @@
                 return;
             }
             
-            // Gestion de la déconnexion
+            // 3. Afficher le nom du créateur
+            displayCreatorName();
+            
+            // 4. Gestion de la déconnexion
+            setupLogout();
+            
+            // 5. Configuration du modal
+            setupModal();
+            
+            // 6. CHARGER LES ARTICLES (avec le même filtre que manage utilise pour l'affichage)
+            await loadArticles();
+        });
+
+        // === AFFICHAGE DU NOM DU CRÉATEUR ===
+        function displayCreatorName() {
+            const creatorData = SessionManager.getCreatorData();
+            const creatorNameElement = document.getElementById('creatorName');
+            if (creatorNameElement && creatorData?.name) {
+                creatorNameElement.textContent = creatorData.name;
+            }
+        }
+
+        // === GESTION DE LA DÉCONNEXION ===
+        function setupLogout() {
             const logoutBtn = document.getElementById('logoutBtn');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', function(e) {
@@ -451,145 +531,169 @@
                     }
                 });
             }
-            
-            // Afficher le nom du créateur
-            displayCreatorName();
-            
-            // Charger les articles depuis la table educational_articles
-            loadEducationalArticles();
-            
-            // Configurer le modal
-            setupModal();
-        });
-
-        function initSupabase() {
-            if (supabaseUrl && supabaseKey) {
-                supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-                console.log('✅ Supabase initialisé pour l\'espace éducatif');
-            }
         }
 
-        function displayCreatorName() {
-            const creatorData = SessionManager.getCreatorData();
-            const creatorNameElement = document.getElementById('creatorName');
-            if (creatorNameElement && creatorData.name) {
-                creatorNameElement.textContent = creatorData.name;
-            }
-        }
-
-        async function loadEducationalArticles() {
+        // === CHARGEMENT DES ARTICLES - CORRESPOND EXACTEMENT À CE QUE MANAGE ENVOIE ===
+        async function loadArticles() {
             try {
-                console.log('📚 Chargement des articles depuis educational_articles...');
+                console.log('📚 Chargement des articles depuis la table educational_articles...');
                 
-                // CORRECTION ICI : Filtrer par status = 'published' au lieu de is_published
-                const { data: articles, error } = await supabase
-                    .from('educational_articles')
-                    .select('*')
-                    .eq('status', 'published')  // Changé de is_published à status
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('❌ Erreur Supabase:', error);
-                    console.log('💡 Message d\'erreur:', error.message);
+                if (!supabaseClient) {
+                    console.error('❌ Supabase non initialisé');
                     showEmptyState();
                     return;
                 }
 
-                console.log('✅ Articles chargés:', articles?.length || 0);
-                console.log('📊 Premier article (pour vérification):', articles ? articles[0] : 'Aucun');
+                // === FILTRE CRITIQUE : NE PRENDRE QUE LES ARTICLES AVEC status = 'published' ===
+                // C'est EXACTEMENT ce que manage utilise pour déterminer quels articles sont visibles
+                const { data: articles, error } = await supabaseClient
+                    .from('educational_articles')
+                    .select('*')
+                    .eq('status', 'published')  // CHAMP status, PAS is_published
+                    .order('created_at', { ascending: false });
 
-                if (!articles || articles.length === 0) {
-                    console.log('ℹ️ Aucun article avec status="published" trouvé');
-                    console.log('💡 Essayez d\'ajouter des articles via manage-espace-educatif.html');
+                if (error) {
+                    console.error('❌ Erreur Supabase:', error);
+                    console.error('Code:', error.code);
+                    console.error('Message:', error.message);
+                    showEmptyState();
+                    return;
+                }
+
+                // Stocker tous les articles publiés
+                allArticles = articles || [];
+                console.log(`✅ ${allArticles.length} articles PUBLIÉS chargés`);
+                
+                // Afficher les détails du premier article pour vérification
+                if (allArticles.length > 0) {
+                    console.log('📊 Exemple du premier article chargé:', {
+                        id: allArticles[0].id,
+                        title: allArticles[0].title,
+                        status: allArticles[0].status,
+                        category: allArticles[0].category,
+                        featured: allArticles[0].featured,
+                        created_at: allArticles[0].created_at
+                    });
+                }
+
+                if (allArticles.length === 0) {
+                    console.log('ℹ️ Aucun article avec status="published" trouvé dans la table');
+                    console.log('ℹ️ Vérifiez que manage-espace-educatif a bien publié des articles');
                     showEmptyState();
                     return;
                 }
 
                 // Mettre à jour les statistiques
-                updateStatistics(articles);
+                updateStatistics(allArticles);
 
                 // Afficher les articles par catégorie
-                displayArticlesByCategory(articles);
+                displayArticlesByCategory(allArticles);
 
             } catch (error) {
-                console.error('❌ Erreur chargement articles:', error);
-                console.log('💡 Erreur complète:', error);
+                console.error('❌ Erreur lors du chargement des articles:', error);
                 showEmptyState();
             }
         }
 
+        // === MISE À JOUR DES STATISTIQUES ===
         function updateStatistics(articles) {
             const totalArticles = articles.length;
-            const totalReadingTime = articles.reduce((sum, article) => sum + (article.read_time || 5), 0);
+            const totalReadingTime = articles.reduce((sum, article) => sum + (parseInt(article.read_time) || 5), 0);
             
             // Récupérer les articles lus depuis localStorage
             const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
             const completedArticles = articles.filter(article => readArticles.includes(article.id)).length;
 
-            document.getElementById('totalArticles').textContent = totalArticles;
-            document.getElementById('readingTime').textContent = totalReadingTime;
-            document.getElementById('completedArticles').textContent = completedArticles;
+            // Mettre à jour l'affichage
+            const totalEl = document.getElementById('totalArticles');
+            const readingEl = document.getElementById('readingTime');
+            const completedEl = document.getElementById('completedArticles');
+            
+            if (totalEl) totalEl.textContent = totalArticles;
+            if (readingEl) readingEl.textContent = totalReadingTime;
+            if (completedEl) completedEl.textContent = completedArticles;
         }
 
+        // === AFFICHAGE DES ARTICLES PAR CATÉGORIE ===
         function displayArticlesByCategory(articles) {
+            // Correspondance entre les IDs des sections et les noms de catégories DANS LA BASE
             const categories = {
                 'mode-industrie': 'Éducation mode & industrie',
                 'createurs-marques': 'Éducation pour créateurs & marques',
                 'culture-histoire': 'Culture & histoire de la mode'
             };
 
+            // Pour chaque catégorie, filtrer et afficher les articles
             for (const [categoryId, categoryName] of Object.entries(categories)) {
                 const categoryArticles = articles.filter(article => article.category === categoryName);
                 const container = document.getElementById(`${categoryId}-articles`);
                 
-                if (container) {
-                    if (categoryArticles.length === 0) {
-                        container.innerHTML = `
-                            <div class="empty-articles">
-                                <i class="fas fa-newspaper"></i>
-                                <h3>Aucun article disponible</h3>
-                                <p>Revenez bientôt pour découvrir nos ressources dans cette catégorie</p>
-                            </div>
-                        `;
-                    } else {
-                        container.innerHTML = categoryArticles.map(article => createArticleHTML(article)).join('');
-                        
-                        // Ajouter les événements de clic
-                        container.querySelectorAll('.article-item').forEach(item => {
-                            const articleId = item.getAttribute('data-article-id');
-                            const article = articles.find(a => a.id == articleId);
-                            if (article) {
-                                item.addEventListener('click', () => openArticleModal(article));
-                            }
-                        });
-                    }
+                if (!container) continue;
+
+                if (categoryArticles.length === 0) {
+                    // Aucun article dans cette catégorie
+                    container.innerHTML = `
+                        <div class="empty-articles">
+                            <i class="fas fa-newspaper"></i>
+                            <h3>Aucun article dans cette catégorie</h3>
+                            <p>Revenez bientôt pour découvrir nos ressources sur ${categoryName.toLowerCase()}</p>
+                        </div>
+                    `;
+                } else {
+                    // Afficher les articles
+                    container.innerHTML = categoryArticles.map(article => createArticleHTML(article)).join('');
+                    
+                    // Ajouter les événements de clic
+                    container.querySelectorAll('.article-item').forEach(item => {
+                        const articleId = parseInt(item.getAttribute('data-article-id'));
+                        const article = articles.find(a => a.id === articleId);
+                        if (article) {
+                            item.addEventListener('click', () => openArticleModal(article));
+                        }
+                    });
                 }
             }
         }
 
+        // === CRÉATION DU HTML POUR UN ARTICLE ===
         function createArticleHTML(article) {
             const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
             const isRead = readArticles.includes(article.id);
+            
+            // Badge "À la une" si l'article est mis en avant
+            const featuredBadge = article.featured ? 
+                '<span class="featured-badge"><i class="fas fa-star"></i> À la une</span>' : '';
+            
+            // Extraire un extrait si non fourni
+            let excerpt = article.excerpt || '';
+            if (!excerpt && article.content) {
+                excerpt = article.content.substring(0, 150) + '...';
+            }
+            
+            // Formater les tags pour l'affichage
+            const tagsCount = article.tags ? article.tags.split(',').length : 0;
             
             return `
                 <div class="article-item" data-article-id="${article.id}">
                     <div class="article-header">
                         <h3 class="article-title">
                             ${article.title || 'Article sans titre'}
-                            ${isRead ? ' <i class="fas fa-check-circle" style="color: var(--success); font-size: 0.9rem;"></i>' : ''}
+                            ${featuredBadge}
+                            ${isRead ? '<i class="fas fa-check-circle" style="color: var(--success); font-size: 0.9rem; margin-left: 8px;"></i>' : ''}
                         </h3>
                         <span class="article-date">${formatDate(article.created_at)}</span>
                     </div>
-                    <p class="article-excerpt">${article.excerpt || (article.content ? article.content.substring(0, 150) + '...' : 'Aucun extrait disponible')}</p>
+                    <p class="article-excerpt">${excerpt || 'Aucun extrait disponible'}</p>
                     <div class="article-meta">
-                        <span><i class="fas fa-clock"></i> ${article.read_time || 5} min de lecture</span>
-                        ${article.views ? `<span><i class="fas fa-eye"></i> ${article.views} vues</span>` : ''}
-                        ${article.tags ? `<span><i class="fas fa-tags"></i> ${article.tags.split(',').length} tags</span>` : ''}
+                        <span><i class="fas fa-clock"></i> ${article.read_time || 5} min</span>
+                        <span><i class="fas fa-eye"></i> ${article.views || 0} vues</span>
+                        ${tagsCount > 0 ? `<span><i class="fas fa-tags"></i> ${tagsCount} tag${tagsCount > 1 ? 's' : ''}</span>` : ''}
                     </div>
                 </div>
             `;
         }
 
+        // === FORMATAGE DE LA DATE ===
         function formatDate(dateString) {
             if (!dateString) return 'Date inconnue';
             try {
@@ -600,26 +704,33 @@
                     year: 'numeric'
                 });
             } catch (e) {
-                console.log('⚠️ Erreur format date:', dateString);
                 return 'Date inconnue';
             }
         }
 
+        // === CONFIGURATION DU MODAL ===
         function setupModal() {
             const modal = document.getElementById('articleModal');
             const closeBtn = document.getElementById('closeArticleModal');
             
+            if (!modal || !closeBtn) {
+                console.error('❌ Éléments du modal non trouvés');
+                return;
+            }
+            
+            // Fermeture par le bouton X
             closeBtn.addEventListener('click', () => {
                 modal.classList.remove('active');
             });
             
+            // Fermeture en cliquant en dehors
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.classList.remove('active');
                 }
             });
             
-            // Fermer avec la touche Escape
+            // Fermeture avec la touche Echap
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && modal.classList.contains('active')) {
                     modal.classList.remove('active');
@@ -627,6 +738,7 @@
             });
         }
 
+        // === OUVERTURE DU MODAL AVEC LE CONTENU DE L'ARTICLE ===
         function openArticleModal(article) {
             const modal = document.getElementById('articleModal');
             const titleElement = document.getElementById('modalArticleTitle');
@@ -635,22 +747,21 @@
             const readTimeElement = document.getElementById('modalArticleReadTime');
             const dateElement = document.getElementById('modalArticleDate');
             
-            // Mettre à jour le contenu du modal
-            titleElement.textContent = article.title || 'Article';
-            
-            // Formater le contenu
-            let contentHTML = '';
-            if (article.content) {
-                contentHTML = formatArticleContent(article.content);
-            } else {
-                contentHTML = '<p>Aucun contenu disponible</p>';
+            if (!modal || !titleElement || !contentElement) {
+                console.error('❌ Éléments du modal manquants');
+                return;
             }
             
-            contentElement.innerHTML = contentHTML;
-            readTimeElement.textContent = article.read_time || 5;
-            dateElement.textContent = formatDate(article.created_at);
+            // Titre avec badge "À la une" si nécessaire
+            titleElement.innerHTML = article.title || 'Article';
+            if (article.featured) {
+                titleElement.innerHTML += ' <span class="featured-badge"><i class="fas fa-star"></i> À la une</span>';
+            }
             
-            // Afficher les tags
+            // Contenu formaté
+            contentElement.innerHTML = formatArticleContent(article.content);
+            
+            // Tags
             if (article.tags) {
                 const tags = article.tags.split(',').map(tag => tag.trim());
                 tagsElement.innerHTML = tags.map(tag => `<span class="tag">${tag}</span>`).join('');
@@ -658,24 +769,25 @@
                 tagsElement.innerHTML = '';
             }
             
+            // Métadonnées
+            readTimeElement.textContent = article.read_time || 5;
+            dateElement.textContent = formatDate(article.created_at);
+            
             // Ouvrir le modal
             modal.classList.add('active');
             
-            // Marquer l'article comme lu
+            // Marquer comme lu et incrémenter les vues
             markArticleAsRead(article.id);
-            
-            // Incrémenter le compteur de vues
             incrementArticleViews(article.id);
         }
 
+        // === FORMATAGE DU CONTENU (MARKDOWN SIMPLE) ===
         function formatArticleContent(content) {
             if (!content) return '<p>Contenu non disponible</p>';
             
-            // Convertir les retours à la ligne en paragraphes
             return content.split('\n\n').map(paragraph => {
                 if (paragraph.trim() === '') return '';
                 
-                // Vérifier si c'est un titre
                 if (paragraph.startsWith('# ')) {
                     return `<h2>${paragraph.substring(2)}</h2>`;
                 } else if (paragraph.startsWith('## ')) {
@@ -683,15 +795,20 @@
                 } else if (paragraph.startsWith('> ')) {
                     return `<blockquote>${paragraph.substring(2)}</blockquote>`;
                 } else if (paragraph.startsWith('- ') || paragraph.startsWith('* ')) {
-                    const items = paragraph.split('\n').map(item => 
-                        `<li>${item.substring(2)}</li>`
-                    ).join('');
+                    const items = paragraph.split('\n')
+                        .map(item => item.substring(2))
+                        .filter(item => item.trim() !== '')
+                        .map(item => `<li>${item}</li>`)
+                        .join('');
                     return `<ul>${items}</ul>`;
                 } else if (/^\d+\.\s/.test(paragraph)) {
-                    const items = paragraph.split('\n').map(item => {
-                        const match = item.match(/^(\d+)\.\s(.+)$/);
-                        return match ? `<li>${match[2]}</li>` : '';
-                    }).join('');
+                    const items = paragraph.split('\n')
+                        .map(item => {
+                            const match = item.match(/^(\d+)\.\s(.+)$/);
+                            return match ? `<li>${match[2]}</li>` : '';
+                        })
+                        .filter(item => item !== '')
+                        .join('');
                     return `<ol>${items}</ol>`;
                 } else {
                     return `<p>${paragraph}</p>`;
@@ -699,57 +816,79 @@
             }).join('');
         }
 
+        // === MARQUER UN ARTICLE COMME LU ===
         function markArticleAsRead(articleId) {
             const readArticles = JSON.parse(localStorage.getItem('readArticles') || '[]');
+            
             if (!readArticles.includes(articleId)) {
                 readArticles.push(articleId);
                 localStorage.setItem('readArticles', JSON.stringify(readArticles));
                 
-                // Mettre à jour l'affichage
+                // Mettre à jour le compteur
                 const completedElement = document.getElementById('completedArticles');
-                const currentCount = parseInt(completedElement.textContent) || 0;
-                completedElement.textContent = currentCount + 1;
+                if (completedElement) {
+                    const currentCount = parseInt(completedElement.textContent) || 0;
+                    completedElement.textContent = currentCount + 1;
+                }
+                
+                // Mettre à jour l'affichage de l'article
+                const articleElement = document.querySelector(`[data-article-id="${articleId}"]`);
+                if (articleElement) {
+                    const titleElement = articleElement.querySelector('.article-title');
+                    if (titleElement && !titleElement.innerHTML.includes('fa-check-circle')) {
+                        titleElement.innerHTML += ' <i class="fas fa-check-circle" style="color: var(--success); font-size: 0.9rem; margin-left: 8px;"></i>';
+                    }
+                }
             }
         }
 
+        // === INCRÉMENTER LE COMPTEUR DE VUES ===
         async function incrementArticleViews(articleId) {
             try {
+                if (!supabaseClient) return;
+                
                 // Récupérer les vues actuelles
-                const { data: article, error } = await supabase
+                const { data: article, error: fetchError } = await supabaseClient
                     .from('educational_articles')
                     .select('views')
                     .eq('id', articleId)
                     .single();
                 
-                if (error) {
-                    console.error('❌ Erreur récupération vues:', error);
+                if (fetchError) {
+                    console.error('❌ Erreur récupération vues:', fetchError);
                     return;
                 }
                 
-                // Incrémenter les vues
-                const newViews = (article.views || 0) + 1;
+                // Incrémenter
+                const newViews = (article?.views || 0) + 1;
                 
-                await supabase
+                const { error: updateError } = await supabaseClient
                     .from('educational_articles')
                     .update({ views: newViews })
                     .eq('id', articleId);
                 
-                console.log(`✅ Vues incrémentées pour l'article ${articleId}: ${newViews}`);
+                if (updateError) {
+                    console.error('❌ Erreur mise à jour vues:', updateError);
+                    return;
+                }
+                
+                console.log(`✅ Vue ajoutée à l'article ${articleId} (total: ${newViews})`);
                 
                 // Mettre à jour l'affichage local
                 const articleElement = document.querySelector(`[data-article-id="${articleId}"]`);
                 if (articleElement) {
                     const viewsElement = articleElement.querySelector('.fa-eye');
                     if (viewsElement && viewsElement.parentElement) {
-                        viewsElement.parentElement.textContent = ` ${newViews} vues`;
+                        viewsElement.parentElement.innerHTML = `<i class="fas fa-eye"></i> ${newViews} vues`;
                     }
                 }
                 
             } catch (error) {
-                console.error('❌ Erreur incrémentation vues:', error);
+                console.error('❌ Erreur lors de l\'incrémentation des vues:', error);
             }
         }
 
+        // === AFFICHAGE DE L'ÉTAT VIDE ===
         function showEmptyState() {
             const containers = [
                 'mode-industrie-articles',
@@ -764,18 +903,43 @@
                         <div class="empty-articles">
                             <i class="fas fa-newspaper"></i>
                             <h3>Aucun article disponible</h3>
-                            <p>La table educational_articles est vide ou les articles ne sont pas encore publiés</p>
-                            <p>Utilisez "manage-espace-educatif.html" pour ajouter des articles avec status="published"</p>
+                            <p>Les articles publiés via "manage-espace-educatif.html" apparaîtront ici</p>
+                            <p style="margin-top: 10px; font-size: 0.9rem; color: var(--gray);">
+                                <i class="fas fa-info-circle"></i> Assurez-vous que les articles ont le statut "Publié"
+                            </p>
                         </div>
                     `;
                 }
             });
             
-            // Mettre à jour les statistiques à zéro
+            // Mettre les statistiques à zéro
             document.getElementById('totalArticles').textContent = '0';
             document.getElementById('readingTime').textContent = '0';
             document.getElementById('completedArticles').textContent = '0';
         }
+
+        // === FONCTION DE DEBUG POUR TESTER LA CONNEXION ===
+        async function testConnection() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('educational_articles')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    console.error('❌ Test connexion échoué:', error);
+                    return false;
+                }
+                console.log('✅ Test connexion réussi');
+                return true;
+            } catch (error) {
+                console.error('❌ Test connexion échoué:', error);
+                return false;
+            }
+        }
+
+        // Exécuter le test de connexion
+        setTimeout(() => testConnection(), 1000);
     </script>
 </body>
 </html>
