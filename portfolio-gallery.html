@@ -2,169 +2,274 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Galerie Portfolios - DREAMSWEAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Galerie des Portfolios - Dreamswear</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ========== STYLES IDENTIQUES ========== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #d4af37;
+            --primary-dark: #b8941f;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --white: #ffffff;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --border: #dee2e6;
+            --border-dark: #495057;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --shadow-hover: 0 15px 40px rgba(212,175,55,0.15);
+            --transition: all 0.3s ease;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
             color: #fff;
+            line-height: 1.6;
             min-height: 100vh;
+            padding: 15px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            width: 100%;
         }
 
         .header {
-            background: #1a1a1a;
-            padding: 25px 30px;
-            border-radius: 10px;
+            background: linear-gradient(90deg, var(--dark) 0%, var(--dark-light) 100%);
+            padding: 25px 25px;
+            border-radius: var(--radius);
             margin-bottom: 30px;
-            border-left: 5px solid #d4af37;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            border-left: 5px solid var(--primary);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-out;
         }
 
         .header h1 {
-            color: #d4af37;
+            color: var(--primary);
             margin-bottom: 10px;
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .header h1 i {
+            color: var(--primary);
         }
 
         .header p {
             color: #aaa;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
+            font-size: 1rem;
+            margin-bottom: 20px;
         }
 
         .stats-bar {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
         .stat-item {
             background: rgba(212, 175, 55, 0.1);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-item:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-3px);
         }
 
         .stat-value {
-            color: #d4af37;
-            font-weight: bold;
-            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+            line-height: 1.2;
         }
 
         .stat-label {
             color: #aaa;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
         }
 
         .back-button {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             margin-top: 15px;
-            padding: 10px 25px;
-            background: #17a2b8;
-            color: white;
+            padding: 12px 25px;
+            background: rgba(23, 162, 184, 0.2);
+            color: var(--info);
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: var(--radius-sm);
             font-weight: 600;
-            transition: all 0.3s;
+            transition: var(--transition);
+            border: 1px solid rgba(23, 162, 184, 0.3);
         }
 
         .back-button:hover {
-            background: #138496;
-            transform: translateY(-2px);
+            background: var(--info);
+            color: white;
+            transform: translateY(-3px);
+            border-color: var(--info);
         }
 
-        /* FILTRES */
         .filters {
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 10px;
+            background: var(--dark-light);
+            padding: 25px;
+            border-radius: var(--radius);
             margin-bottom: 30px;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
+            gap: 20px;
+            border: 1px solid var(--border-dark);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-direction: column;
             gap: 15px;
-            align-items: center;
         }
 
         .filter-group {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .filter-label {
-            color: #d4af37;
+            color: var(--primary);
             font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .filter-select {
-            padding: 8px 15px;
-            background: #252525;
-            border: 1px solid #333;
-            border-radius: 5px;
-            color: white;
-            min-width: 180px;
+        .filter-label i {
+            color: var(--primary);
         }
 
-        .search-box {
-            flex: 1;
-            max-width: 400px;
-        }
-
+        .filter-select,
         .search-input {
-            width: 100%;
-            padding: 10px 15px;
-            background: #252525;
-            border: 1px solid #333;
-            border-radius: 5px;
+            padding: 12px 15px;
+            background: var(--dark);
+            border: 1px solid var(--border-dark);
+            border-radius: var(--radius-sm);
             color: white;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            width: 100%;
         }
 
+        .filter-select:focus,
         .search-input:focus {
             outline: none;
-            border-color: #d4af37;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
         }
 
-        /* GRILLE DES PORTFOLIOS */
+        .filter-select option {
+            background: var(--dark);
+            color: white;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            flex: 1;
+        }
+
+        .btn-filter {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        .btn-filter:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(108, 117, 125, 0.2);
+            color: var(--gray-light);
+            border: 1px solid rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-reset:hover {
+            background: var(--gray);
+            color: white;
+            transform: translateY(-2px);
+        }
+
         .portfolio-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: 1fr;
             gap: 25px;
             margin-top: 20px;
+            animation: fadeIn 0.7s ease-out;
         }
 
         .portfolio-card {
-            background: #1a1a1a;
-            border-radius: 10px;
+            background: var(--dark-light);
+            border-radius: var(--radius);
             overflow: hidden;
-            transition: all 0.3s;
-            border: 1px solid #333;
+            transition: var(--transition);
+            border: 1px solid var(--border-dark);
             height: 100%;
             display: flex;
             flex-direction: column;
+            animation: fadeInUp 0.5s ease-out;
         }
 
         .portfolio-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.2);
-            border-color: #d4af37;
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
         }
 
         .portfolio-image {
@@ -181,16 +286,25 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            transition: transform 0.6s ease;
         }
 
         .portfolio-card:hover .portfolio-image img {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         .portfolio-placeholder {
             color: #666;
             font-size: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .portfolio-placeholder span {
+            font-size: 0.9rem;
+            color: #888;
         }
 
         .portfolio-content {
@@ -201,74 +315,95 @@
         }
 
         .portfolio-title {
-            color: #d4af37;
-            font-size: 1.3rem;
-            margin-bottom: 10px;
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
         }
 
         .portfolio-creator {
-            color: #17a2b8;
+            color: var(--info);
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .portfolio-creator i {
+            font-size: 0.85rem;
         }
 
         .portfolio-domain {
             background: rgba(212, 175, 55, 0.1);
-            color: #d4af37;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-bottom: 10px;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            margin-bottom: 12px;
             display: inline-block;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .portfolio-description {
             color: #aaa;
-            font-size: 0.95rem;
-            line-height: 1.5;
+            font-size: 0.9rem;
+            line-height: 1.6;
             margin-bottom: 15px;
             flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .portfolio-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .tag {
-            background: rgba(23, 162, 184, 0.2);
-            color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+            color: var(--info);
             padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            border-radius: 50px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 1px solid rgba(23, 162, 184, 0.2);
         }
 
         .portfolio-meta {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 15px;
             margin-top: auto;
             padding-top: 15px;
-            border-top: 1px solid #333;
+            border-top: 1px solid var(--border-dark);
         }
 
         .portfolio-stats {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .stat {
             display: flex;
             align-items: center;
             gap: 5px;
-            color: #666;
-            font-size: 0.85rem;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .stat i {
+            color: var(--primary);
         }
 
         .portfolio-actions {
@@ -276,66 +411,68 @@
             gap: 10px;
         }
 
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
+        .btn-view {
+            background: var(--success);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-instagram {
+            background: linear-gradient(45deg, #f09433, #d62976, #962fbf, #4f5bd5);
+            color: white;
+            width: 40px;
             display: flex;
             align-items: center;
-            gap: 5px;
-            transition: all 0.3s;
+            justify-content: center;
         }
 
-        .btn-view {
-            background: #28a745;
-            color: white;
+        .btn-instagram:hover {
+            transform: translateY(-2px) scale(1.05);
         }
 
-        .btn-contact {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .action-btn:hover {
-            opacity: 0.9;
-            transform: scale(1.05);
-        }
-
-        /* EMPTY STATE */
         .empty-state {
             grid-column: 1 / -1;
             text-align: center;
             padding: 60px 20px;
-            color: #666;
+            background: var(--dark-light);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-dark);
         }
 
         .empty-state i {
             font-size: 4rem;
+            color: #444;
             margin-bottom: 20px;
-            opacity: 0.3;
         }
 
         .empty-state h3 {
-            color: #aaa;
+            color: #fff;
             margin-bottom: 10px;
+            font-size: 1.3rem;
         }
 
-        /* LOADING */
+        .empty-state p {
+            color: #888;
+            margin-bottom: 20px;
+        }
+
         .loading {
             grid-column: 1 / -1;
             text-align: center;
-            padding: 40px;
+            padding: 60px 20px;
         }
 
         .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #d4af37;
+            border: 4px solid rgba(212, 175, 55, 0.1);
+            border-left-color: var(--primary);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
@@ -345,143 +482,240 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* PAGINATION */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
             margin-top: 40px;
-            padding: 20px;
+            padding: 20px 0;
+            flex-wrap: wrap;
         }
 
         .page-btn {
-            padding: 8px 15px;
-            background: #252525;
-            border: 1px solid #333;
+            padding: 10px 15px;
+            background: var(--dark-light);
+            border: 1px solid var(--border-dark);
             color: white;
-            border-radius: 5px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            min-width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .page-btn:hover {
-            background: #333;
+        .page-btn:hover:not(:disabled) {
+            background: var(--primary);
+            color: var(--dark);
+            border-color: var(--primary);
         }
 
         .page-btn.active {
-            background: #d4af37;
-            color: #1a1a1a;
-            border-color: #d4af37;
+            background: var(--primary);
+            color: var(--dark);
+            border-color: var(--primary);
+            font-weight: 700;
         }
 
-        @media (max-width: 768px) {
-            .portfolio-grid {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (min-width: 481px) {
+            body {
+                padding: 20px;
             }
-            
-            .header h1 {
-                font-size: 1.8rem;
+
+            .stats-bar {
+                grid-template-columns: repeat(4, 1fr);
             }
-            
-            .filters {
-                flex-direction: column;
-                align-items: stretch;
+
+            .filter-row {
+                flex-direction: row;
+                align-items: flex-end;
             }
-            
-            .search-box {
-                max-width: 100%;
-            }
-            
+
             .filter-group {
-                width: 100%;
-            }
-            
-            .filter-select {
                 flex: 1;
+            }
+
+            .filter-actions {
+                width: auto;
+            }
+
+            .action-btn {
+                flex: 0 1 auto;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .portfolio-meta {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .filters {
+                padding: 30px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
         @media (max-width: 480px) {
-            .portfolio-grid {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .stats-bar {
                 grid-template-columns: 1fr;
             }
-            
-            .stats-bar {
-                flex-direction: column;
-                gap: 10px;
+
+            .stat-value {
+                font-size: 1.3rem;
             }
-            
-            .stat-item {
+
+            .filter-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
                 width: 100%;
+            }
+
+            .portfolio-actions {
+                flex-direction: column;
+            }
+
+            .btn-instagram {
+                width: 100%;
+            }
+
+            .pagination {
+                gap: 5px;
+            }
+
+            .page-btn {
+                padding: 8px 12px;
+                min-width: 35px;
             }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
+        <!-- ========== HEADER ========== -->
         <div class="header">
             <h1><i class="fas fa-images"></i> Galerie des Portfolios</h1>
-            <p>Vue d'ensemble de tous les portfolios des créateurs Dreamswear</p>
+            <p>Découvrez les portfolios des créateurs Dreamswear</p>
             
             <div class="stats-bar">
-                <div class="stat-item">
-                    <div class="stat-value" id="total-portfolios">0</div>
-                    <div class="stat-label">Portfolios</div>
-                </div>
                 <div class="stat-item">
                     <div class="stat-value" id="total-creators">0</div>
                     <div class="stat-label">Créateurs</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="total-domains">5</div>
-                    <div class="stat-label">Domaines</div>
+                    <div class="stat-value" id="total-portfolios">0</div>
+                    <div class="stat-label">Portfolios</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="total-views">0</div>
-                    <div class="stat-label">Vues totales</div>
+                    <div class="stat-value" id="total-collections">0</div>
+                    <div class="stat-label">Collections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="total-images">0</div>
+                    <div class="stat-label">Photos</div>
                 </div>
             </div>
             
-            <a href="dashboard-management.html" class="back-button">
-                <i class="fas fa-arrow-left"></i> Retour aux dashboards
+            <a href="manage-portfolio.html" class="back-button">
+                <i class="fas fa-arrow-left"></i> Retour à la gestion
             </a>
         </div>
 
-        <!-- FILTRES -->
+        <!-- ========== FILTRES ========== -->
         <div class="filters">
-            <div class="filter-group">
-                <span class="filter-label">Domaine:</span>
-                <select class="filter-select" id="domainFilter">
-                    <option value="all">Tous les domaines</option>
-                    <option value="Styliste haute couture">Styliste haute couture</option>
-                    <option value="Styliste streetwear">Styliste streetwear</option>
-                    <option value="Designer">Designer</option>
-                    <option value="Marque de bijoux">Marque de bijoux</option>
-                    <option value="Artisans du tricot">Artisans du tricot</option>
-                </select>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <span class="filter-label">
+                        <i class="fas fa-tag"></i> Domaine
+                    </span>
+                    <select class="filter-select" id="domainFilter">
+                        <option value="all">Tous les domaines</option>
+                        <option value="Styliste haute couture">Styliste haute couture</option>
+                        <option value="Styliste streetwear">Styliste streetwear</option>
+                        <option value="Designer">Designer</option>
+                        <option value="Marque de bijoux">Marque de bijoux</option>
+                        <option value="Artisans du tricot">Artisans du tricot</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <span class="filter-label">
+                        <i class="fas fa-sort"></i> Trier par
+                    </span>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="recent">Plus récents</option>
+                        <option value="oldest">Plus anciens</option>
+                        <option value="completion">Taux de complétion</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <span class="filter-label">
+                        <i class="fas fa-search"></i> Rechercher
+                    </span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Créateur, marque, portfolio...">
+                </div>
             </div>
             
-            <div class="filter-group">
-                <span class="filter-label">Tri par:</span>
-                <select class="filter-select" id="sortFilter">
-                    <option value="recent">Plus récents</option>
-                    <option value="oldest">Plus anciens</option>
-                    <option value="views">Plus vus</option>
-                    <option value="likes">Plus aimés</option>
-                </select>
+            <div class="filter-actions">
+                <button class="action-btn btn-filter" onclick="applyFilters()">
+                    <i class="fas fa-filter"></i> Appliquer
+                </button>
+                <button class="action-btn btn-reset" onclick="resetFilters()">
+                    <i class="fas fa-redo-alt"></i> Réinitialiser
+                </button>
             </div>
-            
-            <div class="search-box">
-                <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un portfolio, créateur ou mot-clé...">
-            </div>
-            
-            <button class="action-btn btn-contact" onclick="resetFilters()">
-                <i class="fas fa-redo"></i> Réinitialiser
-            </button>
         </div>
 
-        <!-- GRILLE DES PORTFOLIOS -->
+        <!-- ========== GRILLE DES PORTFOLIOS ========== -->
         <div class="portfolio-grid" id="portfolioGrid">
             <div class="loading">
                 <div class="spinner"></div>
@@ -489,166 +723,317 @@
             </div>
         </div>
 
-        <!-- PAGINATION -->
-        <div class="pagination" id="pagination">
-            <!-- La pagination sera générée dynamiquement -->
-        </div>
+        <!-- ========== PAGINATION ========== -->
+        <div class="pagination" id="pagination"></div>
     </div>
 
-    <!-- Script Supabase -->
+    <!-- ========== SUPABASE CDN ========== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- ========== SCRIPT PRINCIPAL ========== -->
     <script>
-        // Initialisation de Supabase
-        const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        (function() {
+            'use strict';
 
-        // ÉTAT DE L'APPLICATION
-        const appState = {
-            currentPage: 1,
-            itemsPerPage: 9,
-            currentDomain: 'all',
-            currentSort: 'recent',
-            currentSearch: '',
-            totalPortfolios: 0,
-            totalPages: 1,
-            searchTimeout: null
-        };
+            console.log('🖼️ Galerie des Portfolios');
 
-        // INITIALISATION
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🖼️ Galerie portfolios chargée');
-            checkAdminAccess();
-            loadPortfolios();
-            setupEventListeners();
-        });
-
-        // VÉRIFICATION DE L'AUTHENTIFICATION ADMIN
-        function checkAdminAccess() {
-            const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
-            const isAdmin = sessionStorage.getItem('isAdmin');
+            // ===== 1. CONFIGURATION SUPABASE =====
+            const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
             
-            const isAuthorized = (adminLoggedIn === 'true') || (isAdmin === 'true');
-            
-            if (!isAuthorized) {
-                console.warn('⚠️ Accès non autorisé - Redirection vers admin.html');
-                alert('Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
-                window.location.href = 'admin.html';
-                return false;
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            // ===== 2. ÉTAT DE L'APPLICATION =====
+            const appState = {
+                currentPage: 1,
+                itemsPerPage: 9,
+                currentDomain: 'all',
+                currentSort: 'recent',
+                currentSearch: '',
+                totalPortfolios: 0,
+                totalPages: 1,
+                allPortfoliosWithCreators: [] // Stocke tous les portfolios pour le filtrage
+            };
+
+            // ===== 3. INITIALISATION =====
+            document.addEventListener('DOMContentLoaded', async function() {
+                console.log('✅ Supabase initialisé');
+                
+                // 1. Charger les statistiques GLOBALES d'abord
+                await loadGlobalStats();
+                
+                // 2. Charger les portfolios
+                await loadAllPortfolios();
+                
+                // 3. Configurer les événements
+                setupEventListeners();
+            });
+
+            // ===== 4. CHARGEMENT DES STATISTIQUES GLOBALES =====
+            async function loadGlobalStats() {
+                try {
+                    // === NOMBRE TOTAL DE CRÉATEURS (VALIDÉS) ===
+                    const { count: totalCreators, error: creatorsError } = await supabase
+                        .from('créateurs')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('statut', 'actif');
+
+                    if (creatorsError) throw creatorsError;
+
+                    // === NOMBRE TOTAL DE PORTFOLIOS PUBLIÉS ===
+                    const { count: totalPortfolios, error: portfoliosError } = await supabase
+                        .from('portfolio')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('is_published', true);
+
+                    if (portfoliosError) throw portfoliosError;
+
+                    // === NOMBRE TOTAL DE COLLECTIONS ===
+                    const { count: totalCollections, error: collectionsError } = await supabase
+                        .from('collections')
+                        .select('*', { count: 'exact', head: true });
+
+                    if (collectionsError) throw collectionsError;
+
+                    // === NOMBRE TOTAL D'IMAGES ===
+                    const { count: totalImages, error: imagesError } = await supabase
+                        .from('portfolio_images')
+                        .select('*', { count: 'exact', head: true });
+
+                    if (imagesError) throw imagesError;
+
+                    // === MISE À JOUR DE L'AFFICHAGE ===
+                    document.getElementById('total-creators').textContent = totalCreators || 0;
+                    document.getElementById('total-portfolios').textContent = totalPortfolios || 0;
+                    document.getElementById('total-collections').textContent = totalCollections || 0;
+                    document.getElementById('total-images').textContent = totalImages || 0;
+
+                    console.log(`📊 Statistiques: ${totalCreators} créateurs, ${totalPortfolios} portfolios`);
+
+                } catch (error) {
+                    console.error('❌ Erreur chargement statistiques:', error.message);
+                    
+                    // Valeurs par défaut
+                    document.getElementById('total-creators').textContent = '0';
+                    document.getElementById('total-portfolios').textContent = '0';
+                    document.getElementById('total-collections').textContent = '0';
+                    document.getElementById('total-images').textContent = '0';
+                }
             }
-            
-            console.log('✅ Accès admin autorisé');
-            return true;
-        }
 
-        // CHARGEMENT DES PORTFOLIOS DEPUIS SUPABASE
-        async function loadPortfolios() {
-            const grid = document.getElementById('portfolioGrid');
-            grid.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Chargement des portfolios...</p>
-                </div>
-            `;
-            
-            try {
-                // Construire la requête Supabase
-                let query = supabase
-                    .from('portfolio')
-                    .select(`
-                        *,
-                        créateurs:creator_id (
-                            nom_marque,
-                            prenom,
-                            nom,
-                            domaine
-                        )
-                    `, { count: 'exact' })
-                    .eq('is_complete', true)
-                    .eq('is_public', true);
+            // ===== 5. CHARGEMENT DE TOUS LES PORTFOLIOS =====
+            async function loadAllPortfolios() {
+                const grid = document.getElementById('portfolioGrid');
                 
-                // Appliquer les filtres
-                if (appState.currentDomain !== 'all') {
-                    query = query.eq('domain', appState.currentDomain);
+                try {
+                    // === 1. Récupérer TOUS les portfolios publiés ===
+                    const { data: portfolios, error } = await supabase
+                        .from('portfolio')
+                        .select(`
+                            id,
+                            title,
+                            description,
+                            main_image_url,
+                            domain,
+                            instagram_handle,
+                            website,
+                            views_count,
+                            portfolio_completion,
+                            created_at,
+                            updated_at,
+                            is_published,
+                            creator_id
+                        `)
+                        .eq('is_published', true)
+                        .order('created_at', { ascending: false });
+
+                    if (error) throw error;
+
+                    console.log(`📦 ${portfolios?.length || 0} portfolios chargés`);
+
+                    // === 2. Récupérer les informations des créateurs ===
+                    const creatorIds = portfolios?.map(p => p.creator_id).filter(Boolean) || [];
+                    
+                    let creatorsData = {};
+                    if (creatorIds.length > 0) {
+                        const { data: creators } = await supabase
+                            .from('créateurs')
+                            .select('id, prenom, nom, nom_marque, domaine, reseaux_instagram, site_web')
+                            .in('id', creatorIds);
+                        
+                        creatorsData = (creators || []).reduce((acc, creator) => {
+                            acc[creator.id] = creator;
+                            return acc;
+                        }, {});
+                    }
+
+                    // === 3. Charger les compteurs pour chaque portfolio ===
+                    const portfoliosWithDetails = await Promise.all((portfolios || []).map(async (portfolio) => {
+                        // Compter les images
+                        const { count: imagesCount } = await supabase
+                            .from('portfolio_images')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('portfolio_id', portfolio.id);
+
+                        // Compter les collections
+                        const { count: collectionsCount } = await supabase
+                            .from('collections')
+                            .select('*', { count: 'exact', head: true })
+                            .eq('portfolio_id', portfolio.id);
+
+                        return {
+                            ...portfolio,
+                            creator: creatorsData[portfolio.creator_id] || {},
+                            images_count: imagesCount || 0,
+                            collections_count: collectionsCount || 0
+                        };
+                    }));
+
+                    // === 4. Stocker tous les portfolios pour le filtrage ===
+                    appState.allPortfoliosWithCreators = portfoliosWithDetails;
+                    appState.totalPortfolios = portfoliosWithDetails.length;
+                    appState.totalPages = Math.ceil(appState.totalPortfolios / appState.itemsPerPage);
+                    
+                    // === 5. Appliquer les filtres et afficher ===
+                    applyFiltersToDisplay();
+
+                } catch (error) {
+                    console.error('❌ Erreur chargement portfolios:', error.message);
+                    showError(error.message);
                 }
+            }
+
+            // ===== 6. APPLICATION DES FILTRES =====
+            function applyFiltersToDisplay() {
+                // === 1. Filtrer selon les critères ===
+                const filtered = appState.allPortfoliosWithCreators.filter(portfolio => {
+                    const creator = portfolio.creator || {};
+                    
+                    // Filtre domaine
+                    const matchesDomain = appState.currentDomain === 'all' || 
+                                         creator.domaine === appState.currentDomain;
+                    
+                    // Filtre recherche
+                    const searchTerm = appState.currentSearch.toLowerCase();
+                    const matchesSearch = !appState.currentSearch || 
+                        (portfolio.title && portfolio.title.toLowerCase().includes(searchTerm)) ||
+                        (portfolio.description && portfolio.description.toLowerCase().includes(searchTerm)) ||
+                        (creator.nom_marque && creator.nom_marque.toLowerCase().includes(searchTerm)) ||
+                        (`${creator.prenom || ''} ${creator.nom || ''}`.toLowerCase().includes(searchTerm));
+
+                    return matchesDomain && matchesSearch;
+                });
+
+                // === 2. Trier ===
+                const sorted = sortPortfolios(filtered, appState.currentSort);
+
+                // === 3. Paginer ===
+                const start = (appState.currentPage - 1) * appState.itemsPerPage;
+                const end = start + appState.itemsPerPage;
+                const paginated = sorted.slice(start, end);
+
+                // === 4. Afficher ===
+                displayPortfolios(paginated, filtered.length);
+            }
+
+            // ===== 7. TRI DES PORTFOLIOS =====
+            function sortPortfolios(portfolios, sortType) {
+                const sorted = [...portfolios];
                 
-                // Appliquer la recherche
-                if (appState.currentSearch) {
-                    query = query.or(`title.ilike.%${appState.currentSearch}%,description.ilike.%${appState.currentSearch}%`);
-                }
-                
-                // Appliquer le tri
-                switch(appState.currentSort) {
+                switch(sortType) {
                     case 'recent':
-                        query = query.order('created_at', { ascending: false });
-                        break;
+                        return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     case 'oldest':
-                        query = query.order('created_at', { ascending: true });
-                        break;
-                    case 'views':
-                        query = query.order('views_count', { ascending: false });
-                        break;
-                    case 'likes':
-                        query = query.order('likes_count', { ascending: false });
-                        break;
+                        return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                    case 'completion':
+                        return sorted.sort((a, b) => (b.portfolio_completion || 0) - (a.portfolio_completion || 0));
+                    default:
+                        return sorted;
                 }
-                
-                // Appliquer la pagination
-                const from = (appState.currentPage - 1) * appState.itemsPerPage;
-                const to = from + appState.itemsPerPage - 1;
-                query = query.range(from, to);
-                
-                // Exécuter la requête
-                const { data: portfolios, error, count } = await query;
-                
-                if (error) {
-                    throw error;
-                }
-                
-                console.log(`📊 ${portfolios?.length || 0} portfolios chargés`);
-                
-                // Calculer le nombre total de pages
-                appState.totalPortfolios = count || 0;
-                appState.totalPages = Math.ceil(appState.totalPortfolios / appState.itemsPerPage);
-                
-                // Afficher les portfolios
+            }
+
+            // ===== 8. AFFICHAGE DES PORTFOLIOS =====
+            function displayPortfolios(portfolios, totalFiltered) {
+                const grid = document.getElementById('portfolioGrid');
+
                 if (!portfolios || portfolios.length === 0) {
+                    // === MESSAGE PERSONNALISÉ SELON LA SITUATION ===
+                    let message = '';
+                    let subMessage = '';
+                    
+                    if (appState.allPortfoliosWithCreators.length === 0) {
+                        message = 'Aucun portfolio publié pour le moment';
+                        subMessage = 'Les créateurs n\'ont pas encore publié de portfolios';
+                    } else {
+                        message = 'Aucun portfolio ne correspond à vos critères';
+                        subMessage = 'Essayez de modifier vos filtres';
+                    }
+
                     grid.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-images"></i>
-                            <h3>Aucun portfolio trouvé</h3>
-                            <p>${appState.currentSearch || appState.currentDomain !== 'all' ? 
-                                'Essayez de modifier vos filtres ou votre recherche' : 
-                                'Aucun portfolio n\'a été publié pour le moment'}</p>
+                            <h3>${message}</h3>
+                            <p>${subMessage}</p>
+                            ${appState.currentSearch || appState.currentDomain !== 'all' ? 
+                                `<button class="action-btn btn-reset" onclick="resetFilters()" style="margin-top: 15px;">
+                                    <i class="fas fa-redo-alt"></i> Réinitialiser les filtres
+                                </button>` : ''}
                         </div>
                     `;
-                } else {
-                    grid.innerHTML = portfolios.map(portfolio => {
-                        // Extraire les informations du créateur
-                        const creatorInfo = portfolio.créateurs || {};
-                        const brandName = creatorInfo.nom_marque || '';
-                        const creatorName = `${creatorInfo.prenom || ''} ${creatorInfo.nom || ''}`.trim();
-                        const creatorDisplay = brandName || creatorName || 'Anonyme';
-                        const domain = portfolio.domain || creatorInfo.domaine || 'Non spécifié';
-                        
-                        return `
+                    
+                    // Mettre à jour la pagination
+                    appState.totalPages = 0;
+                    generatePagination();
+                    return;
+                }
+
+                // === AFFICHAGE DES CARTES ===
+                grid.innerHTML = portfolios.map(portfolio => {
+                    const creator = portfolio.creator || {};
+                    const fullName = `${creator.prenom || ''} ${creator.nom || ''}`.trim() || 'Créateur';
+                    const brandName = creator.nom_marque || fullName;
+                    const instagram = creator.reseaux_instagram || portfolio.instagram_handle;
+                    const completion = portfolio.portfolio_completion || 0;
+                    
+                    return `
                         <div class="portfolio-card" data-id="${portfolio.id}">
                             <div class="portfolio-image">
                                 ${portfolio.main_image_url ? 
-                                    `<img src="${portfolio.main_image_url}" alt="${portfolio.title}" 
-                                          onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMmEyYTJhIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';">` : 
-                                    `<div class="portfolio-placeholder"><i class="fas fa-image"></i></div>`}
+                                    `<img src="${portfolio.main_image_url}" 
+                                          alt="${escapeHtml(portfolio.title || 'Portfolio')}"
+                                          onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'portfolio-placeholder\\'><i class=\\'fas fa-image\\'></i><span>Image non disponible</span></div>';">` : 
+                                    `<div class="portfolio-placeholder">
+                                        <i class="fas fa-image"></i>
+                                        <span>Aucune image</span>
+                                    </div>`
+                                }
                             </div>
                             <div class="portfolio-content">
-                                <div class="portfolio-title">${portfolio.title || 'Sans titre'}</div>
+                                <div class="portfolio-title">
+                                    ${escapeHtml(portfolio.title || 'Sans titre')}
+                                </div>
                                 <div class="portfolio-creator">
                                     <i class="fas fa-user"></i>
-                                    ${creatorDisplay}
+                                    ${escapeHtml(brandName)}
                                 </div>
-                                <div class="portfolio-domain">${domain}</div>
-                                <p class="portfolio-description">${portfolio.description || 'Aucune description disponible.'}</p>
+                                <div class="portfolio-domain">
+                                    ${escapeHtml(creator.domaine || 'Domaine non spécifié')}
+                                </div>
+                                <p class="portfolio-description">
+                                    ${escapeHtml(portfolio.description || 'Aucune description disponible.')}
+                                </p>
+                                
+                                <div class="portfolio-tags">
+                                    <span class="tag">
+                                        <i class="fas fa-image"></i> ${portfolio.images_count} photo${portfolio.images_count > 1 ? 's' : ''}
+                                    </span>
+                                    <span class="tag">
+                                        <i class="fas fa-layer-group"></i> ${portfolio.collections_count} collection${portfolio.collections_count > 1 ? 's' : ''}
+                                    </span>
+                                    <span class="tag">
+                                        <i class="fas fa-chart-line"></i> ${completion}% complet
+                                    </span>
+                                </div>
                                 
                                 <div class="portfolio-meta">
                                     <div class="portfolio-stats">
@@ -657,20 +1042,16 @@
                                             <span>${portfolio.views_count || 0}</span>
                                         </div>
                                         <div class="stat">
-                                            <i class="fas fa-heart"></i>
-                                            <span>${portfolio.likes_count || 0}</span>
-                                        </div>
-                                        <div class="stat">
-                                            <i class="far fa-calendar"></i>
-                                            <span>${formatDate(portfolio.created_at)}</span>
+                                            <i class="fas fa-calendar"></i>
+                                            <span>${formatDate(portfolio.updated_at || portfolio.created_at)}</span>
                                         </div>
                                     </div>
                                     <div class="portfolio-actions">
                                         <button class="action-btn btn-view" onclick="viewPortfolio('${portfolio.id}')">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
-                                        ${portfolio.instagram_handle ? `
-                                            <button class="action-btn btn-contact" onclick="openInstagram('${portfolio.instagram_handle}')">
+                                        ${instagram ? `
+                                            <button class="action-btn btn-instagram" onclick="openInstagram('${instagram}')">
                                                 <i class="fab fa-instagram"></i>
                                             </button>
                                         ` : ''}
@@ -678,229 +1059,185 @@
                                 </div>
                             </div>
                         </div>
-                    `}).join('');
-                }
-                
-                // Mettre à jour les statistiques
-                await updateStats();
-                
-                // Générer la pagination
+                    `;
+                }).join('');
+
+                // === METTRE À JOUR LA PAGINATION ===
+                appState.totalPages = Math.ceil(totalFiltered / appState.itemsPerPage);
                 generatePagination();
+            }
+
+            // ===== 9. PAGINATION =====
+            function generatePagination() {
+                const pagination = document.getElementById('pagination');
                 
-            } catch (error) {
-                console.error('❌ Erreur chargement portfolios:', error);
+                if (appState.totalPages <= 1) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                let html = '';
+
+                // Bouton précédent
+                html += `
+                    <button class="page-btn" onclick="changePage(${appState.currentPage - 1})" 
+                            ${appState.currentPage === 1 ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                `;
+
+                // Première page
+                if (appState.currentPage > 2) {
+                    html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
+                    if (appState.currentPage > 3) {
+                        html += `<span class="page-btn" style="background:transparent; border:none;">...</span>`;
+                    }
+                }
+
+                // Pages autour de la page courante
+                for (let i = Math.max(1, appState.currentPage - 1); i <= Math.min(appState.totalPages, appState.currentPage + 1); i++) {
+                    html += `<button class="page-btn ${i === appState.currentPage ? 'active' : ''}" 
+                                    onclick="changePage(${i})">${i}</button>`;
+                }
+
+                // Dernière page
+                if (appState.currentPage < appState.totalPages - 1) {
+                    if (appState.currentPage < appState.totalPages - 2) {
+                        html += `<span class="page-btn" style="background:transparent; border:none;">...</span>`;
+                    }
+                    html += `<button class="page-btn" onclick="changePage(${appState.totalPages})">${appState.totalPages}</button>`;
+                }
+
+                // Bouton suivant
+                html += `
+                    <button class="page-btn" onclick="changePage(${appState.currentPage + 1})" 
+                            ${appState.currentPage === appState.totalPages ? 'disabled' : ''}>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                `;
+
+                pagination.innerHTML = html;
+            }
+
+            // ===== 10. CHANGEMENT DE PAGE =====
+            window.changePage = function(page) {
+                if (page >= 1 && page <= appState.totalPages) {
+                    appState.currentPage = page;
+                    applyFiltersToDisplay();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            };
+
+            // ===== 11. FILTRES =====
+            window.applyFilters = function() {
+                appState.currentDomain = document.getElementById('domainFilter').value;
+                appState.currentSort = document.getElementById('sortFilter').value;
+                appState.currentSearch = document.getElementById('searchInput').value.trim();
+                appState.currentPage = 1;
+                applyFiltersToDisplay();
+            };
+
+            window.resetFilters = function() {
+                document.getElementById('domainFilter').value = 'all';
+                document.getElementById('sortFilter').value = 'recent';
+                document.getElementById('searchInput').value = '';
+                
+                appState.currentDomain = 'all';
+                appState.currentSort = 'recent';
+                appState.currentSearch = '';
+                appState.currentPage = 1;
+                
+                applyFiltersToDisplay();
+            };
+
+            // ===== 12. ACTIONS =====
+            window.viewPortfolio = function(portfolioId) {
+                incrementViewCount(portfolioId);
+                window.location.href = `manage-portfolio.html?view=${portfolioId}`;
+            };
+
+            async function incrementViewCount(portfolioId) {
+                try {
+                    const { data: portfolio } = await supabase
+                        .from('portfolio')
+                        .select('views_count')
+                        .eq('id', portfolioId)
+                        .single();
+
+                    if (portfolio) {
+                        await supabase
+                            .from('portfolio')
+                            .update({ 
+                                views_count: (portfolio.views_count || 0) + 1,
+                                updated_at: new Date().toISOString()
+                            })
+                            .eq('id', portfolioId);
+                    }
+                } catch (error) {
+                    console.error('❌ Erreur incrémentation vues:', error.message);
+                }
+            }
+
+            window.openInstagram = function(handle) {
+                const cleanHandle = handle.replace('@', '');
+                window.open(`https://instagram.com/${cleanHandle}`, '_blank');
+            };
+
+            // ===== 13. EVENT LISTENERS =====
+            function setupEventListeners() {
+                const searchInput = document.getElementById('searchInput');
+                
+                searchInput.addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        applyFilters();
+                    }
+                });
+            }
+
+            // ===== 14. UTILITAIRES =====
+            function formatDate(dateString) {
+                if (!dateString) return 'Date inconnue';
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    });
+                } catch (e) {
+                    return 'Date inconnue';
+                }
+            }
+
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            function showError(message) {
+                const grid = document.getElementById('portfolioGrid');
                 grid.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-circle"></i>
                         <h3>Erreur de chargement</h3>
-                        <p>${error.message || 'Impossible de charger les portfolios'}</p>
+                        <p>${message || 'Impossible de charger les portfolios'}</p>
+                        <button class="action-btn btn-reset" onclick="location.reload()" style="margin-top: 15px;">
+                            <i class="fas fa-redo-alt"></i> Réessayer
+                        </button>
                     </div>
                 `;
             }
-        }
 
-        // MISE À JOUR DES STATISTIQUES
-        async function updateStats() {
-            try {
-                // Récupérer les statistiques globales
-                const { count: totalPortfolios } = await supabase
-                    .from('portfolio')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('is_complete', true)
-                    .eq('is_public', true);
-                
-                // Récupérer le nombre de créateurs uniques avec portfolios publics
-                const { data: creatorsData } = await supabase
-                    .from('portfolio')
-                    .select('creator_id')
-                    .eq('is_complete', true)
-                    .eq('is_public', true);
-                
-                const uniqueCreators = new Set(creatorsData?.map(p => p.creator_id) || []).size;
-                
-                // Récupérer le total des vues
-                const { data: viewsData } = await supabase
-                    .from('portfolio')
-                    .select('views_count')
-                    .eq('is_complete', true)
-                    .eq('is_public', true);
-                
-                const totalViews = viewsData?.reduce((sum, p) => sum + (p.views_count || 0), 0) || 0;
-                
-                // Nombre de domaines uniques
-                const { data: domainsData } = await supabase
-                    .from('portfolio')
-                    .select('domain')
-                    .eq('is_complete', true)
-                    .eq('is_public', true);
-                
-                const uniqueDomains = new Set(domainsData?.map(p => p.domain).filter(Boolean) || []).size;
-                
-                // Mettre à jour l'interface
-                document.getElementById('total-portfolios').textContent = totalPortfolios || 0;
-                document.getElementById('total-creators').textContent = uniqueCreators;
-                document.getElementById('total-views').textContent = totalViews;
-                document.getElementById('total-domains').textContent = uniqueDomains;
-                
-            } catch (error) {
-                console.error('❌ Erreur statistiques:', error);
-            }
-        }
+            // Exposer les fonctions nécessaires
+            window.applyFilters = applyFilters;
+            window.resetFilters = resetFilters;
+            window.changePage = changePage;
+            window.viewPortfolio = viewPortfolio;
+            window.openInstagram = openInstagram;
 
-        // FORMATER LA DATE
-        function formatDate(dateString) {
-            if (!dateString) return 'Date inconnue';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('fr-FR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            });
-        }
-
-        // GÉNÉRATION DE LA PAGINATION
-        function generatePagination() {
-            const pagination = document.getElementById('pagination');
-            
-            if (appState.totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
-            
-            let paginationHTML = '';
-            
-            // Bouton précédent
-            paginationHTML += `
-                <button class="page-btn" onclick="changePage(${appState.currentPage - 1})" 
-                        ${appState.currentPage === 1 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            `;
-            
-            // Pages
-            for (let i = 1; i <= appState.totalPages; i++) {
-                if (i === 1 || i === appState.totalPages || (i >= appState.currentPage - 1 && i <= appState.currentPage + 1)) {
-                    paginationHTML += `
-                        <button class="page-btn ${i === appState.currentPage ? 'active' : ''}" 
-                                onclick="changePage(${i})">
-                            ${i}
-                        </button>
-                    `;
-                } else if (i === appState.currentPage - 2 || i === appState.currentPage + 2) {
-                    paginationHTML += `<span class="page-btn" style="background:transparent; border:none;">...</span>`;
-                }
-            }
-            
-            // Bouton suivant
-            paginationHTML += `
-                <button class="page-btn" onclick="changePage(${appState.currentPage + 1})" 
-                        ${appState.currentPage === appState.totalPages ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `;
-            
-            pagination.innerHTML = paginationHTML;
-        }
-
-        // CHANGEMENT DE PAGE
-        function changePage(page) {
-            if (page >= 1 && page <= appState.totalPages) {
-                appState.currentPage = page;
-                loadPortfolios();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        // APPLICATION AUTOMATIQUE DES FILTRES
-        function applyFilters() {
-            appState.currentDomain = document.getElementById('domainFilter').value;
-            appState.currentSort = document.getElementById('sortFilter').value;
-            appState.currentSearch = document.getElementById('searchInput').value.trim();
-            appState.currentPage = 1;
-            
-            loadPortfolios();
-        }
-
-        // RÉINITIALISATION DES FILTRES
-        function resetFilters() {
-            document.getElementById('domainFilter').value = 'all';
-            document.getElementById('sortFilter').value = 'recent';
-            document.getElementById('searchInput').value = '';
-            
-            appState.currentDomain = 'all';
-            appState.currentSort = 'recent';
-            appState.currentSearch = '';
-            appState.currentPage = 1;
-            
-            loadPortfolios();
-        }
-
-        // RECHERCHE AVEC DÉLAI (debounce)
-        function debouncedSearch() {
-            // Annuler le timeout précédent
-            if (appState.searchTimeout) {
-                clearTimeout(appState.searchTimeout);
-            }
-            
-            // Définir un nouveau timeout
-            appState.searchTimeout = setTimeout(() => {
-                applyFilters();
-            }, 500); // 500ms de délai
-        }
-
-        // VISIONNER UN PORTFOLIO
-        function viewPortfolio(id) {
-            // Incrémenter le compteur de vues
-            incrementViewCount(id);
-            
-            // Ouvrir dans un nouvel onglet (simulation)
-            alert(`Ouverture du portfolio #${id}\n\nDans une version complète, cela ouvrirait portfolio-detail.html?id=${id}`);
-            // window.open(`portfolio-detail.html?id=${id}`, '_blank');
-        }
-
-        // INCREMENTER LE COMPTEUR DE VUES
-        async function incrementViewCount(portfolioId) {
-            try {
-                const { data: portfolio } = await supabase
-                    .from('portfolio')
-                    .select('views_count')
-                    .eq('id', portfolioId)
-                    .single();
-                
-                if (portfolio) {
-                    await supabase
-                        .from('portfolio')
-                        .update({ views_count: (portfolio.views_count || 0) + 1 })
-                        .eq('id', portfolioId);
-                }
-            } catch (error) {
-                console.error('❌ Erreur incrémentation vues:', error);
-            }
-        }
-
-        // OUVRIR INSTAGRAM
-        function openInstagram(handle) {
-            const cleanHandle = handle.replace('@', '');
-            window.open(`https://instagram.com/${cleanHandle}`, '_blank');
-        }
-
-        // CONFIGURATION DES ÉVÉNEMENTS
-        function setupEventListeners() {
-            // Recherche avec délai (debounce)
-            document.getElementById('searchInput').addEventListener('input', debouncedSearch);
-            
-            // Filtres automatiques
-            document.getElementById('domainFilter').addEventListener('change', applyFilters);
-            document.getElementById('sortFilter').addEventListener('change', applyFilters);
-        }
-
-        // FONCTIONS GLOBALES
-        window.applyFilters = applyFilters;
-        window.resetFilters = resetFilters;
-        window.changePage = changePage;
-        window.viewPortfolio = viewPortfolio;
-        window.openInstagram = openInstagram;
-        window.formatDate = formatDate;
+        })();
     </script>
 </body>
 </html>
