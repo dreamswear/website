@@ -1322,6 +1322,9 @@
                     <div class="form-group">
                         <label for="categoryName">Nom de la catégorie *</label>
                         <input type="text" id="categoryName" required>
+                        <small style="color: var(--secondary); display: block; margin-top: 5px;">
+                            <i class="fas fa-info-circle"></i> L'ID sera généré automatiquement à partir du nom
+                        </small>
                     </div>
                     
                     <div class="form-group">
@@ -1658,6 +1661,9 @@
                         <div>
                             <h4>${category.name}</h4>
                             <span class="text-muted">${category.description || 'Aucune description'}</span>
+                            <small style="display: block; color: var(--secondary); font-size: 0.7rem; margin-top: 3px;">
+                                ID: ${category.id}
+                            </small>
                         </div>
                     </div>
                     
@@ -1693,7 +1699,50 @@
                 return;
             }
 
-            displayProfessionals(submissions);
+            // Utiliser la même fonction que pour les professionnels mais avec des actions supplémentaires
+            grid.innerHTML = submissions.map(submission => `
+                <div class="professional-card" data-id="${submission.id}">
+                    <div class="card-header">
+                        <span class="category-badge" style="background: ${submission.annuaire_categories?.color || '#d4af37'}">
+                            ${submission.annuaire_categories?.name || 'Non catégorisé'}
+                        </span>
+                        <h3>${submission.name || 'Sans nom'}</h3>
+                        <div class="specialty">
+                            <i class="fas fa-star"></i>
+                            ${submission.specialty || 'Non spécifié'}
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <p class="text-truncate">${submission.description || 'Aucune description'}</p>
+                        
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                ${submission.contact_info || 'Non spécifié'}
+                            </div>
+                            ${submission.location ? `
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                ${submission.location}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <span class="status-badge status-pending">En attente</span>
+                        
+                        <div class="card-actions">
+                            <button class="action-btn edit-btn" onclick="approveSubmission('${submission.id}')" style="background: rgba(40, 167, 69, 0.1); color: var(--success); border-color: var(--success);">
+                                <i class="fas fa-check"></i> Approuver
+                            </button>
+                            <button class="action-btn delete-btn" onclick="rejectSubmission('${submission.id}')">
+                                <i class="fas fa-times"></i> Rejeter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function populateCategorySelects() {
@@ -1722,7 +1771,6 @@
                     professional.specialty?.toLowerCase().includes(search) ||
                     professional.description?.toLowerCase().includes(search);
                 
-                // Comparer avec l'ID de catégorie du professionnel
                 const matchesCategory = !category || professional.category_id === category;
                 const matchesStatus = !status || professional.status === status;
                 
@@ -1857,6 +1905,48 @@
             }
         }
 
+        async function approveSubmission(id) {
+            try {
+                const { error } = await supabaseClient
+                    .from('annuaire_professionnels')
+                    .update({ status: 'active', updated_at: new Date().toISOString() })
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                showNotification('Soumission approuvée avec succès', 'success');
+                await loadPendingSubmissions();
+                await loadProfessionals();
+                
+            } catch (error) {
+                console.error('❌ Erreur approbation:', error);
+                showNotification('Erreur lors de l\'approbation', 'error');
+            }
+        }
+
+        async function rejectSubmission(id) {
+            if (!confirm('Êtes-vous sûr de vouloir rejeter cette soumission ?')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('annuaire_professionnels')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                showNotification('Soumission rejetée et supprimée', 'success');
+                await loadPendingSubmissions();
+                await loadProfessionals();
+                
+            } catch (error) {
+                console.error('❌ Erreur rejet:', error);
+                showNotification('Erreur lors du rejet', 'error');
+            }
+        }
+
         function openCategoryModal(id = null) {
             const modal = document.getElementById('categoryModal');
             const title = modal.querySelector('h2');
@@ -1894,12 +1984,24 @@
             const id = document.getElementById('categoryId').value;
             const isEdit = !!id;
             
+            // Fonction pour créer un slug à partir du nom
+            function createSlug(name) {
+                return name
+                    .toLowerCase()
+                    .replace(/[^\w\s-]/g, '') // Supprimer les caractères spéciaux
+                    .replace(/\s+/g, '-')      // Remplacer les espaces par des tirets
+                    .replace(/--+/g, '-')       // Remplacer les tirets multiples par un seul
+                    .replace(/^-|-$/g, '');     // Supprimer les tirets au début et à la fin
+            }
+            
+            const categoryName = document.getElementById('categoryName').value.trim();
+            const categorySlug = createSlug(categoryName);
+            
             const categoryData = {
-                name: document.getElementById('categoryName').value.trim(),
+                name: categoryName,
                 description: document.getElementById('categoryDescription').value.trim() || null,
                 icon: document.getElementById('categoryIcon').value.trim() || 'fas fa-folder',
                 color: document.getElementById('categoryColor').value,
-                updated_at: new Date().toISOString()
             };
             
             if (!categoryData.name) {
@@ -1911,13 +2013,39 @@
                 let error;
                 
                 if (isEdit) {
+                    // Mode édition - on garde l'ID existant
                     const { error: updateError } = await supabaseClient
                         .from('annuaire_categories')
                         .update(categoryData)
                         .eq('id', id);
                     error = updateError;
                 } else {
+                    // Mode ajout - vérifier si le slug existe déjà
+                    const { data: existing, error: checkError } = await supabaseClient
+                        .from('annuaire_categories')
+                        .select('id')
+                        .eq('id', categorySlug);
+                    
+                    if (checkError) throw checkError;
+                    
+                    // Si le slug existe déjà, ajouter un suffixe numérique
+                    let finalSlug = categorySlug;
+                    if (existing && existing.length > 0) {
+                        let counter = 1;
+                        while (existing && existing.length > 0) {
+                            finalSlug = `${categorySlug}-${counter}`;
+                            const { data: check } = await supabaseClient
+                                .from('annuaire_categories')
+                                .select('id')
+                                .eq('id', finalSlug);
+                            existing = check;
+                            counter++;
+                        }
+                    }
+                    
+                    categoryData.id = finalSlug;
                     categoryData.created_at = new Date().toISOString();
+                    
                     const { error: insertError } = await supabaseClient
                         .from('annuaire_categories')
                         .insert([categoryData]);
