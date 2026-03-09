@@ -2323,11 +2323,10 @@ setTimeout(debugCultureEvents, 2000);
             const domainMap = {
                 'haute-couture': ['Styliste haute couture', 'haute-couture', 'couture', 'haute'],
                 'streetwear': ['Styliste streetwear', 'street', 'street wear', 'urban'],
-                'bijoux': ['bijoux', 'bijouterie', 'joaillerie', 'bijou'],
-                'accessoires': ['accessoires', 'accessoire', 'sac', 'chaussure'],
-                'pret-a-porter': ['prêt-à-porter', 'pret a porter', 'pret-a-porter', 'mode', 'prêt-à-porter'],
-                'maroquinerie': ['maroquinerie', 'cuir'],
-                'chaussures': ['chaussures', 'sneakers', 'baskets']
+                'Designer' : ['Designer']
+                'bijoux': ['bijoux', 'bijouterie', 'joaillerie', 'bijou', 'accessoires', 'accessoire', 'sac', 'chaussure'],
+                'Artisans du tricot': ['artisants du tricot', 'tricot' ]
+                'Autres' :['Autres']
             };
             
             const searchTerms = domainMap[domain] || [domain.toLowerCase()];
