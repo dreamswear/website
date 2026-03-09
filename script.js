@@ -1,5 +1,5 @@
 // ============================================
-// SCRIPT PRINCIPAL CENTRALISÉ - VERSION RENFORCÉE
+// SCRIPT PRINCIPAL CENTRALISÉ - VERSION RENFORCÉE AVEC OPTION "AUTRE"
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================
@@ -28,6 +28,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
+    // 1.5 GESTION DE L'OPTION "AUTRE" POUR LE DOMAINE
+    // ============================================
+    const domaineSelect = document.getElementById('cre-domaine');
+    const autreDomaineGroup = document.getElementById('autre-domaine-group');
+    const autreDomaineInput = document.getElementById('cre-domaine-autre');
+
+    if (domaineSelect && autreDomaineGroup && autreDomaineInput) {
+        domaineSelect.addEventListener('change', function() {
+            if (this.value === 'autre') {
+                autreDomaineGroup.style.display = 'block';
+                autreDomaineInput.required = true;
+                autreDomaineInput.focus();
+            } else {
+                autreDomaineGroup.style.display = 'none';
+                autreDomaineInput.required = false;
+                autreDomaineInput.value = '';
+            }
+        });
+    }
+
+    // ============================================
     // 2. GESTION DE SESSION AMÉLIORÉE
     // ============================================
     const SessionManager = {
@@ -35,14 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
         isAdmin: function() {
             console.group('🔐 VÉRIFICATION SESSION ADMIN');
             
-            // Récupérer TOUTES les clés de session
             const sessionKeys = [];
             for (let i = 0; i < sessionStorage.length; i++) {
                 sessionKeys.push(sessionStorage.key(i));
             }
             console.log('Clés session trouvées:', sessionKeys);
             
-            // Vérifier MULTIPLES indicateurs admin
             const adminIndicators = [
                 { key: 'adminLoggedIn', value: 'true' },
                 { key: 'isAdmin', value: 'true' },
@@ -62,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Vérifier aussi par URL (pour développement)
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('admin') && urlParams.get('admin') === 'true') {
                 console.log('⚠️ Mode développement: accès admin via URL');
@@ -76,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         },
         
-        // Vérification pour créateur
         isCreator: function() {
             const creatorId = sessionStorage.getItem('creatorId');
             const hasBrand = sessionStorage.getItem('creatorBrand');
@@ -86,12 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return !!(creatorId && hasBrand);
         },
         
-        // Vérifier l'accès requis pour la page actuelle
         checkAccess: function() {
             const currentPath = window.location.pathname;
             console.log(`📍 Page actuelle: ${currentPath}`);
             
-            // Pages ADMIN (manage-*, admin.html, Actualisation.html)
             if (currentPath.includes('admin.html') || 
                 currentPath.includes('Actualisation.html') ||
                 currentPath.includes('manage-')) {
@@ -101,7 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!this.isAdmin()) {
                     console.warn('🚫 Accès ADMIN refusé');
                     
-                    // Message intelligent
                     if (this.isCreator()) {
                         alert('❌ Zone réservée aux administrateurs\n\nVous êtes connecté en tant que créateur. Déconnectez-vous pour accéder à cette zone.');
                         window.location.href = 'dashboard-home.html';
@@ -117,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return true;
             }
             
-            // Pages CRÉATEUR (dashboard-*)
             if (currentPath.includes('dashboard-') && 
                 !currentPath.includes('dashboard-management')) {
                 
@@ -140,12 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return true;
             }
             
-            // Pages publiques - accès libre
             console.log('🌐 Page publique - accès libre');
             return true;
         },
         
-        // Définir session admin
         setAdminSession: function(username, email = '') {
             sessionStorage.setItem('adminLoggedIn', 'true');
             sessionStorage.setItem('isAdmin', 'true');
@@ -156,7 +167,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('✅ Session admin définie pour:', username);
         },
         
-        // Définir session créateur
         setCreatorSession: function(creatorId, brandName) {
             sessionStorage.setItem('creatorId', creatorId);
             sessionStorage.setItem('creatorBrand', brandName);
@@ -165,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('✅ Session créateur définie pour:', brandName);
         },
         
-        // Nettoyer session
         clearSession: function() {
             const keysToRemove = [
                 'adminLoggedIn', 'isAdmin', 'userRole', 'username', 'email',
@@ -178,203 +187,398 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // Exposer globalement
     window.SessionManager = SessionManager;
 
-    // ============================================
-    // 25. CALENDRIER DYNAMIQUE POUR LA PAGE CULTURE
-    // ============================================
+// ============================================
+// 3. CALENDRIER DYNAMIQUE POUR LA PAGE CULTURE - VERSION AMÉLIORÉE
+// ============================================
+
+function generateCalendar(year, month) {
+    const calendarElement = document.getElementById('calendar');
+    const currentMonthElement = document.getElementById('current-month');
     
-    // Fonction pour générer le calendrier dynamique
-    function generateCalendar(year, month) {
-        const calendarElement = document.getElementById('calendar');
-        const currentMonthElement = document.getElementById('current-month');
-        
-        if (!calendarElement || !currentMonthElement) {
-            return; // Élément non trouvé sur cette page
-        }
-        
-        // Mettre à jour le titre du mois
-        const monthNames = [
-            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-        ];
-        currentMonthElement.textContent = `${monthNames[month]} ${year}`;
-        
-        // Nettoyer le calendrier
-        calendarElement.innerHTML = '';
-        
-        // Ajouter les en-têtes des jours
-        const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-        dayNames.forEach(day => {
-            const dayHeader = document.createElement('div');
-            dayHeader.className = 'day-header';
-            dayHeader.textContent = day;
-            calendarElement.appendChild(dayHeader);
-        });
-        
-        // Calculer le premier jour du mois
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        
-        // Ajouter des cases vides pour les jours avant le 1er du mois
-        for (let i = 0; i < firstDay; i++) {
-            const emptyDay = document.createElement('div');
-            emptyDay.className = 'calendar-day empty';
-            calendarElement.appendChild(emptyDay);
-        }
-        
-        // Ajouter tous les jours du mois
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dayElement = document.createElement('div');
-            dayElement.className = 'calendar-day';
-            
-            // Numéro du jour
-            const dayNumber = document.createElement('div');
-            dayNumber.className = 'day-number';
-            dayNumber.textContent = day;
-            dayElement.appendChild(dayNumber);
-            
-            // Vérifier si c'est aujourd'hui
-            const today = new Date();
-            if (year === today.getFullYear() && month === today.getMonth() && day === today.getDate()) {
-                dayElement.style.border = '2px solid var(--accent)';
-            }
-            
-            calendarElement.appendChild(dayElement);
-        }
-        
-        // Charger les événements pour ce mois
-        loadEventsForCalendar(year, month + 1);
+    if (!calendarElement || !currentMonthElement) {
+        return;
     }
     
-    // Charger les événements pour le calendrier
-    async function loadEventsForCalendar(year, month) {
-        try {
-            // Formater le mois pour la requête (ajouter un 0 devant si nécessaire)
-            const monthStr = month < 10 ? `0${month}` : `${month}`;
-            const yearStr = `${year}`;
+    const monthNames = [
+        "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+        "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ];
+    currentMonthElement.textContent = `${monthNames[month]} ${year}`;
+    
+    // Vider le calendrier
+    calendarElement.innerHTML = '';
+    
+    // Ajouter les en-têtes des jours
+    const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+    dayNames.forEach(day => {
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'day-header';
+        dayHeader.textContent = day;
+        calendarElement.appendChild(dayHeader);
+    });
+    
+    // Calculer le premier jour du mois (0 = Dimanche, 1 = Lundi, etc.)
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    // Aujourd'hui
+    const today = new Date();
+    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+    
+    // Ajouter les jours vides avant le premier jour du mois
+    for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'calendar-day empty';
+        calendarElement.appendChild(emptyDay);
+    }
+    
+    // Ajouter les jours du mois
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        
+        // Marquer le jour actuel
+        if (isCurrentMonth && day === today.getDate()) {
+            dayElement.classList.add('today');
+        }
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        
+        // Numéro du jour
+        const daySpan = document.createElement('span');
+        daySpan.textContent = day;
+        dayNumber.appendChild(daySpan);
+        
+        // Conteneur pour les indicateurs d'événements
+        const eventIndicator = document.createElement('div');
+        eventIndicator.className = 'event-indicator';
+        dayNumber.appendChild(eventIndicator);
+        
+        dayElement.appendChild(dayNumber);
+        calendarElement.appendChild(dayElement);
+    }
+    
+    // Charger les événements pour ce mois
+    loadEventsForCalendar(year, month + 1);
+}
+
+async function loadEventsForCalendar(year, month) {
+    try {
+        console.log(`📅 Chargement des événements pour ${month}/${year}...`);
+        
+        // Créer les dates de début et fin du mois
+        const startDate = new Date(year, month - 1, 1);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(year, month, 0);
+        endDate.setHours(23, 59, 59, 999);
+        
+        const startISO = startDate.toISOString();
+        const endISO = endDate.toISOString();
+        
+        console.log(`📅 Période: ${new Date(startISO).toLocaleDateString('fr-FR')} au ${new Date(endISO).toLocaleDateString('fr-FR')}`);
+        
+        // Requête principale avec comparaison de dates
+        const { data: events, error } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('rubrique', 'culture')
+            .eq('statut', 'publié')
+            .gte('date_evenement', startISO)
+            .lte('date_evenement', endISO);
+        
+        if (error) {
+            console.error('❌ Erreur chargement événements calendrier:', error);
             
-            // Chercher les événements de ce mois
-            const { data: events, error } = await supabase
+            // Tentative alternative sans filtre de date
+            console.log('🔄 Tentative avec requête alternative...');
+            
+            const { data: eventsAlt, error: errorAlt } = await supabase
                 .from('articles')
                 .select('*')
                 .eq('rubrique', 'culture')
-                .eq('statut', 'publié')
-                .ilike('date_evenement', `${yearStr}-${monthStr}-%`);
+                .eq('statut', 'publié');
             
-            if (error) {
-                console.error('❌ Erreur chargement événements calendrier:', error);
+            if (errorAlt) {
+                console.error('❌ Échec de la requête alternative:', errorAlt);
+                updateEventsCount(0);
                 return;
             }
             
-            if (events && events.length > 0) {
-                console.log(`📅 ${events.length} événements trouvés pour ${month}/${year}`);
-                // Ajouter les points d'événements sur le calendrier
-                addEventsToCalendar(events);
+            if (eventsAlt && eventsAlt.length > 0) {
+                console.log(`📅 ${eventsAlt.length} événements trouvés (tous) - filtrage manuel`);
+                const filteredEvents = filterEventsByMonth(eventsAlt, year, month);
+                
+                if (filteredEvents.length > 0) {
+                    console.log(`📅 ${filteredEvents.length} événements pour ${month}/${year} après filtrage`);
+                    addEventsToCalendar(filteredEvents);
+                    updateEventsCount(filteredEvents.length);
+                } else {
+                    console.log(`ℹ️ Aucun événement pour ${month}/${year}`);
+                    updateEventsCount(0);
+                }
+            } else {
+                updateEventsCount(0);
             }
-            
-        } catch (error) {
-            console.error('💥 Erreur lors du chargement des événements:', error);
+            return;
+        }
+        
+        if (events && events.length > 0) {
+            console.log(`📅 ${events.length} événements trouvés pour ${month}/${year}`);
+            addEventsToCalendar(events);
+            updateEventsCount(events.length);
+        } else {
+            console.log(`ℹ️ Aucun événement trouvé pour ${month}/${year}`);
+            updateEventsCount(0);
+        }
+        
+    } catch (error) {
+        console.error('💥 Erreur lors du chargement des événements:', error);
+        updateEventsCount(0);
+    }
+}
+
+// Fonction pour mettre à jour le compteur d'événements
+function updateEventsCount(count) {
+    const countElement = document.getElementById('events-count');
+    if (countElement) {
+        if (count > 0) {
+            countElement.textContent = `${count} événement${count > 1 ? 's' : ''} programmé${count > 1 ? 's' : ''} ce mois-ci`;
+            countElement.style.color = 'var(--accent)';
+        } else {
+            countElement.textContent = 'Aucun événement programmé ce mois-ci';
+            countElement.style.color = 'var(--text-secondary)';
         }
     }
-    
-    // Ajouter les événements au calendrier
-    function addEventsToCalendar(events) {
-        events.forEach(event => {
-            if (!event.date_evenement) return;
-            
+}
+
+// Fonction de filtrage manuel en cas d'échec de la requête
+function filterEventsByMonth(events, year, month) {
+    return events.filter(event => {
+        if (!event.date_evenement) return false;
+        
+        try {
             const eventDate = new Date(event.date_evenement);
+            // Vérifier si la date est valide
+            if (isNaN(eventDate.getTime())) return false;
+            
+            return eventDate.getFullYear() === year && 
+                   eventDate.getMonth() === (month - 1);
+        } catch (e) {
+            console.warn('⚠️ Erreur de parsing de date:', event.date_evenement);
+            return false;
+        }
+    });
+}
+
+function addEventsToCalendar(events) {
+    // Regrouper les événements par jour
+    const eventsByDay = {};
+    
+    events.forEach(event => {
+        if (!event.date_evenement) return;
+        
+        try {
+            const eventDate = new Date(event.date_evenement);
+            
+            // Vérifier si la date est valide
+            if (isNaN(eventDate.getTime())) {
+                console.warn('⚠️ Date invalide pour événement:', event.titre_fr, event.date_evenement);
+                return;
+            }
+            
             const day = eventDate.getDate();
             
-            // Trouver le jour correspondant dans le calendrier
-            const dayElements = document.querySelectorAll('.calendar-day:not(.empty)');
-            dayElements.forEach(dayElement => {
-                const dayNumber = dayElement.querySelector('.day-number');
-                if (dayNumber && parseInt(dayNumber.textContent) === day) {
-                    // Ajouter un point d'événement
-                    const eventDot = document.createElement('div');
-                    eventDot.className = 'event-dot';
-                    eventDot.title = event.titre_fr;
+            if (!eventsByDay[day]) {
+                eventsByDay[day] = [];
+            }
+            eventsByDay[day].push(event);
+            
+        } catch (error) {
+            console.error('❌ Erreur lors du traitement d\'un événement:', error, event);
+        }
+    });
+    
+    // Pour chaque jour qui a des événements
+    Object.keys(eventsByDay).forEach(day => {
+        const dayEvents = eventsByDay[day];
+        const dayNumber = parseInt(day);
+        
+        // Trouver l'élément du jour correspondant
+        const dayElements = document.querySelectorAll('.calendar-day:not(.empty)');
+        dayElements.forEach(dayElement => {
+            const dayNumberElement = dayElement.querySelector('.day-number span');
+            if (dayNumberElement && parseInt(dayNumberElement.textContent) === dayNumber) {
+                
+                // Marquer le jour comme ayant des événements
+                dayElement.classList.add('has-events');
+                
+                // Supprimer les anciens indicateurs pour éviter les doublons
+                const existingIndicator = dayElement.querySelector('.event-indicator');
+                if (existingIndicator) {
+                    existingIndicator.innerHTML = '';
                     
-                    // Créer une popup avec les détails de l'événement
-                    const eventPopup = document.createElement('div');
-                    eventPopup.className = 'event-popup';
-                    eventPopup.innerHTML = `
-                        <h4>${event.titre_fr}</h4>
-                        <p>${event.type_evenement || 'Événement'}</p>
-                        <p>📅 ${new Date(event.date_evenement).toLocaleDateString('fr-FR')}</p>
-                        ${event.heure_evenement ? `<p>🕒 ${event.heure_evenement}</p>` : ''}
-                        ${event.lieu ? `<p>📍 ${event.lieu}</p>` : ''}
-                        <a href="article.html?id=${event.id}" class="event-link">Voir détails →</a>
-                    `;
+                    // Ajouter un point par événement (max 3 points)
+                    const maxDots = Math.min(dayEvents.length, 3);
+                    for (let i = 0; i < maxDots; i++) {
+                        const dot = document.createElement('span');
+                        dot.className = 'event-dot';
+                        dot.title = dayEvents[i].titre_fr || 'Événement';
+                        existingIndicator.appendChild(dot);
+                    }
                     
-                    dayElement.appendChild(eventDot);
-                    dayElement.appendChild(eventPopup);
-                    
-                    // S'assurer que le jour a une position relative pour la popup
-                    dayElement.style.position = 'relative';
+                    // Si plus de 3 événements, ajouter un indicateur "+X"
+                    if (dayEvents.length > 3) {
+                        const moreIndicator = document.createElement('span');
+                        moreIndicator.className = 'more-events';
+                        moreIndicator.textContent = `+${dayEvents.length - 3}`;
+                        moreIndicator.style.fontSize = '0.7rem';
+                        moreIndicator.style.marginLeft = '3px';
+                        moreIndicator.style.color = 'var(--accent)';
+                        existingIndicator.appendChild(moreIndicator);
+                    }
                 }
-            });
+                
+                // Supprimer les anciennes popups
+                const existingPopups = dayElement.querySelectorAll('.event-popup');
+                existingPopups.forEach(popup => popup.remove());
+                
+                // Créer une popup avec tous les événements du jour
+                const eventPopup = document.createElement('div');
+                eventPopup.className = 'event-popup';
+                
+                let popupContent = '';
+                dayEvents.forEach((event, index) => {
+                    const formattedDate = event.date_evenement 
+                        ? new Date(event.date_evenement).toLocaleDateString('fr-FR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                        : 'Horaire non défini';
+                    
+                    popupContent += `
+                        <div style="${index > 0 ? 'margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color);' : ''}">
+                            <h4 style="color: var(--accent); margin: 0 0 5px 0;">${event.titre_fr || 'Événement'}</h4>
+                            <p style="margin: 3px 0;"><strong>Type:</strong> ${event.type_evenement || 'Événement'}</p>
+                            <p style="margin: 3px 0;"><strong>🕒</strong> ${formattedDate}</p>
+                            ${event.lieu ? `<p style="margin: 3px 0;"><strong>📍</strong> ${event.lieu}</p>` : ''}
+                            <a href="article.html?id=${event.id}" class="event-link-popup" style="display: inline-block; margin-top: 5px;">
+                                Voir détails →
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                eventPopup.innerHTML = popupContent;
+                dayElement.appendChild(eventPopup);
+            }
+        });
+    });
+    
+    // Afficher le nombre total d'événements
+    const totalEvents = events.length;
+    console.log(`✅ ${totalEvents} événement(s) ajouté(s) au calendrier`);
+}
+
+function initCalendar() {
+    const calendarElement = document.getElementById('calendar');
+    if (!calendarElement) {
+        console.log('ℹ️ Pas de calendrier sur cette page');
+        return;
+    }
+    
+    console.log('📅 Initialisation du calendrier...');
+    
+    // Date actuelle
+    let currentDate = new Date();
+    let currentYear = currentDate.getFullYear();
+    let currentMonth = currentDate.getMonth(); // 0-11
+    
+    // Générer le calendrier pour le mois en cours
+    generateCalendar(currentYear, currentMonth);
+    
+    // Bouton mois précédent
+    const prevBtn = document.getElementById('prev-month');
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            generateCalendar(currentYear, currentMonth);
         });
     }
     
-    // Initialiser le calendrier si on est sur la page culture
-    function initCalendar() {
-        const calendarElement = document.getElementById('calendar');
-        if (!calendarElement) return; // Pas sur la page culture
-        
-        console.log('📅 Initialisation du calendrier...');
-        
-        let currentDate = new Date();
-        let currentYear = currentDate.getFullYear();
-        let currentMonth = currentDate.getMonth();
-        
-        // Générer le calendrier initial
-        generateCalendar(currentYear, currentMonth);
-        
-        // Bouton précédent
-        const prevBtn = document.getElementById('prev-month');
-        if (prevBtn) {
-            prevBtn.addEventListener('click', function() {
-                currentMonth--;
-                if (currentMonth < 0) {
-                    currentMonth = 11;
-                    currentYear--;
-                }
-                generateCalendar(currentYear, currentMonth);
-            });
-        }
-        
-        // Bouton suivant
-        const nextBtn = document.getElementById('next-month');
-        if (nextBtn) {
-            nextBtn.addEventListener('click', function() {
-                currentMonth++;
-                if (currentMonth > 11) {
-                    currentMonth = 0;
-                    currentYear++;
-                }
-                generateCalendar(currentYear, currentMonth);
-            });
-        }
-        
-        // Bouton "Aujourd'hui"
-        const todayBtn = document.getElementById('today-btn');
-        if (todayBtn) {
-            todayBtn.addEventListener('click', function() {
-                currentDate = new Date();
-                currentYear = currentDate.getFullYear();
-                currentMonth = currentDate.getMonth();
-                generateCalendar(currentYear, currentMonth);
-            });
-        }
-        
-        console.log('✅ Calendrier initialisé');
+    // Bouton mois suivant
+    const nextBtn = document.getElementById('next-month');
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            generateCalendar(currentYear, currentMonth);
+        });
     }
+    
+    // Bouton aujourd'hui
+    const todayBtn = document.getElementById('today-btn');
+    if (todayBtn) {
+        todayBtn.addEventListener('click', function() {
+            currentDate = new Date();
+            currentYear = currentDate.getFullYear();
+            currentMonth = currentDate.getMonth();
+            generateCalendar(currentYear, currentMonth);
+        });
+    }
+    
+    console.log('✅ Calendrier initialisé');
+}
+
+// Fonction de débogage pour vérifier les événements
+async function debugCultureEvents() {
+    console.log('🔍 Vérification des événements culture...');
+    
+    try {
+        const { data, error } = await supabase
+            .from('articles')
+            .select('id, titre_fr, date_evenement, type_evenement, lieu, rubrique, statut')
+            .eq('rubrique', 'culture')
+            .eq('statut', 'publié');
+        
+        if (error) {
+            console.error('❌ Erreur:', error);
+            return;
+        }
+        
+        console.log(`📊 ${data?.length || 0} événements culture trouvés:`);
+        
+        if (data && data.length > 0) {
+            data.forEach((event, index) => {
+                const dateValid = event.date_evenement ? !isNaN(new Date(event.date_evenement).getTime()) : false;
+                console.log(`${index + 1}. "${event.titre_fr}"`);
+                console.log(`   Date: ${event.date_evenement || 'Non définie'} (${dateValid ? '✓ valide' : '✗ invalide'})`);
+                console.log(`   Type: ${event.type_evenement || 'Non spécifié'}`);
+                console.log(`   Lieu: ${event.lieu || 'Non spécifié'}`);
+            });
+        }
+        
+        return data;
+    } catch (error) {
+        console.error('💥 Erreur:', error);
+    }
+}
+
+// Appeler la vérification après l'initialisation
+setTimeout(debugCultureEvents, 2000);
 
     // ============================================
-    // 3. TEST DE CONNEXION SUPABASE
+    // 4. TEST DE CONNEXION SUPABASE
     // ============================================
     async function testerConnexionSupabase() {
         console.log('🔍 Test de connexion Supabase...');
@@ -397,12 +601,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 4. DÉTECTION AUTOMATIQUE DE LA PAGE
+    // 5. DÉTECTION AUTOMATIQUE DE LA PAGE
     // ============================================
     function detectPageAndLoad() {
         console.log('🔍 Détection automatique de la page...');
         
-        // Vérifier les accès d'abord (sauf pour certaines pages)
         const currentPath = window.location.pathname;
         if (!currentPath.includes('index.html') && 
             !currentPath.includes('article.html') &&
@@ -410,38 +613,33 @@ document.addEventListener('DOMContentLoaded', () => {
             !currentPath.includes('.js')) {
             
             if (!SessionManager.checkAccess()) {
-                return; // Redirection déjà gérée par checkAccess()
+                return;
             }
         }
         
-        // 1. Page d'administration admin.html
         if (window.location.pathname.includes('admin.html')) {
             console.log('📄 Page Admin détectée');
             initAdminPage();
             return;
         }
         
-        // 2. Page d'actualisation
         if (window.location.pathname.includes('Actualisation.html')) {
             console.log('📄 Page Actualisation détectée');
             initActualisationPage();
             return;
         }
         
-        // 3. Page article unique
         if (document.getElementById('article-content')) {
             console.log('📄 Page Article détectée');
             loadSingleArticle();
             return;
         }
         
-        // 4. Initialiser le calendrier si on est sur culture.html
         if (window.location.pathname.includes('culture.html')) {
             console.log('📄 Page Culture détectée');
             initCalendar();
         }
         
-        // 5. Liste des conteneurs et leurs rubriques
         const containerMap = {
             'actualites-container': 'actualites',
             'visages-container': 'visages',
@@ -458,7 +656,6 @@ document.addEventListener('DOMContentLoaded', () => {
             'events-container': 'culture'
         };
         
-        // 6. Chercher quel conteneur est présent
         for (const [containerId, rubrique] of Object.entries(containerMap)) {
             if (document.getElementById(containerId)) {
                 console.log(`📄 Page ${rubrique} détectée (${containerId})`);
@@ -471,7 +668,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // 7. Si aucun conteneur trouvé, essayer par nom de fichier
         const path = window.location.pathname;
         const pageName = path.split('/').pop().replace('.html', '').toLowerCase();
         
@@ -498,13 +694,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 5. FONCTIONS POUR LA PAGE ADMINISTRATION
+    // 6. FONCTIONS POUR LA PAGE ADMINISTRATION
     // ============================================
     
     async function initAdminPage() {
         console.log('🔄 Initialisation de la page admin...');
         
-        // Vérification améliorée
         if (!SessionManager.isAdmin()) {
             alert('⚠️ Accès non autorisé. Connectez-vous en tant qu\'administrateur.');
             window.location.href = 'index.html';
@@ -513,7 +708,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('✅ Admin connecté');
         
-        // Tester la connexion
         const connected = await testerConnexionSupabase();
         if (!connected) {
             const pendingDiv = document.getElementById('pendingCreators');
@@ -527,7 +721,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Éléments de la page
         const pendingDiv = document.getElementById('pendingCreators');
         const approvedDiv = document.getElementById('approvedCreators');
         const pendingCount = document.getElementById('pendingCount');
@@ -539,10 +732,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Charger les créateurs
         chargerTousLesCreateurs();
         
-        // Gestion déconnexion
         if (logoutBtn) {
             logoutBtn.addEventListener('click', function() {
                 if (confirm('Déconnexion ?')) {
@@ -552,7 +743,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Actualisation automatique
         setInterval(chargerTousLesCreateurs, 30000);
         
         console.log('🎯 Script admin prêt');
@@ -567,7 +757,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const approvedCount = document.getElementById('approvedCount');
         
         try {
-            // Charger les créateurs en attente
             const { data: pendingData, error: pendingError } = await supabase
                 .from('créateurs')
                 .select('*')
@@ -586,7 +775,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pendingCount) pendingCount.textContent = pendingData?.length || 0;
             }
             
-            // Charger les créateurs approuvés
             const { data: approvedData, error: approvedError } = await supabase
                 .from('créateurs')
                 .select('*')
@@ -623,6 +811,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
+            // Récupérer d'abord le créateur pour connaître son domaine
+            const { data: creator, error: fetchError } = await supabase
+                .from('créateurs')
+                .select('domaine')
+                .eq('id', id)
+                .single();
+            
+            if (fetchError) throw fetchError;
+            
             const { data, error } = await supabase
                 .from('créateurs')
                 .update({ 
@@ -637,6 +834,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
             console.log(`✅ Créateur ${id} approuvé`);
+            
+            // Mettre à jour la contrainte CHECK avec tous les domaines
+            await updateDomaineCheckConstraint();
             
             setTimeout(() => {
                 chargerTousLesCreateurs();
@@ -726,7 +926,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         container.innerHTML = html;
         
-        // Ajouter les événements après l'insertion du HTML
         if (status === 'pending') {
             container.querySelectorAll('.approve-btn').forEach(button => {
                 button.addEventListener('click', function() {
@@ -746,22 +945,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Fonction utilitaire pour échapper le HTML
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     // ============================================
-    // 6. FONCTIONS POUR LA PAGE ACTUALISATION
+    // 7. FONCTION POUR METTRE À JOUR LA CONTRAINTE CHECK
+    // ============================================
+    
+    async function updateDomaineCheckConstraint() {
+        try {
+            console.log('🔄 Mise à jour de la contrainte CHECK des domaines...');
+            
+            const { data: domainesData, error } = await supabase
+                .from('créateurs')
+                .select('domaine')
+                .eq('statut', 'actif');
+            
+            if (error) throw error;
+            
+            const domainesUniques = [...new Set(domainesData.map(d => d.domaine))];
+            
+            const domainesParDefaut = [
+                'Styliste haute couture',
+                'Styliste streetwear',
+                'Designer',
+                'Marque de bijoux',
+                'Artisans du tricot'
+            ];
+            
+            const nouveauxDomaines = domainesUniques.filter(d => !domainesParDefaut.includes(d));
+            
+            if (nouveauxDomaines.length > 0) {
+                console.log('🆕 Nouveaux domaines à ajouter à la contrainte:', nouveauxDomaines);
+                
+                const { error: rpcError } = await supabase.rpc('ajouter_domaines_check', {
+                    nouveaux_domaines: nouveauxDomaines
+                });
+                
+                if (rpcError) {
+                    console.error('❌ Erreur lors de la mise à jour de la contrainte:', rpcError);
+                } else {
+                    console.log('✅ Contrainte CHECK mise à jour avec succès');
+                }
+            }
+            
+        } catch (error) {
+            console.error('💥 Erreur lors de la mise à jour des domaines:', error);
+        }
+    }
+
+    // ============================================
+    // 8. FONCTIONS POUR LA PAGE ACTUALISATION
     // ============================================
     
     async function initActualisationPage() {
         console.log('🔄 Initialisation de la page actualisation...');
         
-        // Vérification améliorée
         if (!SessionManager.isAdmin()) {
             alert('⚠️ Accès non autorisé. Veuillez vous connecter en tant qu\'administrateur.');
             window.location.href = 'index.html';
@@ -770,7 +1013,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         console.log('✅ Admin connecté pour actualisation');
         
-        // Initialiser les onglets
         document.querySelectorAll('.tab-link').forEach(button => {
             button.addEventListener('click', function() {
                 document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
@@ -784,13 +1026,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // Initialiser l'upload d'images
         const rubriques = ['actualites', 'visages', 'coulisses', 'tendances', 'decouvertes', 'mode', 'accessoires', 'beaute', 'culture'];
         rubriques.forEach(rubrique => {
             setupImageUpload(rubrique);
         });
         
-        // Initialiser les boutons de sauvegarde
         document.querySelectorAll('.btn-save').forEach(btn => {
             btn.addEventListener('click', async function() {
                 const tabId = this.id.split('-')[1];
@@ -799,7 +1039,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // Initialiser les boutons d'annulation
         document.querySelectorAll('.btn-cancel').forEach(btn => {
             btn.addEventListener('click', function() {
                 const tabId = this.id.split('-')[1];
@@ -807,10 +1046,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // Charger les données initiales
         await loadAdminData('actualites');
         
-        // Définir la date du jour
         setDefaultDates();
     }
     
@@ -991,12 +1228,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const formData = getFormData(rubrique);
         
-        // Vérifications différentes selon la rubrique
         let validationError = '';
         
         switch(rubrique) {
             case 'visages':
-                // Pour Visages, vérifier le nom de la marque
                 if (!formData.nom_marque) {
                     validationError = '❌ Le nom de la marque est obligatoire';
                 } else if (!formData.biographie) {
@@ -1005,7 +1240,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
                 
             case 'culture':
-                // Pour Culture, vérifier le titre et la date
                 if (!formData.titre_fr) {
                     validationError = '❌ Le titre est obligatoire';
                 } else if (!formData.date_evenement) {
@@ -1014,7 +1248,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
                 
             default:
-                // Pour toutes les autres rubriques, vérifier le titre
                 if (!formData.titre_fr) {
                     validationError = '❌ Le titre est obligatoire';
                 }
@@ -1042,7 +1275,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 date_publication: formData.date_publication || new Date().toISOString()
             };
             
-            // Pour la rubrique Visages, générer un titre automatique
             if (rubrique === 'visages' && articleData.nom_marque) {
                 articleData.titre_fr = articleData.nom_createur 
                     ? `${articleData.nom_marque} par ${articleData.nom_createur}`
@@ -1115,272 +1347,272 @@ document.addEventListener('DOMContentLoaded', () => {
                 data.domaine = document.getElementById(`domaine-${rubrique}`)?.value;
                 data.reseaux_instagram = document.getElementById(`instagram-${rubrique}`)?.value;
                 data.site_web = document.getElementById(`siteweb-${rubrique}`)?.value;
-                data.biographie = document.getElementById(`biographie-${rubrique}`)?.value; // Ajouté
+                data.biographie = document.getElementById(`biographie-${rubrique}`)?.value;
                 data.interview_fr = document.getElementById(`interview-${rubrique}`)?.value;
                 break;
-                case 'tendances':
-                    data.saison = document.getElementById(`saison-${rubrique}`)?.value;
-                    break;
-                case 'decouvertes':
-                    data.type_decouverte = document.getElementById(`type-${rubrique}`)?.value;
-                    break;
-                case 'mode':
-                    data.theme_mode = document.getElementById(`theme-${rubrique}`)?.value;
-                    break;
-                case 'accessoires':
-                    data.type_accessoire = document.getElementById(`type-${rubrique}`)?.value;
-                    break;
-                case 'beaute':
-                    data.type_beaute = document.getElementById(`type-${rubrique}`)?.value;
-                    break;
-                case 'culture':
-                    return getCultureFormData();
-            }
-            
-            return data;
+            case 'tendances':
+                data.saison = document.getElementById(`saison-${rubrique}`)?.value;
+                break;
+            case 'decouvertes':
+                data.type_decouverte = document.getElementById(`type-${rubrique}`)?.value;
+                break;
+            case 'mode':
+                data.theme_mode = document.getElementById(`theme-${rubrique}`)?.value;
+                break;
+            case 'accessoires':
+                data.type_accessoire = document.getElementById(`type-${rubrique}`)?.value;
+                break;
+            case 'beaute':
+                data.type_beaute = document.getElementById(`type-${rubrique}`)?.value;
+                break;
+            case 'culture':
+                return getCultureFormData();
         }
         
-        function getCultureFormData() {
-            return {
-                rubrique: 'culture',
-                titre_fr: document.getElementById('titre-culture')?.value || '',
-                type_evenement: document.getElementById('type-culture')?.value,
-                date_evenement: document.getElementById('date_debut-culture')?.value,
-                date_fin_evenement: document.getElementById('date_fin-culture')?.value,
-                heure_evenement: document.getElementById('heure-culture')?.value,
-                statut_evenement: document.getElementById('statut-culture')?.value,
-                lieu: document.getElementById('lieu-culture')?.value,
-                contenu_fr: document.getElementById('description-culture')?.value || '',
-                lien_evenement: document.getElementById('lien-culture')?.value,
-                auteur: 'Rédaction',
-                statut: 'publié'
-            };
+        return data;
+    }
+    
+    function getCultureFormData() {
+        return {
+            rubrique: 'culture',
+            titre_fr: document.getElementById('titre-culture')?.value || '',
+            type_evenement: document.getElementById('type-culture')?.value,
+            date_evenement: document.getElementById('date_debut-culture')?.value,
+            date_fin_evenement: document.getElementById('date_fin-culture')?.value,
+            heure_evenement: document.getElementById('heure-culture')?.value,
+            statut_evenement: document.getElementById('statut-culture')?.value,
+            lieu: document.getElementById('lieu-culture')?.value,
+            contenu_fr: document.getElementById('description-culture')?.value || '',
+            lien_evenement: document.getElementById('lien-culture')?.value,
+            auteur: 'Rédaction',
+            statut: 'publié'
+        };
+    }
+    
+    function showStatus(element, message, type) {
+        if (!element) return;
+        
+        element.textContent = message;
+        element.className = `status-message status-${type}`;
+        element.style.display = message ? 'block' : 'none';
+    }
+    
+    function resetForm(rubrique) {
+        const form = document.getElementById(`${rubrique}-tab`);
+        if (!form) return;
+        
+        const inputs = form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], input[type="url"], textarea, select');
+        inputs.forEach(input => {
+            if (input.type === 'select-one') {
+                input.selectedIndex = 0;
+            } else if (input.type === 'date') {
+                input.value = new Date().toISOString().split('T')[0];
+            } else if (input.id.includes('titre-') || input.id.includes('contenu-')) {
+                input.value = '';
+            } else if (input.id.includes('auteur-')) {
+                input.value = 'Rédaction';
+            } else {
+                input.value = '';
+            }
+        });
+        
+        const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+        const imageFile = document.getElementById(`imageFile-${rubrique}`);
+        if (preview) {
+            preview.style.display = 'none';
+            preview.src = '';
+        }
+        if (imageFile) {
+            imageFile.value = '';
         }
         
-        function showStatus(element, message, type) {
-            if (!element) return;
-            
-            element.textContent = message;
-            element.className = `status-message status-${type}`;
-            element.style.display = message ? 'block' : 'none';
+        const btnSave = document.getElementById(`btnSave-${rubrique}`);
+        const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
+        const formTitle = document.getElementById(`formTitle-${rubrique}`);
+        
+        if (btnSave) {
+            btnSave.removeAttribute('data-editing-id');
+            btnSave.innerHTML = '<span>🚀 Publier</span>';
         }
         
-        function resetForm(rubrique) {
-            const form = document.getElementById(`${rubrique}-tab`);
-            if (!form) return;
+        if (btnCancel) {
+            btnCancel.style.display = 'none';
+        }
+        
+        if (formTitle) {
+            formTitle.textContent = getFormTitle(rubrique, false);
+        }
+        
+        const statusElement = document.getElementById(`status-${rubrique}`);
+        if (statusElement) {
+            statusElement.style.display = 'none';
+        }
+    }
+    
+    function getFormTitle(rubrique, editing = false) {
+        const titles = {
+            'actualites': editing ? 'Modifier une actualité' : 'Publier une actualité',
+            'visages': editing ? 'Modifier un créateur' : 'Ajouter un créateur',
+            'coulisses': editing ? 'Modifier un article coulisses' : 'Article Coulisses',
+            'tendances': editing ? 'Modifier un article tendances' : 'Article Tendances',
+            'decouvertes': editing ? 'Modifier une découverte' : 'Nouvelle découverte',
+            'culture': editing ? 'Modifier un événement' : 'Événement Culture/Agenda',
+            'mode': editing ? 'Modifier un article mode' : 'Article Mode',
+            'accessoires': editing ? 'Modifier un article accessoires' : 'Article Accessoires',
+            'beaute': editing ? 'Modifier un article beauté' : 'Article Beauté'
+        };
+        
+        return titles[rubrique] || 'Formulaire';
+    }
+    
+    window.editArticle = async function(rubrique, articleId) {
+        console.log(`✏️ Édition article ${articleId} (${rubrique})`);
+        
+        try {
+            const { data, error } = await supabase
+                .from('articles')
+                .select('*')
+                .eq('id', articleId)
+                .single();
             
-            const inputs = form.querySelectorAll('input[type="text"], input[type="date"], input[type="time"], input[type="url"], textarea, select');
-            inputs.forEach(input => {
-                if (input.type === 'select-one') {
-                    input.selectedIndex = 0;
-                } else if (input.type === 'date') {
-                    input.value = new Date().toISOString().split('T')[0];
-                } else if (input.id.includes('titre-') || input.id.includes('contenu-')) {
-                    input.value = '';
-                } else if (input.id.includes('auteur-')) {
-                    input.value = 'Rédaction';
-                } else {
-                    input.value = '';
-                }
-            });
+            if (error) throw error;
             
-            const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-            const imageFile = document.getElementById(`imageFile-${rubrique}`);
-            if (preview) {
-                preview.style.display = 'none';
-                preview.src = '';
+            if (!data) {
+                alert('Article non trouvé');
+                return;
             }
-            if (imageFile) {
-                imageFile.value = '';
-            }
+            
+            fillForm(rubrique, data);
             
             const btnSave = document.getElementById(`btnSave-${rubrique}`);
             const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
             const formTitle = document.getElementById(`formTitle-${rubrique}`);
             
             if (btnSave) {
-                btnSave.removeAttribute('data-editing-id');
-                btnSave.innerHTML = '<span>🚀 Publier</span>';
+                btnSave.setAttribute('data-editing-id', articleId);
+                btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
             }
             
             if (btnCancel) {
-                btnCancel.style.display = 'none';
+                btnCancel.style.display = 'block';
             }
             
             if (formTitle) {
-                formTitle.textContent = getFormTitle(rubrique, false);
+                formTitle.textContent = getFormTitle(rubrique, true);
             }
             
-            const statusElement = document.getElementById(`status-${rubrique}`);
-            if (statusElement) {
-                statusElement.style.display = 'none';
-            }
+            document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const tabBtn = document.querySelector(`.tab-link[data-tab="${rubrique}"]`);
+            const tabContent = document.getElementById(`${rubrique}-tab`);
+            
+            if (tabBtn) tabBtn.classList.add('active');
+            if (tabContent) tabContent.classList.add('active');
+            
+        } catch (error) {
+            console.error('❌ Erreur chargement article:', error);
+            alert('Erreur lors du chargement de l\'article');
+        }
+    };
+    
+    window.deleteArticle = async function(rubrique, articleId) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
+            return;
         }
         
-        function getFormTitle(rubrique, editing = false) {
-            const titles = {
-                'actualites': editing ? 'Modifier une actualité' : 'Publier une actualité',
-                'visages': editing ? 'Modifier un créateur' : 'Ajouter un créateur',
-                'coulisses': editing ? 'Modifier un article coulisses' : 'Article Coulisses',
-                'tendances': editing ? 'Modifier un article tendances' : 'Article Tendances',
-                'decouvertes': editing ? 'Modifier une découverte' : 'Nouvelle découverte',
-                'culture': editing ? 'Modifier un événement' : 'Événement Culture/Agenda',
-                'mode': editing ? 'Modifier un article mode' : 'Article Mode',
-                'accessoires': editing ? 'Modifier un article accessoires' : 'Article Accessoires',
-                'beaute': editing ? 'Modifier un article beauté' : 'Article Beauté'
-            };
+        try {
+            const { error } = await supabase
+                .from('articles')
+                .delete()
+                .eq('id', articleId);
             
-            return titles[rubrique] || 'Formulaire';
+            if (error) throw error;
+            
+            alert('✅ Article supprimé avec succès!');
+            
+            await loadAdminData(rubrique);
+            
+        } catch (error) {
+            console.error('❌ Erreur suppression:', error);
+            alert('❌ Erreur lors de la suppression');
         }
-        
-        window.editArticle = async function(rubrique, articleId) {
-            console.log(`✏️ Édition article ${articleId} (${rubrique})`);
-            
-            try {
-                const { data, error } = await supabase
-                    .from('articles')
-                    .select('*')
-                    .eq('id', articleId)
-                    .single();
-                
-                if (error) throw error;
-                
-                if (!data) {
-                    alert('Article non trouvé');
-                    return;
-                }
-                
-                fillForm(rubrique, data);
-                
-                const btnSave = document.getElementById(`btnSave-${rubrique}`);
-                const btnCancel = document.getElementById(`btnCancel-${rubrique}`);
-                const formTitle = document.getElementById(`formTitle-${rubrique}`);
-                
-                if (btnSave) {
-                    btnSave.setAttribute('data-editing-id', articleId);
-                    btnSave.innerHTML = '<span>💾 Mettre à jour</span>';
-                }
-                
-                if (btnCancel) {
-                    btnCancel.style.display = 'block';
-                }
-                
-                if (formTitle) {
-                    formTitle.textContent = getFormTitle(rubrique, true);
-                }
-                
-                document.querySelectorAll('.tab-link').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-                
-                const tabBtn = document.querySelector(`.tab-link[data-tab="${rubrique}"]`);
-                const tabContent = document.getElementById(`${rubrique}-tab`);
-                
-                if (tabBtn) tabBtn.classList.add('active');
-                if (tabContent) tabContent.classList.add('active');
-                
-            } catch (error) {
-                console.error('❌ Erreur chargement article:', error);
-                alert('Erreur lors du chargement de l\'article');
-            }
+    };
+    
+    function fillForm(rubrique, data) {
+        const setValue = (id, value) => {
+            const element = document.getElementById(`${id}-${rubrique}`);
+            if (element && value) element.value = value;
         };
         
-        window.deleteArticle = async function(rubrique, articleId) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
-                return;
+        setValue('titre', data.titre_fr);
+        setValue('contenu', data.contenu_fr);
+        setValue('auteur', data.auteur);
+        
+        if (data.date_publication) {
+            setValue('date', data.date_publication.split('T')[0]);
+        }
+        
+        switch(rubrique) {
+            case 'actualites':
+                setValue('categorie', data.categorie_actualite);
+                break;
+            case 'visages':
+                setValue('nom_marque', data.nom_marque);
+                setValue('nom_createur', data.nom_createur);
+                setValue('domaine', data.domaine);
+                setValue('instagram', data.reseaux_instagram);
+                setValue('siteweb', data.site_web);
+                setValue('interview', data.interview_fr);
+                break;
+            case 'tendances':
+                setValue('saison', data.saison);
+                break;
+            case 'decouvertes':
+                setValue('type', data.type_decouverte);
+                break;
+            case 'mode':
+                setValue('theme', data.theme_mode);
+                break;
+            case 'accessoires':
+                setValue('type', data.type_accessoire);
+                break;
+            case 'beaute':
+                setValue('type', data.type_beaute);
+                break;
+            case 'culture':
+                fillCultureForm(data);
+                break;
+        }
+        
+        if (data.image_url) {
+            const preview = document.getElementById(`currentImagePreview-${rubrique}`);
+            if (preview) {
+                preview.src = data.image_url;
+                preview.style.display = 'block';
             }
-            
-            try {
-                const { error } = await supabase
-                    .from('articles')
-                    .delete()
-                    .eq('id', articleId);
-                
-                if (error) throw error;
-                
-                alert('✅ Article supprimé avec succès!');
-                
-                await loadAdminData(rubrique);
-                
-            } catch (error) {
-                console.error('❌ Erreur suppression:', error);
-                alert('❌ Erreur lors de la suppression');
-            }
+        }
+    }
+    
+    function fillCultureForm(data) {
+        const setValue = (id, value) => {
+            const element = document.getElementById(`${id}-culture`);
+            if (element && value) element.value = value;
         };
         
-        function fillForm(rubrique, data) {
-            const setValue = (id, value) => {
-                const element = document.getElementById(`${id}-${rubrique}`);
-                if (element && value) element.value = value;
-            };
-            
-            setValue('titre', data.titre_fr);
-            setValue('contenu', data.contenu_fr);
-            setValue('auteur', data.auteur);
-            
-            if (data.date_publication) {
-                setValue('date', data.date_publication.split('T')[0]);
-            }
-            
-            switch(rubrique) {
-                case 'actualites':
-                    setValue('categorie', data.categorie_actualite);
-                    break;
-                case 'visages':
-                    setValue('nom_marque', data.nom_marque);
-                    setValue('nom_createur', data.nom_createur);
-                    setValue('domaine', data.domaine);
-                    setValue('instagram', data.reseaux_instagram);
-                    setValue('siteweb', data.site_web);
-                    setValue('interview', data.interview_fr);
-                    break;
-                case 'tendances':
-                    setValue('saison', data.saison);
-                    break;
-                case 'decouvertes':
-                    setValue('type', data.type_decouverte);
-                    break;
-                case 'mode':
-                    setValue('theme', data.theme_mode);
-                    break;
-                case 'accessoires':
-                    setValue('type', data.type_accessoire);
-                    break;
-                case 'beaute':
-                    setValue('type', data.type_beaute);
-                    break;
-                case 'culture':
-                    fillCultureForm(data);
-                    break;
-            }
-            
-            if (data.image_url) {
-                const preview = document.getElementById(`currentImagePreview-${rubrique}`);
-                if (preview) {
-                    preview.src = data.image_url;
-                    preview.style.display = 'block';
-                }
-            }
-        }
-        
-        function fillCultureForm(data) {
-            const setValue = (id, value) => {
-                const element = document.getElementById(`${id}-culture`);
-                if (element && value) element.value = value;
-            };
-            
-            setValue('titre', data.titre_fr);
-            setValue('type', data.type_evenement);
-            setValue('date_debut', data.date_evenement ? data.date_evenement.split('T')[0] : '');
-            setValue('date_fin', data.date_fin_evenement ? data.date_fin_evenement.split('T')[0] : '');
-            setValue('heure', data.heure_evenement);
-            setValue('statut', data.statut_evenement);
-            setValue('lieu', data.lieu);
-            setValue('description', data.contenu_fr);
-            setValue('lien', data.lien_evenement);
-        }
+        setValue('titre', data.titre_fr);
+        setValue('type', data.type_evenement);
+        setValue('date_debut', data.date_evenement ? data.date_evenement.split('T')[0] : '');
+        setValue('date_fin', data.date_fin_evenement ? data.date_fin_evenement.split('T')[0] : '');
+        setValue('heure', data.heure_evenement);
+        setValue('statut', data.statut_evenement);
+        setValue('lieu', data.lieu);
+        setValue('description', data.contenu_fr);
+        setValue('lien', data.lien_evenement);
+    }
 
     // ============================================
-    // 7. FONCTIONS POUR LA STRUCTURE PRINCIPALE
+    // 9. FONCTIONS POUR LA STRUCTURE PRINCIPALE
     // ============================================
     
     window.loadArticlesByRubrique = async function(rubrique, containerId) {
@@ -1457,7 +1689,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ============================================
-    // 8. FONCTIONS DE RENDU MODIFIÉES
+    // 10. FONCTIONS DE RENDU MODIFIÉES
     // ============================================
     
     function renderActualites(articles, container) {
@@ -1492,6 +1724,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <div class="visage-content">
                         <h3>${visage.nom_marque || visage.titre_fr}</h3>
+                        ${visage.domaine ? `<span class="visage-domain">${visage.domaine}</span>` : ''}
                         
                         <a href="article.html?id=${visage.id}" class="visage-link">
                             Voir le profil complet →
@@ -1761,7 +1994,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 9. FONCTION POUR CHARGER UN ARTICLE UNIQUE
+    // 11. FONCTION POUR CHARGER UN ARTICLE UNIQUE
     // ============================================
     window.loadSingleArticle = async function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -1893,7 +2126,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 10. FONCTIONS UTILITAIRES
+    // 12. FONCTIONS UTILITAIRES
     // ============================================
     
     function getTypeDecouverteLabel(type) {
@@ -2015,7 +2248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 11. FONCTIONS POUR FILTRES
+    // 13. FONCTIONS POUR FILTRES
     // ============================================
     
     window.setupFilters = function() {
@@ -2025,8 +2258,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 const filter = this.dataset.filter;
-                if (typeof loadVisages === 'function') {
-                    loadVisages(filter);
+                if (typeof filterVisages === 'function') {
+                    filterVisages(filter);
                 }
             });
         });
@@ -2052,38 +2285,96 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterVisages(filter);
             });
         });
+        
+        setTimeout(() => {
+            filterVisages('all');
+        }, 500);
     };
     
     async function filterVisages(domain) {
         const container = document.getElementById('visages-container');
         if (!container) return;
         
+        container.innerHTML = '<div class="loading" style="padding: 40px; text-align: center; color: #666;">Filtrage en cours...</div>';
+        
         try {
-            let query = supabase
+            const { data, error } = await supabase
                 .from('articles')
                 .select('*')
                 .eq('rubrique', 'visages')
                 .eq('statut', 'publié')
                 .order('date_publication', { ascending: false });
             
-            if (domain !== 'all') {
-                query = query.eq('domaine', domain);
-            }
-            
-            const { data, error } = await query;
-            
             if (error) throw error;
             
             if (!data || data.length === 0) {
-                container.innerHTML = '<p class="no-content">Aucun créateur trouvé dans cette catégorie.</p>';
+                container.innerHTML = '<p class="no-content" style="text-align: center; padding: 40px;">Aucun créateur trouvé.</p>';
                 return;
             }
             
-            renderVisages(data, container);
+            console.log(`📊 ${data.length} créateurs chargés pour filtrage`);
+            
+            if (domain === 'all') {
+                console.log('✅ Affichage de tous les créateurs');
+                renderVisages(data, container);
+                return;
+            }
+            
+            const domainMap = {
+                'haute-couture': ['Styliste haute couture', 'haute-couture', 'couture', 'haute'],
+                'streetwear': ['Styliste streetwear', 'street', 'street wear', 'urban'],
+                'bijoux': ['bijoux', 'bijouterie', 'joaillerie', 'bijou'],
+                'accessoires': ['accessoires', 'accessoire', 'sac', 'chaussure'],
+                'pret-a-porter': ['prêt-à-porter', 'pret a porter', 'pret-a-porter', 'mode', 'prêt-à-porter'],
+                'maroquinerie': ['maroquinerie', 'cuir'],
+                'chaussures': ['chaussures', 'sneakers', 'baskets']
+            };
+            
+            const searchTerms = domainMap[domain] || [domain.toLowerCase()];
+            console.log(`🔍 Recherche des termes:`, searchTerms);
+            
+            let filteredData = data.filter(article => {
+                if (!article.domaine) return false;
+                
+                const domaineLower = article.domaine.toLowerCase().trim();
+                
+                return searchTerms.some(term => {
+                    return domaineLower.includes(term.toLowerCase()) || 
+                           term.toLowerCase().includes(domaineLower);
+                });
+            });
+            
+            console.log(`🔍 Filtre "${domain}": ${filteredData.length} résultats sur ${data.length} total`);
+            
+            if (filteredData.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <p style="color: var(--text-secondary); margin-bottom: 20px;">Aucun créateur trouvé dans la catégorie "${domain}".</p>
+                        <button class="filter-btn active" data-filter="all" style="padding: 10px 25px; background: var(--accent); border: none; border-radius: 25px; color: var(--text-dark); font-weight: 600; cursor: pointer;">Voir tous les créateurs</button>
+                    </div>
+                `;
+                
+                const allBtn = container.querySelector('button[data-filter="all"]');
+                if (allBtn) {
+                    allBtn.addEventListener('click', function() {
+                        document.querySelectorAll('.filter-btn').forEach(btn => {
+                            if (btn.dataset.filter === 'all') {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        });
+                        filterVisages('all');
+                    });
+                }
+                return;
+            }
+            
+            renderVisages(filteredData, container);
             
         } catch (error) {
             console.error('❌ Erreur filtrage:', error);
-            container.innerHTML = `<p class="error">Erreur: ${error.message}</p>`;
+            container.innerHTML = `<p class="error" style="text-align: center; padding: 40px; color: #dc3545;">Erreur: ${error.message}</p>`;
         }
     }
     
@@ -2103,14 +2394,71 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ============================================
-    // 12. EXÉCUTION AUTOMATIQUE
+    // 14. FONCTION DE DÉBOGAGE POUR VOIR LES DOMAINES
+    // ============================================
+    
+    async function debugDomainesVisages() {
+        console.log('🔍 Analyse des domaines Visages...');
+        
+        try {
+            const { data, error } = await supabase
+                .from('articles')
+                .select('domaine, nom_marque, titre_fr')
+                .eq('rubrique', 'visages')
+                .eq('statut', 'publié');
+            
+            if (error) {
+                console.error('❌ Erreur:', error);
+                return;
+            }
+            
+            if (!data || data.length === 0) {
+                console.log('ℹ️ Aucun article Visages trouvé');
+                return;
+            }
+            
+            console.log(`📊 ${data.length} articles Visages trouvés`);
+            
+            const domaines = {};
+            data.forEach(article => {
+                const domaine = article.domaine || 'non spécifié';
+                domaines[domaine] = (domaines[domaine] || 0) + 1;
+                console.log(`- ${article.nom_marque || article.titre_fr}: "${domaine}"`);
+            });
+            
+            console.log('📈 Répartition des domaines:');
+            Object.entries(domaines).forEach(([domaine, count]) => {
+                console.log(`  ${domaine}: ${count} article(s)`);
+            });
+            
+            const domainesUniques = Object.keys(domaines).filter(d => d !== 'non spécifié');
+            if (domainesUniques.length > 0) {
+                console.log('✅ Filtres recommandés pour votre HTML:');
+                domainesUniques.forEach(d => {
+                    console.log(`<button class="filter-btn" data-filter="${d.toLowerCase()}">${d}</button>`);
+                });
+            }
+            
+        } catch (error) {
+            console.error('💥 Erreur:', error);
+        }
+    }
+
+    // ============================================
+    // 15. EXÉCUTION AUTOMATIQUE
     // ============================================
     setTimeout(() => {
         detectPageAndLoad();
     }, 100);
+    
+    setTimeout(() => {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            debugDomainesVisages();
+        }
+    }, 3000);
 
     // ============================================
-    // 13. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
+    // 16. OBSERVATEUR D'INTERSECTION (ANIMATIONS)
     // ============================================
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
@@ -2129,7 +2477,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hiddenElements.forEach(el => observer.observe(el));
 
     // ============================================
-    // 14. SELECTEUR DE THÈME
+    // 17. SELECTEUR DE THÈME
     // ============================================
     const themeSelectButton = document.getElementById('theme-select-button');
     const themeOptions = document.getElementById('theme-options');
@@ -2183,7 +2531,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 15. MODAL D'ABONNEMENT
+    // 18. MODAL D'ABONNEMENT
     // ============================================
     const subscribeDesktop = document.getElementById('subscribe-desktop');
     const subscribeMobile = document.getElementById('subscribe-mobile');
@@ -2218,6 +2566,14 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
+                // Réinitialiser la zone "Autre" à la fermeture
+                if (autreDomaineGroup) {
+                    autreDomaineGroup.style.display = 'none';
+                    if (autreDomaineInput) {
+                        autreDomaineInput.required = false;
+                        autreDomaineInput.value = '';
+                    }
+                }
             }
         });
     }
@@ -2225,6 +2581,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal && !modal.classList.contains('hidden-modal')) {
             closeModal();
+            // Réinitialiser la zone "Autre" à la fermeture
+            if (autreDomaineGroup) {
+                autreDomaineGroup.style.display = 'none';
+                if (autreDomaineInput) {
+                    autreDomaineInput.required = false;
+                    autreDomaineInput.value = '';
+                }
+            }
         }
     });
 
@@ -2245,11 +2609,22 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.classList.add('active');
             tab.setAttribute('aria-selected', 'true');
             target.classList.add('active');
+            
+            // Réinitialiser la zone "Autre" quand on change d'onglet
+            if (targetId !== 'creator-register-tab') {
+                if (autreDomaineGroup) {
+                    autreDomaineGroup.style.display = 'none';
+                    if (autreDomaineInput) {
+                        autreDomaineInput.required = false;
+                        autreDomaineInput.value = '';
+                    }
+                }
+            }
         });
     });
 
     // ============================================
-    // 16. FORMULAIRES D'INSCRIPTION
+    // 19. FORMULAIRES D'INSCRIPTION
     // ============================================
     
     const subscriberForm = document.getElementById('subscriber-form-element');
@@ -2305,9 +2680,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const email = document.getElementById('cre-email').value.trim();
             const telephone = document.getElementById('cre-tel').value.trim();
             const marque = document.getElementById('cre-marque').value.trim();
-            const domaine = document.getElementById('cre-domaine').value;
+            let domaine = document.getElementById('cre-domaine').value;
             
-            console.log('🎨 Tentative inscription créateur:', marque);
+            // Vérifier si c'est "Autre" et récupérer la valeur personnalisée
+            if (domaine === 'autre') {
+                const domaineAutre = document.getElementById('cre-domaine-autre').value.trim();
+                if (!domaineAutre) {
+                    alert('Veuillez préciser votre domaine');
+                    return;
+                }
+                domaine = domaineAutre;
+            }
+            
+            console.log('🎨 Tentative inscription créateur:', { marque, domaine });
             
             try {
                 const { data, error } = await supabase
@@ -2336,6 +2721,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
+                if (autreDomaineGroup) {
+                    autreDomaineGroup.style.display = 'none';
+                    if (autreDomaineInput) {
+                        autreDomaineInput.required = false;
+                        autreDomaineInput.value = '';
+                    }
+                }
+                
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
                 alert('Une erreur est survenue lors de l\'inscription.');
@@ -2344,7 +2737,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 17. MENU DÉROULANT PRINCIPAL
+    // 20. MENU DÉROULANT PRINCIPAL
     // ============================================
     const menuBtn = document.getElementById('menu-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
@@ -2367,7 +2760,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 18. FENÊTRE D'AUTHENTIFICATION AMÉLIORÉE
+    // 21. FENÊTRE D'AUTHENTIFICATION AMÉLIORÉE
     // ============================================
     const authBtn = document.getElementById('auth-btn');
     const authModal = document.getElementById('auth-modal');
@@ -2433,7 +2826,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 19. CONNEXION ADMINISTRATEUR AMÉLIORÉE
+    // 22. CONNEXION ADMINISTRATEUR AMÉLIORÉE
     // ============================================
     if (adminForm) {
         adminForm.addEventListener('submit', async function(e) {
@@ -2474,10 +2867,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('✅ Connexion réussie! Admin:', data);
                 
-                // Utiliser le SessionManager amélioré
                 SessionManager.setAdminSession(data.nom, data.email);
                 
-                // Redirection
                 const redirectUrl = sessionStorage.getItem('redirectAfterLogin') || 'admin.html';
                 sessionStorage.removeItem('redirectAfterLogin');
                 window.location.href = redirectUrl;
@@ -2493,7 +2884,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 20. CONNEXION CRÉATEUR AMÉLIORÉE
+    // 23. CONNEXION CRÉATEUR AMÉLIORÉE
     // ============================================
     if (creatorForm) {
         creatorForm.addEventListener('submit', async function(e) {
@@ -2535,10 +2926,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log('✅ Connexion créateur réussie!', data);
                 
-                // Utiliser le SessionManager amélioré
                 SessionManager.setCreatorSession(data.id, data.nom_marque);
                 
-                // Redirection vers le dashboard créateur
                 window.location.href = 'dashboard-home.html';
                 
             } catch (error) {
@@ -2552,7 +2941,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ============================================
-    // 21. GESTION DES ÉVÉNEMENTS CLAVIER
+    // 24. GESTION DES ÉVÉNEMENTS CLAVIER
     // ============================================
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && authModal && authModal.classList.contains('active')) {
@@ -2570,7 +2959,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 22. EMPÊCHER LA SOUMISSION PAR DÉFAUT
+    // 25. EMPÊCHER LA SOUMISSION PAR DÉFAUT
     // ============================================
     const otherForms = document.querySelectorAll('form:not(#subscriber-form-element):not(#creator-register-form):not(#admin-form):not(#creator-form)');
     otherForms.forEach(form => {
@@ -2582,7 +2971,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================
-    // 23. FONCTIONS DE COMPATIBILITÉ
+    // 26. FONCTIONS DE COMPATIBILITÉ
     // ============================================
     
     window.loadCoulissesArticles = async function() {
@@ -2611,7 +3000,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ============================================
-    // 24. FONCTION DE DÉBOGAGE GLOBALE
+    // 27. FONCTION DE DÉBOGAGE GLOBALE
     // ============================================
     
     async function debugArticles(rubrique) {
@@ -2646,8 +3035,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     window.debugArticles = debugArticles;
+    window.debugDomainesVisages = debugDomainesVisages;
     
-    // Test au chargement
     setTimeout(() => {
         console.log('🔍 Lancement du débogage des articles...');
         debugArticles('actualites');
