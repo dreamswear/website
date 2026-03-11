@@ -401,6 +401,34 @@
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
         }
 
+        /* Style pour le champ "Autre" */
+        #autre-domaine-group {
+            transition: all 0.3s ease;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #autre-domaine-group small {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: block;
+        }
+
+        [data-theme="night"] #autre-domaine-group small {
+            color: #999;
+        }
+
         /* Styles pour la section Visages du mois (seule section dynamique sur la page principale) */
         .featured-section {
             padding: 60px 0;
@@ -581,7 +609,7 @@
                             <li><a href="tendances.html">Tendances</a></li>
                             <li><a href="découvertes.html">Découvertes</a></li>
                             <li><a href="culture.html">Culture/Agenda</a></li>
-                            <li><a href="dec_créateurs.html">Nos Créateurs</a></li
+                            <li><a href="decouvrir-createurs.html">créateurs</a></li>
                         </ul>
                     </div>
                 </div>
@@ -692,7 +720,7 @@
         </div>
     </footer>
 
-    <!-- Fenêtre flottante pour l'authentification (identique à index.html) -->
+    <!-- Fenêtre flottante pour l'authentification -->
     <div class="auth-modal" id="auth-modal">
         <div class="auth-modal-content">
             <div class="auth-modal-header">
@@ -754,7 +782,7 @@
         </div>
     </div>
 
-    <!-- Modal d'abonnement (identique à index.html) -->
+    <!-- Modal d'abonnement -->
     <div id="subscribe-modal" class="modal-overlay hidden-modal" role="dialog" aria-labelledby="modal-title" aria-modal="true">
         <div class="modal-content">
             <button class="close-modal" aria-label="Fermer la fenêtre modale">&times;</button>
@@ -825,8 +853,17 @@
                                 <option value="Designer">Designer</option>
                                 <option value="Marque de bijoux">Marque de bijoux</option>
                                 <option value="Artisans du tricot">Artisans du tricot</option>
+                                <option value="autre">Autre (à préciser)</option>
                             </select>
                         </div>
+                        
+                        <!-- Nouvelle zone de texte pour "Autre" (cachée par défaut) -->
+                        <div class="form-group" id="autre-domaine-group" style="display: none;">
+                            <label for="cre-domaine-autre">Précisez votre domaine</label>
+                            <input type="text" id="cre-domaine-autre" name="domaine_autre" placeholder="Ex: Photographe, Maquilleur, Styliste ongulaire...">
+                            <small>Ce domaine sera ajouté automatiquement après validation de votre compte.</small>
+                        </div>
+                        
                         <button type="submit" class="cta-button">Soumettre</button>
                     </form>
                 </div>
@@ -835,7 +872,7 @@
     </div>
 <script src="script.js"></script>
     <script>
-        // Configuration Supabase - Même structure que index.html
+        // Configuration Supabase
         const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
         
@@ -845,11 +882,11 @@
             // Charger uniquement les Visages du mois sur la page principale
             loadFeaturedCreators();
             
-            // Éléments du menu déroulant - Même code que index.html
+            // Éléments du menu déroulant
             const menuBtn = document.getElementById('menu-btn');
             const dropdownMenu = document.getElementById('dropdown-menu');
             
-            // Éléments de la fenêtre d'authentification - Même code que index.html
+            // Éléments de la fenêtre d'authentification
             const authBtn = document.getElementById('auth-btn');
             const authModal = document.getElementById('auth-modal');
             const closeAuthModal = document.querySelector('.close-auth-modal');
@@ -859,13 +896,34 @@
             const adminError = document.getElementById('admin-error');
             const creatorError = document.getElementById('creator-error');
             
-            // Éléments du modal d'abonnement - Même code que index.html
-            const subscribeLink = document.getElementById('subscribe-link');
+            // Éléments du modal d'abonnement
+            const subscribeDesktop = document.getElementById('subscribe-desktop');
+            const subscribeMobile = document.getElementById('subscribe-mobile');
             const modal = document.getElementById('subscribe-modal');
             const closeModal = document.querySelector('.close-modal');
             const tabLinks = document.querySelectorAll('.tab-link');
             
-            // Gestion du menu déroulant - Même code que index.html
+            // Éléments pour la gestion du domaine "Autre"
+            const domaineSelect = document.getElementById('cre-domaine');
+            const autreDomaineGroup = document.getElementById('autre-domaine-group');
+            const autreDomaineInput = document.getElementById('cre-domaine-autre');
+
+            // Gestion de l'option "Autre" pour le domaine
+            if (domaineSelect && autreDomaineGroup && autreDomaineInput) {
+                domaineSelect.addEventListener('change', function() {
+                    if (this.value === 'autre') {
+                        autreDomaineGroup.style.display = 'block';
+                        autreDomaineInput.required = true; // Rendre obligatoire
+                        autreDomaineInput.focus(); // Donner le focus
+                    } else {
+                        autreDomaineGroup.style.display = 'none';
+                        autreDomaineInput.required = false;
+                        autreDomaineInput.value = ''; // Vider le champ
+                    }
+                });
+            }
+            
+            // Gestion du menu déroulant
             if (menuBtn && dropdownMenu) {
                 menuBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -883,7 +941,7 @@
                 });
             }
 
-            // Gestion de la fenêtre d'authentification - Même code que index.html
+            // Gestion de la fenêtre d'authentification
             if (authBtn && authModal) {
                 authBtn.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -914,7 +972,7 @@
                 }
             });
 
-            // Gestion des onglets d'authentification - Même code que index.html
+            // Gestion des onglets d'authentification
             authTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
                     const authType = this.getAttribute('data-auth-type');
@@ -937,7 +995,7 @@
                 });
             });
 
-            // Gestion de la connexion administrateur - Même code que index.html
+            // Gestion de la connexion administrateur
             if (adminForm) {
                 adminForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
@@ -946,7 +1004,6 @@
                     const password = document.getElementById('admin-password').value;
                     
                     try {
-                        // Vérification dans la table administrateurs
                         const { data, error } = await supabase
                             .from('administrateurs')
                             .select('*')
@@ -959,12 +1016,10 @@
                             return;
                         }
                         
-                        // Connexion réussie
                         sessionStorage.setItem('adminLoggedIn', 'true');
                         sessionStorage.setItem('adminId', data.id);
                         sessionStorage.setItem('adminName', data.nom);
                         
-                        // Redirection vers la page d'administration
                         window.location.href = 'admin.html';
                         
                     } catch (error) {
@@ -974,7 +1029,7 @@
                 });
             }
 
-            // Gestion de la connexion créateur - VERSION COMPLÈTE MISE À JOUR
+            // Gestion de la connexion créateur
             if (creatorForm) {
                 creatorForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
@@ -985,7 +1040,6 @@
                     try {
                         console.log('🔑 Tentative de connexion pour:', brand);
                         
-                        // Vérification dans la table créateurs
                         const { data, error } = await supabase
                             .from('créateurs')
                             .select('*')
@@ -1008,59 +1062,23 @@
                         
                         console.log('✅ Connexion réussie! Données:', data);
                         
-                        // ============================================
-                        // SAUVEGARDER TOUTES LES DONNÉES DANS SESSIONSTORAGE
-                        // ============================================
-                        
-                        // Données principales
                         sessionStorage.setItem('creatorLoggedIn', 'true');
                         sessionStorage.setItem('creatorId', data.id);
                         sessionStorage.setItem('creatorBrand', data.nom_marque || '');
                         
-                        // Nom complet
                         const fullName = `${data.prenom || ''} ${data.nom || ''}`.trim();
                         sessionStorage.setItem('creatorName', fullName || data.nom_marque || 'Créateur');
-                        
-                        // Domaine
                         sessionStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
-                        
-                        // Informations de contact
                         sessionStorage.setItem('creatorEmail', data.email || '');
                         sessionStorage.setItem('creatorPhone', data.telephone || '');
                         
-                        // Informations supplémentaires
-                        sessionStorage.setItem('creatorStatus', data.statut || '');
-                        if (data.date_inscription) {
-                            sessionStorage.setItem('creatorJoinDate', data.date_inscription);
-                        }
-                        if (data.date_validation) {
-                            sessionStorage.setItem('creatorValidationDate', data.date_validation);
-                        }
-                        
-                        // Informations de portfolio (si disponibles)
-                        sessionStorage.setItem('creatorBiography', data.biographie || '');
-                        sessionStorage.setItem('creatorInstagram', data.reseaux_instagram || '');
-                        sessionStorage.setItem('creatorWebsite', data.site_web || '');
-                        
-                        // Marquer le timestamp de connexion
-                        sessionStorage.setItem('creatorLoginTime', new Date().toISOString());
-                        
-                        // ============================================
-                        // SAUVEGARDER AUSSI DANS LOCALSTORAGE POUR PERSISTANCE
-                        // ============================================
                         localStorage.setItem('creatorId', data.id);
                         localStorage.setItem('creatorBrand', data.nom_marque || '');
                         localStorage.setItem('creatorName', fullName || data.nom_marque || 'Créateur');
                         localStorage.setItem('creatorDomain', data.domaine || 'Domaine non spécifié');
                         
-                        console.log('💾 Données sauvegardées dans sessionStorage:', {
-                            id: sessionStorage.getItem('creatorId'),
-                            name: sessionStorage.getItem('creatorName'),
-                            domain: sessionStorage.getItem('creatorDomain'),
-                            brand: sessionStorage.getItem('creatorBrand')
-                        });
+                        console.log('💾 Données sauvegardées dans sessionStorage');
                         
-                        // Redirection vers le dashboard
                         window.location.href = 'dashboard-home.html';
                         
                     } catch (error) {
@@ -1070,7 +1088,7 @@
                 });
             }
 
-            // Gestion de l'inscription abonné - Même code que index.html
+            // Gestion de l'inscription abonné
             const subscriberForm = document.getElementById('subscriber-form-element');
             if (subscriberForm) {
                 subscriberForm.addEventListener('submit', async function(e) {
@@ -1106,7 +1124,7 @@
                 });
             }
 
-            // Gestion de l'inscription créateur - Même code que index.html
+            // Gestion de l'inscription créateur - VERSION MODIFIÉE AVEC "AUTRE"
             const creatorRegisterForm = document.getElementById('creator-register-form');
             if (creatorRegisterForm) {
                 creatorRegisterForm.addEventListener('submit', async function(e) {
@@ -1118,7 +1136,19 @@
                     const email = document.getElementById('cre-email').value.trim();
                     const telephone = document.getElementById('cre-tel').value.trim();
                     const marque = document.getElementById('cre-marque').value.trim();
-                    const domaine = document.getElementById('cre-domaine').value;
+                    let domaine = document.getElementById('cre-domaine').value;
+                    
+                    // Vérifier si c'est "Autre" et récupérer la valeur personnalisée
+                    if (domaine === 'autre') {
+                        const domaineAutre = document.getElementById('cre-domaine-autre').value.trim();
+                        if (!domaineAutre) {
+                            alert('Veuillez préciser votre domaine');
+                            return;
+                        }
+                        domaine = domaineAutre; // Utiliser la valeur personnalisée
+                    }
+                    
+                    console.log('🎨 Tentative inscription créateur:', { marque, domaine });
                     
                     try {
                         const { data, error } = await supabase
@@ -1131,7 +1161,8 @@
                                     domaine: domaine,
                                     email: email,
                                     telephone: telephone,
-                                    mot_de_passe: password
+                                    mot_de_passe: password,
+                                    statut: 'pending'
                                 }
                             ]);
                         
@@ -1141,6 +1172,15 @@
                         modal.classList.add('hidden-modal');
                         creatorRegisterForm.reset();
                         
+                        // Réinitialiser l'affichage de la zone "Autre"
+                        if (autreDomaineGroup) {
+                            autreDomaineGroup.style.display = 'none';
+                            if (autreDomaineInput) {
+                                autreDomaineInput.required = false;
+                                autreDomaineInput.value = '';
+                            }
+                        }
+                        
                     } catch (error) {
                         console.error('Erreur d\'inscription:', error);
                         alert('Une erreur est survenue lors de l\'inscription.');
@@ -1148,9 +1188,16 @@
                 });
             }
 
-            // Gestion du modal d'abonnement - Même code que index.html
-            if (subscribeLink) {
-                subscribeLink.addEventListener('click', function(e) {
+            // Gestion du modal d'abonnement
+            if (subscribeDesktop) {
+                subscribeDesktop.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    modal.classList.remove('hidden-modal');
+                });
+            }
+            
+            if (subscribeMobile) {
+                subscribeMobile.addEventListener('click', function(e) {
                     e.preventDefault();
                     modal.classList.remove('hidden-modal');
                 });
@@ -1159,12 +1206,28 @@
             if (closeModal) {
                 closeModal.addEventListener('click', function() {
                     modal.classList.add('hidden-modal');
+                    // Réinitialiser la zone "Autre" à la fermeture
+                    if (autreDomaineGroup) {
+                        autreDomaineGroup.style.display = 'none';
+                        if (autreDomaineInput) {
+                            autreDomaineInput.required = false;
+                            autreDomaineInput.value = '';
+                        }
+                    }
                 });
             }
 
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.classList.add('hidden-modal');
+                    // Réinitialiser la zone "Autre" à la fermeture
+                    if (autreDomaineGroup) {
+                        autreDomaineGroup.style.display = 'none';
+                        if (autreDomaineInput) {
+                            autreDomaineInput.required = false;
+                            autreDomaineInput.value = '';
+                        }
+                    }
                 }
             });
 
@@ -1184,10 +1247,21 @@
                         content.classList.remove('active');
                     });
                     document.getElementById(tabId).classList.add('active');
+                    
+                    // Réinitialiser la zone "Autre" quand on change d'onglet
+                    if (tabId !== 'creator-register-tab') {
+                        if (autreDomaineGroup) {
+                            autreDomaineGroup.style.display = 'none';
+                            if (autreDomaineInput) {
+                                autreDomaineInput.required = false;
+                                autreDomaineInput.value = '';
+                            }
+                        }
+                    }
                 });
             });
             
-            // Fermer la fenêtre d'authentification avec Échap - Même code que index.html
+            // Fermer la fenêtre d'authentification avec Échap
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && authModal.classList.contains('active')) {
                     authModal.classList.remove('active');
@@ -1200,7 +1274,7 @@
             });
         });
 
-        // Fonction unique pour charger les Visages du mois (seule section dynamique sur la page principale)
+        // Fonction pour charger les Visages du mois
         async function loadFeaturedCreators() {
             const container = document.getElementById('featured-container');
             
