@@ -2248,7 +2248,7 @@ setTimeout(debugCultureEvents, 2000);
     }
 
     // ============================================
-    // 13. FONCTIONS POUR FILTRES
+    // 13. FONCTIONS POUR FILTRES - VERSION AMÉLIORÉE AVEC CATÉGORIE "AUTRES"
     // ============================================
     
     window.setupFilters = function() {
@@ -2320,15 +2320,68 @@ setTimeout(debugCultureEvents, 2000);
                 return;
             }
             
+            // Catégories prédéfinies avec leurs termes de recherche
             const domainMap = {
                 'haute-couture': ['Styliste haute couture', 'haute-couture', 'couture', 'haute'],
                 'streetwear': ['Styliste streetwear', 'street', 'street wear', 'urban'],
-                'Designer' : ['Designer']
-                'bijoux': ['bijoux', 'bijouterie', 'joaillerie', 'bijou', 'accessoires', 'accessoire', 'sac', 'chaussure'],
-                'Artisans du tricot': ['artisants du tricot', 'tricot' ]
-                'Autres' :['Autres']
+                'designer': ['Designer', 'design'],
+                'bijoux': ['bijoux', 'bijouterie', 'joaillerie', 'bijou', 'Marque de bijoux'],
+                'artisans-du-tricot': ['Artisans du tricot', 'artisans du tricot', 'tricot']
             };
             
+            // Récupérer tous les termes de recherche des catégories prédéfinies
+            const allCategoryTerms = Object.values(domainMap).flat();
+            
+            // Cas spécial pour la catégorie "Autres"
+            if (domain === 'autres') {
+                console.log('🔍 Filtrage pour "Autres" - domaines non classifiés');
+                
+                let filteredData = data.filter(article => {
+                    if (!article.domaine) return true; // Les articles sans domaine vont dans "Autres"
+                    
+                    const domaineLower = article.domaine.toLowerCase().trim();
+                    
+                    // Vérifier si le domaine correspond à AUCUNE des catégories prédéfinies
+                    const isInPredefinedCategories = allCategoryTerms.some(term => {
+                        return domaineLower.includes(term.toLowerCase()) || 
+                               term.toLowerCase().includes(domaineLower);
+                    });
+                    
+                    // Garder seulement les articles qui NE sont PAS dans les catégories prédéfinies
+                    return !isInPredefinedCategories;
+                });
+                
+                console.log(`🔍 Filtre "Autres": ${filteredData.length} résultats sur ${data.length} total`);
+                
+                if (filteredData.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <p style="color: var(--text-secondary); margin-bottom: 20px;">Aucun créateur trouvé dans la catégorie "Autres".</p>
+                            <button class="filter-btn active" data-filter="all" style="padding: 10px 25px; background: var(--accent); border: none; border-radius: 25px; color: var(--text-dark); font-weight: 600; cursor: pointer;">Voir tous les créateurs</button>
+                        </div>
+                    `;
+                    
+                    const allBtn = container.querySelector('button[data-filter="all"]');
+                    if (allBtn) {
+                        allBtn.addEventListener('click', function() {
+                            document.querySelectorAll('.filter-btn').forEach(btn => {
+                                if (btn.dataset.filter === 'all') {
+                                    btn.classList.add('active');
+                                } else {
+                                    btn.classList.remove('active');
+                                }
+                            });
+                            filterVisages('all');
+                        });
+                    }
+                    return;
+                }
+                
+                renderVisages(filteredData, container);
+                return;
+            }
+            
+            // Pour les autres catégories spécifiques
             const searchTerms = domainMap[domain] || [domain.toLowerCase()];
             console.log(`🔍 Recherche des termes:`, searchTerms);
             
