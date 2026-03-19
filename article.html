@@ -2,61 +2,45 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <title>Article - DREAMSWEAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Article - DREAMSWEAR MAG</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+   <script src="script.js" defer></script>
     <style>
-        /* ===== RESET ET BASE ===== */
+        /* Styles responsive pour la page article */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
         
-        html {
-            font-size: 16px;
-            scroll-behavior: smooth;
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
-        }
-        
         body {
             font-family: 'Montserrat', sans-serif;
             line-height: 1.6;
-            color: #333333;
-            background: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            color: #000000;
+            background: #f9f9f9;
             overflow-x: hidden;
-            word-wrap: break-word;
         }
         
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        /* ===== HEADER ===== */
+        /* Header responsive */
         .main-header {
-            background: #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             position: fixed;
             top: 0;
-            width: 100%;
+            left: 0;
+            right: 0;
             z-index: 1000;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
         }
         
-        .header-container {
+        .main-header .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 1rem;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -64,545 +48,611 @@
         
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #1a1a1a;
             text-decoration: none;
         }
         
-        .main-nav ul {
-            display: flex;
-            gap: 1.5rem;
-            list-style: none;
-        }
-        
-        .main-nav a {
-            color: #333333;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        
-        .main-nav a:hover {
-            color: #d4af37;
-        }
-        
-        /* ===== CONTENU PRINCIPAL ===== */
+        /* Contenu principal responsive */
         .article-page {
-            flex: 1;
-            width: 100%;
-            max-width: 900px;
+            padding: 100px 20px 40px;
+            max-width: min(800px, 95vw); /* S'adapte à l'écran */
             margin: 0 auto;
-            padding: 5rem 1rem 3rem;
-        }
-        
-        /* Conteneur principal pour le contenu JS */
-        #article-content {
             width: 100%;
-            min-height: 300px;
-        }
-        
-        /* Styles pour le contenu chargé par JS */
-        .full-article {
-            width: 100%;
-            overflow: hidden;
         }
         
         .article-header {
-            margin-bottom: 2.5rem;
+            margin-bottom: 40px;
         }
         
-        .article-breadcrumb {
-            font-size: 0.9rem;
-            color: #666666;
-            margin-bottom: 1.5rem;
+        .article-header img {
+            width: 100%;
+            height: auto;
+            max-height: min(500px, 50vh); /* Hauteur adaptative */
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 30px;
         }
         
-        .article-breadcrumb a {
-            color: #d4af37;
-            text-decoration: none;
-        }
-        
-        .article-breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .article-title {
+        .article-header h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 2.2rem;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
-            color: #1a1a1a;
-            font-weight: 700;
+            font-size: clamp(1.8rem, 5vw, 2.5rem); /* Texte responsive */
+            margin-bottom: 20px;
+            color: #000000;
+            line-height: 1.3;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
         }
         
         .article-meta {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
-            color: #666666;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #eaeaea;
+            gap: 15px;
+            color: #000000;
+            margin-bottom: 30px;
+            font-size: clamp(0.8rem, 2vw, 0.9rem); /* Taille de police responsive */
         }
         
-        .meta-left, .meta-right {
+        .article-meta span {
             display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .article-date, .article-author, .article-rubrique {
-            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            color: #555555;
+            gap: 5px;
+            color: #000000;
+            flex-wrap: wrap;
         }
         
-        .specific-badge {
-            background: #d4af37;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .article-hero-image {
-            width: 100%;
-            height: auto;
-            max-height: 500px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin: 1.5rem 0;
-        }
-        
-        .article-body {
-            width: 100%;
-        }
-        
-        .article-content-text {
-            font-size: 1.125rem;
+        .article-content {
+            font-size: clamp(1rem, 3vw, 1.1rem); /* Taille de police responsive */
             line-height: 1.8;
-            color: #333333;
+            color: #000000;
             width: 100%;
             overflow-wrap: break-word;
             word-wrap: break-word;
+            hyphens: auto;
         }
         
-        .article-content-text p {
+        .article-content p {
             margin-bottom: 1.5rem;
+            color: #000000;
+            width: 100%;
+            max-width: 100%;
+            overflow-wrap: break-word;
         }
         
-        .article-content-text h2 {
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 30px 0;
+            display: block;
+        }
+        
+        .article-content h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            margin: 2.5rem 0 1rem;
-            color: #1a1a1a;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            font-size: clamp(1.5rem, 4vw, 1.8rem); /* Responsive */
+            margin: 40px 0 20px;
+            color: #000000;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
         
-        .article-content-text h3 {
-            font-size: 1.3rem;
-            margin: 2rem 0 1rem;
-            color: #222222;
+        .article-content h3 {
+            font-size: clamp(1.2rem, 3.5vw, 1.4rem); /* Responsive */
+            margin: 30px 0 15px;
+            color: #000000;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
         
-        .article-content-text strong {
-            color: #1a1a1a;
+        .article-content h4 {
+            font-size: clamp(1rem, 3vw, 1.2rem); /* Responsive */
+            margin: 25px 0 12px;
+            color: #000000;
+            line-height: 1.3;
+            word-wrap: break-word;
         }
         
-        .article-content-text em {
-            color: #555555;
-        }
-        
-        .creator-info, .event-info {
-            background: rgba(212, 175, 55, 0.08);
-            padding: 1.5rem;
-            border-radius: 12px;
-            margin: 2rem 0;
-            border-left: 4px solid #d4af37;
-        }
-        
-        .creator-info h3, .event-info h3 {
-            color: #1a1a1a;
-            margin-bottom: 1rem;
-        }
-        
-        .creator-info ul, .event-info ul {
-            list-style: none;
-            padding: 0;
-            margin: 1rem 0;
-        }
-        
-        .creator-info li, .event-info li {
-            margin-bottom: 0.5rem;
-            color: #333333;
-        }
-        
-        .article-footer {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid #eaeaea;
-        }
-        
-        .article-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
+        .article-content ul,
+        .article-content ol {
+            margin-left: 20px;
             margin-bottom: 1.5rem;
+            padding-left: 20px;
         }
         
-        .article-tag {
-            background: rgba(212, 175, 55, 0.1);
-            color: #d4af37;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.85rem;
-            border: 1px solid rgba(212, 175, 55, 0.2);
+        .article-content li {
+            margin-bottom: 0.5rem;
+            color: #000000;
         }
         
-        .back-to-list {
-            display: inline-block;
-            background: #d4af37;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
+        /* Forcer le texte en noir pour tous les articles */
+        #article-content,
+        #article-content * {
+            color: #000000 !important;
         }
         
-        .back-to-list:hover {
-            background: #c19e2e;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        .article-content,
+        .article-content * {
+            color: #000000 !important;
         }
         
-        /* ===== BOUTON RETOUR MANUEL ===== */
+        .article-content p,
+        .article-content h2,
+        .article-content h3,
+        .article-content h4,
+        .article-content li,
+        .article-content strong,
+        .article-content em {
+            color: #000000 !important;
+        }
+        
+        /* Pour le titre de l'article */
+        .article-header h1 {
+            color: #000000 !important;
+        }
+        
+        /* Pour le méta-information */
+        .article-meta,
+        .article-meta * {
+            color: #000000 !important;
+        }
+        
+        /* Bouton retour */
         .back-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 0.75rem 1.5rem;
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 30px;
             background: #d4af37;
-            color: white;
+            color: #1a1a1a;
             border-radius: 25px;
             text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
             font-weight: 600;
             transition: all 0.3s ease;
-            margin-top: 2rem;
             border: none;
             cursor: pointer;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive */
+            width: auto;
+            min-width: 120px;
         }
         
         .back-button:hover {
-            background: #c19e2e;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
         }
         
-        /* ===== FOOTER ===== */
+        /* Footer responsive */
         .main-footer {
             background: #1a1a1a;
-            color: #ffffff;
-            padding: 3rem 1rem 2rem;
-            margin-top: auto;
+            color: #fff;
+            padding: 40px 20px;
+            margin-top: 60px;
         }
         
-        .footer-container {
+        .main-footer .container {
             max-width: 1200px;
             margin: 0 auto;
         }
         
         .footer-content {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
         }
         
-        .footer-title {
+        .footer-content h4 {
             font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            margin-bottom: 1rem;
-            color: #ffffff;
+            font-size: clamp(1.5rem, 4vw, 1.8rem); /* Responsive */
+            margin-bottom: 15px;
         }
         
-        .footer-description {
-            color: #cccccc;
-            margin-bottom: 1.5rem;
-            line-height: 1.6;
+        .footer-content p {
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive */
         }
         
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 1rem;
-            margin: 1.5rem 0;
+            gap: 15px;
+            margin: 20px 0;
             flex-wrap: wrap;
         }
         
-        .social-link {
-            display: inline-flex;
+        .social-links a {
+            display: flex;
             align-items: center;
             justify-content: center;
             width: 40px;
             height: 40px;
-            background: #333333;
+            background: #333;
             border-radius: 50%;
-            color: #ffffff;
+            color: #fff;
             text-decoration: none;
             transition: all 0.3s ease;
+            flex-shrink: 0;
         }
         
-        .social-link:hover {
+        .social-links a:hover {
             background: #d4af37;
             transform: translateY(-3px);
         }
         
         .footer-bottom {
             text-align: center;
-            padding-top: 1.5rem;
-            border-top: 1px solid #333333;
-            color: #999999;
-            font-size: 0.9rem;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #999;
+            font-size: clamp(0.8rem, 2vw, 0.9rem); /* Responsive */
         }
         
-        /* ===== MESSAGES D'ÉTAT ===== */
-        .loading, .error-message {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #666666;
+        /* Media Queries pour le responsive - REVUES */
+        @media (max-width: 1024px) {
+            .article-page {
+                padding: 90px 20px 35px;
+                max-width: min(700px, 95vw);
+            }
+            
+            .article-header img {
+                max-height: min(450px, 45vh);
+            }
         }
         
-        .error-message {
-            color: #dc3545;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #d4af37;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* ===== THÈME SOMBRE ===== */
-        body.dark-mode {
-            background: #121212;
-            color: #e0e0e0;
-        }
-        
-        body.dark-mode .main-header {
-            background: #1a1a1a;
-        }
-        
-        body.dark-mode .logo {
-            color: #ffffff;
-        }
-        
-        body.dark-mode .main-nav a {
-            color: #e0e0e0;
-        }
-        
-        body.dark-mode .article-title,
-        body.dark-mode .article-content-text,
-        body.dark-mode .article-content-text p,
-        body.dark-mode .article-content-text h2,
-        body.dark-mode .article-content-text h3,
-        body.dark-mode .creator-info,
-        body.dark-mode .creator-info *,
-        body.dark-mode .event-info,
-        body.dark-mode .event-info * {
-            color: #e0e0e0;
-        }
-        
-        body.dark-mode .article-content-text h2 {
-            border-bottom-color: rgba(212, 175, 55, 0.4);
-        }
-        
-        body.dark-mode .creator-info,
-        body.dark-mode .event-info {
-            background: rgba(212, 175, 55, 0.1);
-        }
-        
-        body.dark-mode .main-footer {
-            background: #0a0a0a;
-        }
-        
-        /* ===== RESPONSIVE ===== */
-        
-        /* Tablettes */
         @media (max-width: 768px) {
             .article-page {
-                padding: 4.5rem 1rem 2rem;
+                padding: 80px 15px 30px;
+                max-width: 95vw;
             }
             
-            .article-title {
-                font-size: 1.8rem;
-            }
-            
-            .article-content-text {
-                font-size: 1rem;
-            }
-            
-            .article-content-text h2 {
-                font-size: 1.4rem;
-            }
-            
-            .article-content-text h3 {
-                font-size: 1.2rem;
+            .article-header h1 {
+                font-size: clamp(1.5rem, 6vw, 1.8rem);
             }
             
             .article-meta {
                 flex-direction: column;
-                gap: 0.75rem;
+                gap: 10px;
+                font-size: 0.85rem;
             }
             
-            .header-container {
-                padding: 0.75rem;
+            .article-content {
+                font-size: clamp(0.95rem, 3.5vw, 1rem);
+                line-height: 1.7;
+            }
+            
+            .article-content h2 {
+                font-size: clamp(1.3rem, 5vw, 1.5rem);
+                margin: 35px 0 18px;
+            }
+            
+            .article-content h3 {
+                font-size: clamp(1.1rem, 4vw, 1.2rem);
+                margin: 25px 0 12px;
+            }
+            
+            .article-content h4 {
+                font-size: clamp(1rem, 3.5vw, 1.1rem);
+                margin: 20px 0 10px;
+            }
+            
+            .main-header .container {
+                padding: 10px 15px;
             }
             
             .logo {
-                font-size: 1.4rem;
-            }
-        }
-        
-        /* Mobiles */
-        @media (max-width: 480px) {
-            .article-page {
-                padding: 4rem 0.75rem 1.5rem;
-            }
-            
-            .article-title {
                 font-size: 1.5rem;
             }
             
-            .article-content-text {
+            .back-button {
+                padding: 10px 25px;
+                width: 100%;
+                text-align: center;
+                margin-top: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .article-page {
+                padding: 70px 10px 20px;
+            }
+            
+            .article-header h1 {
+                font-size: clamp(1.3rem, 7vw, 1.5rem);
+                line-height: 1.2;
+            }
+            
+            .article-header img {
+                max-height: min(300px, 40vh);
+                margin-bottom: 20px;
+            }
+            
+            .article-content {
                 font-size: 0.95rem;
                 line-height: 1.6;
             }
             
-            .article-content-text h2 {
+            .article-content h2 {
                 font-size: 1.3rem;
+                margin: 30px 0 15px;
             }
             
-            .article-content-text h3 {
+            .article-content h3 {
                 font-size: 1.1rem;
+                margin: 20px 0 10px;
             }
             
-            .article-hero-image {
-                max-height: 300px;
+            .article-content p {
+                margin-bottom: 1.2rem;
             }
             
-            .creator-info, .event-info {
-                padding: 1rem;
+            .article-content img {
+                margin: 20px 0;
             }
             
-            .back-button, .back-to-list {
+            .back-button {
                 width: 100%;
-                text-align: center;
+                padding: 12px 20px;
+                font-size: 0.95rem;
             }
             
-            .main-nav ul {
-                gap: 1rem;
+            .social-links a {
+                width: 35px;
+                height: 35px;
             }
             
-            .main-nav a {
-                font-size: 0.9rem;
+            .social-links {
+                gap: 10px;
             }
         }
         
-        /* Très petits mobiles */
         @media (max-width: 360px) {
-            .article-title {
-                font-size: 1.3rem;
+            .article-page {
+                padding: 60px 8px 15px;
             }
             
-            .article-content-text {
-                font-size: 0.9rem;
-            }
-            
-            .logo {
+            .article-header h1 {
                 font-size: 1.2rem;
             }
             
-            .footer-title {
-                font-size: 1.3rem;
-            }
-        }
-        
-        /* Grands écrans */
-        @media (min-width: 1200px) {
-            .article-page {
-                max-width: 1000px;
-                padding: 6rem 0 4rem;
+            .article-content {
+                font-size: 0.9rem;
+                line-height: 1.5;
             }
             
-            .article-content-text {
-                font-size: 1.15rem;
-                line-height: 1.85;
+            .article-content h2 {
+                font-size: 1.1rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1rem;
+            }
+            
+            .article-meta {
+                font-size: 0.8rem;
+                gap: 8px;
             }
         }
         
-        /* Écrans très larges */
+        /* Styles pour les très petits écrans (téléphones pliables) */
+        @media (max-width: 320px) {
+            .article-page {
+                padding: 50px 5px 10px;
+            }
+            
+            .article-content {
+                font-size: 0.85rem;
+            }
+            
+            .article-content h2 {
+                font-size: 1rem;
+            }
+            
+            .article-content h3 {
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Pour les très grands écrans */
         @media (min-width: 1600px) {
             .article-page {
-                max-width: 1100px;
+                max-width: min(900px, 70vw);
+            }
+            
+            .article-content {
+                font-size: 1.15rem;
+                line-height: 1.9;
+            }
+            
+            .article-header h1 {
+                font-size: 2.8rem;
             }
         }
         
-        /* Hauteur limitée */
-        @media (max-height: 600px) {
-            .article-page {
-                padding-top: 4rem;
-            }
-            
-            .article-hero-image {
-                max-height: 250px;
-            }
+        /* Styles pour le thème sombre - MODIFIÉ POUR FORCER LE TEXTE NOIR */
+        [data-theme="night"] {
+            background: #121212;
+            color: #000000 !important;
         }
         
-        /* Impression */
-        @media print {
-            .main-header,
-            .back-button,
-            .main-footer,
-            .social-links {
-                display: none;
+        [data-theme="night"] .main-header {
+            background: #1a1a1a;
+        }
+        
+        [data-theme="night"] .logo {
+            color: #ffffff;
+        }
+        
+        [data-theme="night"] .article-header h1 {
+            color: #000000 !important;
+        }
+        
+        [data-theme="night"] .article-content {
+            color: #000000 !important;
+        }
+        
+        [data-theme="night"] .article-content h2,
+        [data-theme="night"] .article-content h3,
+        [data-theme="night"] .article-content p,
+        [data-theme="night"] .article-content li,
+        [data-theme="night"] .article-content h4 {
+            color: #000000 !important;
+        }
+        
+        [data-theme="night"] .article-meta,
+        [data-theme="night"] .article-meta span {
+            color: #000000 !important;
+        }
+        
+        [data-theme="night"] #article-content,
+        [data-theme="night"] #article-content * {
+            color: #000000 !important;
+        }
+        
+        [data-theme="night"] .main-footer {
+            background: #0a0a0a;
+        }
+        
+        /* Styles pour éviter les débordements */
+        .article-content table {
+            width: 100%;
+            overflow-x: auto;
+            display: block;
+            max-width: 100%;
+        }
+        
+        .article-content pre,
+        .article-content code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        
+        .article-content blockquote {
+            margin: 20px 0;
+            padding: 15px 20px;
+            background: rgba(212, 175, 55, 0.05);
+            border-left: 4px solid #d4af37;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            max-width: 100%;
+            overflow-wrap: break-word;
+        }
+        
+        /* NOUVEAU STYLE : Like / Dislike */
+        .reaction-bar {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin: 50px 0 30px;
+            padding: 20px 0;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .reaction-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: transparent;
+            border: 2px solid #d4af37;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            font-weight: 600;
+            color: #000000 !important;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 130px;
+            justify-content: center;
+        }
+        
+        .reaction-btn i {
+            font-size: 1.4rem;
+            color: #d4af37;
+            transition: transform 0.2s;
+        }
+        
+        .reaction-btn span {
+            font-weight: 600;
+            color: inherit;
+        }
+        
+        .reaction-btn.liked {
+            background: #d4af37;
+            color: #1a1a1a !important;
+            border-color: #d4af37;
+        }
+        
+        .reaction-btn.liked i {
+            color: #1a1a1a;
+            transform: scale(1.1);
+        }
+        
+        .reaction-btn.disliked {
+            background: #d4af37;
+            color: #1a1a1a !important;
+            border-color: #d4af37;
+        }
+        
+        .reaction-btn.disliked i {
+            color: #1a1a1a;
+            transform: scale(1.1);
+        }
+        
+        .reaction-btn:hover {
+            background: rgba(212, 175, 55, 0.15);
+            border-color: #d4af37;
+        }
+        
+        .reaction-btn.liked:hover, .reaction-btn.disliked:hover {
+            background: #c6a22e;
+        }
+        
+        .reaction-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.95rem;
+            color: #000000;
+        }
+        
+        .reaction-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(212, 175, 55, 0.08);
+            padding: 5px 15px;
+            border-radius: 30px;
+        }
+        
+        [data-theme="night"] .reaction-bar {
+            border-color: rgba(255,255,255,0.15);
+        }
+        [data-theme="night"] .reaction-stats span {
+            background: rgba(212, 175, 55, 0.2);
+            color: #000000 !important;
+        }
+        
+        @media (max-width: 480px) {
+            .reaction-bar {
+                gap: 15px;
+                flex-direction: column;
+                align-items: stretch;
             }
-            
-            .article-page {
-                padding: 0;
-                max-width: 100%;
+            .reaction-btn {
+                width: 100%;
             }
-            
-            .article-content-text {
-                font-size: 12pt;
-                line-height: 1.6;
-            }
-            
-            body {
-                background: white;
-                color: black;
+            .reaction-stats {
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
     <header class="main-header">
-        <div class="header-container">
-            <a href="index.html" class="logo">DREAMS</a>
+        <div class="container">
+            <div class="logo">DREAMS</div>
             <nav class="main-nav">
                 <ul>
                     <li><a href="index.html">Accueil</a></li>
@@ -612,38 +662,41 @@
     </header>
 
     <main class="article-page">
-        <div class="article-container" id="article-content">
-            <!-- Le contenu sera chargé ici par script.js -->
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Chargement de l'article...</p>
+        <div class="container">
+            <div id="article-content">
+                <!-- Le contenu de l'article sera injecté ici par script.js -->
+                <p style="text-align: center; padding: 40px; color: #000000;">Chargement de l'article...</p>
+            </div>
+            
+            <!-- NOUVEAU : Bloc Like / Dislike -->
+            <div class="reaction-bar" id="reactionBar" style="display: none;">
+                <button class="reaction-btn" id="likeBtn" title="J'aime cet article">
+                    <i class="fas fa-thumbs-up"></i>
+                    <span id="likeCount">0</span>
+                </button>
+                <button class="reaction-btn" id="dislikeBtn" title="Je n'aime pas cet article">
+                    <i class="fas fa-thumbs-down"></i>
+                    <span id="dislikeCount">0</span>
+                </button>
+                <div class="reaction-stats">
+                    <span><i class="fas fa-thumbs-up" style="color:#d4af37;"></i> <span id="likeStat">0</span></span>
+                    <span><i class="fas fa-thumbs-down" style="color:#d4af37;"></i> <span id="dislikeStat">0</span></span>
+                </div>
             </div>
         </div>
     </main>
 
     <footer class="main-footer">
-        <div class="footer-container">
+        <div class="container">
             <div class="footer-content">
-                <h3 class="footer-title">DREAMSWEAR MAG</h3>
-                <p class="footer-description">
-                    Le style est une façon de dire qui vous êtes sans parler.
-                </p>
+                <h4>DREAMSWEAR MAG</h4>
+                <p>Le style est une façon de dire qui vous êtes sans parler.</p>
                 <div class="social-links">
-                    <a href="https://www.instagram.com/dreamswear_mag" target="_blank" class="social-link" aria-label="Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
-                    <a href="#" class="social-link" aria-label="LinkedIn">
-                        <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="#" class="social-link" aria-label="Twitter">
-                        <i class="fab fa-twitter"></i>
-                    </a>
-                    <a href="https://www.tiktok.com/@dreams_wear0" target="_blank" class="social-link" aria-label="TikTok">
-                        <i class="fab fa-tiktok"></i>
-                    </a>
-                    <a href="https://wa.me/237682460592" target="_blank" class="social-link" aria-label="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
+                    <a href="https://www.instagram.com/dreamswear_mag" target="_blank"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.tiktok.com/@dreams_wear0" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://wa.me/237682460592" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -653,62 +706,98 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
     <script>
-        // Gestion du thème
+        // Script de gestion like/dislike (indépendant de l'article)
         document.addEventListener('DOMContentLoaded', function() {
-            // Appliquer le thème depuis localStorage
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'day') {
-                document.body.classList.remove('dark-mode');
-            } else {
-                document.body.classList.add('dark-mode');
+            const reactionBar = document.getElementById('reactionBar');
+            const likeBtn = document.getElementById('likeBtn');
+            const dislikeBtn = document.getElementById('dislikeBtn');
+            const likeCountSpan = document.getElementById('likeCount');
+            const dislikeCountSpan = document.getElementById('dislikeCount');
+            const likeStatSpan = document.getElementById('likeStat');
+            const dislikeStatSpan = document.getElementById('dislikeStat');
+            
+            // États initiaux (simulés depuis le localStorage ou à zéro)
+            let likes = parseInt(localStorage.getItem('article_likes') || '0');
+            let dislikes = parseInt(localStorage.getItem('article_dislikes') || '0');
+            
+            // Vérifier si l'utilisateur a déjà réagi
+            let userReaction = localStorage.getItem('article_user_reaction'); // 'like', 'dislike' ou null
+            
+            // Fonction de mise à jour UI
+            function updateUI() {
+                likeCountSpan.textContent = likes;
+                dislikeCountSpan.textContent = dislikes;
+                likeStatSpan.textContent = likes;
+                dislikeStatSpan.textContent = dislikes;
+                
+                // Mettre à jour les classes actives
+                likeBtn.classList.remove('liked', 'disliked');
+                dislikeBtn.classList.remove('liked', 'disliked');
+                
+                if (userReaction === 'like') {
+                    likeBtn.classList.add('liked');
+                } else if (userReaction === 'dislike') {
+                    dislikeBtn.classList.add('disliked');
+                }
             }
             
-            // S'assurer que le contenu JS chargé respecte le thème
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.addedNodes.length && document.body.classList.contains('dark-mode')) {
-                        // Appliquer les styles sombres au nouveau contenu
-                        mutation.addedNodes.forEach(function(node) {
-                            if (node.nodeType === 1) { // ELEMENT_NODE
-                                if (node.classList && node.classList.contains('full-article')) {
-                                    // Appliquer les couleurs sombres
-                                    const textElements = node.querySelectorAll(
-                                        '.article-title, .article-content-text, .article-content-text p, ' +
-                                        '.article-content-text h2, .article-content-text h3, ' +
-                                        '.creator-info, .event-info, .article-tag, .article-date, ' +
-                                        '.article-author, .article-rubrique'
-                                    );
-                                    textElements.forEach(el => {
-                                        el.style.color = '#e0e0e0';
-                                    });
-                                    
-                                    // Appliquer les styles spécifiques
-                                    const h2Elements = node.querySelectorAll('.article-content-text h2');
-                                    h2Elements.forEach(el => {
-                                        el.style.borderBottom = '2px solid rgba(212, 175, 55, 0.4)';
-                                    });
-                                }
-                            }
-                        });
-                    }
-                });
+            // Simuler le chargement d'un article : on affiche la reactionBar
+            // Dans un cas réel, on attendrait que l'article soit chargé. Ici on le fait après un court délai.
+            setTimeout(() => {
+                reactionBar.style.display = 'flex'; // ou 'block' adapté par flex dans .reaction-bar
+                updateUI();
+            }, 300); // petit délai pour laisser le message "Chargement..." visible
+            
+            // Gestionnaires d'événements
+            likeBtn.addEventListener('click', function() {
+                if (userReaction === 'like') {
+                    // Annuler le like
+                    likes -= 1;
+                    userReaction = null;
+                } else if (userReaction === 'dislike') {
+                    // Changement de dislike -> like
+                    dislikes -= 1;
+                    likes += 1;
+                    userReaction = 'like';
+                } else {
+                    // Nouveau like
+                    likes += 1;
+                    userReaction = 'like';
+                }
+                
+                // Mettre à jour le localStorage
+                localStorage.setItem('article_likes', likes);
+                localStorage.setItem('article_dislikes', dislikes);
+                localStorage.setItem('article_user_reaction', userReaction || '');
+                
+                updateUI();
             });
             
-            observer.observe(document.getElementById('article-content'), {
-                childList: true,
-                subtree: true
+            dislikeBtn.addEventListener('click', function() {
+                if (userReaction === 'dislike') {
+                    // Annuler le dislike
+                    dislikes -= 1;
+                    userReaction = null;
+                } else if (userReaction === 'like') {
+                    // Changement de like -> dislike
+                    likes -= 1;
+                    dislikes += 1;
+                    userReaction = 'dislike';
+                } else {
+                    // Nouveau dislike
+                    dislikes += 1;
+                    userReaction = 'dislike';
+                }
+                
+                localStorage.setItem('article_likes', likes);
+                localStorage.setItem('article_dislikes', dislikes);
+                localStorage.setItem('article_user_reaction', userReaction || '');
+                
+                updateUI();
             });
         });
-        
-        // Redimensionnement fluide
-        window.addEventListener('resize', function() {
-            // Force un recalcul des styles pour s'adapter
-            document.body.style.display = 'none';
-            document.body.offsetHeight; // Trigger reflow
-            document.body.style.display = '';
-        });
     </script>
+    <script src="script.js"></script>
 </body>
 </html>
