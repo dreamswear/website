@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Mon Portfolio Créatif - Dreamswear</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ========== RESET & VARIABLES ========== */
@@ -26,6 +26,10 @@
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             --radius: 12px;
             --radius-sm: 8px;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
         }
 
         body {
@@ -588,6 +592,16 @@
             color: var(--primary);
         }
 
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
         /* --- LOADER --- */
         .loading-screen {
             position: fixed;
@@ -661,6 +675,14 @@
 
         .notification-error i {
             color: #dc3545;
+        }
+
+        .notification-info {
+            border-left: 5px solid #17a2b8;
+        }
+
+        .notification-info i {
+            color: #17a2b8;
         }
 
         /* --- MODAL --- */
@@ -916,7 +938,7 @@
         }
 
         input, select, textarea, button {
-            font-size: 16px !important; /* Évite le zoom automatique sur iOS */
+            font-size: 16px !important;
         }
 
         /* ========== GESTION DU DÉBORDEMENT ========== */
@@ -1220,11 +1242,18 @@
 
             console.log('🎨 Initialisation du portfolio créateur');
 
-            // ===== 1. CONFIGURATION =====
+            // ===== 1. CONFIGURATION SUPABASE =====
             const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
             const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
             
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            // Créer le client Supabase avec les options d'auth
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: false
+                }
+            });
 
             // ===== 2. VÉRIFICATION SESSION =====
             if (!window.SessionManager) {
@@ -1267,7 +1296,7 @@
                 // Marque dans le header
                 const brandEl = document.getElementById('creatorDisplayBrand');
                 if (brandEl) {
-                    brandEl.textContent = sessionData.nom_marque || sessionData.brand || 'Créateur indépendant';
+                    brandEl.textContent = sessionData.nom_marque || 'Créateur indépendant';
                 }
 
                 // Avatar avec initiales
@@ -1370,6 +1399,10 @@
                         portfolioData = portfolio;
                         portfolioId = portfolio.id;
                         populateFormWithPortfolioData(portfolio);
+                        
+                        // Charger les collections et images
+                        await loadCollections();
+                        await loadGalleryImages();
                     } else {
                         console.log('ℹ️ Aucun portfolio existant, création à venir');
                     }
@@ -1455,11 +1488,6 @@
                     document.getElementById('website').value = portfolio.website;
                     document.getElementById('profileWebsite').textContent = portfolio.website;
                 }
-
-                // Nom de la marque
-                if (portfolio.brand_name) {
-                    document.getElementById('brandName').value = portfolio.brand_name;
-                }
             }
 
             // ===== 8. CALCUL DU POURCENTAGE DE COMPLÉTION =====
@@ -1471,8 +1499,7 @@
                     portfolio.title,
                     portfolio.description,
                     portfolio.domain,
-                    portfolio.main_image_url,
-                    portfolio.brand_name
+                    portfolio.main_image_url
                 ];
                 
                 fields.forEach(field => {
@@ -1480,7 +1507,7 @@
                     if (field) completed++;
                 });
                 
-                return Math.round((completed / total) * 100);
+                return Math.round((completed / total) * 100) || 0;
             }
 
             // ===== 9. RENDU DES SPÉCIALITÉS =====
@@ -1518,7 +1545,16 @@
                     // Récupérer les spécialités actives
                     updateSpecialtiesArray();
 
-                    // Préparer les données
+                    // Vérifier la session
+                    const { data: { session } } = await supabase.auth.getSession();
+                    
+                    if (!session) {
+                        showNotification('Session expirée, veuillez vous reconnecter', 'error');
+                        window.location.href = 'index.html';
+                        return { success: false };
+                    }
+
+                    // Préparer les données - SANS brand_name
                     const portfolioToSave = {
                         creator_id: creatorId,
                         title: formData.brandName || formData.creatorName,
@@ -1528,15 +1564,13 @@
                         specialties: currentSpecialties,
                         instagram_handle: formData.instagram,
                         website: formData.website || null,
-                        brand_name: formData.brandName,
-                        updated_at: new Date().toISOString(),
-                        portfolio_completion: calculateCompletionFromForm(formData)
+                        updated_at: new Date().toISOString()
                     };
 
                     // Ajouter la photo si elle existe
-                    if (document.getElementById('profilePhoto').src && 
-                        !document.getElementById('profilePhoto').src.includes('data:')) {
-                        portfolioToSave.main_image_url = document.getElementById('profilePhoto').src;
+                    const profilePhoto = document.getElementById('profilePhoto');
+                    if (profilePhoto.src && !profilePhoto.src.includes('data:')) {
+                        portfolioToSave.main_image_url = profilePhoto.src;
                     }
 
                     let result;
@@ -1547,7 +1581,8 @@
                         result = await supabase
                             .from('portfolio')
                             .update(portfolioToSave)
-                            .eq('id', portfolioId);
+                            .eq('id', portfolioId)
+                            .select();
                     } else {
                         // Création
                         console.log('➕ Création nouveau portfolio');
@@ -1563,24 +1598,41 @@
 
                     if (result.error) {
                         console.error('❌ Erreur Supabase:', result.error);
-                        throw result.error;
+                        
+                        if (result.error.message.includes('row-level security')) {
+                            showNotification('Erreur de permission. Veuillez vous reconnecter.', 'error');
+                        } else {
+                            showNotification('Erreur lors de la sauvegarde: ' + result.error.message, 'error');
+                        }
+                        
+                        return { success: false };
                     }
 
                     // Mise à jour de l'ID si création
                     if (!portfolioId && result.data && result.data[0]) {
                         portfolioId = result.data[0].id;
                         portfolioData = result.data[0];
+                        
+                        // Calculer et mettre à jour le pourcentage de complétion
+                        const completion = calculateCompletionFromForm(formData);
+                        await supabase
+                            .from('portfolio')
+                            .update({ portfolio_completion: completion })
+                            .eq('id', portfolioId);
                     }
 
-                    // Mettre à jour également la table créateurs
+                    // Mettre à jour la table créateurs
                     await updateCreatorInfo(formData);
 
                     console.log('✅ Portfolio sauvegardé avec succès');
-                    return { success: true, data: result.data };
+                    showNotification('Portfolio enregistré avec succès !', 'success');
+                    
+                    return { success: true };
 
                 } catch (error) {
                     console.error('❌ Erreur sauvegarde portfolio:', error.message);
-                    return { success: false, error: error.message };
+                    showNotification('Erreur lors de l\'enregistrement', 'error');
+                    return { success: false };
                 }
             }
 
@@ -1588,16 +1640,15 @@
             async function updateCreatorInfo(formData) {
                 try {
                     const creatorUpdate = {
-                        nom_marque: formData.brandName,
                         instagram: formData.instagram,
                         site_web: formData.website || null,
                         updated_at: new Date().toISOString()
                     };
 
                     // Ajouter la photo si elle existe
-                    if (document.getElementById('profilePhoto').src && 
-                        !document.getElementById('profilePhoto').src.includes('data:')) {
-                        creatorUpdate.photo_url = document.getElementById('profilePhoto').src;
+                    const profilePhoto = document.getElementById('profilePhoto');
+                    if (profilePhoto.src && !profilePhoto.src.includes('data:')) {
+                        creatorUpdate.photo_url = profilePhoto.src;
                     }
 
                     const { error } = await supabase
@@ -1641,13 +1692,13 @@
                     if (field) completed++;
                 });
                 
-                if (document.getElementById('profilePhoto').src && 
-                    !document.getElementById('profilePhoto').src.includes('data:')) {
+                const profilePhoto = document.getElementById('profilePhoto');
+                if (profilePhoto.src && !profilePhoto.src.includes('data:')) {
                     completed++;
                 }
                 total++;
                 
-                return Math.round((completed / total) * 100);
+                return Math.round((completed / total) * 100) || 0;
             }
 
             // ===== 14. CHARGEMENT DES COLLECTIONS =====
@@ -1840,7 +1891,7 @@
                 }
             });
 
-            // ===== 20. GESTION PHOTO DE PROFIL =====
+            // ===== 20. GESTION PHOTO DE PROFIL (VERSION SIMPLIFIÉE) =====
             document.getElementById('changePhotoBtn')?.addEventListener('click', function() {
                 const input = document.createElement('input');
                 input.type = 'file';
@@ -1856,13 +1907,16 @@
 
                         const reader = new FileReader();
                         reader.onload = function(ev) {
-                            document.getElementById('profilePhoto').src = ev.target.result;
+                            const dataUrl = ev.target.result;
+                            
+                            // Afficher la photo
+                            document.getElementById('profilePhoto').src = dataUrl;
                             document.getElementById('profilePhoto').style.display = 'block';
                             document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-                            document.getElementById('creatorAvatar').innerHTML = `<img src="${ev.target.result}" alt="Avatar">`;
+                            document.getElementById('creatorAvatar').innerHTML = `<img src="${dataUrl}" alt="Avatar">`;
                             
-                            // Sauvegarder automatiquement la photo
-                            savePhotoToSupabase(file, ev.target.result);
+                            // Sauvegarder en base64 directement
+                            savePhotoAsBase64(dataUrl);
                         };
                         reader.readAsDataURL(file);
                     }
@@ -1870,72 +1924,29 @@
                 input.click();
             });
 
-            // ===== 21. SAUVEGARDE PHOTO SUR SUPABASE =====
-            async function savePhotoToSupabase(file, dataUrl) {
+            // Sauvegarde photo en base64
+            async function savePhotoAsBase64(dataUrl) {
                 try {
-                    // Générer un nom de fichier unique
-                    const fileName = `profile-${creatorId}-${Date.now()}.${file.name.split('.').pop()}`;
-                    const filePath = `profiles/${fileName}`;
-
-                    // Upload du fichier
-                    const { error: uploadError } = await supabase.storage
-                        .from('portfolio-images')
-                        .upload(filePath, file);
-
-                    if (uploadError) {
-                        console.warn('⚠️ Erreur upload:', uploadError.message);
-                        // Fallback: sauvegarder en base64
-                        await savePhotoAsBase64(dataUrl);
-                        return;
-                    }
-
-                    // Récupérer l'URL publique
-                    const { data: urlData } = supabase.storage
-                        .from('portfolio-images')
-                        .getPublicUrl(filePath);
-
-                    const photoUrl = urlData.publicUrl;
-
-                    // Mettre à jour le portfolio
                     if (portfolioId) {
                         await supabase
                             .from('portfolio')
-                            .update({ main_image_url: photoUrl })
+                            .update({ main_image_url: dataUrl })
                             .eq('id', portfolioId);
                     }
 
-                    // Mettre à jour le créateur
                     await supabase
                         .from('créateurs')
-                        .update({ photo_url: photoUrl })
+                        .update({ photo_url: dataUrl })
                         .eq('id', creatorId);
 
                     showNotification('Photo sauvegardée', 'success');
-
                 } catch (error) {
                     console.error('❌ Erreur:', error.message);
-                    await savePhotoAsBase64(dataUrl);
+                    showNotification('Erreur lors de la sauvegarde', 'error');
                 }
             }
 
-            // Fallback: sauvegarde en base64
-            async function savePhotoAsBase64(dataUrl) {
-                if (portfolioId) {
-                    await supabase
-                        .from('portfolio')
-                        .update({ main_image_url: dataUrl })
-                        .eq('id', portfolioId);
-                }
-
-                await supabase
-                    .from('créateurs')
-                    .update({ photo_url: dataUrl })
-                    .eq('id', creatorId);
-
-                showNotification('Photo sauvegardée (format base64)', 'success');
-            }
-
-            // ===== 22. GESTION GALERIE =====
+            // ===== 21. GESTION GALERIE =====
             document.getElementById('addGalleryBtn')?.addEventListener('click', function() {
                 if (!portfolioId) {
                     showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
@@ -1964,31 +1975,19 @@
                             continue;
                         }
 
-                        // Générer un nom de fichier unique
-                        const fileName = `gallery-${creatorId}-${Date.now()}-${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
-                        const filePath = `gallery/${fileName}`;
-
-                        // Upload du fichier
-                        const { error: uploadError } = await supabase.storage
-                            .from('portfolio-images')
-                            .upload(filePath, file);
-
-                        if (uploadError) {
-                            console.error('❌ Erreur upload:', uploadError);
-                            continue;
-                        }
-
-                        // Récupérer l'URL publique
-                        const { data: urlData } = supabase.storage
-                            .from('portfolio-images')
-                            .getPublicUrl(filePath);
+                        // Convertir en base64
+                        const reader = new FileReader();
+                        const dataUrl = await new Promise((resolve) => {
+                            reader.onload = (e) => resolve(e.target.result);
+                            reader.readAsDataURL(file);
+                        });
 
                         // Sauvegarder dans la base de données
                         await supabase
                             .from('portfolio_images')
                             .insert([{
                                 portfolio_id: portfolioId,
-                                image_url: urlData.publicUrl,
+                                image_url: dataUrl,
                                 created_at: new Date().toISOString()
                             }]);
 
@@ -1997,7 +1996,7 @@
                     }
                 }
 
-                showNotification(`${files.length} image(s) uploadée(s)`, 'success');
+                showNotification(`${files.length} image(s) ajoutée(s)`, 'success');
                 
                 // Recharger la galerie
                 await loadGalleryImages();
@@ -2006,7 +2005,7 @@
                 e.target.value = '';
             });
 
-            // ===== 23. GESTION COLLECTIONS MODAL =====
+            // ===== 22. GESTION COLLECTIONS MODAL =====
             const modal = document.getElementById('collectionModal');
             const addBtn = document.getElementById('addCollectionBtn');
             const closeBtn = document.getElementById('closeCollectionModal');
@@ -2045,7 +2044,7 @@
                 collectionForm.addEventListener('submit', createCollection);
             }
 
-            // ===== 24. GESTION FORMULAIRE PRINCIPAL =====
+            // ===== 23. GESTION FORMULAIRE PRINCIPAL =====
             document.getElementById('portfolioForm')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -2070,8 +2069,6 @@
                 const result = await savePortfolio(formData);
 
                 if (result.success) {
-                    showNotification('Portfolio enregistré avec succès !', 'success');
-                    
                     // Mettre à jour l'affichage
                     document.getElementById('creatorDisplayBrand').textContent = formData.brandName;
                     document.getElementById('profileInstagram').textContent = formData.instagram;
@@ -2082,15 +2079,12 @@
 
                     // Recharger les données
                     if (!portfolioId) {
-                        // Si nouveau portfolio, recharger
                         await loadPortfolio();
                     }
-                } else {
-                    showNotification('Erreur lors de l\'enregistrement', 'error');
                 }
             });
 
-            // ===== 25. GESTION DÉCONNEXION =====
+            // ===== 24. GESTION DÉCONNEXION =====
             document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
@@ -2099,7 +2093,7 @@
                 }
             });
 
-            // ===== 26. NOTIFICATION =====
+            // ===== 25. NOTIFICATION =====
             function showNotification(message, type = 'success') {
                 const n = document.getElementById('notification');
                 const t = document.getElementById('notificationTitle');
@@ -2125,7 +2119,7 @@
 
             window.showNotification = showNotification;
 
-            // ===== 27. UTILITAIRE ESCAPE HTML =====
+            // ===== 26. UTILITAIRE ESCAPE HTML =====
             function escapeHtml(text) {
                 if (!text) return '';
                 const div = document.createElement('div');
@@ -2133,7 +2127,7 @@
                 return div.innerHTML;
             }
 
-            // ===== 28. INITIALISATION =====
+            // ===== 27. INITIALISATION =====
             async function init() {
                 // Cacher le loader après un court délai
                 setTimeout(() => {
@@ -2143,12 +2137,6 @@
 
                 // Charger le portfolio
                 await loadPortfolio();
-
-                // Si portfolio existe, charger les données associées
-                if (portfolioId) {
-                    await loadCollections();
-                    await loadGalleryImages();
-                }
             }
 
             // Démarrer
