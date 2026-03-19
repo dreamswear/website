@@ -537,11 +537,11 @@
             overflow-wrap: break-word;
         }
         
-        /* NOUVEAU STYLE : Like / Dislike - VERSION CENTRÉE */
+        /* NOUVEAU STYLE : Like / Dislike - VERSION CENTRÉE AVEC ID D'ARTICLE */
         .reaction-bar {
             display: flex;
             align-items: center;
-            justify-content: center; /* Centrage horizontal */
+            justify-content: center;
             gap: 20px;
             margin: 30px 0 20px;
             padding: 15px 0;
@@ -649,7 +649,7 @@
                 <p style="text-align: center; padding: 40px; color: #000000;">Chargement de l'article...</p>
             </div>
             
-            <!-- NOUVEAU : Bloc Like / Dislike centré -->
+            <!-- NOUVEAU : Bloc Like / Dislike centré avec stockage par ID -->
             <div class="reaction-bar" id="reactionBar" style="display: none;">
                 <button class="reaction-btn" id="likeBtn" title="J'aime cet article">
                     <i class="fas fa-thumbs-up"></i>
@@ -684,7 +684,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Script de gestion like/dislike (indépendant de l'article)
+        // Script de gestion like/dislike avec stockage par ID d'article
         document.addEventListener('DOMContentLoaded', function() {
             const reactionBar = document.getElementById('reactionBar');
             const likeBtn = document.getElementById('likeBtn');
@@ -692,12 +692,23 @@
             const likeCountSpan = document.getElementById('likeCount');
             const dislikeCountSpan = document.getElementById('dislikeCount');
             
-            // États initiaux (simulés depuis le localStorage ou à zéro)
-            let likes = parseInt(localStorage.getItem('article_likes') || '0');
-            let dislikes = parseInt(localStorage.getItem('article_dislikes') || '0');
+            // Récupérer l'ID de l'article depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id') || 'default';
             
-            // Vérifier si l'utilisateur a déjà réagi
-            let userReaction = localStorage.getItem('article_user_reaction'); // 'like', 'dislike' ou null
+            console.log(`📋 Article ID: ${articleId}`);
+            
+            // Clés de stockage uniques par article
+            const LIKES_KEY = `article_${articleId}_likes`;
+            const DISLIKES_KEY = `article_${articleId}_dislikes`;
+            const REACTION_KEY = `article_${articleId}_user_reaction`;
+            
+            // États initiaux spécifiques à cet article
+            let likes = parseInt(localStorage.getItem(LIKES_KEY) || '0');
+            let dislikes = parseInt(localStorage.getItem(DISLIKES_KEY) || '0');
+            let userReaction = localStorage.getItem(REACTION_KEY); // 'like', 'dislike' ou null
+            
+            console.log(`📊 Stats - Likes: ${likes}, Dislikes: ${dislikes}, Reaction: ${userReaction}`);
             
             // Fonction de mise à jour UI
             function updateUI() {
@@ -715,50 +726,85 @@
                 }
             }
             
-            // Simuler le chargement d'un article : on affiche la reactionBar
-            setTimeout(() => {
-                reactionBar.style.display = 'flex';
-                updateUI();
-            }, 300);
+            // Attendre que l'article soit chargé (via script.js)
+            // On vérifie toutes les 500ms si l'article est chargé
+            const checkInterval = setInterval(function() {
+                // Vérifier si le contenu de l'article n'est plus "Chargement..."
+                const articleContent = document.getElementById('article-content');
+                if (articleContent && !articleContent.innerHTML.includes('Chargement de l\'article')) {
+                    clearInterval(checkInterval);
+                    console.log('✅ Article chargé, affichage des réactions');
+                    reactionBar.style.display = 'flex';
+                    updateUI();
+                }
+            }, 500);
+            
+            // Timeout de sécurité après 5 secondes
+            setTimeout(function() {
+                clearInterval(checkInterval);
+                if (reactionBar.style.display === 'none') {
+                    console.log('⚠️ Timeout - affichage des réactions par défaut');
+                    reactionBar.style.display = 'flex';
+                    updateUI();
+                }
+            }, 5000);
             
             // Gestionnaires d'événements
             likeBtn.addEventListener('click', function() {
                 if (userReaction === 'like') {
+                    // Annuler le like
                     likes -= 1;
                     userReaction = null;
                 } else if (userReaction === 'dislike') {
+                    // Changement de dislike -> like
                     dislikes -= 1;
                     likes += 1;
                     userReaction = 'like';
                 } else {
+                    // Nouveau like
                     likes += 1;
                     userReaction = 'like';
                 }
                 
-                localStorage.setItem('article_likes', likes);
-                localStorage.setItem('article_dislikes', dislikes);
-                localStorage.setItem('article_user_reaction', userReaction || '');
+                // Sauvegarder dans le localStorage avec les clés spécifiques à l'article
+                localStorage.setItem(LIKES_KEY, likes);
+                localStorage.setItem(DISLIKES_KEY, dislikes);
+                if (userReaction) {
+                    localStorage.setItem(REACTION_KEY, userReaction);
+                } else {
+                    localStorage.removeItem(REACTION_KEY);
+                }
                 
+                console.log(`💾 Sauvegarde - Article ${articleId}: Likes=${likes}, Dislikes=${dislikes}, Reaction=${userReaction}`);
                 updateUI();
             });
             
             dislikeBtn.addEventListener('click', function() {
                 if (userReaction === 'dislike') {
+                    // Annuler le dislike
                     dislikes -= 1;
                     userReaction = null;
                 } else if (userReaction === 'like') {
+                    // Changement de like -> dislike
                     likes -= 1;
                     dislikes += 1;
                     userReaction = 'dislike';
                 } else {
+                    // Nouveau dislike
                     dislikes += 1;
                     userReaction = 'dislike';
                 }
                 
-                localStorage.setItem('article_likes', likes);
-                localStorage.setItem('article_dislikes', dislikes);
-                localStorage.setItem('article_user_reaction', userReaction || '');
+                // Sauvegarder dans le localStorage avec les clés spécifiques à l'article
+                localStorage.setItem(LIKES_KEY, likes);
+                localStorage.setItem(DISLIKES_KEY, dislikes);
+                if (userReaction) {
+                    localStorage.setItem(REACTION_KEY, userReaction);
+                } else {
+                    localStorage.removeItem(REACTION_KEY);
+                }
                 
+                console.log(`💾 Sauvegarde - Article ${articleId}: Likes=${likes}, Dislikes=${dislikes}, Reaction=${userReaction}`);
                 updateUI();
             });
         });
