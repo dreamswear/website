@@ -685,6 +685,14 @@
             color: #17a2b8;
         }
 
+        .notification-warning {
+            border-left: 5px solid #ffc107;
+        }
+
+        .notification-warning i {
+            color: #ffc107;
+        }
+
         /* --- MODAL --- */
         .modal {
             position: fixed;
@@ -1246,14 +1254,8 @@
             const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
             const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
             
-            // Créer le client Supabase avec les options d'auth
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-                auth: {
-                    autoRefreshToken: true,
-                    persistSession: true,
-                    detectSessionInUrl: false
-                }
-            });
+            // Créer le client Supabase
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
             // ===== 2. VÉRIFICATION SESSION =====
             if (!window.SessionManager) {
@@ -1378,10 +1380,34 @@
             // Afficher immédiatement
             displayCreatorInfo();
 
-            // ===== 6. CHARGEMENT DU PORTFOLIO =====
+            // ===== 6. FONCTION POUR RAFRAÎCHIR LA SESSION =====
+            async function refreshSession() {
+                try {
+                    // Essayer de rafraîchir la session Supabase
+                    const { data, error } = await supabase.auth.refreshSession();
+                    
+                    if (error) {
+                        console.warn('⚠️ Erreur rafraîchissement session:', error.message);
+                    }
+                    
+                    if (data?.session) {
+                        console.log('🔄 Session rafraîchie');
+                    }
+                    
+                    return true;
+                } catch (error) {
+                    console.warn('⚠️ Erreur rafraîchissement:', error.message);
+                    return false;
+                }
+            }
+
+            // ===== 7. CHARGEMENT DU PORTFOLIO =====
             async function loadPortfolio() {
                 try {
                     console.log('📂 Chargement du portfolio pour creator:', creatorId);
+
+                    // Rafraîchir la session avant
+                    await refreshSession();
 
                     // Chercher le portfolio existant
                     const { data: portfolio, error } = await supabase
@@ -1390,7 +1416,23 @@
                         .eq('creator_id', creatorId)
                         .maybeSingle();
 
-                    if (error && error.code !== 'PGRST116') {
+                    if (error) {
+                        if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+                            console.log('⚠️ Session expirée, tentative de reconnexion...');
+                            showNotification('Session expirée, reconnexion...', 'warning');
+                            
+                            // Essayer de recharger la session
+                            const refreshed = await refreshSession();
+                            
+                            if (refreshed) {
+                                // Réessayer
+                                return loadPortfolio();
+                            } else {
+                                window.location.href = 'index.html';
+                                return;
+                            }
+                        }
+                        
                         console.error('❌ Erreur chargement portfolio:', error.message);
                     }
 
@@ -1412,7 +1454,7 @@
                 }
             }
 
-            // ===== 7. REMPLIR LE FORMULAIRE =====
+            // ===== 8. REMPLIR LE FORMULAIRE =====
             function populateFormWithPortfolioData(portfolio) {
                 // Bio
                 const bioEl = document.getElementById('bio');
@@ -1490,7 +1532,7 @@
                 }
             }
 
-            // ===== 8. CALCUL DU POURCENTAGE DE COMPLÉTION =====
+            // ===== 9. CALCUL DU POURCENTAGE DE COMPLÉTION =====
             function calculateCompletion(portfolio) {
                 let total = 0;
                 let completed = 0;
@@ -1510,7 +1552,7 @@
                 return Math.round((completed / total) * 100) || 0;
             }
 
-            // ===== 9. RENDU DES SPÉCIALITÉS =====
+            // ===== 10. RENDU DES SPÉCIALITÉS =====
             function renderSpecialties(specialties) {
                 const container = document.getElementById('specialtyTags');
                 const addBtn = document.getElementById('addSpecialtyBtn');
@@ -1531,30 +1573,24 @@
                 container.appendChild(addBtn);
             }
 
-            // ===== 10. METTRE À JOUR LE TABLEAU DES SPÉCIALITÉS =====
+            // ===== 11. METTRE À JOUR LE TABLEAU DES SPÉCIALITÉS =====
             function updateSpecialtiesArray() {
                 const tags = document.querySelectorAll('.specialty-tag.active:not(.add-tag)');
                 currentSpecialties = Array.from(tags).map(tag => tag.textContent.trim());
             }
 
-            // ===== 11. SAUVEGARDE DU PORTFOLIO =====
+            // ===== 12. SAUVEGARDE DU PORTFOLIO =====
             async function savePortfolio(formData) {
                 try {
                     console.log('💾 Sauvegarde du portfolio...');
 
+                    // Rafraîchir la session avant
+                    await refreshSession();
+
                     // Récupérer les spécialités actives
                     updateSpecialtiesArray();
 
-                    // Vérifier la session
-                    const { data: { session } } = await supabase.auth.getSession();
-                    
-                    if (!session) {
-                        showNotification('Session expirée, veuillez vous reconnecter', 'error');
-                        window.location.href = 'index.html';
-                        return { success: false };
-                    }
-
-                    // Préparer les données - SANS brand_name
+                    // Préparer les données
                     const portfolioToSave = {
                         creator_id: creatorId,
                         title: formData.brandName || formData.creatorName,
@@ -1569,7 +1605,7 @@
 
                     // Ajouter la photo si elle existe
                     const profilePhoto = document.getElementById('profilePhoto');
-                    if (profilePhoto.src && !profilePhoto.src.includes('data:')) {
+                    if (profilePhoto.src && !profilePhoto.src.includes('loading')) {
                         portfolioToSave.main_image_url = profilePhoto.src;
                     }
 
@@ -1599,10 +1635,15 @@
                     if (result.error) {
                         console.error('❌ Erreur Supabase:', result.error);
                         
-                        if (result.error.message.includes('row-level security')) {
+                        if (result.error.message.includes('JWT') || result.error.message.includes('session')) {
+                            showNotification('Session expirée, veuillez vous reconnecter', 'error');
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        } else if (result.error.message.includes('row-level security')) {
                             showNotification('Erreur de permission. Veuillez vous reconnecter.', 'error');
                         } else {
-                            showNotification('Erreur lors de la sauvegarde: ' + result.error.message, 'error');
+                            showNotification('Erreur: ' + result.error.message, 'error');
                         }
                         
                         return { success: false };
@@ -1636,7 +1677,7 @@
                 }
             }
 
-            // ===== 12. METTRE À JOUR LES INFOS CRÉATEUR =====
+            // ===== 13. METTRE À JOUR LES INFOS CRÉATEUR =====
             async function updateCreatorInfo(formData) {
                 try {
                     const creatorUpdate = {
@@ -1647,7 +1688,7 @@
 
                     // Ajouter la photo si elle existe
                     const profilePhoto = document.getElementById('profilePhoto');
-                    if (profilePhoto.src && !profilePhoto.src.includes('data:')) {
+                    if (profilePhoto.src && !profilePhoto.src.includes('loading')) {
                         creatorUpdate.photo_url = profilePhoto.src;
                     }
 
@@ -1674,7 +1715,7 @@
                 }
             }
 
-            // ===== 13. CALCUL DU POURCENTAGE DEPUIS LE FORMULAIRE =====
+            // ===== 14. CALCUL DU POURCENTAGE DEPUIS LE FORMULAIRE =====
             function calculateCompletionFromForm(formData) {
                 let total = 0;
                 let completed = 0;
@@ -1693,7 +1734,7 @@
                 });
                 
                 const profilePhoto = document.getElementById('profilePhoto');
-                if (profilePhoto.src && !profilePhoto.src.includes('data:')) {
+                if (profilePhoto.src && !profilePhoto.src.includes('loading')) {
                     completed++;
                 }
                 total++;
@@ -1701,7 +1742,7 @@
                 return Math.round((completed / total) * 100) || 0;
             }
 
-            // ===== 14. CHARGEMENT DES COLLECTIONS =====
+            // ===== 15. CHARGEMENT DES COLLECTIONS =====
             async function loadCollections() {
                 if (!portfolioId) return;
 
@@ -1724,7 +1765,7 @@
                 }
             }
 
-            // ===== 15. AFFICHAGE DES COLLECTIONS =====
+            // ===== 16. AFFICHAGE DES COLLECTIONS =====
             function displayCollections(collections) {
                 const grid = document.getElementById('collectionsGrid');
                 const addBtn = document.getElementById('addCollectionBtn');
@@ -1763,7 +1804,7 @@
                 });
             }
 
-            // ===== 16. CHARGEMENT DES IMAGES =====
+            // ===== 17. CHARGEMENT DES IMAGES =====
             async function loadGalleryImages() {
                 if (!portfolioId) return;
 
@@ -1786,7 +1827,7 @@
                 }
             }
 
-            // ===== 17. AFFICHAGE DES IMAGES =====
+            // ===== 18. AFFICHAGE DES IMAGES =====
             function displayGalleryImages(images) {
                 const grid = document.getElementById('galleryGrid');
                 const addBtn = document.getElementById('addGalleryBtn');
@@ -1813,7 +1854,7 @@
                 });
             }
 
-            // ===== 18. CRÉATION D'UNE COLLECTION =====
+            // ===== 19. CRÉATION D'UNE COLLECTION =====
             async function createCollection(event) {
                 event.preventDefault();
 
@@ -1861,7 +1902,7 @@
                 }
             }
 
-            // ===== 19. GESTION DES TAGS =====
+            // ===== 20. GESTION DES TAGS =====
             function attachTagEvents() {
                 document.querySelectorAll('.specialty-tag:not(.add-tag)').forEach(tag => {
                     tag.addEventListener('click', function() {
@@ -1891,7 +1932,7 @@
                 }
             });
 
-            // ===== 20. GESTION PHOTO DE PROFIL (VERSION SIMPLIFIÉE) =====
+            // ===== 21. GESTION PHOTO DE PROFIL =====
             document.getElementById('changePhotoBtn')?.addEventListener('click', function() {
                 const input = document.createElement('input');
                 input.type = 'file';
@@ -1946,7 +1987,7 @@
                 }
             }
 
-            // ===== 21. GESTION GALERIE =====
+            // ===== 22. GESTION GALERIE =====
             document.getElementById('addGalleryBtn')?.addEventListener('click', function() {
                 if (!portfolioId) {
                     showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
@@ -2005,7 +2046,7 @@
                 e.target.value = '';
             });
 
-            // ===== 22. GESTION COLLECTIONS MODAL =====
+            // ===== 23. GESTION COLLECTIONS MODAL =====
             const modal = document.getElementById('collectionModal');
             const addBtn = document.getElementById('addCollectionBtn');
             const closeBtn = document.getElementById('closeCollectionModal');
@@ -2044,47 +2085,56 @@
                 collectionForm.addEventListener('submit', createCollection);
             }
 
-            // ===== 23. GESTION FORMULAIRE PRINCIPAL =====
+            // ===== 24. GESTION FORMULAIRE PRINCIPAL =====
             document.getElementById('portfolioForm')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                // Récupérer les données du formulaire
-                const formData = {
-                    brandName: document.getElementById('brandName').value.trim(),
-                    creatorName: document.getElementById('creatorName').value.trim(),
-                    domain: document.getElementById('domain').value,
-                    experience: document.getElementById('experience').value,
-                    bio: document.getElementById('bio').value.trim(),
-                    instagram: document.getElementById('instagram').value.trim(),
-                    website: document.getElementById('website').value.trim()
-                };
+                // Désactiver le bouton pour éviter les doubles soumissions
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+                
+                try {
+                    // Récupérer les données du formulaire
+                    const formData = {
+                        brandName: document.getElementById('brandName').value.trim(),
+                        creatorName: document.getElementById('creatorName').value.trim(),
+                        domain: document.getElementById('domain').value,
+                        experience: document.getElementById('experience').value,
+                        bio: document.getElementById('bio').value.trim(),
+                        instagram: document.getElementById('instagram').value.trim(),
+                        website: document.getElementById('website').value.trim()
+                    };
 
-                // Validation
-                if (!formData.brandName || !formData.creatorName || !formData.domain || !formData.bio || !formData.instagram) {
-                    showNotification('Veuillez remplir tous les champs obligatoires', 'error');
-                    return;
-                }
-
-                // Sauvegarder
-                const result = await savePortfolio(formData);
-
-                if (result.success) {
-                    // Mettre à jour l'affichage
-                    document.getElementById('creatorDisplayBrand').textContent = formData.brandName;
-                    document.getElementById('profileInstagram').textContent = formData.instagram;
-                    
-                    if (formData.website) {
-                        document.getElementById('profileWebsite').textContent = formData.website;
+                    // Validation
+                    if (!formData.brandName || !formData.creatorName || !formData.domain || !formData.bio || !formData.instagram) {
+                        showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+                        return;
                     }
 
-                    // Recharger les données
-                    if (!portfolioId) {
-                        await loadPortfolio();
+                    // Sauvegarder
+                    const result = await savePortfolio(formData);
+
+                    if (result.success) {
+                        // Mettre à jour l'affichage
+                        document.getElementById('creatorDisplayBrand').textContent = formData.brandName;
+                        document.getElementById('profileInstagram').textContent = formData.instagram;
+                        
+                        if (formData.website) {
+                            document.getElementById('profileWebsite').textContent = formData.website;
+                        }
                     }
+
+                } finally {
+                    // Réactiver le bouton
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save"></i> Enregistrer';
                 }
             });
 
-            // ===== 24. GESTION DÉCONNEXION =====
+            // ===== 25. GESTION DÉCONNEXION =====
             document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
@@ -2093,7 +2143,7 @@
                 }
             });
 
-            // ===== 25. NOTIFICATION =====
+            // ===== 26. NOTIFICATION =====
             function showNotification(message, type = 'success') {
                 const n = document.getElementById('notification');
                 const t = document.getElementById('notificationTitle');
@@ -2102,6 +2152,7 @@
                 let title = 'Succès';
                 if (type === 'error') title = 'Erreur';
                 if (type === 'info') title = 'Information';
+                if (type === 'warning') title = 'Attention';
 
                 t.textContent = title;
                 m.textContent = message;
@@ -2109,6 +2160,7 @@
                 const icon = n.querySelector('i');
                 icon.className = type === 'success' ? 'fas fa-check-circle' : 
                                  type === 'error' ? 'fas fa-exclamation-circle' : 
+                                 type === 'warning' ? 'fas fa-exclamation-triangle' :
                                  'fas fa-info-circle';
                 
                 n.className = `notification notification-${type}`;
@@ -2119,7 +2171,7 @@
 
             window.showNotification = showNotification;
 
-            // ===== 26. UTILITAIRE ESCAPE HTML =====
+            // ===== 27. UTILITAIRE ESCAPE HTML =====
             function escapeHtml(text) {
                 if (!text) return '';
                 const div = document.createElement('div');
@@ -2127,7 +2179,12 @@
                 return div.innerHTML;
             }
 
-            // ===== 27. INITIALISATION =====
+            // ===== 28. RAFRAÎCHIR LA SESSION PÉRIODIQUEMENT =====
+            setInterval(async () => {
+                await refreshSession();
+            }, 10 * 60 * 1000); // Toutes les 10 minutes
+
+            // ===== 29. INITIALISATION =====
             async function init() {
                 // Cacher le loader après un court délai
                 setTimeout(() => {
