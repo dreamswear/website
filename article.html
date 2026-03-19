@@ -537,45 +537,45 @@
             overflow-wrap: break-word;
         }
         
-        /* NOUVEAU STYLE : Like / Dislike */
+        /* NOUVEAU STYLE : Like / Dislike - VERSION CENTRÉE */
         .reaction-bar {
             display: flex;
             align-items: center;
-            gap: 30px;
-            margin: 50px 0 30px;
-            padding: 20px 0;
+            justify-content: center; /* Centrage horizontal */
+            gap: 20px;
+            margin: 30px 0 20px;
+            padding: 15px 0;
             border-top: 1px solid rgba(0,0,0,0.1);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             flex-wrap: wrap;
-            justify-content: center;
         }
         
         .reaction-btn {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
             background: transparent;
-            border: 2px solid #d4af37;
-            padding: 12px 28px;
-            border-radius: 40px;
+            border: 1.5px solid #d4af37;
+            padding: 8px 20px;
+            border-radius: 30px;
             font-family: 'Montserrat', sans-serif;
-            font-size: clamp(1rem, 2.5vw, 1.2rem);
-            font-weight: 600;
+            font-size: 0.9rem;
+            font-weight: 500;
             color: #000000 !important;
             cursor: pointer;
             transition: all 0.2s ease;
-            min-width: 130px;
+            min-width: 100px;
             justify-content: center;
         }
         
         .reaction-btn i {
-            font-size: 1.4rem;
+            font-size: 1.1rem;
             color: #d4af37;
             transition: transform 0.2s;
         }
         
         .reaction-btn span {
-            font-weight: 600;
+            font-weight: 500;
             color: inherit;
         }
         
@@ -610,41 +610,22 @@
             background: #c6a22e;
         }
         
-        .reaction-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 0.95rem;
-            color: #000000;
-        }
-        
-        .reaction-stats span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(212, 175, 55, 0.08);
-            padding: 5px 15px;
-            border-radius: 30px;
-        }
-        
         [data-theme="night"] .reaction-bar {
             border-color: rgba(255,255,255,0.15);
-        }
-        [data-theme="night"] .reaction-stats span {
-            background: rgba(212, 175, 55, 0.2);
-            color: #000000 !important;
         }
         
         @media (max-width: 480px) {
             .reaction-bar {
                 gap: 15px;
-                flex-direction: column;
-                align-items: stretch;
+                justify-content: center;
             }
             .reaction-btn {
-                width: 100%;
+                min-width: 90px;
+                padding: 6px 15px;
+                font-size: 0.85rem;
             }
-            .reaction-stats {
-                justify-content: center;
+            .reaction-btn i {
+                font-size: 1rem;
             }
         }
     </style>
@@ -668,7 +649,7 @@
                 <p style="text-align: center; padding: 40px; color: #000000;">Chargement de l'article...</p>
             </div>
             
-            <!-- NOUVEAU : Bloc Like / Dislike -->
+            <!-- NOUVEAU : Bloc Like / Dislike centré -->
             <div class="reaction-bar" id="reactionBar" style="display: none;">
                 <button class="reaction-btn" id="likeBtn" title="J'aime cet article">
                     <i class="fas fa-thumbs-up"></i>
@@ -678,10 +659,6 @@
                     <i class="fas fa-thumbs-down"></i>
                     <span id="dislikeCount">0</span>
                 </button>
-                <div class="reaction-stats">
-                    <span><i class="fas fa-thumbs-up" style="color:#d4af37;"></i> <span id="likeStat">0</span></span>
-                    <span><i class="fas fa-thumbs-down" style="color:#d4af37;"></i> <span id="dislikeStat">0</span></span>
-                </div>
             </div>
         </div>
     </main>
@@ -714,8 +691,6 @@
             const dislikeBtn = document.getElementById('dislikeBtn');
             const likeCountSpan = document.getElementById('likeCount');
             const dislikeCountSpan = document.getElementById('dislikeCount');
-            const likeStatSpan = document.getElementById('likeStat');
-            const dislikeStatSpan = document.getElementById('dislikeStat');
             
             // États initiaux (simulés depuis le localStorage ou à zéro)
             let likes = parseInt(localStorage.getItem('article_likes') || '0');
@@ -728,8 +703,6 @@
             function updateUI() {
                 likeCountSpan.textContent = likes;
                 dislikeCountSpan.textContent = dislikes;
-                likeStatSpan.textContent = likes;
-                dislikeStatSpan.textContent = dislikes;
                 
                 // Mettre à jour les classes actives
                 likeBtn.classList.remove('liked', 'disliked');
@@ -743,30 +716,25 @@
             }
             
             // Simuler le chargement d'un article : on affiche la reactionBar
-            // Dans un cas réel, on attendrait que l'article soit chargé. Ici on le fait après un court délai.
             setTimeout(() => {
-                reactionBar.style.display = 'flex'; // ou 'block' adapté par flex dans .reaction-bar
+                reactionBar.style.display = 'flex';
                 updateUI();
-            }, 300); // petit délai pour laisser le message "Chargement..." visible
+            }, 300);
             
             // Gestionnaires d'événements
             likeBtn.addEventListener('click', function() {
                 if (userReaction === 'like') {
-                    // Annuler le like
                     likes -= 1;
                     userReaction = null;
                 } else if (userReaction === 'dislike') {
-                    // Changement de dislike -> like
                     dislikes -= 1;
                     likes += 1;
                     userReaction = 'like';
                 } else {
-                    // Nouveau like
                     likes += 1;
                     userReaction = 'like';
                 }
                 
-                // Mettre à jour le localStorage
                 localStorage.setItem('article_likes', likes);
                 localStorage.setItem('article_dislikes', dislikes);
                 localStorage.setItem('article_user_reaction', userReaction || '');
@@ -776,16 +744,13 @@
             
             dislikeBtn.addEventListener('click', function() {
                 if (userReaction === 'dislike') {
-                    // Annuler le dislike
                     dislikes -= 1;
                     userReaction = null;
                 } else if (userReaction === 'like') {
-                    // Changement de like -> dislike
                     likes -= 1;
                     dislikes += 1;
                     userReaction = 'dislike';
                 } else {
-                    // Nouveau dislike
                     dislikes += 1;
                     userReaction = 'dislike';
                 }
