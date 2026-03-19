@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Mon Portfolio Créatif - Dreamswear</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* ========== RESET & VARIABLES ========== */
@@ -1094,12 +1094,11 @@
                                 <label>Domaine *</label>
                                 <select id="domain" required>
                                     <option value="">Choisissez</option>
-                                    <option value="haute-couture">👗 Haute couture</option>
-                                    <option value="pret-a-porter">👚 Prêt-à-porter</option>
-                                    <option value="streetwear">🧥 Streetwear</option>
-                                    <option value="accessoires">👜 Accessoires</option>
-                                    <option value="bijoux">💍 Bijoux</option>
-                                    <option value="autre">✨ Autre</option>
+                                    <option value="Styliste haute couture">👗 Haute couture</option>
+                                    <option value="Styliste streetwear">👚 Streetwear</option>
+                                    <option value="Designer">🧥 Designer</option>
+                                    <option value="Marque de bijoux">💍 Marque de bijoux</option>
+                                    <option value="Artisans du tricot">🧶 Artisans du tricot</option>
                                 </select>
                             </div>
 
@@ -1160,7 +1159,7 @@
 
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-rocket"></i> Publier
+                                <i class="fas fa-save"></i> Enregistrer
                             </button>
                             <button type="button" class="btn btn-outline" onclick="window.location.href='dashboard-home.html'">
                                 <i class="fas fa-arrow-left"></i> Retour
@@ -1214,23 +1213,24 @@
         </div>
     </div>
 
-    <!-- ========== SCRIPT PRINCIPAL ========== -->
-   <script>
+    <!-- ========== SCRIPT PRINCIPAL CORRIGÉ ========== -->
+    <script>
         (function() {
             'use strict';
 
             console.log('🎨 Initialisation du portfolio créateur');
 
-            // ===== 1. VÉRIFICATION SESSION =====
+            // ===== 1. CONFIGURATION =====
+            const SUPABASE_URL = 'https://kfptsbpriihydidnfzhj.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk';
+            
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+            // ===== 2. VÉRIFICATION SESSION =====
             if (!window.SessionManager) {
                 alert('Session non disponible');
                 window.location.href = 'index.html';
                 return;
-            }
-
-            // Initialiser Supabase
-            if (typeof window.SessionManager.initSupabase === 'function') {
-                window.SessionManager.initSupabase();
             }
 
             // Vérifier connexion
@@ -1239,7 +1239,7 @@
                 return;
             }
 
-            // ===== 2. RÉCUPÉRER DONNÉES SESSION =====
+            // ===== 3. RÉCUPÉRER DONNÉES SESSION =====
             const sessionData = window.SessionManager.getCreatorData();
             const creatorId = sessionData.id;
 
@@ -1249,39 +1249,39 @@
             }
 
             console.log('✅ Créateur connecté:', sessionData.name);
+            console.log('📌 Creator ID:', creatorId);
 
-            // ===== 3. AFFICHAGE INSTANTANÉ DES DONNÉES SESSION =====
+            // ===== 4. ÉTAT DE L'APPLICATION =====
+            let portfolioData = null;
+            let portfolioId = null;
+            let currentSpecialties = [];
+
+            // ===== 5. AFFICHAGE INSTANTANÉ DES DONNÉES SESSION =====
             function displayCreatorInfo() {
                 // Nom dans le header
                 const nameEl = document.getElementById('creatorDisplayName');
                 if (nameEl) {
-                    nameEl.textContent = sessionData.name || 'Créateur';
+                    nameEl.textContent = sessionData.name || sessionData.prenom || 'Créateur';
                 }
 
                 // Marque dans le header
                 const brandEl = document.getElementById('creatorDisplayBrand');
                 if (brandEl) {
-                    brandEl.textContent = sessionData.brand || sessionData.nom_marque || 'Créateur indépendant';
+                    brandEl.textContent = sessionData.nom_marque || sessionData.brand || 'Créateur indépendant';
                 }
 
                 // Avatar avec initiales
                 const avatarEl = document.getElementById('creatorAvatar');
                 if (avatarEl) {
-                    if (sessionData.photo_url || sessionData.photoUrl) {
-                        avatarEl.innerHTML = `<img src="${sessionData.photo_url || sessionData.photoUrl}" alt="Avatar">`;
+                    if (sessionData.photo_url) {
+                        avatarEl.innerHTML = `<img src="${sessionData.photo_url}" alt="Avatar">`;
                     } else {
                         let initials = '👤';
                         const prenom = sessionData.prenom || '';
                         const nom = sessionData.nom || '';
-                        const name = sessionData.name || '';
                         
                         if (prenom && nom) {
                             initials = (prenom.charAt(0) + nom.charAt(0)).toUpperCase();
-                        } else if (name) {
-                            const parts = name.split(' ');
-                            if (parts.length >= 2) {
-                                initials = (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-                            }
                         }
                         avatarEl.innerHTML = `<span style="color: white; font-weight: bold; font-size: 1.3rem;">${initials}</span>`;
                     }
@@ -1302,13 +1302,13 @@
                 // Site web
                 const siteEl = document.getElementById('profileWebsite');
                 if (siteEl) {
-                    siteEl.textContent = sessionData.site_web || sessionData.website || 'www.votresite.com';
+                    siteEl.textContent = sessionData.site_web || 'www.votresite.com';
                 }
 
                 // Formulaire - Nom de marque
                 const brandInput = document.getElementById('brandName');
                 if (brandInput) {
-                    brandInput.value = sessionData.brand || sessionData.nom_marque || '';
+                    brandInput.value = sessionData.nom_marque || '';
                 }
 
                 // Formulaire - Nom créateur
@@ -1330,16 +1330,16 @@
                 }
 
                 // Photo de profil
-                if (sessionData.photo_url || sessionData.photoUrl) {
+                if (sessionData.photo_url) {
                     const profilePhoto = document.getElementById('profilePhoto');
-                    profilePhoto.src = sessionData.photo_url || sessionData.photoUrl;
+                    profilePhoto.src = sessionData.photo_url;
                     profilePhoto.style.display = 'block';
                     document.getElementById('profilePhotoPlaceholder').style.display = 'none';
                 }
 
                 // Jours membre
-                if (sessionData.joinDate) {
-                    const joinDate = new Date(sessionData.joinDate);
+                if (sessionData.created_at) {
+                    const joinDate = new Date(sessionData.created_at);
                     const now = new Date();
                     const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
                     document.getElementById('statJours').textContent = days || 0;
@@ -1349,210 +1349,473 @@
             // Afficher immédiatement
             displayCreatorInfo();
 
-            // ===== 4. CACHER LE LOADER =====
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('mainContent').style.display = 'block';
-                console.log('✅ Portfolio affiché');
-            }, 500);
-
-            // ===== 5. CHARGEMENT SUPABASE =====
-            let supabase = window.SessionManager.supabase;
-
-            if (supabase) {
-                setTimeout(async () => {
-                    try {
-                        // Charger portfolio
-                        const { data: portfolio } = await supabase
-                            .from('portfolio')
-                            .select('*')
-                            .eq('creator_id', creatorId)
-                            .maybeSingle();
-
-                        if (portfolio) {
-                            // Bio
-                            const bioEl = document.getElementById('bio');
-                            if (bioEl) bioEl.value = portfolio.description || '';
-
-                            // Domaine
-                            if (portfolio.domain) {
-                                const domainEl = document.getElementById('domain');
-                                for (let opt of domainEl.options) {
-                                    if (opt.value === portfolio.domain) {
-                                        opt.selected = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // Expérience
-                            if (portfolio.experience) {
-                                const expEl = document.getElementById('experience');
-                                for (let opt of expEl.options) {
-                                    if (opt.value === portfolio.experience) {
-                                        opt.selected = true;
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // Spécialités
-                            if (portfolio.specialties?.length) {
-                                const container = document.getElementById('specialtyTags');
-                                const addBtn = document.getElementById('addSpecialtyBtn');
-                                container.innerHTML = '';
-                                portfolio.specialties.forEach(s => {
-                                    const tag = document.createElement('span');
-                                    tag.className = 'specialty-tag active';
-                                    tag.textContent = s;
-                                    container.appendChild(tag);
-                                });
-                                container.appendChild(addBtn);
-                                attachTagEvents();
-                            }
-
-                            // Photo de profil
-                            if (portfolio.main_image_url) {
-                                document.getElementById('profilePhoto').src = portfolio.main_image_url;
-                                document.getElementById('profilePhoto').style.display = 'block';
-                                document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-                            }
-
-                            // Statut vérification
-                            if (portfolio.is_published) {
-                                const badge = document.getElementById('verificationBadge');
-                                badge.className = 'verification-badge verified';
-                                badge.innerHTML = `
-                                    <i class="fas fa-check-circle"></i>
-                                    <div>
-                                        <strong>Portfolio validé !</strong>
-                                        <p style="font-size: 0.8rem; margin-top: 5px;">Votre profil est visible par tous</p>
-                                    </div>
-                                `;
-                            }
-
-                            // Pourcentage portfolio
-                            const completion = portfolio.portfolio_completion || 45;
-                            document.getElementById('statPortfolioComplet').textContent = completion + '%';
-                        }
-
-                        // Charger images galerie
-                        await loadGalleryImages();
-                        
-                        // Charger collections
-                        await loadCollections();
-
-                    } catch (error) {
-                        console.log('ℹ️ Supabase:', error.message);
-                    }
-                }, 800);
-            }
-
-            // ===== 6. FONCTIONS GALERIE =====
-            async function loadGalleryImages() {
-                if (!supabase) return;
-
+            // ===== 6. CHARGEMENT DU PORTFOLIO =====
+            async function loadPortfolio() {
                 try {
-                    const { data: portfolio } = await supabase
+                    console.log('📂 Chargement du portfolio pour creator:', creatorId);
+
+                    // Chercher le portfolio existant
+                    const { data: portfolio, error } = await supabase
                         .from('portfolio')
-                        .select('id')
+                        .select('*')
                         .eq('creator_id', creatorId)
                         .maybeSingle();
 
-                    if (!portfolio) return;
-
-                    const { data: images } = await supabase
-                        .from('portfolio_images')
-                        .select('*')
-                        .eq('portfolio_id', portfolio.id)
-                        .limit(12);
-
-                    if (images?.length) {
-                        const grid = document.getElementById('galleryGrid');
-                        const addBtn = document.getElementById('addGalleryBtn');
-
-                        images.forEach(img => {
-                            const item = document.createElement('div');
-                            item.className = 'gallery-item';
-                            item.innerHTML = `
-                                <img src="${img.image_url}" class="gallery-image">
-                                <div class="gallery-overlay">
-                                    <div class="gallery-actions">
-                                        <button class="btn btn-small btn-outline" onclick="window.open('${img.image_url}', '_blank')" style="color: white; border-color: white;">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                            grid.insertBefore(item, addBtn);
-                        });
+                    if (error && error.code !== 'PGRST116') {
+                        console.error('❌ Erreur chargement portfolio:', error.message);
                     }
+
+                    if (portfolio) {
+                        console.log('✅ Portfolio existant trouvé:', portfolio.id);
+                        portfolioData = portfolio;
+                        portfolioId = portfolio.id;
+                        populateFormWithPortfolioData(portfolio);
+                    } else {
+                        console.log('ℹ️ Aucun portfolio existant, création à venir');
+                    }
+
                 } catch (error) {
-                    console.log('ℹ️ Pas d\'images');
+                    console.error('❌ Erreur:', error.message);
                 }
             }
 
-            // ===== 7. FONCTIONS COLLECTIONS =====
+            // ===== 7. REMPLIR LE FORMULAIRE =====
+            function populateFormWithPortfolioData(portfolio) {
+                // Bio
+                const bioEl = document.getElementById('bio');
+                if (bioEl) bioEl.value = portfolio.description || '';
+
+                // Domaine
+                if (portfolio.domain) {
+                    const domainEl = document.getElementById('domain');
+                    for (let opt of domainEl.options) {
+                        if (opt.value === portfolio.domain) {
+                            opt.selected = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Expérience
+                if (portfolio.experience) {
+                    const expEl = document.getElementById('experience');
+                    for (let opt of expEl.options) {
+                        if (opt.value === portfolio.experience) {
+                            opt.selected = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Spécialités
+                if (portfolio.specialties && portfolio.specialties.length > 0) {
+                    currentSpecialties = portfolio.specialties;
+                    renderSpecialties(portfolio.specialties);
+                }
+
+                // Photo de profil (main_image_url)
+                if (portfolio.main_image_url) {
+                    document.getElementById('profilePhoto').src = portfolio.main_image_url;
+                    document.getElementById('profilePhoto').style.display = 'block';
+                    document.getElementById('profilePhotoPlaceholder').style.display = 'none';
+                    
+                    // Mettre à jour aussi l'avatar
+                    const avatarEl = document.getElementById('creatorAvatar');
+                    avatarEl.innerHTML = `<img src="${portfolio.main_image_url}" alt="Avatar">`;
+                }
+
+                // Statut vérification
+                if (portfolio.is_published) {
+                    const badge = document.getElementById('verificationBadge');
+                    badge.className = 'verification-badge verified';
+                    badge.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <div>
+                            <strong>Portfolio validé !</strong>
+                            <p style="font-size: 0.8rem; margin-top: 5px;">Votre profil est visible par tous</p>
+                        </div>
+                    `;
+                }
+
+                // Pourcentage portfolio
+                const completion = portfolio.portfolio_completion || calculateCompletion(portfolio);
+                document.getElementById('statPortfolioComplet').textContent = completion + '%';
+                
+                // Vues
+                document.getElementById('statVues').textContent = portfolio.views_count || 0;
+
+                // Instagram
+                if (portfolio.instagram_handle) {
+                    document.getElementById('instagram').value = portfolio.instagram_handle;
+                    document.getElementById('profileInstagram').textContent = portfolio.instagram_handle;
+                }
+
+                // Site web
+                if (portfolio.website) {
+                    document.getElementById('website').value = portfolio.website;
+                    document.getElementById('profileWebsite').textContent = portfolio.website;
+                }
+
+                // Nom de la marque
+                if (portfolio.brand_name) {
+                    document.getElementById('brandName').value = portfolio.brand_name;
+                }
+            }
+
+            // ===== 8. CALCUL DU POURCENTAGE DE COMPLÉTION =====
+            function calculateCompletion(portfolio) {
+                let total = 0;
+                let completed = 0;
+                
+                const fields = [
+                    portfolio.title,
+                    portfolio.description,
+                    portfolio.domain,
+                    portfolio.main_image_url,
+                    portfolio.brand_name
+                ];
+                
+                fields.forEach(field => {
+                    total++;
+                    if (field) completed++;
+                });
+                
+                return Math.round((completed / total) * 100);
+            }
+
+            // ===== 9. RENDU DES SPÉCIALITÉS =====
+            function renderSpecialties(specialties) {
+                const container = document.getElementById('specialtyTags');
+                const addBtn = document.getElementById('addSpecialtyBtn');
+                
+                container.innerHTML = '';
+                
+                specialties.forEach(s => {
+                    const tag = document.createElement('span');
+                    tag.className = 'specialty-tag active';
+                    tag.textContent = s;
+                    tag.addEventListener('click', function() {
+                        this.classList.toggle('active');
+                        updateSpecialtiesArray();
+                    });
+                    container.appendChild(tag);
+                });
+                
+                container.appendChild(addBtn);
+            }
+
+            // ===== 10. METTRE À JOUR LE TABLEAU DES SPÉCIALITÉS =====
+            function updateSpecialtiesArray() {
+                const tags = document.querySelectorAll('.specialty-tag.active:not(.add-tag)');
+                currentSpecialties = Array.from(tags).map(tag => tag.textContent.trim());
+            }
+
+            // ===== 11. SAUVEGARDE DU PORTFOLIO =====
+            async function savePortfolio(formData) {
+                try {
+                    console.log('💾 Sauvegarde du portfolio...');
+
+                    // Récupérer les spécialités actives
+                    updateSpecialtiesArray();
+
+                    // Préparer les données
+                    const portfolioToSave = {
+                        creator_id: creatorId,
+                        title: formData.brandName || formData.creatorName,
+                        description: formData.bio,
+                        domain: formData.domain,
+                        experience: formData.experience || null,
+                        specialties: currentSpecialties,
+                        instagram_handle: formData.instagram,
+                        website: formData.website || null,
+                        brand_name: formData.brandName,
+                        updated_at: new Date().toISOString(),
+                        portfolio_completion: calculateCompletionFromForm(formData)
+                    };
+
+                    // Ajouter la photo si elle existe
+                    if (document.getElementById('profilePhoto').src && 
+                        !document.getElementById('profilePhoto').src.includes('data:')) {
+                        portfolioToSave.main_image_url = document.getElementById('profilePhoto').src;
+                    }
+
+                    let result;
+
+                    if (portfolioId) {
+                        // Mise à jour
+                        console.log('🔄 Mise à jour portfolio:', portfolioId);
+                        result = await supabase
+                            .from('portfolio')
+                            .update(portfolioToSave)
+                            .eq('id', portfolioId);
+                    } else {
+                        // Création
+                        console.log('➕ Création nouveau portfolio');
+                        portfolioToSave.created_at = new Date().toISOString();
+                        portfolioToSave.is_published = false;
+                        portfolioToSave.views_count = 0;
+                        
+                        result = await supabase
+                            .from('portfolio')
+                            .insert([portfolioToSave])
+                            .select();
+                    }
+
+                    if (result.error) {
+                        console.error('❌ Erreur Supabase:', result.error);
+                        throw result.error;
+                    }
+
+                    // Mise à jour de l'ID si création
+                    if (!portfolioId && result.data && result.data[0]) {
+                        portfolioId = result.data[0].id;
+                        portfolioData = result.data[0];
+                    }
+
+                    // Mettre à jour également la table créateurs
+                    await updateCreatorInfo(formData);
+
+                    console.log('✅ Portfolio sauvegardé avec succès');
+                    return { success: true, data: result.data };
+
+                } catch (error) {
+                    console.error('❌ Erreur sauvegarde portfolio:', error.message);
+                    return { success: false, error: error.message };
+                }
+            }
+
+            // ===== 12. METTRE À JOUR LES INFOS CRÉATEUR =====
+            async function updateCreatorInfo(formData) {
+                try {
+                    const creatorUpdate = {
+                        nom_marque: formData.brandName,
+                        instagram: formData.instagram,
+                        site_web: formData.website || null,
+                        updated_at: new Date().toISOString()
+                    };
+
+                    // Ajouter la photo si elle existe
+                    if (document.getElementById('profilePhoto').src && 
+                        !document.getElementById('profilePhoto').src.includes('data:')) {
+                        creatorUpdate.photo_url = document.getElementById('profilePhoto').src;
+                    }
+
+                    const { error } = await supabase
+                        .from('créateurs')
+                        .update(creatorUpdate)
+                        .eq('id', creatorId);
+
+                    if (error) {
+                        console.warn('⚠️ Erreur mise à jour créateur:', error.message);
+                    } else {
+                        console.log('✅ Infos créateur mises à jour');
+                        
+                        // Mettre à jour la session locale
+                        const currentSession = window.SessionManager.getCreatorData();
+                        window.SessionManager.saveCreatorData({
+                            ...currentSession,
+                            ...creatorUpdate
+                        });
+                    }
+
+                } catch (error) {
+                    console.warn('⚠️ Erreur:', error.message);
+                }
+            }
+
+            // ===== 13. CALCUL DU POURCENTAGE DEPUIS LE FORMULAIRE =====
+            function calculateCompletionFromForm(formData) {
+                let total = 0;
+                let completed = 0;
+                
+                const fields = [
+                    formData.brandName,
+                    formData.creatorName,
+                    formData.bio,
+                    formData.domain,
+                    formData.instagram
+                ];
+                
+                fields.forEach(field => {
+                    total++;
+                    if (field) completed++;
+                });
+                
+                if (document.getElementById('profilePhoto').src && 
+                    !document.getElementById('profilePhoto').src.includes('data:')) {
+                    completed++;
+                }
+                total++;
+                
+                return Math.round((completed / total) * 100);
+            }
+
+            // ===== 14. CHARGEMENT DES COLLECTIONS =====
             async function loadCollections() {
-                if (!supabase) return;
+                if (!portfolioId) return;
 
                 try {
-                    const { data: portfolio } = await supabase
-                        .from('portfolio')
-                        .select('id')
-                        .eq('creator_id', creatorId)
-                        .maybeSingle();
-
-                    if (!portfolio) return;
-
-                    const { data: collections } = await supabase
+                    const { data: collections, error } = await supabase
                         .from('collections')
                         .select('*')
-                        .eq('portfolio_id', portfolio.id);
+                        .eq('portfolio_id', portfolioId)
+                        .order('created_at', { ascending: false });
 
-                    if (collections?.length) {
-                        const grid = document.getElementById('collectionsGrid');
-                        const addBtn = document.getElementById('addCollectionBtn');
-                        
+                    if (error) throw error;
+
+                    if (collections && collections.length > 0) {
+                        displayCollections(collections);
                         document.getElementById('statCollections').textContent = collections.length;
-
-                        collections.forEach(col => {
-                            const card = document.createElement('div');
-                            card.className = 'collection-card';
-                            
-                            let icon = 'fa-tshirt';
-                            if (col.type === 'lookbook') icon = 'fa-book-open';
-                            if (col.type === 'defile') icon = 'fa-walking';
-                            if (col.type === 'capsule') icon = 'fa-tshirt';
-                            
-                            card.innerHTML = `
-                                <div class="collection-header">
-                                    <div class="collection-icon">
-                                        <i class="fas ${icon}"></i>
-                                    </div>
-                                    <div class="collection-info">
-                                        <h4>${col.nom || col.name}</h4>
-                                        <p style="color: var(--gray); font-size: 0.9rem;">${col.type || 'Collection'}</p>
-                                    </div>
-                                </div>
-                                <p style="color: #666; line-height: 1.6;">${col.description || ''}</p>
-                                <div class="collection-meta">
-                                    <span><i class="far fa-calendar"></i> ${new Date(col.created_at).toLocaleDateString('fr-FR')}</span>
-                                </div>
-                            `;
-                            grid.insertBefore(card, addBtn);
-                        });
                     }
+
                 } catch (error) {
-                    console.log('ℹ️ Pas de collections');
+                    console.log('ℹ️ Erreur chargement collections:', error.message);
                 }
             }
 
-            // ===== 8. GESTION TAGS SPÉCIALITÉS =====
+            // ===== 15. AFFICHAGE DES COLLECTIONS =====
+            function displayCollections(collections) {
+                const grid = document.getElementById('collectionsGrid');
+                const addBtn = document.getElementById('addCollectionBtn');
+
+                // Supprimer toutes les collections sauf le bouton ajouter
+                while (grid.children.length > 1) {
+                    grid.removeChild(grid.lastChild);
+                }
+
+                collections.forEach(col => {
+                    const card = document.createElement('div');
+                    card.className = 'collection-card';
+                    
+                    let icon = 'fa-tshirt';
+                    if (col.type === 'lookbook') icon = 'fa-book-open';
+                    if (col.type === 'defile') icon = 'fa-walking';
+                    if (col.type === 'capsule') icon = 'fa-tshirt';
+                    
+                    card.innerHTML = `
+                        <div class="collection-header">
+                            <div class="collection-icon">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div class="collection-info">
+                                <h4>${escapeHtml(col.nom || col.name)}</h4>
+                                <p>${col.type || 'Collection'}</p>
+                            </div>
+                        </div>
+                        <p style="color: #666; line-height: 1.6;">${escapeHtml(col.description || '')}</p>
+                        <div class="collection-meta">
+                            <span><i class="far fa-calendar"></i> ${new Date(col.created_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                    `;
+                    
+                    grid.insertBefore(card, addBtn);
+                });
+            }
+
+            // ===== 16. CHARGEMENT DES IMAGES =====
+            async function loadGalleryImages() {
+                if (!portfolioId) return;
+
+                try {
+                    const { data: images, error } = await supabase
+                        .from('portfolio_images')
+                        .select('*')
+                        .eq('portfolio_id', portfolioId)
+                        .order('created_at', { ascending: false })
+                        .limit(12);
+
+                    if (error) throw error;
+
+                    if (images && images.length > 0) {
+                        displayGalleryImages(images);
+                    }
+
+                } catch (error) {
+                    console.log('ℹ️ Erreur chargement images:', error.message);
+                }
+            }
+
+            // ===== 17. AFFICHAGE DES IMAGES =====
+            function displayGalleryImages(images) {
+                const grid = document.getElementById('galleryGrid');
+                const addBtn = document.getElementById('addGalleryBtn');
+
+                // Supprimer toutes les images sauf le bouton ajouter
+                while (grid.children.length > 1) {
+                    grid.removeChild(grid.lastChild);
+                }
+
+                images.forEach(img => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    item.innerHTML = `
+                        <img src="${img.image_url}" class="gallery-image">
+                        <div class="gallery-overlay">
+                            <div class="gallery-actions">
+                                <button class="btn-small" onclick="window.open('${img.image_url}', '_blank')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    grid.insertBefore(item, addBtn);
+                });
+            }
+
+            // ===== 18. CRÉATION D'UNE COLLECTION =====
+            async function createCollection(event) {
+                event.preventDefault();
+
+                if (!portfolioId) {
+                    showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
+                    return;
+                }
+
+                const name = document.getElementById('collectionName').value;
+                const description = document.getElementById('collectionDescription').value;
+                const type = document.getElementById('collectionType').value;
+
+                if (!name) {
+                    showNotification('Le nom est requis', 'error');
+                    return;
+                }
+
+                try {
+                    const { error } = await supabase
+                        .from('collections')
+                        .insert([{
+                            portfolio_id: portfolioId,
+                            nom: name,
+                            description: description,
+                            type: type,
+                            created_at: new Date().toISOString()
+                        }]);
+
+                    if (error) throw error;
+
+                    showNotification('Collection créée avec succès !', 'success');
+                    
+                    // Fermer le modal
+                    document.getElementById('collectionModal').style.display = 'none';
+                    
+                    // Réinitialiser le formulaire
+                    document.getElementById('collectionForm').reset();
+                    
+                    // Recharger les collections
+                    await loadCollections();
+
+                } catch (error) {
+                    console.error('❌ Erreur création collection:', error.message);
+                    showNotification('Erreur lors de la création', 'error');
+                }
+            }
+
+            // ===== 19. GESTION DES TAGS =====
             function attachTagEvents() {
                 document.querySelectorAll('.specialty-tag:not(.add-tag)').forEach(tag => {
                     tag.addEventListener('click', function() {
                         this.classList.toggle('active');
+                        updateSpecialtiesArray();
                     });
                 });
             }
@@ -1569,13 +1832,15 @@
                     tag.textContent = newTag.trim();
                     tag.addEventListener('click', function() {
                         this.classList.toggle('active');
+                        updateSpecialtiesArray();
                     });
                     this.parentElement.insertBefore(tag, this);
+                    updateSpecialtiesArray();
                     showNotification('Spécialité ajoutée', 'success');
                 }
             });
 
-            // ===== 9. GESTION PHOTO DE PROFIL =====
+            // ===== 20. GESTION PHOTO DE PROFIL =====
             document.getElementById('changePhotoBtn')?.addEventListener('click', function() {
                 const input = document.createElement('input');
                 input.type = 'file';
@@ -1583,13 +1848,21 @@
                 input.onchange = function(e) {
                     const file = e.target.files[0];
                     if (file) {
+                        // Vérifier la taille (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            showNotification('L\'image ne doit pas dépasser 5MB', 'error');
+                            return;
+                        }
+
                         const reader = new FileReader();
                         reader.onload = function(ev) {
                             document.getElementById('profilePhoto').src = ev.target.result;
                             document.getElementById('profilePhoto').style.display = 'block';
                             document.getElementById('profilePhotoPlaceholder').style.display = 'none';
                             document.getElementById('creatorAvatar').innerHTML = `<img src="${ev.target.result}" alt="Avatar">`;
-                            showNotification('Photo mise à jour', 'success');
+                            
+                            // Sauvegarder automatiquement la photo
+                            savePhotoToSupabase(file, ev.target.result);
                         };
                         reader.readAsDataURL(file);
                     }
@@ -1597,26 +1870,155 @@
                 input.click();
             });
 
-            // ===== 10. GESTION GALERIE =====
+            // ===== 21. SAUVEGARDE PHOTO SUR SUPABASE =====
+            async function savePhotoToSupabase(file, dataUrl) {
+                try {
+                    // Générer un nom de fichier unique
+                    const fileName = `profile-${creatorId}-${Date.now()}.${file.name.split('.').pop()}`;
+                    const filePath = `profiles/${fileName}`;
+
+                    // Upload du fichier
+                    const { error: uploadError } = await supabase.storage
+                        .from('portfolio-images')
+                        .upload(filePath, file);
+
+                    if (uploadError) {
+                        console.warn('⚠️ Erreur upload:', uploadError.message);
+                        // Fallback: sauvegarder en base64
+                        await savePhotoAsBase64(dataUrl);
+                        return;
+                    }
+
+                    // Récupérer l'URL publique
+                    const { data: urlData } = supabase.storage
+                        .from('portfolio-images')
+                        .getPublicUrl(filePath);
+
+                    const photoUrl = urlData.publicUrl;
+
+                    // Mettre à jour le portfolio
+                    if (portfolioId) {
+                        await supabase
+                            .from('portfolio')
+                            .update({ main_image_url: photoUrl })
+                            .eq('id', portfolioId);
+                    }
+
+                    // Mettre à jour le créateur
+                    await supabase
+                        .from('créateurs')
+                        .update({ photo_url: photoUrl })
+                        .eq('id', creatorId);
+
+                    showNotification('Photo sauvegardée', 'success');
+
+                } catch (error) {
+                    console.error('❌ Erreur:', error.message);
+                    await savePhotoAsBase64(dataUrl);
+                }
+            }
+
+            // Fallback: sauvegarde en base64
+            async function savePhotoAsBase64(dataUrl) {
+                if (portfolioId) {
+                    await supabase
+                        .from('portfolio')
+                        .update({ main_image_url: dataUrl })
+                        .eq('id', portfolioId);
+                }
+
+                await supabase
+                    .from('créateurs')
+                    .update({ photo_url: dataUrl })
+                    .eq('id', creatorId);
+
+                showNotification('Photo sauvegardée (format base64)', 'success');
+            }
+
+            // ===== 22. GESTION GALERIE =====
             document.getElementById('addGalleryBtn')?.addEventListener('click', function() {
+                if (!portfolioId) {
+                    showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
+                    return;
+                }
                 document.getElementById('fileInput').click();
             });
 
-            document.getElementById('fileInput')?.addEventListener('change', function(e) {
-                if (e.target.files.length) {
-                    showNotification(`${e.target.files.length} image(s) sélectionnée(s)`, 'success');
-                    // Ici vous ajouteriez l'upload vers Supabase
+            document.getElementById('fileInput')?.addEventListener('change', async function(e) {
+                const files = Array.from(e.target.files);
+                
+                if (files.length === 0) return;
+                
+                if (!portfolioId) {
+                    showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
+                    return;
                 }
+
+                showNotification(`Upload de ${files.length} image(s)...`, 'info');
+
+                for (const file of files) {
+                    try {
+                        // Vérifier la taille (max 5MB)
+                        if (file.size > 5 * 1024 * 1024) {
+                            showNotification(`L'image ${file.name} est trop volumineuse (max 5MB)`, 'error');
+                            continue;
+                        }
+
+                        // Générer un nom de fichier unique
+                        const fileName = `gallery-${creatorId}-${Date.now()}-${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
+                        const filePath = `gallery/${fileName}`;
+
+                        // Upload du fichier
+                        const { error: uploadError } = await supabase.storage
+                            .from('portfolio-images')
+                            .upload(filePath, file);
+
+                        if (uploadError) {
+                            console.error('❌ Erreur upload:', uploadError);
+                            continue;
+                        }
+
+                        // Récupérer l'URL publique
+                        const { data: urlData } = supabase.storage
+                            .from('portfolio-images')
+                            .getPublicUrl(filePath);
+
+                        // Sauvegarder dans la base de données
+                        await supabase
+                            .from('portfolio_images')
+                            .insert([{
+                                portfolio_id: portfolioId,
+                                image_url: urlData.publicUrl,
+                                created_at: new Date().toISOString()
+                            }]);
+
+                    } catch (error) {
+                        console.error('❌ Erreur upload:', error.message);
+                    }
+                }
+
+                showNotification(`${files.length} image(s) uploadée(s)`, 'success');
+                
+                // Recharger la galerie
+                await loadGalleryImages();
+                
+                // Réinitialiser l'input
+                e.target.value = '';
             });
 
-            // ===== 11. GESTION COLLECTIONS =====
+            // ===== 23. GESTION COLLECTIONS MODAL =====
             const modal = document.getElementById('collectionModal');
             const addBtn = document.getElementById('addCollectionBtn');
             const closeBtn = document.getElementById('closeCollectionModal');
             const cancelBtn = document.getElementById('cancelCollectionBtn');
+            const collectionForm = document.getElementById('collectionForm');
 
             if (addBtn) {
                 addBtn.addEventListener('click', () => {
+                    if (!portfolioId) {
+                        showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
+                        return;
+                    }
                     modal.style.display = 'flex';
                 });
             }
@@ -1639,29 +2041,56 @@
                 }
             });
 
-            // ===== 12. GESTION FORMULAIRE =====
+            if (collectionForm) {
+                collectionForm.addEventListener('submit', createCollection);
+            }
+
+            // ===== 24. GESTION FORMULAIRE PRINCIPAL =====
             document.getElementById('portfolioForm')?.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const brandName = document.getElementById('brandName').value;
-                const creatorName = document.getElementById('creatorName').value;
-                const domain = document.getElementById('domain').value;
-                const bio = document.getElementById('bio').value;
-                const instagram = document.getElementById('instagram').value;
+                // Récupérer les données du formulaire
+                const formData = {
+                    brandName: document.getElementById('brandName').value.trim(),
+                    creatorName: document.getElementById('creatorName').value.trim(),
+                    domain: document.getElementById('domain').value,
+                    experience: document.getElementById('experience').value,
+                    bio: document.getElementById('bio').value.trim(),
+                    instagram: document.getElementById('instagram').value.trim(),
+                    website: document.getElementById('website').value.trim()
+                };
 
-                if (!brandName || !creatorName || !domain || !bio || !instagram) {
+                // Validation
+                if (!formData.brandName || !formData.creatorName || !formData.domain || !formData.bio || !formData.instagram) {
                     showNotification('Veuillez remplir tous les champs obligatoires', 'error');
                     return;
                 }
 
-                showNotification('Portfolio enregistré avec succès !', 'success');
-                
-                setTimeout(() => {
-                    window.location.href = 'dashboard-home.html';
-                }, 2000);
+                // Sauvegarder
+                const result = await savePortfolio(formData);
+
+                if (result.success) {
+                    showNotification('Portfolio enregistré avec succès !', 'success');
+                    
+                    // Mettre à jour l'affichage
+                    document.getElementById('creatorDisplayBrand').textContent = formData.brandName;
+                    document.getElementById('profileInstagram').textContent = formData.instagram;
+                    
+                    if (formData.website) {
+                        document.getElementById('profileWebsite').textContent = formData.website;
+                    }
+
+                    // Recharger les données
+                    if (!portfolioId) {
+                        // Si nouveau portfolio, recharger
+                        await loadPortfolio();
+                    }
+                } else {
+                    showNotification('Erreur lors de l\'enregistrement', 'error');
+                }
             });
 
-            // ===== 13. GESTION DÉCONNEXION =====
+            // ===== 25. GESTION DÉCONNEXION =====
             document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
@@ -1670,17 +2099,23 @@
                 }
             });
 
-            // ===== 14. NOTIFICATION =====
+            // ===== 26. NOTIFICATION =====
             function showNotification(message, type = 'success') {
                 const n = document.getElementById('notification');
                 const t = document.getElementById('notificationTitle');
                 const m = document.getElementById('notificationMessage');
 
-                t.textContent = type === 'success' ? 'Succès' : 'Erreur';
+                let title = 'Succès';
+                if (type === 'error') title = 'Erreur';
+                if (type === 'info') title = 'Information';
+
+                t.textContent = title;
                 m.textContent = message;
 
                 const icon = n.querySelector('i');
-                icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+                icon.className = type === 'success' ? 'fas fa-check-circle' : 
+                                 type === 'error' ? 'fas fa-exclamation-circle' : 
+                                 'fas fa-info-circle';
                 
                 n.className = `notification notification-${type}`;
                 n.classList.add('show');
@@ -1689,6 +2124,36 @@
             }
 
             window.showNotification = showNotification;
+
+            // ===== 27. UTILITAIRE ESCAPE HTML =====
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // ===== 28. INITIALISATION =====
+            async function init() {
+                // Cacher le loader après un court délai
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('mainContent').style.display = 'block';
+                }, 500);
+
+                // Charger le portfolio
+                await loadPortfolio();
+
+                // Si portfolio existe, charger les données associées
+                if (portfolioId) {
+                    await loadCollections();
+                    await loadGalleryImages();
+                }
+            }
+
+            // Démarrer
+            init();
+
         })();
     </script>
 </body>
