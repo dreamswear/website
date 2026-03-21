@@ -9,12 +9,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Montserrat', sans-serif;
             background: #0a0a0a;
             color: #e0e0e0;
             padding: 20px;
             margin: 0;
+            min-height: 100vh;
         }
         
         .day-mode {
@@ -34,6 +41,7 @@
         
         .day-mode .admin-header {
             background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .admin-header h1 {
@@ -52,6 +60,7 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            flex-wrap: wrap;
         }
         
         .admin-btn {
@@ -66,6 +75,15 @@
             gap: 8px;
             text-decoration: none;
             transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+        
+        .admin-btn:active {
+            transform: translateY(0);
         }
         
         .btn-poster {
@@ -83,6 +101,11 @@
             color: white;
         }
         
+        .btn-dashboard {
+            background: #17a2b8;
+            color: white;
+        }
+        
         .admin-section {
             background: #1a1a1a;
             padding: 20px;
@@ -92,13 +115,19 @@
         
         .day-mode .admin-section {
             background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .admin-section h2 {
             color: #d4af37;
             margin-top: 0;
+            margin-bottom: 20px;
             font-family: 'Playfair Display', serif;
             font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
         
         .day-mode .admin-section h2 {
@@ -111,7 +140,12 @@
             padding: 3px 10px;
             border-radius: 12px;
             font-size: 14px;
-            margin-left: 8px;
+            font-weight: 600;
+        }
+        
+        .day-mode .counter {
+            background: #333;
+            color: white;
         }
         
         .creator-card {
@@ -120,17 +154,30 @@
             padding: 15px;
             margin-bottom: 15px;
             border-radius: 5px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .creator-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         
         .day-mode .creator-card {
             background: #f9f9f9;
             border-left-color: #333;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .day-mode .creator-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         
         .creator-card h3 {
             color: #d4af37;
             margin-top: 0;
+            margin-bottom: 10px;
             font-size: 1.1rem;
+            font-family: 'Playfair Display', serif;
         }
         
         .day-mode .creator-card h3 {
@@ -138,47 +185,36 @@
         }
         
         .creator-card p {
-            margin: 5px 0;
+            margin: 8px 0;
             color: #ccc;
             font-size: 0.9rem;
+            line-height: 1.4;
         }
         
         .day-mode .creator-card p {
             color: #666;
         }
         
-        .card-actions {
-            margin-top: 15px;
-            display: flex;
-            gap: 10px;
-            flex-direction: column;
-        }
-        
-        @media (min-width: 480px) {
-            .card-actions {
-                flex-direction: row;
-            }
-        }
-        
-        .action-btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
+        .creator-card strong {
+            color: #d4af37;
             font-weight: 600;
-            flex: 1;
-            font-size: 0.9rem;
         }
         
-        .approve-btn {
-            background: #28a745;
-            color: white;
+        .day-mode .creator-card strong {
+            color: #333;
         }
         
-        .reject-btn {
-            background: #dc3545;
-            color: white;
+        .creator-card code {
+            background: rgba(212, 175, 55, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-family: monospace;
+        }
+        
+        .day-mode .creator-card code {
+            background: #e9ecef;
+            color: #495057;
         }
         
         .empty-message {
@@ -186,6 +222,26 @@
             padding: 40px;
             color: #888;
             font-style: italic;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 30px;
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .loading-message {
+            text-align: center;
+            padding: 40px;
+            color: #d4af37;
+        }
+        
+        .loading-message i {
+            font-size: 2rem;
+            margin-bottom: 10px;
         }
         
         /* Styles pour le texte des boutons sur desktop */
@@ -213,6 +269,14 @@
             .admin-section h2 {
                 font-size: 1.5rem;
             }
+            
+            .creator-card {
+                padding: 20px;
+            }
+            
+            .creator-card h3 {
+                font-size: 1.3rem;
+            }
         }
         
         /* Pour les très petits écrans (téléphones) */
@@ -230,7 +294,7 @@
             }
             
             .admin-btn {
-                padding: 15px;
+                padding: 12px;
                 justify-content: center;
                 min-width: 50px;
                 flex: 1;
@@ -253,6 +317,10 @@
             .creator-card {
                 padding: 12px;
             }
+            
+            .creator-card p {
+                font-size: 0.85rem;
+            }
         }
         
         /* Pour les écrans moyens (tablettes) */
@@ -265,38 +333,69 @@
                 font-size: 0.9rem;
             }
         }
+        
+        /* Animation de chargement */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        /* Grille pour les cartes sur grands écrans */
+        @media (min-width: 1024px) {
+            #allCreators {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 20px;
+            }
+            
+            .creator-card {
+                margin-bottom: 0;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="admin-header">
         <h1>Administration DREAMSWEAR</h1>
-       <div class="admin-buttons">
-    <a href="Actualisation.html" class="admin-btn btn-poster" title="Poster un article">
-        <i class="fas fa-newspaper"></i> <span class="btn-text">Poster</span>
-    </a>
-   <a href="./dashboard-management.html" class="admin-btn" style="background: #17a2b8; color: white;" title="Gérer les dashboards">
-    <i class="fas fa-columns"></i> <span class="btn-text">Dashboards</span>
-</a>
-    <button id="logoutBtn" class="admin-btn btn-logout" title="Déconnexion">
-        <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnexion</span>
-    </button>
-    <a href="index.html" class="admin-btn btn-return" title="Retour à l'accueil">
-        <i class="fas fa-arrow-left"></i> <span class="btn-text">Retour</span>
-    </a>
-</div>
-    </div>
-    
-    <div class="admin-section">
-        <h2>Demandes en attente <span id="pendingCount" class="counter">0</span></h2>
-        <div id="pendingCreators">
-            <div class="empty-message">Les demandes apparaissent ici</div>
+        <div class="admin-buttons">
+            <a href="Actualisation.html" class="admin-btn btn-poster" title="Poster un article">
+                <i class="fas fa-newspaper"></i> <span class="btn-text">Poster</span>
+            </a>
+            <a href="./dashboard-management.html" class="admin-btn btn-dashboard" title="Gérer les dashboards">
+                <i class="fas fa-columns"></i> <span class="btn-text">Dashboards</span>
+            </a>
+            <button id="logoutBtn" class="admin-btn btn-logout" title="Déconnexion">
+                <i class="fas fa-sign-out-alt"></i> <span class="btn-text">Déconnexion</span>
+            </button>
+            <a href="index.html" class="admin-btn btn-return" title="Retour à l'accueil">
+                <i class="fas fa-arrow-left"></i> <span class="btn-text">Retour</span>
+            </a>
         </div>
     </div>
     
+    <!-- Section unique pour tous les créateurs actifs -->
     <div class="admin-section">
-        <h2>Créateurs approuvés <span id="approvedCount" class="counter">0</span></h2>
-        <div id="approvedCreators">
-            <div class="empty-message">Les créateurs apparaissent ici</div>
+        <h2>
+            <i class="fas fa-users"></i>
+            Créateurs inscrits 
+            <span id="totalCount" class="counter">0</span>
+        </h2>
+        <div id="allCreators">
+            <div class="loading-message">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Chargement des créateurs...</p>
+            </div>
         </div>
     </div>
     
@@ -329,6 +428,17 @@
                 sessionStorage.setItem('adminLoggedIn', 'true');
             }
             
+            // Vérification finale
+            const finalAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+            const finalIsAdmin = sessionStorage.getItem('isAdmin');
+            
+            if (finalAdminLoggedIn !== 'true' && finalIsAdmin !== 'true') {
+                console.warn('⚠️ Aucune session admin détectée');
+                // Ne pas rediriger immédiatement, laisser le script admin gérer
+            } else {
+                console.log('✅ Session admin valide détectée');
+            }
+            
             // Fonction utilitaire pour vérifier l'accès
             window.checkAdminAccess = function() {
                 const adminLoggedIn = sessionStorage.getItem('adminLoggedIn');
@@ -344,11 +454,31 @@
                 console.log('✅ Session admin configurée (double clé)');
             };
             
+            // Fonction pour réinitialiser la session
+            window.clearAdminSession = function() {
+                sessionStorage.removeItem('adminLoggedIn');
+                sessionStorage.removeItem('isAdmin');
+                console.log('🗑️ Session admin effacée');
+            };
+            
             // Vérifier si on est sur la page admin (pour éviter les redirections infinies)
             if (window.location.pathname.includes('admin.html')) {
-                console.log('📄 Page admin détectée, pas de vérification de session');
+                console.log('📄 Page admin détectée');
+            }
+            
+            // Gestion du thème jour/nuit (optionnel)
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'day') {
+                document.body.classList.add('day-mode');
             }
         });
+        
+        // Fonction pour basculer le thème (optionnelle)
+        window.toggleTheme = function() {
+            document.body.classList.toggle('day-mode');
+            const isDayMode = document.body.classList.contains('day-mode');
+            localStorage.setItem('theme', isDayMode ? 'day' : 'night');
+        };
     </script>
 </body>
 </html>
