@@ -826,7 +826,16 @@
 <body>
     <!-- ========== SCRIPTS OBLIGATOIRES ========== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Configuration Supabase avant tout
+        window.SUPABASE_CONFIG = {
+            URL: 'https://kfptsbpriihydidnfzhj.supabase.co',
+            KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmcHRzYnByaWloeWRpZG5memhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwNjgxODIsImV4cCI6MjA4MTY0NDE4Mn0.R4AS9kj-o3Zw0OeOTAojMeZfjPtkOZiW0jM367Fmrkk'
+        };
+        console.log('✅ Configuration Supabase chargée');
+    </script>
     <script src="session-manager.js"></script>
+    <script src="dashboard-common.js"></script>
 
     <!-- ========== HEADER PORTFOLIO ========== -->
     <header class="portfolio-header">
@@ -869,7 +878,7 @@
                         <img src="" alt="Photo de profil" class="profile-photo" id="profilePhoto" style="display: none;">
                     </div>
                     <button class="btn btn-outline" id="changePhotoBtn" style="width: 100%;">
-                        <i class="fas fa-cloud-upload-alt"></i> Changer la photo
+                        <i class="fas fa-cloud-upload-alt"></i> Changer la photo de profil
                     </button>
                 </div>
 
@@ -892,11 +901,11 @@
                     </div>
                 </div>
 
-                <div id="verificationBadge" class="verification-badge">
-                    <i class="fas fa-clock"></i>
+                <div id="verificationBadge" class="verification-badge verified">
+                    <i class="fas fa-check-circle"></i>
                     <div>
-                        <strong>En attente</strong>
-                        <p style="font-size: 0.75rem; margin-top: 5px;">Validation sous 24-48h</p>
+                        <strong>Portfolio publié !</strong>
+                        <p style="font-size: 0.8rem; margin-top: 5px;">Votre profil est visible par tous</p>
                     </div>
                 </div>
 
@@ -1009,7 +1018,7 @@
                         </div>
 
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer et publier</button>
                             <button type="button" class="btn btn-outline" onclick="window.location.href='dashboard-home.html'">
                                 <i class="fas fa-arrow-left"></i> Retour
                             </button>
@@ -1062,7 +1071,7 @@
         </div>
     </div>
 
-    <!-- ========== SCRIPT PRINCIPAL SIMPLIFIÉ ET ROBUSTE ========== -->
+    <!-- ========== SCRIPT PRINCIPAL ========== -->
     <script>
         (function() {
             'use strict';
@@ -1087,7 +1096,7 @@
                 return;
             }
 
-            const sessionData = window.SessionManager.getCreatorData();
+            let sessionData = window.SessionManager.getCreatorData();
             const creatorId = sessionData.id;
 
             if (!creatorId) {
@@ -1102,46 +1111,151 @@
             let portfolioId = null;
             let currentSpecialties = [];
 
-            // ===== 4. AFFICHAGE INITIAL =====
-            function displayCreatorInfo() {
-                const nameEl = document.getElementById('creatorDisplayName');
-                if (nameEl) nameEl.textContent = sessionData.name || sessionData.prenom || 'Créateur';
+            // ===== 4. FONCTION POUR METTRE À JOUR L'AFFICHAGE DE LA PHOTO =====
+            function updatePhotoDisplay(photoUrl) {
+                console.log('🖼️ Mise à jour de l\'affichage photo:', photoUrl ? photoUrl.substring(0, 50) + '...' : 'aucune');
                 
-                const brandEl = document.getElementById('creatorDisplayBrand');
-                if (brandEl) brandEl.textContent = sessionData.nom_marque || 'Créateur indépendant';
-                
-                const emailEl = document.getElementById('profileEmail');
-                if (emailEl) emailEl.textContent = sessionData.email || '';
-                
-                const instaEl = document.getElementById('profileInstagram');
-                if (instaEl) instaEl.textContent = sessionData.instagram || '@createur';
-                
-                const siteEl = document.getElementById('profileWebsite');
-                if (siteEl) siteEl.textContent = sessionData.site_web || '';
-                
-                const nameInput = document.getElementById('creatorName');
-                if (nameInput) nameInput.value = sessionData.name || sessionData.prenom || '';
-                
-                const brandInput = document.getElementById('brandName');
-                if (brandInput) brandInput.value = sessionData.nom_marque || '';
-                
-                const instaInput = document.getElementById('instagram');
-                if (instaInput && sessionData.instagram) instaInput.value = sessionData.instagram;
-                
-                const siteInput = document.getElementById('website');
-                if (siteInput && sessionData.site_web) siteInput.value = sessionData.site_web;
-                
-                if (sessionData.photo_url) {
-                    document.getElementById('profilePhoto').src = sessionData.photo_url;
-                    document.getElementById('profilePhoto').style.display = 'block';
-                    document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-                    
-                    const avatarEl = document.getElementById('creatorAvatar');
-                    avatarEl.innerHTML = `<img src="${sessionData.photo_url}" alt="Avatar">`;
+                // Photo dans la sidebar
+                const profilePhoto = document.getElementById('profilePhoto');
+                const profilePlaceholder = document.getElementById('profilePhotoPlaceholder');
+                if (profilePhoto && photoUrl) {
+                    profilePhoto.src = photoUrl;
+                    profilePhoto.style.display = 'block';
+                    if (profilePlaceholder) profilePlaceholder.style.display = 'none';
+                } else if (profilePhoto && !photoUrl) {
+                    profilePhoto.style.display = 'none';
+                    if (profilePlaceholder) profilePlaceholder.style.display = 'flex';
                 }
                 
-                if (sessionData.created_at) {
-                    const joinDate = new Date(sessionData.created_at);
+                // Avatar dans le header
+                const creatorAvatar = document.getElementById('creatorAvatar');
+                if (creatorAvatar) {
+                    if (photoUrl) {
+                        creatorAvatar.innerHTML = `<img src="${photoUrl}" alt="Avatar">`;
+                    } else {
+                        creatorAvatar.innerHTML = '<i class="fas fa-user"></i>';
+                    }
+                }
+            }
+
+            // ===== 5. SAUVEGARDE DE LA PHOTO DE PROFIL DÉFINITIVE =====
+            async function saveProfilePhoto(dataUrl) {
+                try {
+                    console.log('📸 Sauvegarde de la photo de profil définitive...');
+                    
+                    // 1. Mettre à jour la table créateurs (photo de profil principale)
+                    const { error: creatorError } = await supabase
+                        .from('créateurs')
+                        .update({ 
+                            photo_url: dataUrl, 
+                            updated_at: new Date().toISOString() 
+                        })
+                        .eq('id', creatorId);
+                    
+                    if (creatorError) {
+                        console.error('❌ Erreur mise à jour créateur:', creatorError);
+                        showNotification('Erreur lors de la sauvegarde de la photo', 'error');
+                        return false;
+                    }
+                    
+                    console.log('✅ Photo mise à jour dans la table créateurs');
+                    
+                    // 2. Mettre à jour le portfolio si existant
+                    if (portfolioId) {
+                        const { error: portfolioError } = await supabase
+                            .from('portfolio')
+                            .update({ main_image_url: dataUrl })
+                            .eq('id', portfolioId);
+                        
+                        if (portfolioError) {
+                            console.warn('⚠️ Erreur mise à jour portfolio:', portfolioError);
+                        } else {
+                            console.log('✅ Photo mise à jour dans le portfolio');
+                        }
+                    }
+                    
+                    // 3. Mettre à jour la session locale via SessionManager
+                    const currentSession = window.SessionManager.getCreatorData();
+                    const updatedSession = {
+                        ...currentSession,
+                        photo_url: dataUrl
+                    };
+                    
+                    // Sauvegarder directement dans SessionManager
+                    if (window.SessionManager.saveCreatorSession) {
+                        window.SessionManager.saveCreatorSession(updatedSession);
+                    } else if (window.SessionManager.saveCreatorData) {
+                        window.SessionManager.saveCreatorData(updatedSession);
+                    }
+                    
+                    // Mettre à jour la variable locale
+                    sessionData = updatedSession;
+                    
+                    // 4. Mettre à jour l'affichage partout
+                    updatePhotoDisplay(dataUrl);
+                    
+                    // 5. Déclencher un événement personnalisé pour informer les autres composants
+                    window.dispatchEvent(new CustomEvent('creatorPhotoUpdated', { detail: { photoUrl: dataUrl } }));
+                    
+                    console.log('✅ Photo de profil synchronisée partout');
+                    return true;
+                    
+                } catch (error) {
+                    console.error('❌ Erreur sauvegarde photo:', error);
+                    return false;
+                }
+            }
+
+            // ===== 6. AFFICHAGE DES INFOS CRÉATEUR =====
+            function displayCreatorInfo() {
+                const currentSession = window.SessionManager.getCreatorData();
+                
+                const nameEl = document.getElementById('creatorDisplayName');
+                if (nameEl) nameEl.textContent = currentSession.name || currentSession.prenom || 'Créateur';
+                
+                const brandEl = document.getElementById('creatorDisplayBrand');
+                if (brandEl) brandEl.textContent = currentSession.nom_marque || 'Créateur indépendant';
+                
+                const emailEl = document.getElementById('profileEmail');
+                if (emailEl) emailEl.textContent = currentSession.email || '';
+                
+                const instaEl = document.getElementById('profileInstagram');
+                if (instaEl) instaEl.textContent = currentSession.instagram || '@createur';
+                
+                const siteEl = document.getElementById('profileWebsite');
+                if (siteEl) siteEl.textContent = currentSession.site_web || '';
+                
+                const nameInput = document.getElementById('creatorName');
+                if (nameInput) nameInput.value = currentSession.name || currentSession.prenom || '';
+                
+                const brandInput = document.getElementById('brandName');
+                if (brandInput) brandInput.value = currentSession.nom_marque || '';
+                
+                const instaInput = document.getElementById('instagram');
+                if (instaInput && currentSession.instagram) instaInput.value = currentSession.instagram;
+                
+                const siteInput = document.getElementById('website');
+                if (siteInput && currentSession.site_web) siteInput.value = currentSession.site_web;
+                
+                if (currentSession.domaine) {
+                    const domainEl = document.getElementById('domain');
+                    for (let opt of domainEl.options) {
+                        if (opt.value === currentSession.domaine) {
+                            opt.selected = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Afficher la photo de profil depuis la session
+                if (currentSession.photo_url) {
+                    updatePhotoDisplay(currentSession.photo_url);
+                } else {
+                    updatePhotoDisplay(null);
+                }
+                
+                if (currentSession.created_at) {
+                    const joinDate = new Date(currentSession.created_at);
                     const now = new Date();
                     const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
                     document.getElementById('statJours').textContent = days || 0;
@@ -1149,7 +1263,7 @@
             }
             displayCreatorInfo();
 
-            // ===== 5. CHARGEMENT DU PORTFOLIO =====
+            // ===== 7. CHARGEMENT DU PORTFOLIO =====
             async function loadPortfolio() {
                 try {
                     console.log('📂 Chargement portfolio...');
@@ -1197,13 +1311,6 @@
                             document.getElementById('profileWebsite').textContent = portfolio.website;
                         }
                         
-                        if (portfolio.main_image_url) {
-                            document.getElementById('profilePhoto').src = portfolio.main_image_url;
-                            document.getElementById('profilePhoto').style.display = 'block';
-                            document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-                            document.getElementById('creatorAvatar').innerHTML = `<img src="${portfolio.main_image_url}" alt="Avatar">`;
-                        }
-                        
                         if (portfolio.specialties && portfolio.specialties.length > 0) {
                             currentSpecialties = portfolio.specialties;
                             renderSpecialties(portfolio.specialties);
@@ -1211,18 +1318,6 @@
                         
                         document.getElementById('statPortfolioComplet').textContent = (portfolio.portfolio_completion || 0) + '%';
                         document.getElementById('statVues').textContent = portfolio.views_count || 0;
-                        
-                        if (portfolio.is_published) {
-                            const badge = document.getElementById('verificationBadge');
-                            badge.className = 'verification-badge verified';
-                            badge.innerHTML = `
-                                <i class="fas fa-check-circle"></i>
-                                <div>
-                                    <strong>Portfolio validé !</strong>
-                                    <p style="font-size: 0.8rem; margin-top: 5px;">Votre profil est visible par tous</p>
-                                </div>
-                            `;
-                        }
                         
                         await loadCollections();
                         await loadGalleryImages();
@@ -1233,7 +1328,7 @@
                 }
             }
 
-            // ===== 6. RENDU DES SPÉCIALITÉS =====
+            // ===== 8. RENDU DES SPÉCIALITÉS =====
             function renderSpecialties(specialties) {
                 const container = document.getElementById('specialtyTags');
                 const addBtn = document.getElementById('addSpecialtyBtn');
@@ -1257,15 +1352,15 @@
                 currentSpecialties = Array.from(tags).map(tag => tag.textContent.trim());
             }
 
-            // ===== 7. SAUVEGARDE DU PORTFOLIO =====
+            // ===== 9. SAUVEGARDE DU PORTFOLIO =====
             async function savePortfolio(formData) {
                 try {
-                    console.log('💾 Sauvegarde...');
+                    console.log('💾 Sauvegarde du portfolio...');
                     
                     updateSpecialtiesArray();
                     
                     const profilePhoto = document.getElementById('profilePhoto');
-                    const photoUrl = (profilePhoto.src && profilePhoto.src !== window.location.href) ? profilePhoto.src : null;
+                    const photoUrl = (profilePhoto.src && profilePhoto.src !== window.location.href && profilePhoto.style.display !== 'none') ? profilePhoto.src : null;
                     
                     const portfolioData = {
                         creator_id: creatorId,
@@ -1276,7 +1371,8 @@
                         specialties: currentSpecialties,
                         instagram_handle: formData.instagram,
                         website: formData.website || null,
-                        updated_at: new Date().toISOString()
+                        updated_at: new Date().toISOString(),
+                        is_published: true
                     };
                     
                     if (photoUrl) portfolioData.main_image_url = photoUrl;
@@ -1291,7 +1387,6 @@
                             .eq('creator_id', creatorId);
                     } else {
                         portfolioData.created_at = new Date().toISOString();
-                        portfolioData.is_published = false;
                         portfolioData.views_count = 0;
                         
                         result = await supabase
@@ -1327,17 +1422,46 @@
                         document.getElementById('statPortfolioComplet').textContent = completion + '%';
                     }
                     
-                    await supabase
+                    // ===== SYNCHRONISATION AVEC LE PROFIL CRÉATEUR =====
+                    const creatorUpdate = {
+                        instagram: formData.instagram,
+                        site_web: formData.website || null,
+                        nom_marque: formData.brandName,
+                        domaine: formData.domain,
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    if (photoUrl) {
+                        creatorUpdate.photo_url = photoUrl;
+                    }
+                    
+                    const { error: creatorError } = await supabase
                         .from('créateurs')
-                        .update({
-                            instagram: formData.instagram,
-                            site_web: formData.website,
-                            photo_url: photoUrl,
-                            nom_marque: formData.brandName
-                        })
+                        .update(creatorUpdate)
                         .eq('id', creatorId);
                     
-                    showNotification('Portfolio enregistré avec succès !', 'success');
+                    if (creatorError) {
+                        console.warn('⚠️ Erreur mise à jour créateur:', creatorError.message);
+                    } else {
+                        console.log('✅ Infos créateur mises à jour avec succès');
+                        
+                        const currentSession = window.SessionManager.getCreatorData();
+                        const updatedSession = {
+                            ...currentSession,
+                            ...creatorUpdate
+                        };
+                        
+                        if (window.SessionManager.saveCreatorSession) {
+                            window.SessionManager.saveCreatorSession(updatedSession);
+                        } else if (window.SessionManager.saveCreatorData) {
+                            window.SessionManager.saveCreatorData(updatedSession);
+                        }
+                        sessionData = updatedSession;
+                        
+                        displayCreatorInfo();
+                    }
+                    
+                    showNotification('Portfolio enregistré et publié avec succès !', 'success');
                     return true;
                     
                 } catch (error) {
@@ -1347,7 +1471,7 @@
                 }
             }
 
-            // ===== 8. CHARGEMENT DES COLLECTIONS =====
+            // ===== 10. CHARGEMENT DES COLLECTIONS =====
             async function loadCollections() {
                 if (!portfolioId) return;
                 
@@ -1402,7 +1526,7 @@
                 });
             }
 
-            // ===== 9. CHARGEMENT DES IMAGES =====
+            // ===== 11. CHARGEMENT DES IMAGES =====
             async function loadGalleryImages() {
                 if (!portfolioId) return;
                 
@@ -1446,7 +1570,7 @@
                 });
             }
 
-            // ===== 10. CRÉATION DE COLLECTION =====
+            // ===== 12. CRÉATION DE COLLECTION =====
             async function createCollection(event) {
                 event.preventDefault();
                 
@@ -1488,7 +1612,7 @@
                 }
             }
 
-            // ===== 11. UPLOAD D'IMAGES =====
+            // ===== 13. UPLOAD D'IMAGES =====
             async function uploadImages(files) {
                 if (!portfolioId) {
                     showNotification('Veuillez d\'abord enregistrer votre portfolio', 'error');
@@ -1527,25 +1651,39 @@
                 await loadGalleryImages();
             }
 
-            // ===== 12. GESTION PHOTO DE PROFIL =====
+            // ===== 14. GESTION PHOTO DE PROFIL =====
             document.getElementById('changePhotoBtn')?.addEventListener('click', function() {
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = 'image/*';
-                input.onchange = function(e) {
+                input.onchange = async function(e) {
                     const file = e.target.files[0];
                     if (file) {
                         if (file.size > 5 * 1024 * 1024) {
                             showNotification('L\'image ne doit pas dépasser 5MB', 'error');
                             return;
                         }
+                        
+                        showNotification('Mise à jour de la photo de profil...', 'info');
+                        
                         const reader = new FileReader();
-                        reader.onload = function(ev) {
-                            document.getElementById('profilePhoto').src = ev.target.result;
-                            document.getElementById('profilePhoto').style.display = 'block';
-                            document.getElementById('profilePhotoPlaceholder').style.display = 'none';
-                            document.getElementById('creatorAvatar').innerHTML = `<img src="${ev.target.result}" alt="Avatar">`;
-                            showNotification('Photo prête à être enregistrée', 'info');
+                        reader.onload = async function(ev) {
+                            const dataUrl = ev.target.result;
+                            
+                            // Afficher immédiatement
+                            updatePhotoDisplay(dataUrl);
+                            
+                            // Sauvegarder comme photo de profil définitive
+                            const success = await saveProfilePhoto(dataUrl);
+                            
+                            if (success) {
+                                showNotification('Photo de profil mise à jour avec succès !', 'success');
+                            } else {
+                                showNotification('Erreur lors de la sauvegarde', 'error');
+                                // Restaurer l'ancienne photo
+                                const currentSession = window.SessionManager.getCreatorData();
+                                updatePhotoDisplay(currentSession.photo_url || null);
+                            }
                         };
                         reader.readAsDataURL(file);
                     }
@@ -1553,7 +1691,7 @@
                 input.click();
             });
 
-            // ===== 13. ÉVÉNEMENTS =====
+            // ===== 15. ÉVÉNEMENTS =====
             document.getElementById('addSpecialtyBtn')?.addEventListener('click', function() {
                 const newTag = prompt('Ajouter une nouvelle spécialité :');
                 if (newTag && newTag.trim()) {
@@ -1604,7 +1742,7 @@
                 
                 const btn = this.querySelector('button[type="submit"]');
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publication...';
                 
                 const formData = {
                     brandName: document.getElementById('brandName').value.trim(),
@@ -1619,14 +1757,14 @@
                 if (!formData.brandName || !formData.domain || !formData.bio || !formData.instagram) {
                     showNotification('Veuillez remplir tous les champs obligatoires', 'error');
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+                    btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer et publier';
                     return;
                 }
                 
                 await savePortfolio(formData);
                 
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer';
+                btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer et publier';
             });
             
             // Déconnexion
@@ -1671,10 +1809,10 @@
             }
             
             // Initialisation
-            setTimeout(() => {
+            setTimeout(async () => {
                 document.getElementById('loadingScreen').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
-                loadPortfolio();
+                await loadPortfolio();
             }, 500);
             
         })();
