@@ -703,7 +703,7 @@
             }
 
             .stats-grid {
-                grid-template-columns: repeat(4, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
 
             .filters-grid {
@@ -798,12 +798,8 @@
                 <p class="stat-number" id="totalPortfolios">0</p>
             </div>
             <div class="stat-card">
-                <h3>Complets</h3>
+                <h3>Validés</h3>
                 <p class="stat-number" id="completePortfolios">0</p>
-            </div>
-            <div class="stat-card">
-                <h3>En attente</h3>
-                <p class="stat-number" id="pendingPortfolios">0</p>
             </div>
             <div class="stat-card">
                 <h3>Collections</h3>
@@ -824,7 +820,6 @@
                 <select id="filterStatus" class="filter-input">
                     <option value="">Tous les statuts</option>
                     <option value="actif">Validés</option>
-                    <option value="pending">En attente</option>
                 </select>
                 <select id="filterDomain" class="filter-input">
                     <option value="">Tous les domaines</option>
@@ -1027,10 +1022,7 @@
                         brand.includes(search) ||
                         (creator.email || '').toLowerCase().includes(search);
 
-                    const matchesStatus = !status || 
-                        (status === 'actif' && creator.statut === 'actif') ||
-                        (status === 'pending' && (creator.statut === 'pending' || !creator.statut));
-
+                    const matchesStatus = !status || (status === 'actif');
                     const matchesDomain = !domain || (creator.domaine === domain);
 
                     return matchesSearch && matchesStatus && matchesDomain;
@@ -1060,22 +1052,10 @@
                     const creator = portfolio.créateurs || {};
                     const creatorName = `${creator.prenom || ''} ${creator.nom || ''}`.trim() || 'Créateur inconnu';
                     const brand = creator.nom_marque || '';
-                    const statut = creator.statut || 'pending';
-                    const isComplete = portfolio.portfolio_completion >= 80;
                     
-                    // Déterminer la classe de statut
-                    let statusClass = 'status-pending';
-                    let statusLabel = 'En attente';
-                    
-                    if (statut === 'actif') {
-                        if (isComplete) {
-                            statusClass = 'status-actif';
-                            statusLabel = 'Validé';
-                        } else {
-                            statusClass = 'status-inactive';
-                            statusLabel = 'Incomplet';
-                        }
-                    }
+                    // Tous les portfolios sont affichés comme "Validés"
+                    const statusClass = 'status-actif';
+                    const statusLabel = 'Validé';
 
                     return `
                         <div class="portfolio-card" data-id="${portfolio.id}">
@@ -1133,24 +1113,15 @@
             // ===== 9. STATISTIQUES =====
             function updateStats() {
                 const total = allPortfolios.length;
-                
-                let complete = 0;
-                let pending = 0;
+                const complete = allPortfolios.length;
                 let totalCollections = 0;
 
                 allPortfolios.forEach(portfolio => {
-                    const creator = portfolio.créateurs || {};
-                    if (creator.statut === 'actif' && portfolio.portfolio_completion >= 80) {
-                        complete++;
-                    } else if (creator.statut === 'pending' || !creator.statut) {
-                        pending++;
-                    }
                     totalCollections += portfolio.collections_count || 0;
                 });
 
                 document.getElementById('totalPortfolios').textContent = total;
                 document.getElementById('completePortfolios').textContent = complete;
-                document.getElementById('pendingPortfolios').textContent = pending;
                 document.getElementById('totalCollections').textContent = totalCollections;
             }
 
@@ -1158,16 +1129,9 @@
                 const info = document.getElementById('portfolioInfo');
                 if (info) {
                     const total = filteredPortfolios.length;
-                    const complete = filteredPortfolios.filter(p => {
-                        const creator = p.créateurs || {};
-                        return creator.statut === 'actif' && p.portfolio_completion >= 80;
-                    }).length;
-                    const pending = filteredPortfolios.filter(p => {
-                        const creator = p.créateurs || {};
-                        return creator.statut === 'pending' || !creator.statut;
-                    }).length;
+                    const complete = filteredPortfolios.length;
                     
-                    info.innerHTML = `${total} portfolio(s) • ${complete} validé(s) • ${pending} en attente`;
+                    info.innerHTML = `${total} portfolio(s) • ${complete} validé(s)`;
                 }
             }
 
@@ -1214,21 +1178,10 @@
 
                     const creator = portfolio.créateurs || {};
                     const fullName = `${creator.prenom || ''} ${creator.nom || ''}`.trim() || 'Non spécifié';
-                    const statut = creator.statut || 'pending';
-                    const isComplete = portfolio.portfolio_completion >= 80;
-
-                    let statusClass = 'status-pending';
-                    let statusLabel = 'En attente';
                     
-                    if (statut === 'actif') {
-                        if (isComplete) {
-                            statusClass = 'status-actif';
-                            statusLabel = 'Validé';
-                        } else {
-                            statusClass = 'status-inactive';
-                            statusLabel = 'Incomplet';
-                        }
-                    }
+                    // Statut toujours "Validé" dans le modal
+                    const statusClass = 'status-actif';
+                    const statusLabel = 'Validé';
 
                     const modalContent = document.getElementById('portfolioModalContent');
                     
@@ -1333,11 +1286,6 @@
                             <button class="btn btn-secondary" onclick="window.closePortfolioModal()">
                                 <i class="fas fa-times"></i> Fermer
                             </button>
-                            ${statut === 'pending' ? `
-                                <button class="btn btn-primary" onclick="window.validateCreator('${creator.id}')">
-                                    <i class="fas fa-check"></i> Valider le créateur
-                                </button>
-                            ` : ''}
                             <button class="btn btn-danger" onclick="window.deletePortfolio('${portfolio.id}')">
                                 <i class="fas fa-trash"></i> Supprimer
                             </button>
@@ -1357,32 +1305,7 @@
                 document.getElementById('portfolioModal').style.display = 'none';
             };
 
-            // ===== 12. VALIDER CRÉATEUR =====
-            window.validateCreator = async function(creatorId) {
-                if (!confirm('Êtes-vous sûr de vouloir valider ce créateur ?')) return;
-
-                try {
-                    const { error } = await supabase
-                        .from('créateurs')
-                        .update({ 
-                            statut: 'actif',
-                            date_validation: new Date().toISOString()
-                        })
-                        .eq('id', creatorId);
-
-                    if (error) throw error;
-
-                    showNotification('✅ Créateur validé avec succès', 'success');
-                    window.closePortfolioModal();
-                    loadPortfolios();
-
-                } catch (error) {
-                    console.error('❌ Erreur validation:', error.message);
-                    showNotification('Erreur lors de la validation', 'error');
-                }
-            };
-
-            // ===== 13. SUPPRIMER PORTFOLIO =====
+            // ===== 12. SUPPRIMER PORTFOLIO =====
             window.deletePortfolio = async function(portfolioId) {
                 if (!confirm('Êtes-vous sûr de vouloir supprimer ce portfolio ? Toutes les images et collections associées seront également supprimées.')) return;
 
@@ -1417,7 +1340,7 @@
                 }
             };
 
-            // ===== 14. NOTIFICATION =====
+            // ===== 13. NOTIFICATION =====
             function showNotification(message, type = 'info') {
                 const oldNotifications = document.querySelectorAll('.notification');
                 oldNotifications.forEach(n => n.remove());
@@ -1472,7 +1395,7 @@
                 }, 4000);
             }
 
-            // ===== 15. UTILITAIRES =====
+            // ===== 14. UTILITAIRES =====
             function escapeHtml(text) {
                 if (!text) return '';
                 const div = document.createElement('div');
