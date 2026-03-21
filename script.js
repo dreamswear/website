@@ -814,7 +814,7 @@ setTimeout(debugCultureEvents, 2000);
             // Récupérer d'abord le créateur pour connaître son domaine
             const { data: creator, error: fetchError } = await supabase
                 .from('créateurs')
-                .select('domaine')
+                .select('*')
                 .eq('id', id)
                 .single();
             
@@ -837,6 +837,27 @@ setTimeout(debugCultureEvents, 2000);
             
             // Mettre à jour la contrainte CHECK avec tous les domaines
             await updateDomaineCheckConstraint();
+
+            // Envoyer email de bienvenue au créateur
+            if (creator && creator.email) {
+                const creatorData = {
+                    nom: creator.nom,
+                    prenom: creator.prenom,
+                    nom_marque: creator.nom_marque,
+                    domaine: creator.domaine,
+                    email: creator.email,
+                    telephone: creator.telephone
+                };
+                
+                await sendEmail(
+                    creator.email,
+                    'Bienvenue sur Dreamswear !',
+                    getCreatorWelcomeEmail(creatorData),
+                    'creator_welcome'
+                );
+                
+                console.log(`📧 Email de bienvenue envoyé à ${creator.email}`);
+            }
             
             setTimeout(() => {
                 chargerTousLesCreateurs();
@@ -2744,9 +2765,40 @@ setTimeout(debugCultureEvents, 2000);
                 domaine = domaineAutre;
             }
             
+            // Validation des champs obligatoires
+            if (!nom || !prenom || !password || !email || !marque || !domaine) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+            
             console.log('🎨 Tentative inscription créateur:', { marque, domaine });
             
             try {
+                // Vérifier si le nom de la marque existe déjà
+                const { data: existingBrand, error: brandError } = await supabase
+                    .from('créateurs')
+                    .select('id')
+                    .eq('nom_marque', marque)
+                    .maybeSingle();
+                
+                if (existingBrand) {
+                    alert('Ce nom de marque est déjà utilisé. Veuillez en choisir un autre.');
+                    return;
+                }
+                
+                // Vérifier si l'email existe déjà
+                const { data: existingEmail, error: emailError } = await supabase
+                    .from('créateurs')
+                    .select('id')
+                    .eq('email', email)
+                    .maybeSingle();
+                
+                if (existingEmail) {
+                    alert('Cette adresse email est déjà utilisée. Veuillez vous connecter ou utiliser une autre adresse.');
+                    return;
+                }
+                
+                // Inscription directe avec statut 'actif' (pas besoin de validation admin)
                 const { data, error } = await supabase
                     .from('créateurs')
                     .insert([
@@ -2758,7 +2810,9 @@ setTimeout(debugCultureEvents, 2000);
                             email: email,
                             telephone: telephone,
                             mot_de_passe: password,
-                            statut: 'pending'
+                            statut: 'actif',  // Changé de 'pending' à 'actif'
+                            date_inscription: new Date().toISOString(),
+                            date_validation: new Date().toISOString()  // Validation immédiate
                         }
                     ]);
                 
@@ -2769,7 +2823,7 @@ setTimeout(debugCultureEvents, 2000);
                 }
                 
                 console.log('✅ Inscription créateur réussie!', data);
-                alert('Inscription réussie ! Votre compte sera activé après validation par un administrateur.');
+                alert('Inscription réussie ! Vous pouvez maintenant vous connecter à votre espace créateur.');
                 modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
@@ -2783,7 +2837,7 @@ setTimeout(debugCultureEvents, 2000);
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
+                alert('Une erreur est survenue lors de l\'inscription: ' + error.message);
             }
         });
     }
@@ -3097,4 +3151,223 @@ setTimeout(debugCultureEvents, 2000);
     }, 2000);
     
     console.log('🚀 Script principal centralisé chargé avec succès !');
+
+    // ============================================
+    // FONCTIONS D'ENVOI D'EMAILS
+    // ============================================
+
+    const EMAIL_FUNCTION_URL = 'https://kfptsbpriihydidnfzhj.supabase.co/functions/v1/send-email';
+
+    async function sendEmail(to, subject, html, type, data = null) {
+        try {
+            const response = await fetch(EMAIL_FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                },
+                body: JSON.stringify({ to, subject, html, type, data })
+            });
+            
+            const result = await response.json();
+            if (!result.success) {
+                console.error('Erreur envoi email:', result.error);
+            }
+            return result;
+        } catch (error) {
+            console.error('Erreur envoi email:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Template email de bienvenue pour un créateur
+    function getCreatorWelcomeEmail(creatorData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>✨ Bienvenue sur Dreamswear ! ✨</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Bonjour ${creatorData.prenom} ${creatorData.nom},</h2>
+                        <p>Nous sommes ravis de vous accueillir dans la communauté Dreamswear !</p>
+                        <p>Votre compte créateur a été activé avec succès. Vous pouvez dès maintenant :</p>
+                        <ul>
+                            <li>✅ Créer et personnaliser votre portfolio</li>
+                            <li>✅ Publier vos collections</li>
+                            <li>✅ Partager vos créations avec notre communauté</li>
+                            <li>✅ Recevoir des opportunités de collaboration</li>
+                        </ul>
+                        <a href="https://dreamswearmag.com/dashboard-home.html" class="button">🎨 Accéder à mon espace</a>
+                        <p style="margin-top: 20px;">À très bientôt sur Dreamswear !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // Template email pour un nouveau créateur (pour les abonnés)
+    function getNewCreatorEmailForSubscribers(creatorData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .creator-info { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #d4af37; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🌟 Nouveau créateur sur Dreamswear ! 🌟</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Découvrez ${creatorData.nom_marque}</h2>
+                        <p>Un nouveau talent rejoint notre communauté !</p>
+                        <div class="creator-info">
+                            <p><strong>👤 Créateur :</strong> ${creatorData.prenom} ${creatorData.nom}</p>
+                            <p><strong>🏷️ Marque :</strong> ${creatorData.nom_marque}</p>
+                            <p><strong>🎭 Domaine :</strong> ${creatorData.domaine}</p>
+                        </div>
+                        <a href="https://dreamswearmag.com/decouvrir-createurs.html" class="button">👀 Découvrir ce créateur</a>
+                        <p style="margin-top: 20px;">Ne manquez pas ses futures créations !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // Template email pour un nouvel article (pour les abonnés)
+    function getNewArticleEmailForSubscribers(article, rubriqueName) {
+        const rubriqueNames = {
+            'actualites': 'Actualités',
+            'visages': 'Visages',
+            'coulisses': 'Coulisses',
+            'tendances': 'Tendances',
+            'decouvertes': 'Découvertes',
+            'culture': 'Culture/Agenda',
+            'mode': 'Mode',
+            'accessoires': 'Accessoires',
+            'beaute': 'Beauté'
+        };
+        
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .article-preview { margin: 20px 0; padding: 20px; background: white; border-radius: 10px; }
+                    .article-image { max-width: 100%; border-radius: 8px; margin-bottom: 15px; }
+                    .rubrique-badge { display: inline-block; background: #d4af37; color: #1a1a1a; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>📰 Nouvel article sur Dreamswear !</h1>
+                    </div>
+                    <div class="content">
+                        <div class="article-preview">
+                            <span class="rubrique-badge">${rubriqueNames[article.rubrique] || article.rubrique}</span>
+                            ${article.image_url ? `<img src="${article.image_url}" alt="${article.titre_fr}" class="article-image">` : ''}
+                            <h2>${article.titre_fr}</h2>
+                            <p>${article.contenu_fr ? article.contenu_fr.substring(0, 300) + '...' : ''}</p>
+                            <a href="https://dreamswearmag.com/article.html?id=${article.id}" class="button">📖 Lire l'article</a>
+                        </div>
+                        <p>Restez connecté pour ne rien manquer des dernières actualités !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // Template email pour portfolio publié
+    function getPortfolioPublishedEmail(creatorData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🎉 Votre portfolio est en ligne ! 🎉</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Félicitations ${creatorData.prenom} !</h2>
+                        <p>Votre portfolio a été publié avec succès. Il est maintenant visible par tous les visiteurs de Dreamswear.</p>
+                        <p>Vous pouvez à tout moment :</p>
+                        <ul>
+                            <li>📸 Ajouter de nouvelles photos</li>
+                            <li>📁 Créer des collections</li>
+                            <li>✏️ Modifier vos informations</li>
+                            <li>📊 Voir les statistiques de votre portfolio</li>
+                        </ul>
+                        <a href="https://dreamswearmag.com/dashboard-portfolio.html" class="button">🎨 Gérer mon portfolio</a>
+                        <p style="margin-top: 20px;">Continuez à partager votre talent !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
 });
