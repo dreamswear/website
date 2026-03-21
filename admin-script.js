@@ -189,7 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <p><strong>Téléphone:</strong> ${safeTel}</p>
                     <p><strong>Domaine:</strong> ${safeDomaine}</p>
                     <p><strong>Inscrit le:</strong> ${dateInscription}</p>
-                    <p><strong>ID:</strong> <code>${creator.id}</code></p>
                 </div>
             `;
         });
