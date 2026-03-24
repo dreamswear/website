@@ -3199,7 +3199,7 @@ setTimeout(debugCultureEvents, 2000);
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>✨ Bienvenue sur Dreamswear ! ✨</h1>
+                        <h1>✨ Bienvenue sur Dreamswearmag ! ✨</h1>
                     </div>
                     <div class="content">
                         <h2>Bonjour ${creatorData.prenom} ${creatorData.nom},</h2>
@@ -3212,8 +3212,8 @@ setTimeout(debugCultureEvents, 2000);
                             <li>✅ Recevoir des opportunités de collaboration</li>
                         </ul>
                         <a href="https://dreamswearmag.com/dashboard-home.html" class="button">🎨 Accéder à mon espace</a>
-                        <p style="margin-top: 20px;">À très bientôt sur Dreamswear !</p>
-                        <p><strong>L'équipe Dreamswear</strong></p>
+                        <p style="margin-top: 20px;">À très bientôt !</p>
+                        <p><strong>L'équipe Dreamswearmag</strong></p>
                     </div>
                     <div class="footer">
                         <p>© 2025 Dreamswear. Tous droits réservés.</p>
@@ -3245,7 +3245,7 @@ setTimeout(debugCultureEvents, 2000);
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>🌟 Nouveau créateur sur Dreamswear ! 🌟</h1>
+                        <h1>🌟 Nouveau créateur sur Dreamswearmag ! 🌟</h1>
                     </div>
                     <div class="content">
                         <h2>Découvrez ${creatorData.nom_marque}</h2>
@@ -3255,9 +3255,9 @@ setTimeout(debugCultureEvents, 2000);
                             <p><strong>🏷️ Marque :</strong> ${creatorData.nom_marque}</p>
                             <p><strong>🎭 Domaine :</strong> ${creatorData.domaine}</p>
                         </div>
-                        <a href="https://dreamswearmag.com/decouvrir-createurs.html" class="button">👀 Découvrir ce créateur</a>
+                        <a href="https://dreamswearmag.com/dec_créateurs.html" class="button">👀 Découvrir ce créateur</a>
                         <p style="margin-top: 20px;">Ne manquez pas ses futures créations !</p>
-                        <p><strong>L'équipe Dreamswear</strong></p>
+                        <p><strong>L'équipe Dreamswearmag</strong></p>
                     </div>
                     <div class="footer">
                         <p>© 2025 Dreamswear. Tous droits réservés.</p>
@@ -3314,7 +3314,7 @@ setTimeout(debugCultureEvents, 2000);
                             <a href="https://dreamswearmag.com/article.html?id=${article.id}" class="button">📖 Lire l'article</a>
                         </div>
                         <p>Restez connecté pour ne rien manquer des dernières actualités !</p>
-                        <p><strong>L'équipe Dreamswear</strong></p>
+                        <p><strong>L'équipe Dreamswearmag</strong></p>
                     </div>
                     <div class="footer">
                         <p>© 2025 Dreamswear. Tous droits réservés.</p>
