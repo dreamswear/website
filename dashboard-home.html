@@ -172,6 +172,12 @@
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
+        .welcome-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         .welcome-avatar i {
             font-size: 3.5rem;
             color: var(--primary);
@@ -571,6 +577,25 @@
             width: 100%;
         }
 
+        /* ========== AVATAR IMAGE STYLES ========== */
+        .avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .avatar-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
         /* ========== LOADING STATES ========== */
         .loading-state {
             text-align: center;
@@ -806,7 +831,7 @@
                         <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="welcome-text">
-                        <h1 id="welcomeTitle">Bonjour, <span id="creatorName" class="loading-text">Chargement...</span> !</h1>
+                        <h1>Bonjour, <span id="creatorName" class="loading-text">Chargement...</span> !</h1>
                         <p class="welcome-subtitle" id="welcomeSubtitle">
                             Votre espace personnel pour faire grandir votre marque
                         </p>
@@ -923,10 +948,10 @@
         </div>
     </main>
 
-    <!-- Script spécifique à la page dashboard-home - VERSION SUPABASE ACTIVE -->
+    <!-- Script spécifique à la page dashboard-home - AVEC AFFICHAGE DE LA PHOTO -->
     <script>
         // =========================================
-        // DASHBOARD HOME - AVEC SUPABASE
+        // DASHBOARD HOME - AVEC SUPABASE ET PHOTO DE PROFIL
         // =========================================
         
         window.supabaseClient = null;
@@ -966,6 +991,47 @@
         });
 
         // =========================================
+        // AFFICHAGE DE L'AVATAR AVEC PHOTO
+        // =========================================
+        
+        function displayAvatar(photoUrl, name) {
+            const avatarElement = document.getElementById('welcomeAvatar');
+            if (!avatarElement) return;
+            
+            if (photoUrl && photoUrl !== '' && photoUrl !== 'null') {
+                // Afficher l'image
+                avatarElement.innerHTML = `<img src="${photoUrl}" alt="Photo de profil" style="width:100%;height:100%;object-fit:cover;">`;
+            } else {
+                // Afficher les initiales
+                let initials = '';
+                if (name && name.trim() !== '') {
+                    const nameParts = name.split(' ');
+                    if (nameParts.length >= 2) {
+                        initials = (nameParts[0].charAt(0) + nameParts[1].charAt(0)).toUpperCase();
+                    } else {
+                        initials = name.charAt(0).toUpperCase();
+                    }
+                }
+                
+                if (initials) {
+                    avatarElement.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:bold;color:var(--primary);">${initials}</div>`;
+                } else {
+                    avatarElement.innerHTML = '<i class="fas fa-user-circle"></i>';
+                }
+            }
+        }
+        
+        function displayPreviewAvatar(photoUrl, name, brandName) {
+            const previewContainer = document.getElementById('portfolioPreview');
+            if (!previewContainer) return;
+            
+            // On va stocker temporairement pour l'affichage
+            window.previewPhotoUrl = photoUrl;
+            window.previewCreatorName = name;
+            window.previewBrandName = brandName;
+        }
+
+        // =========================================
         // AFFICHAGE INSTANTANÉ (SESSION)
         // =========================================
         
@@ -975,30 +1041,36 @@
             // Nom
             const creatorNameElement = document.getElementById('creatorName');
             if (creatorNameElement) {
-                creatorNameElement.textContent = creatorData.name || 'Créateur';
+                const fullName = creatorData.name || creatorData.prenom || 'Créateur';
+                creatorNameElement.textContent = fullName;
                 creatorNameElement.classList.remove('loading-text');
             }
             
             // Domaine
             const domainTextElement = document.getElementById('domainText');
             if (domainTextElement) {
-                domainTextElement.textContent = creatorData.domain || 'Domaine';
+                domainTextElement.textContent = creatorData.domain || creatorData.domaine || 'Domaine';
                 domainTextElement.classList.remove('loading-text');
             }
             
-            // Avatar
-            displayInitials(creatorData.name);
+            // Avatar - AFFICHER LA PHOTO SI ELLE EXISTE
+            const fullName = creatorData.name || creatorData.prenom || '';
+            displayAvatar(creatorData.photo_url, fullName);
             
             // Sous-titre
-            updateWelcomeSubtitle(creatorData.domain);
+            updateWelcomeSubtitle(creatorData.domain || creatorData.domaine);
             
             // Jours membre (depuis session)
-            if (creatorData.joinDate) {
-                const joinDate = new Date(creatorData.joinDate);
+            if (creatorData.joinDate || creatorData.date_inscription) {
+                const joinDate = new Date(creatorData.joinDate || creatorData.date_inscription);
                 const now = new Date();
                 const days = Math.floor((now - joinDate) / (1000 * 60 * 60 * 24));
                 document.getElementById('memberDays').textContent = days || 0;
             }
+            
+            // Préparer l'affichage du preview
+            const fullCreatorName = `${creatorData.prenom || ''} ${creatorData.nom || ''}`.trim();
+            displayPreviewAvatar(creatorData.photo_url, fullCreatorName, creatorData.nom_marque || creatorData.brand);
         }
 
         // =========================================
@@ -1057,6 +1129,14 @@
                     
                     // Mettre à jour l'affichage
                     displayCreatorDataImmediately();
+                    
+                    // Mettre à jour l'avatar avec la photo de la base de données
+                    const fullName = data.prenom && data.nom ? `${data.prenom} ${data.nom}` : (data.prenom || data.nom || '');
+                    displayAvatar(data.photo_url, fullName);
+                    
+                    // Mettre à jour les infos pour le preview
+                    const fullCreatorName = `${data.prenom || ''} ${data.nom || ''}`.trim();
+                    displayPreviewAvatar(data.photo_url, fullCreatorName, data.nom_marque);
                     
                     // Jours membre (depuis Supabase)
                     if (data.date_inscription) {
@@ -1152,7 +1232,7 @@
         }
         
         // =========================================
-        // AFFICHAGE PORTFOLIO
+        // AFFICHAGE PORTFOLIO AVEC PHOTO
         // =========================================
         
         function displayPortfolioFromSupabase(portfolio) {
@@ -1162,6 +1242,7 @@
             const prenom = creatorData.prenom || '';
             const nom = creatorData.nom || '';
             const initials = (prenom.charAt(0) || '') + (nom.charAt(0) || '');
+            const photoUrl = creatorData.photo_url || portfolio.main_image_url;
             
             // Déterminer le statut (actif = validé)
             const estValide = creatorData.statut === 'actif';
@@ -1169,19 +1250,28 @@
             const statutIcon = estValide ? 'check-circle' : 'clock';
             const statutText = estValide ? 'Compte validé' : 'En attente de validation';
             
+            // Générer l'avatar avec photo ou initiales
+            let avatarHtml = '';
+            if (photoUrl && photoUrl !== '' && photoUrl !== 'null') {
+                avatarHtml = `<img src="${photoUrl}" alt="Photo de profil" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            } else if (initials) {
+                avatarHtml = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;color:var(--primary);">${initials}</div>`;
+            } else {
+                avatarHtml = '<i class="fas fa-user-circle" style="font-size:2.5rem;"></i>';
+            }
+            
             previewContainer.innerHTML = `
                 <div class="portfolio-preview-content">
                     <div class="preview-header">
                         <div class="preview-avatar">
                             <div style="width:80px;height:80px;background:var(--dark);border-radius:50%;
                                   display:flex;align-items:center;justify-content:center;
-                                  color:var(--primary);font-size:2rem;font-weight:bold;
-                                  border:3px solid var(--primary);">
-                                ${initials || '👤'}
+                                  border:3px solid var(--primary);overflow:hidden;">
+                                ${avatarHtml}
                             </div>
                         </div>
                         <div class="preview-info">
-                            <h3>${creatorData.brand || creatorData.nom_marque || 'Votre marque'}</h3>
+                            <h3>${creatorData.nom_marque || creatorData.brand || 'Votre marque'}</h3>
                             <p class="preview-creator">${prenom} ${nom}</p>
                             <p class="preview-domain">${creatorData.domain || creatorData.domaine || 'Domaine'}</p>
                         </div>
@@ -1232,6 +1322,7 @@
             const prenom = creatorData.prenom || '';
             const nom = creatorData.nom || '';
             const initials = (prenom.charAt(0) || '') + (nom.charAt(0) || '');
+            const photoUrl = creatorData.photo_url;
             
             // Déterminer le statut (actif = validé)
             const estValide = creatorData.statut === 'actif';
@@ -1239,19 +1330,28 @@
             const statutIcon = estValide ? 'check-circle' : 'clock';
             const statutText = estValide ? 'Compte validé' : 'En attente de validation';
             
+            // Générer l'avatar avec photo ou initiales
+            let avatarHtml = '';
+            if (photoUrl && photoUrl !== '' && photoUrl !== 'null') {
+                avatarHtml = `<img src="${photoUrl}" alt="Photo de profil" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            } else if (initials) {
+                avatarHtml = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:bold;color:var(--primary);">${initials}</div>`;
+            } else {
+                avatarHtml = '<i class="fas fa-user-circle" style="font-size:2.5rem;"></i>';
+            }
+            
             previewContainer.innerHTML = `
                 <div class="portfolio-preview-content">
                     <div class="preview-header">
                         <div class="preview-avatar">
                             <div style="width:80px;height:80px;background:var(--dark);border-radius:50%;
                                   display:flex;align-items:center;justify-content:center;
-                                  color:var(--primary);font-size:2rem;font-weight:bold;
-                                  border:3px solid var(--primary);">
-                                ${initials || '👤'}
+                                  border:3px solid var(--primary);overflow:hidden;">
+                                ${avatarHtml}
                             </div>
                         </div>
                         <div class="preview-info">
-                            <h3>${creatorData.brand || creatorData.nom_marque || 'Votre marque'}</h3>
+                            <h3>${creatorData.nom_marque || creatorData.brand || 'Votre marque'}</h3>
                             <p class="preview-creator">${prenom} ${nom}</p>
                             <p class="preview-domain">${creatorData.domain || creatorData.domaine || 'Domaine'}</p>
                         </div>
@@ -1304,32 +1404,6 @@
         // FONCTIONS UTILITAIRES
         // =========================================
         
-        function displayInitials(fullName) {
-            const avatarElement = document.getElementById('welcomeAvatar');
-            if (!avatarElement) return;
-            
-            if (!fullName || fullName.trim() === '') {
-                avatarElement.innerHTML = '<i class="fas fa-user-circle"></i>';
-                return;
-            }
-            
-            const initials = fullName
-                .split(' ')
-                .filter(name => name.trim() !== '')
-                .map(name => name.charAt(0).toUpperCase())
-                .join('')
-                .substring(0, 3);
-            
-            if (initials.length > 0) {
-                avatarElement.innerHTML = `
-                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;
-                          font-size:2.5rem;font-weight:bold;color:var(--primary);">
-                        ${initials}
-                    </div>
-                `;
-            }
-        }
-
         function updateWelcomeSubtitle(domain) {
             const subtitle = document.getElementById('welcomeSubtitle');
             if (!subtitle) return;
