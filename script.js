@@ -52,7 +52,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. GESTION DE SESSION AMÉLIORÉE
     // ============================================
     const SessionManager = {
-        // Vérification ULTRA flexible pour admin
         isAdmin: function() {
             console.group('🔐 VÉRIFICATION SESSION ADMIN');
             
@@ -189,393 +188,615 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.SessionManager = SessionManager;
 
-// ============================================
-// 3. CALENDRIER DYNAMIQUE POUR LA PAGE CULTURE - VERSION AMÉLIORÉE
-// ============================================
+    // ============================================
+    // FONCTIONS D'ENVOI D'EMAILS
+    // ============================================
 
-function generateCalendar(year, month) {
-    const calendarElement = document.getElementById('calendar');
-    const currentMonthElement = document.getElementById('current-month');
-    
-    if (!calendarElement || !currentMonthElement) {
-        return;
+    const EMAIL_FUNCTION_URL = 'https://kfptsbpriihydidnfzhj.supabase.co/functions/v1/send-email';
+
+    async function sendEmail(to, subject, html, type, data = null) {
+        try {
+            const response = await fetch(EMAIL_FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                },
+                body: JSON.stringify({ to, subject, html, type, data })
+            });
+            
+            const result = await response.json();
+            if (!result.success) {
+                console.error('Erreur envoi email:', result.error);
+            }
+            return result;
+        } catch (error) {
+            console.error('Erreur envoi email:', error);
+            return { success: false, error: error.message };
+        }
     }
-    
-    const monthNames = [
-        "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-        "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    ];
-    currentMonthElement.textContent = `${monthNames[month]} ${year}`;
-    
-    // Vider le calendrier
-    calendarElement.innerHTML = '';
-    
-    // Ajouter les en-têtes des jours
-    const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-    dayNames.forEach(day => {
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'day-header';
-        dayHeader.textContent = day;
-        calendarElement.appendChild(dayHeader);
-    });
-    
-    // Calculer le premier jour du mois (0 = Dimanche, 1 = Lundi, etc.)
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    // Aujourd'hui
-    const today = new Date();
-    const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
-    
-    // Ajouter les jours vides avant le premier jour du mois
-    for (let i = 0; i < firstDay; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'calendar-day empty';
-        calendarElement.appendChild(emptyDay);
+
+    // Template email de bienvenue pour un abonné
+    function getSubscriberWelcomeEmail(subscriberData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>✨ Bienvenue dans la communauté Dreamswear ! ✨</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Bonjour ${subscriberData.prenom} ${subscriberData.nom},</h2>
+                        <p>Merci de vous être abonné à la newsletter Dreamswear !</p>
+                        <p>Vous recevrez désormais :</p>
+                        <ul>
+                            <li>📰 Les dernières actualités de la mode</li>
+                            <li>🌟 Les nouveaux créateurs qui rejoignent la plateforme</li>
+                            <li>🎨 Les tendances et découvertes exclusives</li>
+                            <li>📅 Les événements à ne pas manquer</li>
+                        </ul>
+                        <a href="https://dreamswearmag.com" class="button">🌐 Découvrir Dreamswear</a>
+                        <p style="margin-top: 20px;">À très bientôt !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                        <p><small>Pour vous désabonner, envoyez un email à unsubscribe@dreamswearmag.com</small></p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
     }
-    
-    // Ajouter les jours du mois
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayElement = document.createElement('div');
-        dayElement.className = 'calendar-day';
+
+    // Template email de bienvenue pour un créateur
+    function getCreatorWelcomeEmail(creatorData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>✨ Bienvenue sur Dreamswear ! ✨</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Bonjour ${creatorData.prenom} ${creatorData.nom},</h2>
+                        <p>Nous sommes ravis de vous accueillir dans la communauté Dreamswear !</p>
+                        <p>Votre compte créateur a été activé avec succès. Vous pouvez dès maintenant :</p>
+                        <ul>
+                            <li>✅ Créer et personnaliser votre portfolio</li>
+                            <li>✅ Publier vos collections</li>
+                            <li>✅ Partager vos créations avec notre communauté</li>
+                            <li>✅ Recevoir des opportunités de collaboration</li>
+                        </ul>
+                        <a href="https://dreamswearmag.com/dashboard-home.html" class="button">🎨 Accéder à mon espace</a>
+                        <p style="margin-top: 20px;">À très bientôt sur Dreamswear !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // Template email pour un nouveau créateur (pour les abonnés)
+    function getNewCreatorEmailForSubscribers(creatorData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .creator-info { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #d4af37; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🌟 Nouveau créateur sur Dreamswear ! 🌟</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Découvrez ${creatorData.nom_marque}</h2>
+                        <p>Un nouveau talent rejoint notre communauté !</p>
+                        <div class="creator-info">
+                            <p><strong>👤 Créateur :</strong> ${creatorData.prenom} ${creatorData.nom}</p>
+                            <p><strong>🏷️ Marque :</strong> ${creatorData.nom_marque}</p>
+                            <p><strong>🎭 Domaine :</strong> ${creatorData.domaine}</p>
+                        </div>
+                        <a href="https://dreamswearmag.com/visages.html" class="button">👀 Découvrir ce créateur</a>
+                        <p style="margin-top: 20px;">Ne manquez pas ses futures créations !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // Template email pour un nouvel article (pour les abonnés)
+    function getNewArticleEmailForSubscribers(article, rubriqueName) {
+        const rubriqueNames = {
+            'actualites': 'Actualités',
+            'visages': 'Visages',
+            'coulisses': 'Coulisses',
+            'tendances': 'Tendances',
+            'decouvertes': 'Découvertes',
+            'culture': 'Culture/Agenda',
+            'mode': 'Mode',
+            'accessoires': 'Accessoires',
+            'beaute': 'Beauté'
+        };
         
-        // Marquer le jour actuel
-        if (isCurrentMonth && day === today.getDate()) {
-            dayElement.classList.add('today');
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .article-preview { margin: 20px 0; padding: 20px; background: white; border-radius: 10px; }
+                    .article-image { max-width: 100%; border-radius: 8px; margin-bottom: 15px; }
+                    .rubrique-badge { display: inline-block; background: #d4af37; color: #1a1a1a; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>📰 Nouvel article sur Dreamswear !</h1>
+                    </div>
+                    <div class="content">
+                        <div class="article-preview">
+                            <span class="rubrique-badge">${rubriqueNames[article.rubrique] || article.rubrique}</span>
+                            ${article.image_url ? `<img src="${article.image_url}" alt="${article.titre_fr}" class="article-image">` : ''}
+                            <h2>${article.titre_fr}</h2>
+                            <p>${article.contenu_fr ? article.contenu_fr.substring(0, 300) + '...' : ''}</p>
+                            <a href="https://dreamswearmag.com/article.html?id=${article.id}" class="button">📖 Lire l'article</a>
+                        </div>
+                        <p>Restez connecté pour ne rien manquer des dernières actualités !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // Template email pour portfolio publié
+    function getPortfolioPublishedEmail(creatorData) {
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
+                    .content { padding: 30px; background: #f9f5f0; }
+                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>🎉 Votre portfolio est en ligne ! 🎉</h1>
+                    </div>
+                    <div class="content">
+                        <h2>Félicitations ${creatorData.prenom} !</h2>
+                        <p>Votre portfolio a été publié avec succès. Il est maintenant visible par tous les visiteurs de Dreamswear.</p>
+                        <p>Vous pouvez à tout moment :</p>
+                        <ul>
+                            <li>📸 Ajouter de nouvelles photos</li>
+                            <li>📁 Créer des collections</li>
+                            <li>✏️ Modifier vos informations</li>
+                            <li>📊 Voir les statistiques de votre portfolio</li>
+                        </ul>
+                        <a href="https://dreamswearmag.com/dashboard-portfolio.html" class="button">🎨 Gérer mon portfolio</a>
+                        <p style="margin-top: 20px;">Continuez à partager votre talent !</p>
+                        <p><strong>L'équipe Dreamswear</strong></p>
+                    </div>
+                    <div class="footer">
+                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
+                        <p>contact@dreamswearmag.com</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    }
+
+    // ============================================
+    // 3. CALENDRIER DYNAMIQUE POUR LA PAGE CULTURE - VERSION AMÉLIORÉE
+    // ============================================
+
+    function generateCalendar(year, month) {
+        const calendarElement = document.getElementById('calendar');
+        const currentMonthElement = document.getElementById('current-month');
+        
+        if (!calendarElement || !currentMonthElement) {
+            return;
         }
         
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
+        const monthNames = [
+            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+        ];
+        currentMonthElement.textContent = `${monthNames[month]} ${year}`;
         
-        // Numéro du jour
-        const daySpan = document.createElement('span');
-        daySpan.textContent = day;
-        dayNumber.appendChild(daySpan);
+        calendarElement.innerHTML = '';
         
-        // Conteneur pour les indicateurs d'événements
-        const eventIndicator = document.createElement('div');
-        eventIndicator.className = 'event-indicator';
-        dayNumber.appendChild(eventIndicator);
+        const dayNames = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
+        dayNames.forEach(day => {
+            const dayHeader = document.createElement('div');
+            dayHeader.className = 'day-header';
+            dayHeader.textContent = day;
+            calendarElement.appendChild(dayHeader);
+        });
         
-        dayElement.appendChild(dayNumber);
-        calendarElement.appendChild(dayElement);
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        const today = new Date();
+        const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+        
+        for (let i = 0; i < firstDay; i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'calendar-day empty';
+            calendarElement.appendChild(emptyDay);
+        }
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayElement = document.createElement('div');
+            dayElement.className = 'calendar-day';
+            
+            if (isCurrentMonth && day === today.getDate()) {
+                dayElement.classList.add('today');
+            }
+            
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            
+            const daySpan = document.createElement('span');
+            daySpan.textContent = day;
+            dayNumber.appendChild(daySpan);
+            
+            const eventIndicator = document.createElement('div');
+            eventIndicator.className = 'event-indicator';
+            dayNumber.appendChild(eventIndicator);
+            
+            dayElement.appendChild(dayNumber);
+            calendarElement.appendChild(dayElement);
+        }
+        
+        loadEventsForCalendar(year, month + 1);
     }
-    
-    // Charger les événements pour ce mois
-    loadEventsForCalendar(year, month + 1);
-}
 
-async function loadEventsForCalendar(year, month) {
-    try {
-        console.log(`📅 Chargement des événements pour ${month}/${year}...`);
-        
-        // Créer les dates de début et fin du mois
-        const startDate = new Date(year, month - 1, 1);
-        startDate.setHours(0, 0, 0, 0);
-        
-        const endDate = new Date(year, month, 0);
-        endDate.setHours(23, 59, 59, 999);
-        
-        const startISO = startDate.toISOString();
-        const endISO = endDate.toISOString();
-        
-        console.log(`📅 Période: ${new Date(startISO).toLocaleDateString('fr-FR')} au ${new Date(endISO).toLocaleDateString('fr-FR')}`);
-        
-        // Requête principale avec comparaison de dates
-        const { data: events, error } = await supabase
-            .from('articles')
-            .select('*')
-            .eq('rubrique', 'culture')
-            .eq('statut', 'publié')
-            .gte('date_evenement', startISO)
-            .lte('date_evenement', endISO);
-        
-        if (error) {
-            console.error('❌ Erreur chargement événements calendrier:', error);
+    async function loadEventsForCalendar(year, month) {
+        try {
+            console.log(`📅 Chargement des événements pour ${month}/${year}...`);
             
-            // Tentative alternative sans filtre de date
-            console.log('🔄 Tentative avec requête alternative...');
+            const startDate = new Date(year, month - 1, 1);
+            startDate.setHours(0, 0, 0, 0);
             
-            const { data: eventsAlt, error: errorAlt } = await supabase
+            const endDate = new Date(year, month, 0);
+            endDate.setHours(23, 59, 59, 999);
+            
+            const startISO = startDate.toISOString();
+            const endISO = endDate.toISOString();
+            
+            const { data: events, error } = await supabase
                 .from('articles')
                 .select('*')
                 .eq('rubrique', 'culture')
-                .eq('statut', 'publié');
+                .eq('statut', 'publié')
+                .gte('date_evenement', startISO)
+                .lte('date_evenement', endISO);
             
-            if (errorAlt) {
-                console.error('❌ Échec de la requête alternative:', errorAlt);
-                updateEventsCount(0);
+            if (error) {
+                console.error('❌ Erreur chargement événements calendrier:', error);
+                
+                const { data: eventsAlt, error: errorAlt } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('rubrique', 'culture')
+                    .eq('statut', 'publié');
+                
+                if (errorAlt) {
+                    console.error('❌ Échec de la requête alternative:', errorAlt);
+                    updateEventsCount(0);
+                    return;
+                }
+                
+                if (eventsAlt && eventsAlt.length > 0) {
+                    const filteredEvents = filterEventsByMonth(eventsAlt, year, month);
+                    
+                    if (filteredEvents.length > 0) {
+                        addEventsToCalendar(filteredEvents);
+                        updateEventsCount(filteredEvents.length);
+                    } else {
+                        updateEventsCount(0);
+                    }
+                } else {
+                    updateEventsCount(0);
+                }
                 return;
             }
             
-            if (eventsAlt && eventsAlt.length > 0) {
-                console.log(`📅 ${eventsAlt.length} événements trouvés (tous) - filtrage manuel`);
-                const filteredEvents = filterEventsByMonth(eventsAlt, year, month);
-                
-                if (filteredEvents.length > 0) {
-                    console.log(`📅 ${filteredEvents.length} événements pour ${month}/${year} après filtrage`);
-                    addEventsToCalendar(filteredEvents);
-                    updateEventsCount(filteredEvents.length);
-                } else {
-                    console.log(`ℹ️ Aucun événement pour ${month}/${year}`);
-                    updateEventsCount(0);
-                }
+            if (events && events.length > 0) {
+                addEventsToCalendar(events);
+                updateEventsCount(events.length);
             } else {
                 updateEventsCount(0);
             }
-            return;
-        }
-        
-        if (events && events.length > 0) {
-            console.log(`📅 ${events.length} événements trouvés pour ${month}/${year}`);
-            addEventsToCalendar(events);
-            updateEventsCount(events.length);
-        } else {
-            console.log(`ℹ️ Aucun événement trouvé pour ${month}/${year}`);
-            updateEventsCount(0);
-        }
-        
-    } catch (error) {
-        console.error('💥 Erreur lors du chargement des événements:', error);
-        updateEventsCount(0);
-    }
-}
-
-// Fonction pour mettre à jour le compteur d'événements
-function updateEventsCount(count) {
-    const countElement = document.getElementById('events-count');
-    if (countElement) {
-        if (count > 0) {
-            countElement.textContent = `${count} événement${count > 1 ? 's' : ''} programmé${count > 1 ? 's' : ''} ce mois-ci`;
-            countElement.style.color = 'var(--accent)';
-        } else {
-            countElement.textContent = 'Aucun événement programmé ce mois-ci';
-            countElement.style.color = 'var(--text-secondary)';
-        }
-    }
-}
-
-// Fonction de filtrage manuel en cas d'échec de la requête
-function filterEventsByMonth(events, year, month) {
-    return events.filter(event => {
-        if (!event.date_evenement) return false;
-        
-        try {
-            const eventDate = new Date(event.date_evenement);
-            // Vérifier si la date est valide
-            if (isNaN(eventDate.getTime())) return false;
-            
-            return eventDate.getFullYear() === year && 
-                   eventDate.getMonth() === (month - 1);
-        } catch (e) {
-            console.warn('⚠️ Erreur de parsing de date:', event.date_evenement);
-            return false;
-        }
-    });
-}
-
-function addEventsToCalendar(events) {
-    // Regrouper les événements par jour
-    const eventsByDay = {};
-    
-    events.forEach(event => {
-        if (!event.date_evenement) return;
-        
-        try {
-            const eventDate = new Date(event.date_evenement);
-            
-            // Vérifier si la date est valide
-            if (isNaN(eventDate.getTime())) {
-                console.warn('⚠️ Date invalide pour événement:', event.titre_fr, event.date_evenement);
-                return;
-            }
-            
-            const day = eventDate.getDate();
-            
-            if (!eventsByDay[day]) {
-                eventsByDay[day] = [];
-            }
-            eventsByDay[day].push(event);
             
         } catch (error) {
-            console.error('❌ Erreur lors du traitement d\'un événement:', error, event);
+            console.error('💥 Erreur lors du chargement des événements:', error);
+            updateEventsCount(0);
         }
-    });
-    
-    // Pour chaque jour qui a des événements
-    Object.keys(eventsByDay).forEach(day => {
-        const dayEvents = eventsByDay[day];
-        const dayNumber = parseInt(day);
+    }
+
+    function updateEventsCount(count) {
+        const countElement = document.getElementById('events-count');
+        if (countElement) {
+            if (count > 0) {
+                countElement.textContent = `${count} événement${count > 1 ? 's' : ''} programmé${count > 1 ? 's' : ''} ce mois-ci`;
+                countElement.style.color = 'var(--accent)';
+            } else {
+                countElement.textContent = 'Aucun événement programmé ce mois-ci';
+                countElement.style.color = 'var(--text-secondary)';
+            }
+        }
+    }
+
+    function filterEventsByMonth(events, year, month) {
+        return events.filter(event => {
+            if (!event.date_evenement) return false;
+            
+            try {
+                const eventDate = new Date(event.date_evenement);
+                if (isNaN(eventDate.getTime())) return false;
+                
+                return eventDate.getFullYear() === year && 
+                       eventDate.getMonth() === (month - 1);
+            } catch (e) {
+                console.warn('⚠️ Erreur de parsing de date:', event.date_evenement);
+                return false;
+            }
+        });
+    }
+
+    function addEventsToCalendar(events) {
+        const eventsByDay = {};
         
-        // Trouver l'élément du jour correspondant
-        const dayElements = document.querySelectorAll('.calendar-day:not(.empty)');
-        dayElements.forEach(dayElement => {
-            const dayNumberElement = dayElement.querySelector('.day-number span');
-            if (dayNumberElement && parseInt(dayNumberElement.textContent) === dayNumber) {
+        events.forEach(event => {
+            if (!event.date_evenement) return;
+            
+            try {
+                const eventDate = new Date(event.date_evenement);
                 
-                // Marquer le jour comme ayant des événements
-                dayElement.classList.add('has-events');
-                
-                // Supprimer les anciens indicateurs pour éviter les doublons
-                const existingIndicator = dayElement.querySelector('.event-indicator');
-                if (existingIndicator) {
-                    existingIndicator.innerHTML = '';
-                    
-                    // Ajouter un point par événement (max 3 points)
-                    const maxDots = Math.min(dayEvents.length, 3);
-                    for (let i = 0; i < maxDots; i++) {
-                        const dot = document.createElement('span');
-                        dot.className = 'event-dot';
-                        dot.title = dayEvents[i].titre_fr || 'Événement';
-                        existingIndicator.appendChild(dot);
-                    }
-                    
-                    // Si plus de 3 événements, ajouter un indicateur "+X"
-                    if (dayEvents.length > 3) {
-                        const moreIndicator = document.createElement('span');
-                        moreIndicator.className = 'more-events';
-                        moreIndicator.textContent = `+${dayEvents.length - 3}`;
-                        moreIndicator.style.fontSize = '0.7rem';
-                        moreIndicator.style.marginLeft = '3px';
-                        moreIndicator.style.color = 'var(--accent)';
-                        existingIndicator.appendChild(moreIndicator);
-                    }
+                if (isNaN(eventDate.getTime())) {
+                    console.warn('⚠️ Date invalide pour événement:', event.titre_fr, event.date_evenement);
+                    return;
                 }
                 
-                // Supprimer les anciennes popups
-                const existingPopups = dayElement.querySelectorAll('.event-popup');
-                existingPopups.forEach(popup => popup.remove());
+                const day = eventDate.getDate();
                 
-                // Créer une popup avec tous les événements du jour
-                const eventPopup = document.createElement('div');
-                eventPopup.className = 'event-popup';
+                if (!eventsByDay[day]) {
+                    eventsByDay[day] = [];
+                }
+                eventsByDay[day].push(event);
                 
-                let popupContent = '';
-                dayEvents.forEach((event, index) => {
-                    const formattedDate = event.date_evenement 
-                        ? new Date(event.date_evenement).toLocaleDateString('fr-FR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                        : 'Horaire non défini';
-                    
-                    popupContent += `
-                        <div style="${index > 0 ? 'margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color);' : ''}">
-                            <h4 style="color: var(--accent); margin: 0 0 5px 0;">${event.titre_fr || 'Événement'}</h4>
-                            <p style="margin: 3px 0;"><strong>Type:</strong> ${event.type_evenement || 'Événement'}</p>
-                            <p style="margin: 3px 0;"><strong>🕒</strong> ${formattedDate}</p>
-                            ${event.lieu ? `<p style="margin: 3px 0;"><strong>📍</strong> ${event.lieu}</p>` : ''}
-                            <a href="article.html?id=${event.id}" class="event-link-popup" style="display: inline-block; margin-top: 5px;">
-                                Voir détails →
-                            </a>
-                        </div>
-                    `;
-                });
-                
-                eventPopup.innerHTML = popupContent;
-                dayElement.appendChild(eventPopup);
+            } catch (error) {
+                console.error('❌ Erreur lors du traitement d\'un événement:', error, event);
             }
         });
-    });
-    
-    // Afficher le nombre total d'événements
-    const totalEvents = events.length;
-    console.log(`✅ ${totalEvents} événement(s) ajouté(s) au calendrier`);
-}
-
-function initCalendar() {
-    const calendarElement = document.getElementById('calendar');
-    if (!calendarElement) {
-        console.log('ℹ️ Pas de calendrier sur cette page');
-        return;
-    }
-    
-    console.log('📅 Initialisation du calendrier...');
-    
-    // Date actuelle
-    let currentDate = new Date();
-    let currentYear = currentDate.getFullYear();
-    let currentMonth = currentDate.getMonth(); // 0-11
-    
-    // Générer le calendrier pour le mois en cours
-    generateCalendar(currentYear, currentMonth);
-    
-    // Bouton mois précédent
-    const prevBtn = document.getElementById('prev-month');
-    if (prevBtn) {
-        prevBtn.addEventListener('click', function() {
-            currentMonth--;
-            if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            generateCalendar(currentYear, currentMonth);
-        });
-    }
-    
-    // Bouton mois suivant
-    const nextBtn = document.getElementById('next-month');
-    if (nextBtn) {
-        nextBtn.addEventListener('click', function() {
-            currentMonth++;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            }
-            generateCalendar(currentYear, currentMonth);
-        });
-    }
-    
-    // Bouton aujourd'hui
-    const todayBtn = document.getElementById('today-btn');
-    if (todayBtn) {
-        todayBtn.addEventListener('click', function() {
-            currentDate = new Date();
-            currentYear = currentDate.getFullYear();
-            currentMonth = currentDate.getMonth();
-            generateCalendar(currentYear, currentMonth);
-        });
-    }
-    
-    console.log('✅ Calendrier initialisé');
-}
-
-// Fonction de débogage pour vérifier les événements
-async function debugCultureEvents() {
-    console.log('🔍 Vérification des événements culture...');
-    
-    try {
-        const { data, error } = await supabase
-            .from('articles')
-            .select('id, titre_fr, date_evenement, type_evenement, lieu, rubrique, statut')
-            .eq('rubrique', 'culture')
-            .eq('statut', 'publié');
         
-        if (error) {
-            console.error('❌ Erreur:', error);
+        Object.keys(eventsByDay).forEach(day => {
+            const dayEvents = eventsByDay[day];
+            const dayNumber = parseInt(day);
+            
+            const dayElements = document.querySelectorAll('.calendar-day:not(.empty)');
+            dayElements.forEach(dayElement => {
+                const dayNumberElement = dayElement.querySelector('.day-number span');
+                if (dayNumberElement && parseInt(dayNumberElement.textContent) === dayNumber) {
+                    
+                    dayElement.classList.add('has-events');
+                    
+                    const existingIndicator = dayElement.querySelector('.event-indicator');
+                    if (existingIndicator) {
+                        existingIndicator.innerHTML = '';
+                        
+                        const maxDots = Math.min(dayEvents.length, 3);
+                        for (let i = 0; i < maxDots; i++) {
+                            const dot = document.createElement('span');
+                            dot.className = 'event-dot';
+                            dot.title = dayEvents[i].titre_fr || 'Événement';
+                            existingIndicator.appendChild(dot);
+                        }
+                        
+                        if (dayEvents.length > 3) {
+                            const moreIndicator = document.createElement('span');
+                            moreIndicator.className = 'more-events';
+                            moreIndicator.textContent = `+${dayEvents.length - 3}`;
+                            moreIndicator.style.fontSize = '0.7rem';
+                            moreIndicator.style.marginLeft = '3px';
+                            moreIndicator.style.color = 'var(--accent)';
+                            existingIndicator.appendChild(moreIndicator);
+                        }
+                    }
+                    
+                    const existingPopups = dayElement.querySelectorAll('.event-popup');
+                    existingPopups.forEach(popup => popup.remove());
+                    
+                    const eventPopup = document.createElement('div');
+                    eventPopup.className = 'event-popup';
+                    
+                    let popupContent = '';
+                    dayEvents.forEach((event, index) => {
+                        const formattedDate = event.date_evenement 
+                            ? new Date(event.date_evenement).toLocaleDateString('fr-FR', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })
+                            : 'Horaire non défini';
+                        
+                        popupContent += `
+                            <div style="${index > 0 ? 'margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color);' : ''}">
+                                <h4 style="color: var(--accent); margin: 0 0 5px 0;">${event.titre_fr || 'Événement'}</h4>
+                                <p style="margin: 3px 0;"><strong>Type:</strong> ${event.type_evenement || 'Événement'}</p>
+                                <p style="margin: 3px 0;"><strong>🕒</strong> ${formattedDate}</p>
+                                ${event.lieu ? `<p style="margin: 3px 0;"><strong>📍</strong> ${event.lieu}</p>` : ''}
+                                <a href="article.html?id=${event.id}" class="event-link-popup" style="display: inline-block; margin-top: 5px;">
+                                    Voir détails →
+                                </a>
+                            </div>
+                        `;
+                    });
+                    
+                    eventPopup.innerHTML = popupContent;
+                    dayElement.appendChild(eventPopup);
+                }
+            });
+        });
+        
+        const totalEvents = events.length;
+        console.log(`✅ ${totalEvents} événement(s) ajouté(s) au calendrier`);
+    }
+
+    function initCalendar() {
+        const calendarElement = document.getElementById('calendar');
+        if (!calendarElement) {
+            console.log('ℹ️ Pas de calendrier sur cette page');
             return;
         }
         
-        console.log(`📊 ${data?.length || 0} événements culture trouvés:`);
+        console.log('📅 Initialisation du calendrier...');
         
-        if (data && data.length > 0) {
-            data.forEach((event, index) => {
-                const dateValid = event.date_evenement ? !isNaN(new Date(event.date_evenement).getTime()) : false;
-                console.log(`${index + 1}. "${event.titre_fr}"`);
-                console.log(`   Date: ${event.date_evenement || 'Non définie'} (${dateValid ? '✓ valide' : '✗ invalide'})`);
-                console.log(`   Type: ${event.type_evenement || 'Non spécifié'}`);
-                console.log(`   Lieu: ${event.lieu || 'Non spécifié'}`);
+        let currentDate = new Date();
+        let currentYear = currentDate.getFullYear();
+        let currentMonth = currentDate.getMonth();
+        
+        generateCalendar(currentYear, currentMonth);
+        
+        const prevBtn = document.getElementById('prev-month');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', function() {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                generateCalendar(currentYear, currentMonth);
             });
         }
         
-        return data;
-    } catch (error) {
-        console.error('💥 Erreur:', error);
+        const nextBtn = document.getElementById('next-month');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function() {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                generateCalendar(currentYear, currentMonth);
+            });
+        }
+        
+        const todayBtn = document.getElementById('today-btn');
+        if (todayBtn) {
+            todayBtn.addEventListener('click', function() {
+                currentDate = new Date();
+                currentYear = currentDate.getFullYear();
+                currentMonth = currentDate.getMonth();
+                generateCalendar(currentYear, currentMonth);
+            });
+        }
+        
+        console.log('✅ Calendrier initialisé');
     }
-}
 
-// Appeler la vérification après l'initialisation
-setTimeout(debugCultureEvents, 2000);
+    async function debugCultureEvents() {
+        console.log('🔍 Vérification des événements culture...');
+        
+        try {
+            const { data, error } = await supabase
+                .from('articles')
+                .select('id, titre_fr, date_evenement, type_evenement, lieu, rubrique, statut')
+                .eq('rubrique', 'culture')
+                .eq('statut', 'publié');
+            
+            if (error) {
+                console.error('❌ Erreur:', error);
+                return;
+            }
+            
+            console.log(`📊 ${data?.length || 0} événements culture trouvés:`);
+            
+            if (data && data.length > 0) {
+                data.forEach((event, index) => {
+                    const dateValid = event.date_evenement ? !isNaN(new Date(event.date_evenement).getTime()) : false;
+                    console.log(`${index + 1}. "${event.titre_fr}"`);
+                    console.log(`   Date: ${event.date_evenement || 'Non définie'} (${dateValid ? '✓ valide' : '✗ invalide'})`);
+                    console.log(`   Type: ${event.type_evenement || 'Non spécifié'}`);
+                    console.log(`   Lieu: ${event.lieu || 'Non spécifié'}`);
+                });
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('💥 Erreur:', error);
+        }
+    }
+
+    setTimeout(debugCultureEvents, 2000);
 
     // ============================================
     // 4. TEST DE CONNEXION SUPABASE
@@ -811,7 +1032,6 @@ setTimeout(debugCultureEvents, 2000);
         }
         
         try {
-            // Récupérer d'abord le créateur pour connaître son domaine
             const { data: creator, error: fetchError } = await supabase
                 .from('créateurs')
                 .select('*')
@@ -835,10 +1055,8 @@ setTimeout(debugCultureEvents, 2000);
             alert(`✅ "${nomMarque}" a été approuvé avec succès !`);
             console.log(`✅ Créateur ${id} approuvé`);
             
-            // Mettre à jour la contrainte CHECK avec tous les domaines
             await updateDomaineCheckConstraint();
 
-            // Envoyer email de bienvenue au créateur
             if (creator && creator.email) {
                 const creatorData = {
                     nom: creator.nom,
@@ -1306,7 +1524,6 @@ setTimeout(debugCultureEvents, 2000);
             
             const editingId = btnSave.getAttribute('data-editing-id');
             
-            let result;
             if (editingId) {
                 const { data, error } = await supabase
                     .from('articles')
@@ -2341,7 +2558,6 @@ setTimeout(debugCultureEvents, 2000);
                 return;
             }
             
-            // Catégories prédéfinies avec leurs termes de recherche
             const domainMap = {
                 'haute-couture': ['Styliste haute couture', 'haute-couture', 'couture', 'haute'],
                 'streetwear': ['Styliste streetwear', 'street', 'street wear', 'urban'],
@@ -2350,25 +2566,21 @@ setTimeout(debugCultureEvents, 2000);
                 'artisans-du-tricot': ['Artisans du tricot', 'artisans du tricot', 'tricot']
             };
             
-            // Récupérer tous les termes de recherche des catégories prédéfinies
             const allCategoryTerms = Object.values(domainMap).flat();
             
-            // Cas spécial pour la catégorie "Autres"
             if (domain === 'autres') {
                 console.log('🔍 Filtrage pour "Autres" - domaines non classifiés');
                 
                 let filteredData = data.filter(article => {
-                    if (!article.domaine) return true; // Les articles sans domaine vont dans "Autres"
+                    if (!article.domaine) return true;
                     
                     const domaineLower = article.domaine.toLowerCase().trim();
                     
-                    // Vérifier si le domaine correspond à AUCUNE des catégories prédéfinies
                     const isInPredefinedCategories = allCategoryTerms.some(term => {
                         return domaineLower.includes(term.toLowerCase()) || 
                                term.toLowerCase().includes(domaineLower);
                     });
                     
-                    // Garder seulement les articles qui NE sont PAS dans les catégories prédéfinies
                     return !isInPredefinedCategories;
                 });
                 
@@ -2402,7 +2614,6 @@ setTimeout(debugCultureEvents, 2000);
                 return;
             }
             
-            // Pour les autres catégories spécifiques
             const searchTerms = domainMap[domain] || [domain.toLowerCase()];
             console.log(`🔍 Recherche des termes:`, searchTerms);
             
@@ -2639,7 +2850,6 @@ setTimeout(debugCultureEvents, 2000);
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
-                // Réinitialiser la zone "Autre" à la fermeture
                 if (autreDomaineGroup) {
                     autreDomaineGroup.style.display = 'none';
                     if (autreDomaineInput) {
@@ -2654,7 +2864,6 @@ setTimeout(debugCultureEvents, 2000);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modal && !modal.classList.contains('hidden-modal')) {
             closeModal();
-            // Réinitialiser la zone "Autre" à la fermeture
             if (autreDomaineGroup) {
                 autreDomaineGroup.style.display = 'none';
                 if (autreDomaineInput) {
@@ -2683,7 +2892,6 @@ setTimeout(debugCultureEvents, 2000);
             tab.setAttribute('aria-selected', 'true');
             target.classList.add('active');
             
-            // Réinitialiser la zone "Autre" quand on change d'onglet
             if (targetId !== 'creator-register-tab') {
                 if (autreDomaineGroup) {
                     autreDomaineGroup.style.display = 'none';
@@ -2720,7 +2928,8 @@ setTimeout(debugCultureEvents, 2000);
                             nom: nom,
                             prenom: prenom,
                             email: email,
-                            telephone: telephone
+                            telephone: telephone,
+                            date_inscription: new Date().toISOString()
                         }
                     ]);
                 
@@ -2731,7 +2940,17 @@ setTimeout(debugCultureEvents, 2000);
                 }
                 
                 console.log('✅ Inscription réussie!', data);
-                alert('Inscription réussie ! Vous recevrez nos actualités par email.');
+                
+                // Envoyer un email de bienvenue à l'abonné
+                const subscriberData = { nom, prenom, email, telephone };
+                await sendEmail(
+                    email,
+                    'Bienvenue sur Dreamswear !',
+                    getSubscriberWelcomeEmail(subscriberData),
+                    'subscriber_welcome'
+                );
+                
+                alert('Inscription réussie ! Un email de bienvenue vous a été envoyé.');
                 modal.classList.add('hidden-modal');
                 subscriberForm.reset();
                 
@@ -2755,7 +2974,6 @@ setTimeout(debugCultureEvents, 2000);
             const marque = document.getElementById('cre-marque').value.trim();
             let domaine = document.getElementById('cre-domaine').value;
             
-            // Vérifier si c'est "Autre" et récupérer la valeur personnalisée
             if (domaine === 'autre') {
                 const domaineAutre = document.getElementById('cre-domaine-autre').value.trim();
                 if (!domaineAutre) {
@@ -2765,7 +2983,6 @@ setTimeout(debugCultureEvents, 2000);
                 domaine = domaineAutre;
             }
             
-            // Validation des champs obligatoires
             if (!nom || !prenom || !password || !email || !marque || !domaine) {
                 alert('Veuillez remplir tous les champs obligatoires');
                 return;
@@ -2774,7 +2991,6 @@ setTimeout(debugCultureEvents, 2000);
             console.log('🎨 Tentative inscription créateur:', { marque, domaine });
             
             try {
-                // Vérifier si le nom de la marque existe déjà
                 const { data: existingBrand, error: brandError } = await supabase
                     .from('créateurs')
                     .select('id')
@@ -2786,7 +3002,6 @@ setTimeout(debugCultureEvents, 2000);
                     return;
                 }
                 
-                // Vérifier si l'email existe déjà
                 const { data: existingEmail, error: emailError } = await supabase
                     .from('créateurs')
                     .select('id')
@@ -2798,7 +3013,6 @@ setTimeout(debugCultureEvents, 2000);
                     return;
                 }
                 
-                // Inscription directe avec statut 'actif' (pas besoin de validation admin)
                 const { data, error } = await supabase
                     .from('créateurs')
                     .insert([
@@ -2810,9 +3024,9 @@ setTimeout(debugCultureEvents, 2000);
                             email: email,
                             telephone: telephone,
                             mot_de_passe: password,
-                            statut: 'actif',  // Changé de 'pending' à 'actif'
+                            statut: 'actif',
                             date_inscription: new Date().toISOString(),
-                            date_validation: new Date().toISOString()  // Validation immédiate
+                            date_validation: new Date().toISOString()
                         }
                     ]);
                 
@@ -2823,7 +3037,43 @@ setTimeout(debugCultureEvents, 2000);
                 }
                 
                 console.log('✅ Inscription créateur réussie!', data);
-                alert('Inscription réussie ! Vous pouvez maintenant vous connecter à votre espace créateur.');
+                
+                const creatorData = {
+                    nom: nom,
+                    prenom: prenom,
+                    nom_marque: marque,
+                    domaine: domaine,
+                    email: email,
+                    telephone: telephone
+                };
+                
+                // Envoyer email de bienvenue au créateur
+                await sendEmail(
+                    email,
+                    'Bienvenue sur Dreamswear ! Votre espace créateur est activé',
+                    getCreatorWelcomeEmail(creatorData),
+                    'creator_welcome'
+                );
+                
+                // Récupérer tous les abonnés pour les notifier du nouveau créateur
+                const { data: subscribers, error: subError } = await supabase
+                    .from('Abonnés')
+                    .select('email');
+                
+                if (!subError && subscribers && subscribers.length > 0) {
+                    const subscriberEmails = subscribers.map(s => s.email);
+                    
+                    await sendEmail(
+                        subscriberEmails,
+                        `Nouveau créateur sur Dreamswear : ${marque}`,
+                        getNewCreatorEmailForSubscribers(creatorData),
+                        'subscriber_new_creator'
+                    );
+                    
+                    console.log(`📧 Email de notification envoyé à ${subscriberEmails.length} abonnés`);
+                }
+                
+                alert('Inscription réussie ! Un email de confirmation vous a été envoyé. Vous pouvez maintenant vous connecter à votre espace créateur.');
                 modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
@@ -3151,223 +3401,4 @@ setTimeout(debugCultureEvents, 2000);
     }, 2000);
     
     console.log('🚀 Script principal centralisé chargé avec succès !');
-
-    // ============================================
-    // FONCTIONS D'ENVOI D'EMAILS
-    // ============================================
-
-    const EMAIL_FUNCTION_URL = 'https://kfptsbpriihydidnfzhj.supabase.co/functions/v1/send-email';
-
-    async function sendEmail(to, subject, html, type, data = null) {
-        try {
-            const response = await fetch(EMAIL_FUNCTION_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_KEY}`
-                },
-                body: JSON.stringify({ to, subject, html, type, data })
-            });
-            
-            const result = await response.json();
-            if (!result.success) {
-                console.error('Erreur envoi email:', result.error);
-            }
-            return result;
-        } catch (error) {
-            console.error('Erreur envoi email:', error);
-            return { success: false, error: error.message };
-        }
-    }
-
-    // Template email de bienvenue pour un créateur
-    function getCreatorWelcomeEmail(creatorData) {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-                    .content { padding: 30px; background: #f9f5f0; }
-                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>✨ Bienvenue sur Dreamswearmag ! ✨</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Bonjour ${creatorData.prenom} ${creatorData.nom},</h2>
-                        <p>Nous sommes ravis de vous accueillir dans la communauté Dreamswear !</p>
-                        <p>Votre compte créateur a été activé avec succès. Vous pouvez dès maintenant :</p>
-                        <ul>
-                            <li>✅ Créer et personnaliser votre portfolio</li>
-                            <li>✅ Publier vos collections</li>
-                            <li>✅ Partager vos créations avec notre communauté</li>
-                            <li>✅ Recevoir des opportunités de collaboration</li>
-                        </ul>
-                        <a href="https://dreamswearmag.com/dashboard-home.html" class="button">🎨 Accéder à mon espace</a>
-                        <p style="margin-top: 20px;">À très bientôt !</p>
-                        <p><strong>L'équipe Dreamswearmag</strong></p>
-                    </div>
-                    <div class="footer">
-                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
-                        <p>contact@dreamswearmag.com</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
-    }
-
-    // Template email pour un nouveau créateur (pour les abonnés)
-    function getNewCreatorEmailForSubscribers(creatorData) {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-                    .content { padding: 30px; background: #f9f5f0; }
-                    .creator-info { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #d4af37; }
-                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>🌟 Nouveau créateur sur Dreamswearmag ! 🌟</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Découvrez ${creatorData.nom_marque}</h2>
-                        <p>Un nouveau talent rejoint notre communauté !</p>
-                        <div class="creator-info">
-                            <p><strong>👤 Créateur :</strong> ${creatorData.prenom} ${creatorData.nom}</p>
-                            <p><strong>🏷️ Marque :</strong> ${creatorData.nom_marque}</p>
-                            <p><strong>🎭 Domaine :</strong> ${creatorData.domaine}</p>
-                        </div>
-                        <a href="https://dreamswearmag.com/dec_créateurs.html" class="button">👀 Découvrir ce créateur</a>
-                        <p style="margin-top: 20px;">Ne manquez pas ses futures créations !</p>
-                        <p><strong>L'équipe Dreamswearmag</strong></p>
-                    </div>
-                    <div class="footer">
-                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
-                        <p>contact@dreamswearmag.com</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
-    }
-
-    // Template email pour un nouvel article (pour les abonnés)
-    function getNewArticleEmailForSubscribers(article, rubriqueName) {
-        const rubriqueNames = {
-            'actualites': 'Actualités',
-            'visages': 'Visages',
-            'coulisses': 'Coulisses',
-            'tendances': 'Tendances',
-            'decouvertes': 'Découvertes',
-            'culture': 'Culture/Agenda',
-            'mode': 'Mode',
-            'accessoires': 'Accessoires',
-            'beaute': 'Beauté'
-        };
-        
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-                    .content { padding: 30px; background: #f9f5f0; }
-                    .article-preview { margin: 20px 0; padding: 20px; background: white; border-radius: 10px; }
-                    .article-image { max-width: 100%; border-radius: 8px; margin-bottom: 15px; }
-                    .rubrique-badge { display: inline-block; background: #d4af37; color: #1a1a1a; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; }
-                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>📰 Nouvel article sur Dreamswear !</h1>
-                    </div>
-                    <div class="content">
-                        <div class="article-preview">
-                            <span class="rubrique-badge">${rubriqueNames[article.rubrique] || article.rubrique}</span>
-                            ${article.image_url ? `<img src="${article.image_url}" alt="${article.titre_fr}" class="article-image">` : ''}
-                            <h2>${article.titre_fr}</h2>
-                            <p>${article.contenu_fr ? article.contenu_fr.substring(0, 300) + '...' : ''}</p>
-                            <a href="https://dreamswearmag.com/article.html?id=${article.id}" class="button">📖 Lire l'article</a>
-                        </div>
-                        <p>Restez connecté pour ne rien manquer des dernières actualités !</p>
-                        <p><strong>L'équipe Dreamswearmag</strong></p>
-                    </div>
-                    <div class="footer">
-                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
-                        <p>contact@dreamswearmag.com</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
-    }
-
-    // Template email pour portfolio publié
-    function getPortfolioPublishedEmail(creatorData) {
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                    .header { background: #1a1a1a; color: #d4af37; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-                    .content { padding: 30px; background: #f9f5f0; }
-                    .button { display: inline-block; padding: 12px 24px; background: #d4af37; color: #1a1a1a; text-decoration: none; border-radius: 5px; margin-top: 20px; font-weight: bold; }
-                    .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>🎉 Votre portfolio est en ligne ! 🎉</h1>
-                    </div>
-                    <div class="content">
-                        <h2>Félicitations ${creatorData.prenom} !</h2>
-                        <p>Votre portfolio a été publié avec succès. Il est maintenant visible par tous les visiteurs de Dreamswear.</p>
-                        <p>Vous pouvez à tout moment :</p>
-                        <ul>
-                            <li>📸 Ajouter de nouvelles photos</li>
-                            <li>📁 Créer des collections</li>
-                            <li>✏️ Modifier vos informations</li>
-                            <li>📊 Voir les statistiques de votre portfolio</li>
-                        </ul>
-                        <a href="https://dreamswearmag.com/dashboard-portfolio.html" class="button">🎨 Gérer mon portfolio</a>
-                        <p style="margin-top: 20px;">Continuez à partager votre talent !</p>
-                        <p><strong>L'équipe Dreamswear</strong></p>
-                    </div>
-                    <div class="footer">
-                        <p>© 2025 Dreamswear. Tous droits réservés.</p>
-                        <p>contact@dreamswearmag.com</p>
-                    </div>
-                </div>
-            </body>
-            </html>
-        `;
-    }
 });
