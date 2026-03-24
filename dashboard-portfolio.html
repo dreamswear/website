@@ -1113,7 +1113,7 @@
 
             // ===== 4. FONCTION POUR METTRE À JOUR L'AFFICHAGE DE LA PHOTO =====
             function updatePhotoDisplay(photoUrl) {
-                console.log('🖼️ Mise à jour de l\'affichage photo:', photoUrl ? photoUrl.substring(0, 50) + '...' : 'aucune');
+                console.log('🖼️ Mise à jour de l\'affichage photo:', photoUrl ? 'photo présente' : 'aucune');
                 
                 // Photo dans la sidebar
                 const profilePhoto = document.getElementById('profilePhoto');
@@ -1144,11 +1144,11 @@
                     console.log('📸 Sauvegarde de la photo de profil définitive...');
                     
                     // 1. Mettre à jour la table créateurs (photo de profil principale)
+                    // On n'utilise PAS updated_at car la colonne n'existe pas
                     const { error: creatorError } = await supabase
                         .from('créateurs')
                         .update({ 
-                            photo_url: dataUrl, 
-                            updated_at: new Date().toISOString() 
+                            photo_url: dataUrl
                         })
                         .eq('id', creatorId);
                     
@@ -1181,7 +1181,7 @@
                         photo_url: dataUrl
                     };
                     
-                    // Sauvegarder directement dans SessionManager
+                    // Sauvegarder dans SessionManager
                     if (window.SessionManager.saveCreatorSession) {
                         window.SessionManager.saveCreatorSession(updatedSession);
                     } else if (window.SessionManager.saveCreatorData) {
@@ -1193,9 +1193,6 @@
                     
                     // 4. Mettre à jour l'affichage partout
                     updatePhotoDisplay(dataUrl);
-                    
-                    // 5. Déclencher un événement personnalisé pour informer les autres composants
-                    window.dispatchEvent(new CustomEvent('creatorPhotoUpdated', { detail: { photoUrl: dataUrl } }));
                     
                     console.log('✅ Photo de profil synchronisée partout');
                     return true;
@@ -1423,12 +1420,12 @@
                     }
                     
                     // ===== SYNCHRONISATION AVEC LE PROFIL CRÉATEUR =====
+                    // On n'utilise PAS updated_at car la colonne n'existe pas
                     const creatorUpdate = {
                         instagram: formData.instagram,
                         site_web: formData.website || null,
                         nom_marque: formData.brandName,
-                        domaine: formData.domain,
-                        updated_at: new Date().toISOString()
+                        domaine: formData.domain
                     };
                     
                     if (photoUrl) {
