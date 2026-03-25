@@ -195,6 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const EMAIL_FUNCTION_URL = 'https://kfptsbpriihydidnfzhj.supabase.co/functions/v1/send-email';
 
     async function sendEmail(to, subject, html, type, data = null) {
+        console.log(`📧 Tentative d'envoi d'email à: ${to}, type: ${type}`);
+        
         try {
             const response = await fetch(EMAIL_FUNCTION_URL, {
                 method: 'POST',
@@ -206,12 +208,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             const result = await response.json();
+            console.log('📧 Réponse de l\'Edge Function:', result);
+            
             if (!result.success) {
-                console.error('Erreur envoi email:', result.error);
+                console.error('❌ Erreur envoi email:', result.error);
+            } else {
+                console.log('✅ Email envoyé avec succès!');
             }
             return result;
         } catch (error) {
-            console.error('Erreur envoi email:', error);
+            console.error('❌ Erreur envoi email (fetch):', error);
             return { success: false, error: error.message };
         }
     }
@@ -2943,20 +2949,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Envoyer un email de bienvenue à l'abonné
                 const subscriberData = { nom, prenom, email, telephone };
-                await sendEmail(
+                const emailResult = await sendEmail(
                     email,
                     'Bienvenue sur Dreamswear !',
                     getSubscriberWelcomeEmail(subscriberData),
                     'subscriber_welcome'
                 );
                 
-                alert('Inscription réussie ! Un email de bienvenue vous a été envoyé.');
-                modal.classList.add('hidden-modal');
+                if (emailResult.success) {
+                    alert('Inscription réussie ! Un email de bienvenue vous a été envoyé.');
+                } else {
+                    alert('Inscription réussie ! (Cependant, l\'email de confirmation n\'a pas pu être envoyé. Contactez le support.)');
+                    console.error('Erreur envoi email:', emailResult.error);
+                }
+                
+                if (modal) modal.classList.add('hidden-modal');
                 subscriberForm.reset();
                 
             } catch (error) {
                 console.error('💥 Erreur d\'inscription:', error);
-                alert('Une erreur est survenue lors de l\'inscription.');
+                alert('Une erreur est survenue lors de l\'inscription: ' + error.message);
             }
         });
     }
@@ -2988,7 +3000,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            console.log('🎨 Tentative inscription créateur:', { marque, domaine });
+            console.log('🎨 Tentative inscription créateur:', { marque, domaine, email });
             
             try {
                 const { data: existingBrand, error: brandError } = await supabase
@@ -3047,34 +3059,58 @@ document.addEventListener('DOMContentLoaded', () => {
                     telephone: telephone
                 };
                 
-                // Envoyer email de bienvenue au créateur
-                await sendEmail(
+                // 1. Envoyer email de bienvenue au créateur
+                console.log('📧 Envoi email de bienvenue au créateur...');
+                const welcomeResult = await sendEmail(
                     email,
                     'Bienvenue sur Dreamswear ! Votre espace créateur est activé',
                     getCreatorWelcomeEmail(creatorData),
                     'creator_welcome'
                 );
                 
-                // Récupérer tous les abonnés pour les notifier du nouveau créateur
+                if (welcomeResult.success) {
+                    console.log('✅ Email de bienvenue envoyé');
+                } else {
+                    console.error('❌ Échec envoi email de bienvenue:', welcomeResult.error);
+                }
+                
+                // 2. Récupérer tous les abonnés pour les notifier du nouveau créateur
+                console.log('📧 Récupération des abonnés pour notification...');
                 const { data: subscribers, error: subError } = await supabase
                     .from('Abonnés')
                     .select('email');
                 
-                if (!subError && subscribers && subscribers.length > 0) {
+                if (subError) {
+                    console.error('❌ Erreur récupération abonnés:', subError);
+                } else if (subscribers && subscribers.length > 0) {
                     const subscriberEmails = subscribers.map(s => s.email);
+                    console.log(`📧 Envoi de notification à ${subscriberEmails.length} abonnés...`);
                     
-                    await sendEmail(
+                    const notificationResult = await sendEmail(
                         subscriberEmails,
                         `Nouveau créateur sur Dreamswear : ${marque}`,
                         getNewCreatorEmailForSubscribers(creatorData),
                         'subscriber_new_creator'
                     );
                     
-                    console.log(`📧 Email de notification envoyé à ${subscriberEmails.length} abonnés`);
+                    if (notificationResult.success) {
+                        console.log(`✅ Notification envoyée à ${subscriberEmails.length} abonnés`);
+                    } else {
+                        console.error('❌ Échec envoi notification:', notificationResult.error);
+                    }
+                } else {
+                    console.log('ℹ️ Aucun abonné à notifier');
                 }
                 
-                alert('Inscription réussie ! Un email de confirmation vous a été envoyé. Vous pouvez maintenant vous connecter à votre espace créateur.');
-                modal.classList.add('hidden-modal');
+                let successMessage = 'Inscription réussie ! Vous pouvez maintenant vous connecter à votre espace créateur.';
+                if (welcomeResult.success) {
+                    successMessage += ' Un email de confirmation vous a été envoyé.';
+                } else {
+                    successMessage += ' (L\'email de confirmation n\'a pas pu être envoyé, mais vous pouvez vous connecter.)';
+                }
+                alert(successMessage);
+                
+                if (modal) modal.classList.add('hidden-modal');
                 creatorRegisterForm.reset();
                 
                 if (autreDomaineGroup) {
